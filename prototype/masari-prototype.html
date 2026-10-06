@@ -1,0 +1,1156 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masari · مساري</title>
+<meta name="description" content="Masari AI academic advisor — clickable UI prototype with simulated data">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Readex+Pro:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAWfmNhQlgAABZ+anVtYgAAAB5qdW1kYzJwYQARABCAAACqADibcQNjMnBhAAAAFlhqdW1iAAAAR2p1bWRjMm1hABEAEIAAAKoAOJtxA3VybjpjMnBhOjIwNjJiMjMwLTM0ZjAtNDQ0Ni1hOTY2LTNlMTQwZDE4YmIyNgAAAAOTanVtYgAAAClqdW1kYzJhcwARABCAAACqADibcQNjMnBhLmFzc2VydGlvbnMAAAAAuGp1bWIAAABEanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5pbmdyZWRpZW50LnYzAAAAABhjMnNomVAGMqJs3MUwJP8b5uYkfgAAAGxjYm9yo2lkYzpmb3JtYXRpaW1hZ2UvcG5namluc3RhbmNlSUR4LHhtcDppaWQ6OTA4NTZiZTMtNzdlNi00Mjk2LWJlYjUtZjlhMzY4NWQ1NjJkbHJlbGF0aW9uc2hpcGhwYXJlbnRPZgAAAeJqdW1iAAAAQWp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuYWN0aW9ucy52MgAAAAAYYzJzaIz2SxyCBEX+14h8jRcMTAoAAAGZY2JvcqJnYWN0aW9uc4KiZmFjdGlvbmtjMnBhLm9wZW5lZGpwYXJhbWV0ZXJzoWtpbmdyZWRpZW50c4GiY3VybHgtc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5pbmdyZWRpZW50LnYzZGhhc2hYIKUUvEjEpPc7Ox9bKSpo91uhaoDAco78qYRIGvhUl7WopGZhY3Rpb254HWNvbS5hbnRocm9waWMuY2xhdWRlLnByb3ZpZGVkanBhcmFtZXRlcnOheB9jb20uYW50aHJvcGljLm9yaWdpbi1jb25maWRlbmNlZ3Vua25vd25rZGVzY3JpcHRpb254ZkNsYXVkZSBwcm92aWRlZCB0aGlzIGZpbGUgYXQgdGhlIHJlcXVlc3Qgb2YgYSB1c2VyIGFuZCBtYXkgaGF2ZSBjcmVhdGVkIG9yIG1vZGlmaWVkIHRoZSBmaWxlIGNvbnRlbnRzLm1zb2Z0d2FyZUFnZW50oWRuYW1lZkNsYXVkZXJhbGxBY3Rpb25zSW5jbHVkZWT1AAAAyGp1bWIAAABAanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5oYXNoLmRhdGEAAAAAGGMyc2iWl1P4V5dpjfiCdaqKgIQWAAAAgGNib3KlY2FsZ2ZzaGEyNTZjcGFkTQAAAAAAAAAAAAAAAABkaGFzaFggWq988GQPRiOBia5YPgemeRDMgS37zbRVZeUHeAc9cLtkbmFtZW5qdW1iZiBtYW5pZmVzdGpleGNsdXNpb25zgaJlc3RhcnQYIWZsZW5ndGgZFooAAAI+anVtYgAAACdqdW1kYzJjbAARABCAAACqADibcQNjMnBhLmNsYWltLnYyAAAAAg9jYm9ypWNhbGdmc2hhMjU2aXNpZ25hdHVyZXhNc2VsZiNqdW1iZj0vYzJwYS91cm46YzJwYToyMDYyYjIzMC0zNGYwLTQ0NDYtYTk2Ni0zZTE0MGQxOGJiMjYvYzJwYS5zaWduYXR1cmVqaW5zdGFuY2VJRHgseG1wOmlpZDoyNTFkNTFjMi02YzRlLTQxNWYtYWEyZi02YzY0NzQ2M2Y3N2NyY3JlYXRlZF9hc3NlcnRpb25zg6JjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggpRS8SMSk9zs7H1spKmj3W6FqgMByjvyphEga+FSXtaiiY3VybHgqc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5hY3Rpb25zLnYyZGhhc2hYIKaiI8ewKB3JJB5LDag+yiC/268n2ksETfS3qLsR9v5WomN1cmx4KXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaGFzaC5kYXRhZGhhc2hYICIWbUcmQm17bJAUWswmh8on08J/ag3wa9mc50rZepocdGNsYWltX2dlbmVyYXRvcl9pbmZvo2RuYW1lb0FudGhyb3BpYyBGaWxlc2d2ZXJzaW9uZTEuMC4wa3NwZWNWZXJzaW9uZTIuNC4wAAAQOGp1bWIAAAAoanVtZGMyY3MAEQAQgAAAqgA4m3EDYzJwYS5zaWduYXR1cmUAAAAQCGNib3LShFkCEqIBJhghWQIKMIICBjCCAY2gAwIBAgIUQOWgCu7COdC+uIP6BkIFPWdVEwAwCgYIKoZIzj0EAwMwSTEXMBUGA1UEChMOQW50aHJvcGljLCBQQkMxLjAsBgNVBAMTJUFudGhyb3BpYyBDb250ZW50IENyZWRlbnRpYWxzIFJvb3QgQ0EwHhcNMjYwODA3MTg0MzU2WhcNMjgwODA2MTk0MzU2WjBEMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEpMCcGA1UEAxMgQW50aHJvcGljIENsYXVkZSBDb250ZW50IFNpZ25pbmcwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASYegpry1AYBRTVNL1CpTlbROnY3dey+UrsF9C3phYrATN3ZHf93Mo8RQN0KOUuOn19P4oWNFWe5n2/She9N7eTo1gwVjAOBgNVHQ8BAf8EBAMCB4AwFQYDVR0lBA4wDAYKKwYBBAGD6F4CATAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFM5R4gSBTmRbI/jjxM+aPpzB11zCMAoGCCqGSM49BAMDA2cAMGQCMDFzHRSeAXrSy1WOzkbhPZ6Km2wGTmZ/2gK18k8BQGXyqz88Rdrz6CTX9flAnYNVxgIwcF9c3fVhqmJKpi+UhasNUMko69cyX6STPfta3Q8EjyzDjzoyrol46FP6VFHhvUcJoWNwYWRZDZ4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2WECtgSTfrn7ynvSMfYQxo5bds9XFAZv4sBawgFzGKTKJfB9cyI1m3rhQuerbsEtLtBChNsmZyNV0sklqiNwU/5JabpSLuwAAAWhJREFUeAGMj08oBGEYxp+ZadlS2qN27Ypi1UbW3R6I1kUS5aJkN3/CbqS4uLpOUqJ2c1e4LOK8yslm26FI8rcNJwcHjT7vt9tuM8zMzvR+3zzf+z6/Z+YTQU9DYzDia+rI0WI2V44zhELkggksQYcALbsV4AxnRRILdqm/Ps7yK1T8cm0VsBli2A8zdHuYNifAA7QNQz3mZwi5GVpcDHNteoutgJ9qV5nKf5VlQVgGtPqbsS6vIb5zjHRNF7avJaycCwWwtJkG+Lz1ODnaxeBAPyaiMUwnz7BxyfD5XUKLb9MAr89TdND+8pqn3bj+BTidTsTnJ5HYkrF3kEJveBiPT8/GNHV1AZ3Bdlxl05iZGkdP3xAWl1Zxc3tHNvPSBbjddZAkCQ6HA2/vH+aUZqILSB2eYja2jJHRCFRV1djMJQ9QtGMecpHJaltWWhEFJshWDquZQKz4cJ9JkoiSUfcndLYqhTOc/QUAAP//cWKkpQAAAAZJREFUAwAENHGnZPTPiQAAAABJRU5ErkJggg==">
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAWfmNhQlgAABZ+anVtYgAAAB5qdW1kYzJwYQARABCAAACqADibcQNjMnBhAAAAFlhqdW1iAAAAR2p1bWRjMm1hABEAEIAAAKoAOJtxA3VybjpjMnBhOmRjZWNlMzJiLWYyMDktNDE1NC05MTE3LWE1MWJmYjE1NDQxNgAAAAOTanVtYgAAAClqdW1kYzJhcwARABCAAACqADibcQNjMnBhLmFzc2VydGlvbnMAAAAAuGp1bWIAAABEanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5pbmdyZWRpZW50LnYzAAAAABhjMnNo79RisU7IuWvKbthfgvL/UwAAAGxjYm9yo2lkYzpmb3JtYXRpaW1hZ2UvcG5namluc3RhbmNlSUR4LHhtcDppaWQ6NjYwYzA2ZDUtN2QyYi00MWQ1LWE4NDMtYzA5YjU1NDhmYjFjbHJlbGF0aW9uc2hpcGhwYXJlbnRPZgAAAeJqdW1iAAAAQWp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuYWN0aW9ucy52MgAAAAAYYzJzaMzjNvtKupJvEfgGQHhXJewAAAGZY2JvcqJnYWN0aW9uc4KiZmFjdGlvbmtjMnBhLm9wZW5lZGpwYXJhbWV0ZXJzoWtpbmdyZWRpZW50c4GiY3VybHgtc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5pbmdyZWRpZW50LnYzZGhhc2hYIPcZgW/VFORIP+tgy4bVOBfm3bywXq2rtZSKkynKQXL+pGZhY3Rpb254HWNvbS5hbnRocm9waWMuY2xhdWRlLnByb3ZpZGVkanBhcmFtZXRlcnOheB9jb20uYW50aHJvcGljLm9yaWdpbi1jb25maWRlbmNlZ3Vua25vd25rZGVzY3JpcHRpb254ZkNsYXVkZSBwcm92aWRlZCB0aGlzIGZpbGUgYXQgdGhlIHJlcXVlc3Qgb2YgYSB1c2VyIGFuZCBtYXkgaGF2ZSBjcmVhdGVkIG9yIG1vZGlmaWVkIHRoZSBmaWxlIGNvbnRlbnRzLm1zb2Z0d2FyZUFnZW50oWRuYW1lZkNsYXVkZXJhbGxBY3Rpb25zSW5jbHVkZWT1AAAAyGp1bWIAAABAanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5oYXNoLmRhdGEAAAAAGGMyc2iVO+FINHhQYwv9JGSwWGxZAAAAgGNib3KlY2FsZ2ZzaGEyNTZjcGFkTQAAAAAAAAAAAAAAAABkaGFzaFggfaJ0iNvO/MXCCZ2Cf5ZGtscvnHzjKJlfF8VOSOmRobJkbmFtZW5qdW1iZiBtYW5pZmVzdGpleGNsdXNpb25zgaJlc3RhcnQYIWZsZW5ndGgZFooAAAI+anVtYgAAACdqdW1kYzJjbAARABCAAACqADibcQNjMnBhLmNsYWltLnYyAAAAAg9jYm9ypWNhbGdmc2hhMjU2aXNpZ25hdHVyZXhNc2VsZiNqdW1iZj0vYzJwYS91cm46YzJwYTpkY2VjZTMyYi1mMjA5LTQxNTQtOTExNy1hNTFiZmIxNTQ0MTYvYzJwYS5zaWduYXR1cmVqaW5zdGFuY2VJRHgseG1wOmlpZDplYjViZGE3Ni1kMDlmLTQ2NzktYWM5OC04NzNiNWY0OTIyNjRyY3JlYXRlZF9hc3NlcnRpb25zg6JjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgg9xmBb9UU5Eg/62DLhtU4F+bdvLBerau1lIqTKcpBcv6iY3VybHgqc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5hY3Rpb25zLnYyZGhhc2hYIPShGrjq4HxLLPpTydogDYAUevKacev/oqT7aHPWq1czomN1cmx4KXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaGFzaC5kYXRhZGhhc2hYIPX/5ASXDytJHE39DK6np1gX4J9OlQBIANfK2nEnkoM/dGNsYWltX2dlbmVyYXRvcl9pbmZvo2RuYW1lb0FudGhyb3BpYyBGaWxlc2d2ZXJzaW9uZTEuMC4wa3NwZWNWZXJzaW9uZTIuNC4wAAAQOGp1bWIAAAAoanVtZGMyY3MAEQAQgAAAqgA4m3EDYzJwYS5zaWduYXR1cmUAAAAQCGNib3LShFkCEqIBJhghWQIKMIICBjCCAY2gAwIBAgIUQOWgCu7COdC+uIP6BkIFPWdVEwAwCgYIKoZIzj0EAwMwSTEXMBUGA1UEChMOQW50aHJvcGljLCBQQkMxLjAsBgNVBAMTJUFudGhyb3BpYyBDb250ZW50IENyZWRlbnRpYWxzIFJvb3QgQ0EwHhcNMjYwODA3MTg0MzU2WhcNMjgwODA2MTk0MzU2WjBEMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEpMCcGA1UEAxMgQW50aHJvcGljIENsYXVkZSBDb250ZW50IFNpZ25pbmcwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASYegpry1AYBRTVNL1CpTlbROnY3dey+UrsF9C3phYrATN3ZHf93Mo8RQN0KOUuOn19P4oWNFWe5n2/She9N7eTo1gwVjAOBgNVHQ8BAf8EBAMCB4AwFQYDVR0lBA4wDAYKKwYBBAGD6F4CATAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFM5R4gSBTmRbI/jjxM+aPpzB11zCMAoGCCqGSM49BAMDA2cAMGQCMDFzHRSeAXrSy1WOzkbhPZ6Km2wGTmZ/2gK18k8BQGXyqz88Rdrz6CTX9flAnYNVxgIwcF9c3fVhqmJKpi+UhasNUMko69cyX6STPfta3Q8EjyzDjzoyrol46FP6VFHhvUcJoWNwYWRZDZ4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2WEB5P9tYwycGtlMVW6OhnLCfx+Kn7D3jldN1nQkHMUKO+i3+cf+lAeaDT5XRhQmzIpkSv7iL+RAzvJ2aj2F6KMYW7xsJeQAAAyhJREFUeAG8V21IU1EYfnaZU5lUGiYFs7QPv1I0fxipGPZhkRGLIJDIitIUTa2IRPolqX9KK0lUqFZCBeEENSxEf2hkX1r9EI2+QAhMysjanNlu572tbRfd7W7e7XLOued97nuf59nZe+/OODgduqikFeGRiVUrIxNfsbOFdV6hbrFxVpGGkyTsBnSrEw+pfvFv2cVyHkhgZw3rSjWNjbOcNEjrH7FggAAVj+sMDGTd2y2QtEiThDhaEgZcpcCXnTRJm2NLUsSEffHJmYyoBZI2pwJ2iWAfBqTNseKIVlIzORSoTOHRmGFFcTwPrZopuBBgV6KpCBWr9h06wLDFCn0Ej9TlQH4cj5ZtkiY0ZMCFP/fhonjrnJvWLgaOxMyB7YBiBoL9gVWL7LyiyfoQttgixBEoZmDSAkz/dhA7zz5Ps3JzBpzmihkICPDHqJZeoE7stmnbey8a0Gq1KCs5jsf9XUg7dwuatFzAz1+Q/vgdOP2Iw4sJIZx34OZFZYBqtRp5Rw+it9uI0hP5CAleItz1RrcTBR+SkW7kkH2fQ9eYALscPDJA4u3GFlSUlyFsGXvwGf2Dhz3Q78tF9p4c9PUPgGqCwf9tHhnYq89GbGyUiLy7pw+DQ69FmJzAIwNyiOXmuG1gQ1ICtmami/iHh0fRauwQYXID2QY2Z6Siq+MujPcMyNqeKfD/NJlwub4Ju/UHMDs7K2DuDrIMlBTnwXCtHjEx6wT+r5PfcLGuASmbsnChtsFjcSKTNBAauhTtbS04WVpAuTCZzDhfU4uNqVm4dKUJU1M/BHwhg6SBU6WFSIiPs/NbrVY0Nd+ExTJjxxY6kTQQEREu4g8K0iIs7O9zD4UOSQM9vf0imafPBjE+LvFeFWXLCyQNNDYbUFVTh4Enz3H7TisKi8/IY3UjiwxIfqFkYn/OMZytqMTExBc3qGWlztCmdERWqheSVMAIbUo7vcAti5Ltkzo53k9Vz7LNrPu6mUmbGxsd+sSrUOhrddIkbSpCjL17eYMBh5kJX6yEmbRIk+k5/h0TwJZkDQOrWXHQD7vk08HyZDVb0oyNs5o0SMuG4w8AAAD//z6W2a4AAAAGSURBVAMAXLMAfkccxwYAAAAASUVORK5CYII=">
+<meta name="theme-color" content="#f8f8f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12141b" media="(prefers-color-scheme: dark)">
+<style>
+/* ============================================================ Tokens
+   Brand palette
+     Masari Blue #13235C  oklch(.283 .104 267)  (sampled from the logo artwork)
+     Amber       oklch(.78 .15 62)  accent, focus, the "destination" dot. A fill color:
+                 text on light surfaces uses --highlight-ink instead.
+     Paper       oklch(.985 .004 85)  page background
+   Semantic trust colors, kept separate from the brand:
+   --verified : deterministic rules-engine result    (green)
+   --ai       : LLM-written explanation              (violet)
+   --source   : RAG citation to an official document (teal)
+   --warning  : alerts, low confidence, limited data (orange)            */
+:root{
+  --brand-blue:#13235c;--brand-amber:oklch(.78 .15 62);--brand-paper:oklch(.985 .004 85);--brand-ink:var(--brand-blue);
+  --background:var(--brand-paper);--foreground:#141a33;--card:#fff;--primary:var(--brand-blue);--primary-fg:var(--brand-paper);
+  --secondary:#e9ecf5;--secondary-fg:var(--brand-blue);--muted:#f1f0eb;--muted-fg:#596075;--border:#e4e2db;
+  --destructive:#c62828;--destructive-soft:rgb(198 40 40 / .09);--ring:oklch(.78 .15 62 / .7);--sidebar:#fff;--chart2:#5b6fb5;
+  --verified:#15803d;--verified-soft:#e7f6ec;--ai:#6d28d9;--ai-soft:#f1ecfd;--source:#0e7490;--source-soft:#e3f4f7;
+  --warning:#c2410c;--warning-soft:#fdeee4;--highlight:var(--brand-amber);--highlight-soft:oklch(.78 .15 62 / .16);--highlight-ink:#9a5410;
+  --cat-dept:var(--brand-blue);--cat-dept-soft:rgb(19 35 92 / .09);
+  --radius:12px;--shadow:0 1px 2px rgb(19 35 92 / .05);
+}
+:root.dark{
+  --brand-ink:var(--brand-paper);
+  --background:#0b1127;--foreground:#ecebe6;--card:#121a36;--primary:var(--brand-amber);--primary-fg:var(--brand-blue);
+  --secondary:#1c2750;--secondary-fg:#dce1f2;--muted:#172042;--muted-fg:#a3abc2;--border:rgb(255 255 255 / .09);
+  --destructive:#f87171;--destructive-soft:rgb(248 113 113 / .12);--ring:oklch(.78 .15 62 / .6);--sidebar:#0e1530;--chart2:#8ea2e0;
+  --verified:#4ade80;--verified-soft:rgb(74 222 128 / .12);--ai:#b79cfb;--ai-soft:rgb(167 139 250 / .14);
+  --source:#5ec4d9;--source-soft:rgb(94 196 217 / .12);--warning:#fb923c;--warning-soft:rgb(251 146 60 / .12);
+  --highlight-soft:oklch(.78 .15 62 / .14);--highlight-ink:var(--brand-amber);--cat-dept:#b4c1ee;--cat-dept-soft:rgb(142 162 224 / .16);--shadow:none;
+}
+
+/* ============================================================ Base */
+*,*::before,*::after{box-sizing:border-box}
+html{color-scheme:light}
+html.dark{color-scheme:dark}
+body{margin:0;background:var(--background);color:var(--foreground);font-family:"IBM Plex Sans Arabic",system-ui,"Segoe UI",Tahoma,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,p,ul,ol,dl,dd{margin:0}
+ul,ol{padding:0;list-style:none}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--ring);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.i{width:16px;height:16px;flex-shrink:0}
+.i-sm{width:14px;height:14px}.i-lg{width:20px;height:20px}
+.num{font-variant-numeric:tabular-nums}
+.code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:500;letter-spacing:-.01em}
+.muted{color:var(--muted-fg)}
+.xs{font-size:12px}.xxs{font-size:11px}
+.flip-rtl{transform:none}[dir=rtl] .flip-rtl{transform:scaleX(-1)}
+.flip-ltr{transform:none}[dir=ltr] .flip-ltr{transform:scaleX(-1)}
+.row{display:flex;align-items:center;gap:8px}
+.wrap{flex-wrap:wrap}
+.between{justify-content:space-between}
+.stack>*+*{margin-top:12px}
+.stack-lg>*+*{margin-top:20px}
+.stack-sm>*+*{margin-top:6px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ============================================================ Shell */
+.app{display:flex;min-height:100dvh}
+.sidebar{position:sticky;top:0;height:100dvh;width:256px;flex-shrink:0;display:flex;flex-direction:column;gap:24px;padding:16px;background:var(--sidebar);border-inline-end:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px;padding:4px;border-radius:10px;color:var(--brand-ink)}
+.mark{flex-shrink:0;color:var(--brand-ink)}
+[dir=rtl] .mark{transform:scaleX(-1)} /* the path reads in the language direction, as in the Arabic lockup */
+.mark .dot{fill:var(--brand-amber)}
+.logo-name{display:block;font-weight:700;font-size:22px;line-height:1;letter-spacing:-.01em}
+.logo-sub{display:block;margin-top:4px;font-size:13px;font-weight:500;line-height:1;opacity:.75}
+.app-icon{border-radius:50%;flex-shrink:0;box-shadow:0 0 0 1px var(--border)}
+.top-mark{display:none;border-radius:6px}
+@media (max-width:1023px){.top-mark{display:inline-flex}}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav a{position:relative;display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;border-radius:10px;font-weight:500;color:var(--muted-fg);transition:background .15s,color .15s}
+.nav a:hover{background:var(--muted);color:var(--foreground)}
+.nav a[aria-current=page]{background:var(--secondary);color:var(--secondary-fg)}
+.nav a[aria-current=page] .i{color:var(--primary)}
+.nav a[aria-current=page]::before{content:"";position:absolute;inset-block:10px;inset-inline-start:-16px;width:4px;border-start-end-radius:4px;border-end-end-radius:4px;background:var(--brand-amber)}
+.student-card{margin-top:auto;display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:var(--radius)}
+.avatar{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--secondary);color:var(--secondary-fg);font-weight:700;flex-shrink:0}
+.main-col{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:30;height:64px;display:flex;align-items:center;gap:8px;padding:0 24px;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--background) 85%,transparent);backdrop-filter:blur(8px)}
+.topbar h1{font-size:18px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .actions{margin-inline-start:auto;display:flex;align-items:center;gap:6px}
+.menu-btn{display:none}
+.scrim{display:none}
+main{flex:1;min-width:0;display:flex;flex-direction:column}
+@media (max-width:1023px){
+  .menu-btn{display:inline-flex}
+  .sidebar{position:fixed;z-index:50;inset-block:0;inset-inline-start:0;width:288px;transform:translateX(-105%);transition:transform .2s ease;box-shadow:0 10px 30px rgb(0 0 0 / .2)}
+  [dir=rtl] .sidebar{transform:translateX(105%)}
+  body.drawer-open .sidebar{transform:none}
+  body.drawer-open .scrim{display:block;position:fixed;inset:0;z-index:40;background:rgb(0 0 0 / .25)}
+}
+@media (max-width:639px){.topbar{padding:0 12px}.hide-sm{display:none!important}}
+
+/* ============================================================ Primitives */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 16px;border-radius:10px;border:1px solid transparent;background:none;font-weight:500;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:var(--primary-fg)}
+.btn-primary:hover:not(:disabled){background:color-mix(in srgb,var(--primary) 85%,var(--foreground))}
+.btn-outline{border-color:var(--border);background:var(--card)}
+.btn-outline:hover{background:var(--muted)}
+.btn-ghost:hover{background:var(--muted)}
+.btn-secondary{background:var(--secondary);color:var(--secondary-fg)}
+.btn-icon{width:40px;padding:0}
+.btn-sm{height:32px;padding:0 10px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.card-sm{padding:12px}
+.card-title{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:17px;font-weight:600}
+.card-desc{color:var(--muted-fg);margin-top:2px}
+.card-head{margin-bottom:16px}
+.card.ring{border-color:color-mix(in srgb,var(--primary) 55%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--primary) 35%,transparent)}
+.card.ring-danger{border-color:color-mix(in srgb,var(--destructive) 55%,transparent)}
+.card.ring-warn{border-color:color-mix(in srgb,var(--warning) 60%,transparent)}
+.pill{position:relative;display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap;width:fit-content}
+.pill .i{width:14px;height:14px}
+.pill-verified{background:var(--verified-soft);color:var(--verified)}
+.pill-ai{background:var(--ai-soft);color:var(--ai)}
+.pill-demo{background:var(--warning-soft);color:var(--warning)}
+.pill-plain{background:none;padding:0;height:20px}
+.pill-mini{height:20px;padding:0 6px;font-size:10px}
+.pill-muted{background:var(--muted);color:var(--muted-fg)}
+[data-tip]{cursor:help}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;z-index:60;bottom:calc(100% + 8px);inset-inline-start:0;width:max-content;max-width:260px;white-space:normal;padding:6px 10px;border-radius:8px;background:var(--foreground);color:var(--background);font-size:12px;font-weight:400;line-height:1.45;pointer-events:none}
+.source{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:4px 8px;border-radius:8px;border:1px solid color-mix(in srgb,var(--source) 22%,transparent);background:var(--source-soft);color:var(--source);font-size:12px}
+.source b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.source span{opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-exp{border-inline-start:2px solid color-mix(in srgb,var(--ai) 60%,transparent);background:color-mix(in srgb,var(--ai-soft) 70%,transparent);border-radius:10px;padding:10px 12px}
+.ai-exp .ai-label{display:flex;align-items:center;gap:4px;color:var(--ai);font-size:12px;font-weight:500;margin-bottom:6px}
+.ai-exp p{line-height:1.7;font-size:14px}
+.verified-box{background:color-mix(in srgb,var(--verified-soft) 60%,transparent);border-radius:10px;padding:12px}
+.check-list li{display:flex;gap:6px;align-items:flex-start}
+.check-list .i{color:var(--verified);margin-top:3px}
+.bar{height:8px;width:100%;overflow:hidden;border-radius:999px;background:var(--muted)}
+.bar>i{display:block;height:100%;border-radius:999px;background:var(--primary);transition:width .5s ease}
+.bar.thin{height:6px}.bar.thick{height:12px}
+.bar>i.ok{background:var(--verified)}.bar>i.bad{background:var(--destructive)}.bar>i.c2{background:var(--chart2)}
+.tag{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:500;white-space:nowrap}
+.tag-faculty{background:var(--secondary);color:var(--secondary-fg)}
+.tag-dept{background:var(--cat-dept-soft);color:var(--cat-dept)}
+.tag-elective{background:var(--highlight-soft);color:var(--highlight-ink)}
+.tag-math{background:var(--muted);color:var(--muted-fg);box-shadow:inset 0 0 0 1px var(--border)}
+.chip{display:inline-flex;align-items:center;padding:2px 6px;border-radius:6px;background:var(--muted);font-size:12px}
+.chip-danger{background:var(--destructive-soft);color:var(--destructive)}
+.chip-warn{background:var(--warning-soft);color:var(--warning)}
+.conf{display:inline-flex;align-items:center;gap:6px;font-size:12px}
+.conf .bars{display:flex;align-items:flex-end;gap:2px}
+.conf .bars i{width:4px;border-radius:2px;background:color-mix(in srgb,var(--muted-fg) 25%,transparent)}
+.conf .bars i.on{background:currentColor}
+.c-high{color:var(--verified)}.c-medium{color:var(--warning)}.c-low{color:var(--destructive)}
+.rank{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--muted);font-size:12px;font-weight:700;flex-shrink:0}
+.list-box{border:1px solid var(--border);border-radius:10px}
+.list-box>li+li{border-top:1px solid var(--border)}
+.icon-tile{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;flex-shrink:0}
+.t-warn{background:var(--warning-soft);color:var(--warning)}
+.t-info{background:var(--source-soft);color:var(--source)}
+.t-ai{background:var(--ai-soft);color:var(--ai)}
+.warn-note{display:flex;gap:6px;align-items:flex-start;padding:10px;border-radius:10px;background:var(--warning-soft);color:var(--warning);font-size:12px}
+.seg{display:inline-flex;gap:4px;padding:3px;border-radius:10px;background:var(--muted)}
+.seg button{height:38px;padding:0 20px;border:0;border-radius:8px;background:none;font-weight:500;color:var(--muted-fg)}
+.seg button[aria-selected=true]{background:var(--card);color:var(--foreground);box-shadow:0 1px 2px rgb(0 0 0 / .08)}
+.choice{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:8px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card);font-weight:500;text-align:start;transition:background .15s,border-color .15s}
+.choice:hover{background:var(--muted)}
+.choice[aria-checked=true]{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 8%,var(--card))}
+
+/* ============================================================ Pages */
+.page{width:100%;max-width:1280px;margin:0 auto;padding:24px}
+@media (max-width:767px){.page{padding:16px}}
+.page-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px}
+.page-head h2{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.page-head p{margin-top:4px;max-width:680px;color:var(--muted-fg)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media (max-width:1023px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi-val{font-size:24px;font-weight:700}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.span2{grid-column:span 2}
+@media (max-width:1023px){.grid3{grid-template-columns:minmax(0,1fr)}.span2{grid-column:auto}}
+.req-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 32px}
+@media (max-width:639px){.req-grid{grid-template-columns:minmax(0,1fr)}}
+.side-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+.side-layout.rev{grid-template-columns:320px minmax(0,1fr)}
+.sticky{position:sticky;top:80px}
+@media (max-width:1023px){.side-layout,.side-layout.rev{grid-template-columns:minmax(0,1fr)}.sticky{position:static}}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media (max-width:767px){.two{grid-template-columns:minmax(0,1fr)}}
+.dims{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 24px}
+@media (max-width:639px){.dims{grid-template-columns:minmax(0,1fr)}}
+.pref-mark{position:absolute;top:50%;width:2px;height:14px;transform:translateY(-50%);border-radius:2px;background:var(--foreground)}
+input[type=range]{width:100%;accent-color:var(--primary);height:24px;cursor:pointer}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:16px}
+.plan-item{border:1px solid var(--border);border-radius:10px;padding:10px;background:color-mix(in srgb,var(--background) 60%,transparent)}
+.plan-item.moved{border-color:color-mix(in srgb,var(--warning) 60%,transparent);background:color-mix(in srgb,var(--warning-soft) 70%,transparent)}
+
+/* Chat */
+.chat-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;flex:1;min-height:0}
+@media (max-width:1023px){.chat-layout{grid-template-columns:minmax(0,1fr)}.chat-side{display:none}}
+.chat-main{display:flex;flex-direction:column;height:calc(100dvh - 64px);min-width:0}
+.chat-log{flex:1;overflow-y:auto}
+.chat-inner{max-width:768px;margin:0 auto;padding:24px}
+@media (max-width:767px){.chat-inner{padding:16px}}
+.chat-inner>*+*{margin-top:24px}
+.bubble-user{display:flex;justify-content:flex-end}
+.bubble-user p{max-width:85%;padding:10px 16px;border-radius:18px;border-start-end-radius:4px;background:var(--primary);color:var(--primary-fg);line-height:1.6}
+.msg{display:flex;gap:12px}
+.msg-avatar{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--primary);color:var(--primary-fg);flex-shrink:0;margin-top:2px}
+.msg-body{flex:1;min-width:0}
+.msg-body>*+*{margin-top:12px}
+.composer-wrap{border-top:1px solid var(--border);background:color-mix(in srgb,var(--background) 92%,transparent)}
+.composer-inner{max-width:768px;margin:0 auto;padding:12px 24px}
+@media (max-width:767px){.composer-inner{padding:12px 16px}}
+.suggests{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:12px}
+.suggests button{height:36px;flex-shrink:0;padding:0 12px;border-radius:999px;border:1px solid var(--border);background:var(--card);font-size:12px;font-weight:500;color:var(--muted-fg)}
+.suggests button:hover{border-color:color-mix(in srgb,var(--primary) 40%,transparent);color:var(--foreground)}
+.composer{display:flex;align-items:flex-end;gap:8px;padding:8px;border:1px solid var(--border);border-radius:18px;background:var(--card);box-shadow:var(--shadow)}
+.composer:focus-within{box-shadow:0 0 0 3px var(--ring)}
+.composer textarea{flex:1;min-height:44px;max-height:160px;resize:none;border:0;outline:0;background:none;padding:10px 4px;font:inherit;font-size:15px;color:inherit;line-height:1.5}
+.composer .btn{width:44px;height:44px;padding:0;border-radius:12px}
+.listening{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--primary) 9%,transparent);color:var(--primary)}
+.pulse{position:relative;width:10px;height:10px}
+.pulse::before,.pulse::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--primary)}
+.pulse::before{animation:ping 1.2s cubic-bezier(0,0,.2,1) infinite;opacity:.6}
+@keyframes ping{75%,100%{transform:scale(2.2);opacity:0}}
+.typing{display:flex;gap:4px;width:fit-content;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--card)}
+.typing i{width:6px;height:6px;border-radius:50%;background:color-mix(in srgb,var(--muted-fg) 60%,transparent);animation:bounce 1s infinite}
+.typing i:nth-child(2){animation-delay:.12s}.typing i:nth-child(3){animation-delay:.24s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.chat-side{height:calc(100dvh - 64px);overflow-y:auto;padding:20px;background:var(--sidebar);border-inline-start:1px solid var(--border)}
+.chat-side>*+*{margin-top:24px}
+.dl{border:1px solid var(--border);border-radius:10px;background:var(--card)}
+.dl>div{display:flex;justify-content:space-between;gap:12px;padding:10px 12px}
+.dl>div+div{border-top:1px solid var(--border)}
+.proto-banner{padding:6px 16px;text-align:center;font-size:12px;background:var(--warning-soft);color:var(--warning)}
+
+/* ============================================================ AIE program additions */
+.tag{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.tag-CSE{background:var(--cat-dept-soft);color:var(--cat-dept)}
+.tag-ECE{background:color-mix(in srgb,var(--chart2) 15%,transparent);color:var(--chart2)}
+.tag-BAS{background:var(--secondary);color:var(--secondary-fg)}
+.tag-ARI{background:var(--highlight-soft);color:var(--highlight-ink)}
+.tag-UNR,.tag-ENG,.tag-ELE,.tag-PDE{background:var(--muted);color:var(--muted-fg);box-shadow:inset 0 0 0 1px var(--border)}
+.slot{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 8px;border-radius:999px;border:1px dashed var(--highlight);color:var(--highlight-ink);font:500 11px "IBM Plex Mono",ui-monospace,monospace;white-space:nowrap}
+.st{display:inline-flex;align-items:center;gap:4px;height:24px;width:fit-content;padding:0 8px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
+.st-passed{background:var(--verified-soft);color:var(--verified)}
+.st-failed{background:var(--destructive-soft);color:var(--destructive)}
+.st-eligible{background:color-mix(in srgb,var(--primary) 10%,transparent);color:var(--primary)}
+.st-locked{background:var(--muted);color:var(--muted-fg)}
+.st-note{display:block;margin-top:2px;font-size:11px;color:var(--muted-fg)}
+.under{display:flex;gap:4px;align-items:flex-start;margin-top:6px;font-size:11px;color:var(--warning)}
+.bar>i.warn{background:var(--warning)}
+.empty-term{background:color-mix(in srgb,var(--muted) 45%,var(--card))}
+.note-line{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--muted-fg);margin:16px 0}
+
+/* stats + filters */
+.stats{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;margin-bottom:16px}
+@media (max-width:1279px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:639px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat-val{font-size:20px;font-weight:700;color:var(--primary)}
+.filters{display:grid;grid-template-columns:minmax(0,2fr) repeat(6,minmax(0,1fr));gap:12px}
+@media (max-width:1279px){.filters{grid-template-columns:repeat(4,minmax(0,1fr))}.filters .f-search{grid-column:1/-1}}
+@media (max-width:767px){.filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.field{min-width:0}
+.field label{display:block;margin-bottom:6px;font-size:12px;font-weight:500;color:var(--muted-fg)}
+.field select,.field input{width:100%;height:40px;padding:0 10px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:inherit;font:inherit;font-size:14px}
+.field select:focus-visible,.field input:focus-visible{outline:3px solid var(--ring);outline-offset:0}
+.search-wrap{position:relative}
+.search-wrap .i{position:absolute;inset-inline-start:12px;top:50%;transform:translateY(-50%);color:var(--muted-fg);pointer-events:none}
+.search-wrap input{padding-inline-start:36px}
+.filter-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--border)}
+
+/* catalog rows */
+.crow{border:1px solid var(--border);border-radius:12px;background:var(--card)}
+.crow.slot-row{border-style:dashed;border-color:color-mix(in srgb,var(--highlight) 60%,transparent)}
+.crow.open{box-shadow:0 0 0 1px color-mix(in srgb,var(--primary) 25%,transparent)}
+.crow+.crow{margin-top:8px}
+.crow-btn{display:grid;width:100%;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 12px;padding:12px;border:0;border-radius:12px;background:none;text-align:start}
+.crow-btn .md{display:none}
+.crow-btn .sm-only{display:inline}
+@media (min-width:768px){
+  .crow-btn{grid-template-columns:6.5rem minmax(0,1fr) 3rem 7.5rem 7.5rem 1.25rem}
+  .crow-btn .md{display:block}
+  .crow-btn .sm-only{display:none}
+  .crow-btn .status-cell{grid-column:auto;grid-row:auto}
+}
+@media (min-width:1280px){.crow-btn{grid-template-columns:6.5rem minmax(0,1fr) 3rem 7.5rem minmax(0,11rem) 7.5rem 1.25rem}.crow-btn .xl{display:block}}
+.crow-btn .xl{display:none}
+.crow-btn .status-cell{grid-column:2;grid-row:1}
+.crow-btn .chev{transition:transform .2s;color:var(--muted-fg)}
+.crow.open .chev{transform:rotate(180deg)}
+.cpanel{padding:16px 12px;border-top:1px solid var(--border)}
+@media (min-width:768px){.cpanel{padding-inline-start:calc(6.5rem + 24px)}}
+.code-link{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 6px;border:0;border-radius:6px;background:var(--muted);font-size:12px}
+.code-link:hover{background:color-mix(in srgb,var(--primary) 10%,var(--muted))}
+.code-link.ok{background:var(--verified-soft);color:var(--verified)}
+.pool{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+@media (min-width:1024px){.pool{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.pool li{padding:12px;border:1px solid var(--border);border-radius:10px;background:color-mix(in srgb,var(--background) 60%,transparent)}
+.pool li.pick{border-color:var(--highlight)}
+.pick-badge{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 8px;border-radius:999px;background:var(--highlight-soft);color:var(--highlight-ink);font-size:11px;font-weight:500}
+.desc{direction:ltr;text-align:start;font-size:12px;line-height:1.6;color:var(--muted-fg)}
+
+/* regulations */
+.reg-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:1023px){.reg-grid{grid-template-columns:minmax(0,1fr)}}
+.reg-grid .full{grid-column:1/-1}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{background:var(--muted);color:var(--muted-fg);font-size:12px;font-weight:500;text-align:start;padding:8px 12px}
+.tbl td{padding:8px 12px;border-top:1px solid var(--border)}
+.tbl tr.mine td{background:color-mix(in srgb,var(--primary) 8%,transparent)}
+.tbl-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.mine-badge{margin-inline-start:8px;display:inline-flex;height:20px;align-items:center;padding:0 8px;border-radius:999px;background:var(--primary);color:var(--primary-fg);font-size:11px;font-weight:500}
+.bullets{padding-inline-start:20px;list-style:disc;font-size:14px;line-height:1.7}
+.bullets li+li{margin-top:4px}
+.split{display:flex;height:12px;border-radius:999px;overflow:hidden}
+.assess{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:767px){.assess{grid-template-columns:minmax(0,1fr)}}
+.conflict{padding:12px;border-radius:10px;background:var(--warning-soft);color:var(--warning);font-size:12px;line-height:1.6}
+
+/* ============================================================ Brand 8f: Charcoal + Orange (overrides earlier tokens)
+   Orange is the single accent and a FILL colour only; text uses --highlight-ink.
+   Provenance by form: solid green = rule-verified, dashed = AI wording, outlined doc chip = source. */
+:root{
+  --brand-ink:#1E2230;--brand-accent:#F27A2E;
+  --background:#F8F8F7;--foreground:#14161F;--card:#FFFFFF;--primary:#1E2230;--primary-fg:#FFFFFF;
+  --secondary:#EEEFF3;--secondary-fg:#1E2230;--muted:#EEEFF3;--muted-fg:#61657A;--border:#E4E4E2;
+  --destructive:#B53A2F;--destructive-soft:rgb(209 75 63 / .1);--ring:rgb(242 122 46 / .55);--sidebar:#FFFFFF;--chart2:#4B4F62;
+  --verified:#1F7A50;--verified-soft:rgb(46 158 106 / .12);--ai:#4B4F62;--ai-soft:#F2F3F6;--source:#1E2230;--source-soft:#FFFFFF;
+  --warning:#8A5D00;--warning-soft:rgb(224 161 27 / .15);--highlight:#F27A2E;--highlight-soft:rgb(242 122 46 / .12);--highlight-ink:#B4501A;
+  --cat-dept:#1E2230;--cat-dept-soft:#EEEFF3;--radius:14px;--shadow:none;
+}
+:root.dark{
+  --brand-ink:#FFFFFF;
+  --background:#12141B;--foreground:#F2F2F0;--card:#1B1E28;--primary:#F27A2E;--primary-fg:#14161F;
+  --secondary:#252A38;--secondary-fg:#F2F2F0;--muted:#252A38;--muted-fg:#A3A7B6;--border:#2A2E3B;
+  --destructive:#EF7A6E;--destructive-soft:rgb(239 122 110 / .14);--ring:rgb(242 122 46 / .6);--sidebar:#1B1E28;--chart2:#C3C6D2;
+  --verified:#4CC08A;--verified-soft:rgb(46 158 106 / .16);--ai:#C3C6D2;--ai-soft:#20232E;--source:#F2F2F0;--source-soft:#1B1E28;
+  --warning:#F0B840;--warning-soft:rgb(224 161 27 / .14);--highlight-soft:rgb(242 122 46 / .14);--highlight-ink:#F27A2E;
+  --cat-dept:#F2F2F0;--cat-dept-soft:#252A38;
+}
+body{font-family:"Sora","Readex Pro",system-ui,sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+:lang(ar){font-family:"Readex Pro","Sora",system-ui,sans-serif}
+:lang(ar) :lang(en),bdi[dir=ltr]{font-family:"Sora",system-ui,sans-serif}
+.code,.tag,.slot,.tagline{font-family:"JetBrains Mono",ui-monospace,monospace}
+::selection{background:rgb(242 122 46 / .25)}
+.btn{transition:background-color .15s,color .15s,border-color .15s,transform .15s}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn-primary:hover:not(:disabled){background:color-mix(in srgb,var(--primary) 88%,var(--background))}
+.card{border-radius:14px}
+.chip{border-radius:6px}
+.page-head h2,.page-head h1{font-size:28px;font-weight:600;line-height:1.25}
+:lang(en) .page-head h1{letter-spacing:-.02em}
+.page-head p{max-width:62ch;font-size:15px}
+
+/* provenance by form */
+.pill-ai{background:transparent;border:1px dashed color-mix(in srgb,var(--ai) 50%,transparent)}
+.ai-exp{border:1px dashed color-mix(in srgb,var(--ai) 40%,transparent);border-radius:12px;background:var(--ai-soft);padding:12px 14px}
+.ai-exp .ai-label{color:var(--ai)}
+.ai-exp p{max-width:68ch}
+.source{border:1px solid var(--border);background:var(--source-soft);color:var(--source)}
+.source span{color:var(--muted-fg);opacity:1}
+
+/* tags: one accent */
+.tag-CSE{background:var(--cat-dept-soft);color:var(--cat-dept)}
+.tag-ECE{background:transparent;color:var(--foreground);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--foreground) 30%,transparent)}
+.tag-BAS,.tag-UNR,.tag-ENG,.tag-ELE,.tag-PDE{background:var(--muted);color:var(--muted-fg);box-shadow:inset 0 0 0 1px var(--border)}
+
+/* ============================================================ Shell: top bar (desktop) + bottom tabs (mobile) */
+.skip{position:fixed;inset-inline-start:16px;top:-60px;z-index:60;padding:8px 16px;border-radius:10px;background:var(--primary);color:var(--primary-fg)}
+.skip:focus{top:12px}
+.proto-banner{padding:6px 16px;font-size:12px}
+.topbar{position:sticky;top:0;z-index:30;height:auto;padding:0;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--background) 86%,transparent);backdrop-filter:blur(8px)}
+.topbar-inner{display:flex;align-items:center;gap:24px;max-width:1280px;height:64px;margin:0 auto;padding:0 24px}
+@media (max-width:767px){.topbar-inner{padding:0 16px;gap:12px}}
+.topbar .actions{margin-inline-start:auto;display:flex;align-items:center;gap:4px}
+.lockup{display:flex;align-items:center;gap:8px;border-radius:10px;color:var(--brand-ink)}
+.lockup .mark{width:32px;height:32px}
+.lockup-name{display:block;font-size:19px;font-weight:700;line-height:1}
+:lang(ar) .lockup-name{font-weight:600}
+.lockup-sub{display:block;margin-top:4px;font-size:11px;font-weight:600;line-height:1;color:var(--muted-fg)}
+.topnav{display:none;align-self:stretch;gap:4px}
+@media (min-width:1024px){.topnav{display:flex}}
+.topnav a{position:relative;display:flex;align-items:center;gap:8px;padding:0 10px;font-size:14px;font-weight:500;color:var(--muted-fg);white-space:nowrap}
+.topnav a:hover{color:var(--foreground)}
+.topnav a::after{content:"";position:absolute;inset-inline:10px;bottom:-1px;height:2px;border-radius:2px;background:transparent}
+.topnav a[aria-current=page]{color:var(--foreground)}
+.topnav a[aria-current=page]::after{background:var(--brand-accent)}
+.topnav .full{display:none}
+@media (min-width:1536px){.topnav .full{display:inline}.topnav .short{display:none}}
+.student-chip{display:flex;flex-shrink:0;align-items:center;gap:10px;padding-inline-start:8px;white-space:nowrap}
+.student-chip .sq{flex-shrink:0}
+
+.student-chip .sq{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--primary);color:var(--primary-fg);font-weight:600}
+.bottomnav{position:fixed;inset-inline:0;bottom:0;z-index:40;padding-bottom:env(safe-area-inset-bottom);border-top:1px solid var(--border);background:color-mix(in srgb,var(--background) 90%,transparent);backdrop-filter:blur(8px)}
+.bottomnav ul{display:grid;grid-template-columns:repeat(5,1fr);max-width:560px;height:64px;margin:0 auto}
+.bottomnav a{position:relative;display:flex;height:100%;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:500;color:var(--muted-fg)}
+.bottomnav a[aria-current=page]{color:var(--foreground)}
+.bottomnav a::before{content:"";position:absolute;top:0;width:32px;height:2px;border-radius:0 0 2px 2px;background:transparent}
+.bottomnav a[aria-current=page]::before{background:var(--brand-accent)}
+.bottomnav .i{width:20px;height:20px}
+@media (min-width:1024px){.bottomnav{display:none}}
+main{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+@media (min-width:1024px){main{padding-bottom:0}}
+.chat-main,.chat-side{height:calc(100dvh - 128px - env(safe-area-inset-bottom))}
+@media (min-width:1024px){.chat-main,.chat-side{height:calc(100dvh - 64px)}}
+
+/* ============================================================ Dashboard */
+.dash{width:100%;max-width:1280px;margin:0 auto;padding:40px 24px}
+@media (max-width:767px){.dash{padding:24px 16px}}
+.dash>*+*{margin-top:40px}
+.hero-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:24px}
+.hero-row h1{font-size:36px;font-weight:600;line-height:1.2}
+@media (max-width:767px){.hero-row h1{font-size:30px}}
+:lang(en) .hero-row h1{letter-spacing:-.02em}
+.hero-row p{margin-top:8px;max-width:52ch;font-size:17px;color:var(--muted-fg)}
+.hero-row p b{color:var(--foreground);font-weight:600}
+.btn-lg{height:40px;padding:0 16px}
+.path-card{padding:20px 24px 16px;border:1px solid var(--border);border-radius:18px;background:var(--card)}
+@media (max-width:767px){.path-card{padding:16px}}
+.path-legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px;font-size:12px;color:var(--muted-fg)}
+.path-legend span{display:inline-flex;align-items:center;gap:6px}
+.lg-dot{width:10px;height:10px;border-radius:50%}
+.rail-full{display:block;overflow-x:auto}
+.rail-compact{display:none}
+@media (max-width:639px){.rail-full{display:none}.rail-compact{display:block}}
+.rail-full svg{min-width:720px}
+.rail svg{display:block;width:100%;height:auto}
+.stat-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:24px 0;border-block:1px solid var(--border)}
+.stat-row>div{padding:0 24px}
+.stat-row>div+div{border-inline-start:1px solid var(--border)}
+.stat-row>div:first-child{padding-inline-start:0}
+@media (max-width:767px){.stat-row{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:24px}.stat-row>div{padding:0}.stat-row>div+div{border:0}}
+.stat-row .lbl{font-size:14px;color:var(--muted-fg)}
+.stat-row .val{display:flex;align-items:baseline;gap:6px;margin-top:6px}
+.stat-row .big{font-size:30px;font-weight:600;font-variant-numeric:tabular-nums}
+.stat-row .hint{margin-top:6px;font-size:12px;line-height:1.4;color:var(--muted-fg)}
+.cols{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:40px}
+@media (max-width:1023px){.cols{grid-template-columns:minmax(0,1fr)}}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
+.sec-head h2{font-size:20px;font-weight:600}
+.plist{border:1px solid var(--border);border-radius:18px;background:var(--card);overflow:hidden}
+.plist>li{display:flex;align-items:center;gap:16px;padding:14px 16px}
+.plist>li+li{border-top:1px solid var(--border)}
+.prio{width:56px;text-align:end}
+.prio b{display:block;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.prio span{display:block;font-size:11px;color:var(--muted-fg)}
+.alert-card{display:flex;gap:12px;padding:16px;border:1px solid var(--border);border-radius:18px;background:var(--card)}
+.alert-card+.alert-card{margin-top:12px}
+.text-link{display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-size:14px;font-weight:500;color:var(--highlight-ink)}
+.text-link:hover{text-decoration:underline;text-underline-offset:4px}
+.mark .dot{fill:var(--brand-accent)}
+.t-neutral{background:var(--muted);color:var(--foreground)}
+.t-orange{background:var(--highlight-soft);color:var(--highlight-ink)}
+.bar>i.ink{background:var(--brand-ink)}
+.sm-only{display:none}
+@media (max-width:639px){.sm-only{display:inline}}
+
+.rail-scroll{overflow-x:auto;overscroll-behavior-x:contain;margin:0 -16px;padding:0 16px 8px;scrollbar-width:thin}
+.rail-scroll svg{display:block;max-width:none;height:auto}
+@media (min-width:640px){.rail-scroll{margin:0;padding:0 0 4px}.rail-scroll svg{width:100%;min-width:720px}}
+.swipe{display:none;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--muted-fg)}
+@media (max-width:639px){.swipe{display:flex}}
+.profile-btn{display:grid;place-items:center;width:36px;height:36px;margin-inline-start:4px;border:0;border-radius:10px;background:var(--primary);color:var(--primary-fg);font-weight:600;flex-shrink:0}
+@media (min-width:1280px){.profile-btn{display:none}}
+.topbar-inner{position:relative}
+.profile-menu{position:absolute;top:60px;inset-inline-end:16px;z-index:50;width:256px;padding:8px;border:1px solid var(--border);border-radius:14px;background:var(--card);box-shadow:0 12px 32px rgb(20 22 31 / .14)}
+.profile-menu[hidden]{display:none}
+.pm-head{display:flex;align-items:center;gap:12px;padding:4px 8px 12px}
+.pm-head .sq{display:grid;place-items:center;width:40px;height:40px;flex-shrink:0;border-radius:10px;background:var(--primary);color:var(--primary-fg);font-weight:600}
+.pm-head b{display:block;font-weight:500}
+.pm-head .xs{display:block;margin-top:2px;line-height:1.4}
+.profile-menu .dl{margin:0 8px 8px}
+.pm-link{display:flex;align-items:center;gap:10px;height:40px;padding:0 10px;border-radius:8px;font-size:14px}
+.pm-link:hover{background:var(--muted)}
+
+/* profile chip always visible: make room on phones and at 1024–1279 */
+@media (max-width:639px){.lockup>span{display:none}.student-chip{padding-inline-start:4px}.topbar .actions{gap:2px}}
+.topbar-inner{gap:12px}
+@media (min-width:1024px){.topbar-inner{gap:16px}.topnav a{padding:0 8px;gap:6px}}
+@media (min-width:1280px){.topbar-inner{gap:24px}.topnav a{padding:0 10px;gap:8px}}
+@media (min-width:1024px) and (max-width:1279px){#langBtn .hide-sm{display:none}#langBtn .sm-only{display:inline}}
+</style>
+</head>
+<body>
+<a href="#main" class="skip" id="skip"></a>
+<div class="proto-banner" id="banner"></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="#/" class="lockup" id="logo" translate="no"></a>
+    <nav class="topnav" id="topnav"></nav>
+    <div class="actions">
+      <span id="demoBadge" class="hide-sm"></span>
+      <button class="btn btn-ghost" data-action="lang" id="langBtn"></button>
+      <button class="btn btn-ghost btn-icon" data-action="theme" id="themeBtn"></button>
+      <div class="student-chip" id="studentChip"></div>
+    </div>
+  </div>
+</header>
+<main id="main" tabindex="-1" style="outline:none"></main>
+<nav class="bottomnav" id="bottomnav"></nav>
+
+<script>
+/* Program data: AIE Program Guide (unofficial summary of the Mansoura AIE bylaws).
+   Student, instructors and seats are simulated. Statuses, recommendations, the plan and what-ifs
+   were computed by the rules engine in frontend/src/lib/rules.ts when this file was generated. */
+const { dict, data: D } = {"dict":{"appName":{"ar":"مساري","en":"Masari"},"appTagline":{"ar":"مرشدك الأكاديمي الذكي","en":"Your AI academic advisor"},"navDashboard":{"ar":"الرئيسية","en":"Dashboard"},"navChat":{"ar":"اسأل مساري","en":"Ask Masari"},"navCourses":{"ar":"التوصيات","en":"Recommendations"},"navPlan":{"ar":"الخطة الدراسية","en":"Study plan"},"demoData":{"ar":"بيانات تجريبية","en":"Demo data"},"demoDataHint":{"ar":"المقررات واللائحة من دليل برنامج AIE، لكن الطالب والدكاترة والمقاعد بيانات تجريبية. مش مربوط بنظام الجامعة.","en":"Courses and regulations come from the AIE Program Guide; the student, instructors and seats are simulated. Not connected to a university system."},"switchLang":{"ar":"English","en":"العربية"},"toggleTheme":{"ar":"تبديل الوضع الليلي","en":"Toggle dark mode"},"openMenu":{"ar":"فتح القائمة","en":"Open menu"},"verified":{"ar":"تم التحقق بالقواعد","en":"Rule-verified"},"verifiedHint":{"ar":"نتيجة حتمية من محرك القواعد الأكاديمية، وليست من نموذج اللغة.","en":"Deterministic result from the academic rules engine, not from the language model."},"aiExplanation":{"ar":"شرح بالذكاء الاصطناعي","en":"AI explanation"},"aiExplanationHint":{"ar":"صياغة نموذج اللغة لشرح النتيجة. القرار نفسه مأخوذ من القواعد والبيانات.","en":"Wording generated by the language model. The decision itself comes from rules and data."},"source":{"ar":"المصدر","en":"Source"},"confidence":{"ar":"الثقة","en":"Confidence"},"confHigh":{"ar":"عالية","en":"High"},"confMedium":{"ar":"متوسطة","en":"Medium"},"confLow":{"ar":"منخفضة","en":"Low"},"responses":{"ar":"تقييم","en":"responses"},"creditHours":{"ar":"ساعة معتمدة","en":"credit hours"},"creditsShort":{"ar":"س.م","en":"cr"},"greeting":{"ar":"أهلاً","en":"Welcome back"},"dashSubtitle":{"ar":"دي نظرة سريعة على موقفك الأكاديمي والخطوة الجاية.","en":"Here is a quick view of your academic standing and what comes next."},"gpa":{"ar":"المعدل التراكمي","en":"Cumulative GPA"},"earned":{"ar":"الساعات المكتسبة","en":"Credits earned"},"remaining":{"ar":"الساعات المتبقية","en":"Credits remaining"},"level":{"ar":"المستوى","en":"Level"},"maxLoad":{"ar":"الحد الأقصى للتسجيل","en":"Max registration load"},"gradProgress":{"ar":"التقدم نحو التخرج","en":"Graduation progress"},"gradProgressDesc":{"ar":"محسوب من سجلك مقابل متطلبات اللائحة","en":"Computed from your record against the bylaw requirements"},"alerts":{"ar":"تنبيهات أكاديمية","en":"Academic alerts"},"nextSemester":{"ar":"مقترح الفصل القادم","en":"Next semester proposal"},"viewAll":{"ar":"عرض الكل","en":"View all"},"askMasari":{"ar":"اسأل مساري","en":"Ask Masari"},"estGraduation":{"ar":"التخرج المتوقع","en":"Estimated graduation"},"of":{"ar":"من","en":"of"},"chatTitle":{"ar":"محادثة مع مساري","en":"Chat with Masari"},"chatPlaceholder":{"ar":"اسأل عن مقرر، لائحة، أو خطتك الدراسية…","en":"Ask about a course, a regulation, or your study plan…"},"send":{"ar":"إرسال","en":"Send"},"voiceInput":{"ar":"إدخال صوتي","en":"Voice input"},"listening":{"ar":"بيسمعك… (عربي / English)","en":"Listening… (Arabic / English)"},"stopListening":{"ar":"إيقاف التسجيل","en":"Stop recording"},"suggestions":{"ar":"اقتراحات","en":"Suggestions"},"contextPanel":{"ar":"اللي مساري عارفه عنك","en":"What Masari knows"},"sourcesUsed":{"ar":"المصادر المستخدمة","en":"Sources used"},"demoReply":{"ar":"دي نسخة تجريبية من الواجهة. الرد الحقيقي هييجي من الـ backend (RAG + محرك القواعد + نموذج التوصيات) بعد ربطه.","en":"This is a UI prototype. Real answers will come from the backend (RAG + rules engine + recommendation model) once it is connected."},"newChat":{"ar":"محادثة جديدة","en":"New chat"},"recTitle":{"ar":"توصيات المقررات والمحاضرين","en":"Course & instructor recommendations"},"recSubtitle":{"ar":"بنستبعد الأول المقررات غير المسموح بيها، وبعدين نرتب الباقي حسب مناسبتها ليك.","en":"Ineligible courses are filtered out first, then the rest are ranked by how well they suit you."},"tabCourses":{"ar":"المقررات","en":"Courses"},"tabInstructors":{"ar":"المحاضرون","en":"Instructors"},"selectedLoad":{"ar":"الحمل المختار","en":"Selected load"},"loadOk":{"ar":"داخل الحد المسموح","en":"Within the allowed limit"},"loadOver":{"ar":"تجاوز الحد المسموح","en":"Exceeds the allowed limit"},"rank":{"ar":"الترتيب","en":"Rank"},"priority":{"ar":"الأولوية","en":"Priority"},"unlocks":{"ar":"يفتح","en":"Unlocks"},"coursesWord":{"ar":"مقررات","en":"courses"},"prereqsMet":{"ar":"المتطلبات السابقة مستوفاة","en":"Prerequisites met"},"whyRecommended":{"ar":"ليه بنرشحه؟","en":"Why recommended?"},"addToPlan":{"ar":"إضافة للجدول","en":"Add to schedule"},"added":{"ar":"مضاف","en":"Added"},"notEligible":{"ar":"غير مؤهل حاليًا","en":"Not eligible yet"},"missingPrereq":{"ar":"متطلب ناقص","en":"Missing prerequisite"},"seats":{"ar":"مقاعد","en":"seats"},"full":{"ar":"مكتمل","en":"Full"},"requestSeat":{"ar":"طلب فتح مقعد","en":"Request a seat"},"forCourse":{"ar":"المقرر","en":"Course"},"compatibility":{"ar":"التوافق معك","en":"Compatibility with you"},"yourPreferences":{"ar":"تفضيلاتك","en":"Your preferences"},"prefsHint":{"ar":"غيّر التفضيلات وشوف الترتيب بيتغير إزاي.","en":"Adjust your preferences and watch the ranking update."},"demoScoring":{"ar":"حساب توضيحي مؤقت، هيتبدل بنموذج التوافق الفعلي.","en":"Placeholder scoring. To be replaced by the trained compatibility model."},"youPrefer":{"ar":"تفضيلك","en":"Your preference"},"limitedData":{"ar":"البيانات محدودة، فخد التوصية دي بحذر.","en":"Limited data. Treat this suggestion with caution."},"bestMatch":{"ar":"الأنسب ليك","en":"Best match"},"prefPace":{"ar":"سرعة الشرح المفضلة","en":"Preferred teaching pace"},"prefWorkload":{"ar":"العبء اللي تقدر تتحمله","en":"Workload you can handle"},"prefPractical":{"ar":"عملي ولا نظري","en":"Practical or theoretical"},"slow":{"ar":"هادية","en":"Slow"},"fast":{"ar":"سريعة","en":"Fast"},"light":{"ar":"خفيف","en":"Light"},"heavy":{"ar":"تقيل","en":"Heavy"},"theoretical":{"ar":"نظري","en":"Theoretical"},"practical":{"ar":"عملي","en":"Practical"},"sectionSeats":{"ar":"المقاعد حسب السكشن","en":"Seats by section"},"scoreOutOf":{"ar":"درجة الأولوية من 100","en":"Priority score out of 100"},"section":{"ar":"سكشن","en":"Section"},"planTitle":{"ar":"الخطة الدراسية","en":"Study plan"},"planSubtitle":{"ar":"خطة مقترحة للفصول الجاية، متحققة من المتطلبات السابقة وحدود الساعات.","en":"A proposed multi-semester plan, checked against prerequisites and credit limits."},"whatIf":{"ar":"ماذا لو؟","en":"What if?"},"whatIfDesc":{"ar":"جرّب سيناريو وشوف تأثيره على خطتك وموعد تخرجك.","en":"Try a scenario and see its impact on your plan and graduation date."},"baseline":{"ar":"الخطة الحالية","en":"Current plan"},"scenario":{"ar":"السيناريو","en":"Scenario"},"impact":{"ar":"التأثير","en":"Impact"},"affected":{"ar":"مقررات متأثرة","en":"Affected courses"},"electives":{"ar":"متابعة الاختياري","en":"Elective tracking"},"semesterLoad":{"ar":"حمل الفصل","en":"Semester load"},"requires":{"ar":"يتطلب","en":"Requires"},"delayed":{"ar":"اتأخر","en":"Delayed"},"movedEarlier":{"ar":"اتقدّم","en":"Moved earlier"},"noChange":{"ar":"بدون تغيير","en":"No change"},"reset":{"ar":"رجوع للخطة الحالية","en":"Reset to current plan"},"underMinLoad":{"ar":"أقل من الحد الأدنى (12 ساعة). مسموح بس في ترم التخرج أو بموافقة المجلس.","en":"Below the 12-credit minimum. Allowed only in the graduation term or with council approval."},"noCoursesThisTerm":{"ar":"مفيش مقررات متاحة الترم ده حسب الخطة.","en":"No courses available this term under the plan."},"navCatalog":{"ar":"دليل المقررات","en":"Course catalog"},"navCatalogShort":{"ar":"الدليل","en":"Catalog"},"navChatShort":{"ar":"اسأل","en":"Ask"},"navCoursesShort":{"ar":"التوصيات","en":"For you"},"navPlanShort":{"ar":"الخطة","en":"Plan"},"mainNav":{"ar":"التنقل الرئيسي","en":"Main navigation"},"pathTitle":{"ar":"مسارك للتخرج","en":"Your path to graduation"},"pathAria":{"ar":"مسارك: الفصول المكتملة، ثم الأترام المخططة لحد التخرج.","en":"Your path: completed semesters, then planned terms up to graduation."},"graduation":{"ar":"التخرج","en":"Graduation"},"pathEmpty":{"ar":"ترم فاضي","en":"Empty term"},"youAreHere":{"ar":"إنت هنا","en":"You are here"},"semShort":{"ar":"الفصل","en":"Sem"},"pathSwipe":{"ar":"اسحب يمين وشمال عشان تشوف كل الفصول","en":"Swipe sideways to see every semester"},"pathHasFail":{"ar":"فصل فيه رسوب","en":"Semester with a failed course"},"pathLegendDone":{"ar":"فصل مكتمل","en":"Completed semester"},"pathLegendPlanned":{"ar":"ترم مخطط","en":"Planned term"},"pathLegendEmpty":{"ar":"ترم مفيهوش مقررات متاحة","en":"Term with no available courses"},"standing":{"ar":"موقفك الأكاديمي","en":"Academic standing"},"studentProfile":{"ar":"ملف الطالب","en":"Student profile"},"skipToContent":{"ar":"تخطي للمحتوى","en":"Skip to content"},"switchLangLabel":{"ar":"التبديل للإنجليزية","en":"Switch to Arabic"},"catalogTitle":{"ar":"دليل مقررات هندسة الذكاء الاصطناعي","en":"AI Engineering course catalog"},"catalogSubtitle":{"ar":"كل مقررات البرنامج ومتطلباتها السابقة، ومعاها حالتك في كل مقرر.","en":"Every course in the program with its prerequisites, plus your status in each."},"tabCatalogCourses":{"ar":"المقررات والمتطلبات","en":"Courses & prerequisites"},"tabRegulations":{"ar":"اللائحة","en":"Regulations"},"statTotalCredits":{"ar":"إجمالي الساعات","en":"Total credits"},"statCourses":{"ar":"مقرر في الخطة","en":"Courses in the plan"},"statElectiveSlots":{"ar":"خانات اختياري","en":"Elective slots"},"statSemesters":{"ar":"فصول دراسية","en":"Semesters"},"universityReq":{"ar":"متطلبات جامعة","en":"University req."},"collegeReq":{"ar":"متطلبات كلية","en":"College req."},"specializationReq":{"ar":"متطلبات تخصص","en":"Specialization"},"perBylaws":{"ar":"حسب اللائحة","en":"Per the bylaws"},"search":{"ar":"بحث","en":"Search"},"searchPlaceholder":{"ar":"كود أو اسم المقرر…","en":"Code or course name…"},"levelLabel":{"ar":"المستوى","en":"Level"},"semesterLabel":{"ar":"الفصل","en":"Semester"},"departmentLabel":{"ar":"القسم","en":"Department"},"typeLabel":{"ar":"النوع","en":"Type"},"termLabel":{"ar":"الترم","en":"Term"},"statusLabel":{"ar":"حالتي","en":"My status"},"all":{"ar":"الكل","en":"All"},"fall":{"ar":"خريف","en":"Fall"},"spring":{"ar":"ربيع","en":"Spring"},"stPassed":{"ar":"ناجح","en":"Passed"},"stFailed":{"ar":"راسب","en":"Failed"},"stEligible":{"ar":"مؤهل","en":"Eligible"},"stLocked":{"ar":"مقفول","en":"Locked"},"resetFilters":{"ar":"مسح الفلاتر","en":"Reset filters"},"showing":{"ar":"عرض","en":"Showing"},"noResults":{"ar":"مفيش مقررات مطابقة للفلاتر دي.","en":"No courses match these filters."},"prerequisites":{"ar":"المتطلبات السابقة","en":"Prerequisites"},"none":{"ar":"لا يوجد","en":"None"},"requiredBy":{"ar":"متطلب سابق لـ","en":"Prerequisite for"},"slotOptions":{"ar":"المقررات المتاحة للخانة دي","en":"Courses for this slot"},"yourPick":{"ar":"اختيارك","en":"Your pick"},"minEarned":{"ar":"ساعة مكتسبة على الأقل","en":"earned credits minimum"},"short":{"ar":"ناقص","en":"Short by"},"details":{"ar":"التفاصيل","en":"Details"},"colCode":{"ar":"الكود","en":"Code"},"colName":{"ar":"المقرر","en":"Course"},"statusHint":{"ar":"حالتك محسوبة بمحرك القواعد من سجلك (طالب تجريبي).","en":"Your status is computed by the rules engine from your record (demo student)."},"catalogSource":{"ar":"المصدر: دليل برنامج AIE، وهو ملخص غير رسمي للائحة. راجع اللائحة الرسمية قبل الاعتماد عليه.","en":"Source: the AIE Program Guide, an unofficial summary of the bylaws. Check the official bylaws before relying on it."},"yourLimit":{"ar":"حدّك","en":"Your limit"},"gradeScaleTitle":{"ar":"نظام التقديرات","en":"Grading scale"},"gradeCol":{"ar":"التقدير","en":"Grade"},"pointsCol":{"ar":"النقاط","en":"Points"},"assessmentTitle":{"ar":"توزيع الدرجات","en":"Grade distribution"}},"data":{"sources":{"catalog":{"id":"catalog","title":{"ar":"دليل البرنامج","en":"Program guide"},"locator":{"ar":"المقررات والمتطلبات","en":"Courses & prerequisites"}},"load":{"id":"load","title":{"ar":"اللائحة","en":"Regulations"},"locator":{"ar":"العبء الدراسي","en":"Academic load"}},"retake":{"id":"retake","title":{"ar":"اللائحة","en":"Regulations"},"locator":{"ar":"إعادة التسجيل","en":"Re-registration"}},"training":{"id":"training","title":{"ar":"اللائحة","en":"Regulations"},"locator":{"ar":"التدريب والمشروعات","en":"Training & projects"}},"graduation":{"id":"graduation","title":{"ar":"اللائحة","en":"Regulations"},"locator":{"ar":"متطلبات التخرج","en":"Graduation requirements"}}},"student":{"id":"DEMO-AIE-0147","name":{"ar":"أحمد","en":"Ahmed"},"fullName":{"ar":"أحمد سامي","en":"Ahmed Samy"},"program":{"ar":"هندسة الذكاء الاصطناعي","en":"AI Engineering"},"level":{"ar":"المستوى 3","en":"Level 3"},"gpa":2.4,"earned":114,"total":160,"maxLoad":18,"maxLoadRule":{"ar":"معدل من 2.00 لأقل من 3.00 ← حد أقصى 18 ساعة","en":"2.00 ≤ GPA < 3.00 → up to 18 credit hours"},"estGraduation":{"ar":"ربيع 2029","en":"Spring 2029"},"preferences":{"summary":{"ar":"شرح واضح وعبء دراسي متوسط","en":"Clear explanations, moderate workload"}},"completed":["BAS 011","BAS 021","BAS 031","BAS 041","PDE 052","UNR 061","BAS 012","BAS 022","BAS 032","CSE 042","PDE 051","UNR 021","BAS 115","CSE 151","CSE 141","UNR 181","ECE 121","ENG 111","BAS 116","ECE 122","CSE 111","CSE 112","ELE 151","UNR 121","ARI 171","BAS 216","ECE 234","UNR 241","ECE 223","CSE 251","CSE 221","BAS 217","ECE 224","BAS 218","UNR 261","CSE 212","ECE 235","ARI 271","CSE 331","CSE 313","CSE 317","ECE 333","BAS 311"]},"record":{"gpa":2.4,"passed":["BAS 011","BAS 021","BAS 031","BAS 041","PDE 052","UNR 061","BAS 012","BAS 022","BAS 032","CSE 042","PDE 051","UNR 021","BAS 115","CSE 151","CSE 141","UNR 181","ECE 121","ENG 111","BAS 116","ECE 122","CSE 111","CSE 112","ELE 151","UNR 121","ARI 171","BAS 216","ECE 234","UNR 241","ECE 223","CSE 251","CSE 221","BAS 217","ECE 224","BAS 218","UNR 261","CSE 212","ECE 235","ARI 271","CSE 331","CSE 313","CSE 317","ECE 333","BAS 311"],"failed":["ECE 332"],"electiveChoices":{"ELEC E1":"BAS 311","ELEC E2":"ECE 334","ELEC E3":"ECE 435","ELEC E4":"ECE 432","ELEC E5":"CSE 413"}},"requirementGroups":[{"id":"UNR","name":{"ar":"متطلبات الجامعة","en":"University Req."},"required":13,"earned":11},{"id":"BAS","name":{"ar":"العلوم الأساسية","en":"Basic Sciences"},"required":35,"earned":35},{"id":"ENG","name":{"ar":"العلوم الهندسية","en":"Engineering"},"required":4,"earned":2},{"id":"PDE","name":{"ar":"هندسة الإنتاج","en":"Production Eng."},"required":6,"earned":6},{"id":"ELE","name":{"ar":"الهندسة الكهربية","en":"Electrical Eng."},"required":3,"earned":3},{"id":"ECE","name":{"ar":"الإلكترونيات والاتصالات","en":"Electronics & Comm."},"required":27,"earned":21},{"id":"CSE","name":{"ar":"علوم وهندسة الحاسب","en":"Computer Science"},"required":48,"earned":33},{"id":"ARI","name":{"ar":"مشروعات وتدريب الذكاء الاصطناعي","en":"AI Projects & Training"},"required":9,"earned":0},{"id":"elective","name":{"ar":"المقررات الاختيارية","en":"Electives"},"required":15,"earned":3}],"electiveCategories":[{"id":"L300","name":{"ar":"اختياري المستوى 3 (L300)","en":"Level 3 electives (L300)"},"required":2,"done":1},{"id":"L400","name":{"ar":"اختياري المستوى 4 (L400)","en":"Level 4 electives (L400)"},"required":3,"done":0}],"alerts":[{"id":"nn","kind":"warning","title":{"ar":"رسوب في Neural Networks","en":"Failed Neural Networks"},"body":{"ar":"متطلب سابق لـ 10 مقررات (مباشر وغير مباشر) منهم Deep Learning. بيتدرّس في الخريف بس حسب الخطة، فأقرب إعادة خريف 2027.","en":"It gates 10 courses (directly or indirectly), including Deep Learning. It is a Fall course in the plan, so the earliest retake is Fall 2027."},"sourceId":"catalog"},{"id":"retake","kind":"info","title":{"ar":"قاعدة إعادة التسجيل","en":"Re-registration rule"},"body":{"ar":"لما تعيد مقرر سقطت فيه، أعلى تقدير ممكن تاخده B+.","en":"When you re-register a failed course, the highest grade you can get is B+."},"sourceId":"retake"},{"id":"ft2","kind":"info","title":{"ar":"التدريب الميداني (2) لسه مقفول","en":"Field Training (2) is still locked"},"body":{"ar":"محتاج 120 ساعة مكتسبة، ومعاك 114. فاضلك 6 ساعة.","en":"It requires 120 earned credits and you have 114, so 6 to go."},"sourceId":"training"},{"id":"seat","kind":"seat","title":{"ar":"سكشن 1 في Communication Networks مكتمل","en":"Communication Networks section 1 is full"},"body":{"ar":"سكشن 2 فيه 8 مقاعد متاحة. لو محتاج سكشن 1 تقدر تبعت طلب فتح مقعد.","en":"Section 2 has 8 seats left. If you need section 1, you can send a seat request."}}],"recommendedCourses":[{"code":"ECE 321","name":{"ar":"Communication Networks","en":"Communication Networks"},"credits":3,"category":"ECE","priority":87,"prereqs":["ECE 234"],"unlocks":["ECE 432"],"sections":[{"id":"1","seatsLeft":0,"capacity":45},{"id":"2","seatsLeft":8,"capacity":45},{"id":"3","seatsLeft":19,"capacity":40}],"verifiedReasons":[{"ar":"المتطلبات السابقة مستوفاة: ECE 234","en":"Prerequisites met: ECE 234"},{"ar":"في موعده حسب الخطة (الفصل 8)","en":"On schedule (plan semester 8)"},{"ar":"متطلب سابق لـ: ECE 432","en":"Prerequisite for: ECE 432"}],"aiReason":{"ar":"مقرر الخطة الطبيعي للترم ده، وهو المتطلب الوحيد لاختياري IoT اللي اخترته، فتأجيله هيأخّر الاختياري.","en":"It is on schedule for this term and it is the only prerequisite for the IoT elective you chose, so delaying it delays that elective."}},{"code":"ARI 381","name":{"ar":"Project (1) in AI Engineering","en":"Project (1) in AI Engineering"},"credits":3,"category":"ARI","priority":85,"prereqs":[],"unlocks":[],"sections":[{"id":"1","seatsLeft":15,"capacity":40}],"verifiedReasons":[{"ar":"يتطلب ≥ 96 ساعة، ومعاك 114","en":"Requires ≥ 96 credits; you have 114"},{"ar":"في موعده حسب الخطة (الفصل 8)","en":"On schedule (plan semester 8)"}],"aiReason":{"ar":"مشروع التخرج (1) بيتسجل في الربيع بس، وإنت عديت شرط الـ 96 ساعة. ابدأ بدري عشان تكوّن فريق من 2–3.","en":"Project (1) is a Spring course and you meet the 96-credit condition. Start early so you can form a team of 2–3."}},{"code":"CSE 315","name":{"ar":"Embedded Systems","en":"Embedded Systems"},"credits":3,"category":"CSE","priority":75,"prereqs":["CSE 317"],"unlocks":[],"sections":[{"id":"1","seatsLeft":12,"capacity":40},{"id":"2","seatsLeft":21,"capacity":40}],"verifiedReasons":[{"ar":"المتطلبات السابقة مستوفاة: CSE 317","en":"Prerequisites met: CSE 317"},{"ar":"في موعده حسب الخطة (الفصل 8)","en":"On schedule (plan semester 8)"}],"aiReason":{"ar":"إجباري في موعده، ومتطلبه Computer Architecture لسه طازة معاك من الترم اللي فات.","en":"Mandatory and on schedule, and you just finished its prerequisite, Computer Architecture."}},{"code":"ECE 334","name":{"ar":"Pattern Recognition","en":"Pattern Recognition"},"credits":3,"category":"ECE","priority":75,"prereqs":["BAS 218"],"unlocks":[],"sections":[{"id":"1","seatsLeft":15,"capacity":40}],"verifiedReasons":[{"ar":"المتطلبات السابقة مستوفاة: BAS 218","en":"Prerequisites met: BAS 218"},{"ar":"يملأ خانة الاختياري E2 (L300)","en":"Fills elective slot E2 (L300)"}],"aiReason":{"ar":"اختيارك لخانة E2. قريب من مسار الـ AI ومتطلبه BAS 218 مستوفى.","en":"Your pick for slot E2. It fits the AI track and its prerequisite BAS 218 is met."},"slot":"E2"},{"code":"ENG 312","name":{"ar":"Project Management","en":"Project Management"},"credits":2,"category":"ENG","priority":75,"prereqs":[],"unlocks":[],"sections":[{"id":"1","seatsLeft":15,"capacity":40}],"verifiedReasons":[{"ar":"بدون متطلبات سابقة","en":"No prerequisites"},{"ar":"في موعده حسب الخطة (الفصل 8)","en":"On schedule (plan semester 8)"}],"aiReason":{"ar":"ساعتين بس ومن غير متطلبات، فبيكمّل الحمل من غير ضغط ويفيدك في المشروع.","en":"Only 2 credits with no prerequisites. It rounds out the load lightly and helps with the project."}},{"code":"CSE 413","name":{"ar":"High-Performance Computing Systems","en":"High-Performance Computing Systems"},"credits":3,"category":"CSE","priority":60,"prereqs":["CSE 313"],"unlocks":[],"sections":[{"id":"1","seatsLeft":15,"capacity":40}],"verifiedReasons":[{"ar":"المتطلبات السابقة مستوفاة: CSE 313","en":"Prerequisites met: CSE 313"},{"ar":"يملأ خانة الاختياري E5 (L400)","en":"Fills elective slot E5 (L400)"}],"aiReason":{"ar":"اختيارك لخانة E5. متاح من دلوقتي، بس هيعدّي بيك فوق الحد لو أخدته مع الباقي.","en":"Your pick for slot E5. It is available now, but it would push you over the limit with the rest."},"slot":"E5"},{"code":"CSE 451","name":{"ar":"Big Data Science","en":"Big Data Science"},"credits":3,"category":"CSE","priority":60,"prereqs":["CSE 313"],"unlocks":[],"sections":[{"id":"1","seatsLeft":15,"capacity":40}],"verifiedReasons":[{"ar":"المتطلبات السابقة مستوفاة: CSE 313","en":"Prerequisites met: CSE 313"},{"ar":"متقدم عن الخطة (الفصل 10)","en":"Ahead of plan (semester 10)"}],"aiReason":{"ar":"مكانه في الخطة الترم العاشر، بس متطلبه مستوفى. أخده دلوقتي بيخفف آخر سنة.","en":"Planned for semester 10, but its prerequisite is met. Taking it now lightens your final year."}}],"proposedNow":["ECE 321","ARI 381","CSE 315","ECE 334","ENG 312","CSE 451"],"ineligibleCourses":[{"code":"CSE 351","name":{"ar":"Deep Learning","en":"Deep Learning"},"credits":3,"reason":{"ar":"ناقص المتطلب السابق ECE 332","en":"Missing prerequisite ECE 332"},"sourceId":"catalog"},{"code":"ARI 371","name":{"ar":"Field Training (2) in AI Engineering","en":"Field Training (2) in AI Engineering"},"credits":0,"reason":{"ar":"يتطلب 120 ساعة مكتسبة (معاك 114)","en":"Requires 120 earned credits (you have 114)"},"sourceId":"training"},{"code":"CSE 452","name":{"ar":"AI Applications","en":"AI Applications"},"credits":3,"reason":{"ar":"ناقص المتطلب السابق CSE 351","en":"Missing prerequisite CSE 351"},"sourceId":"catalog"},{"code":"ARI 482","name":{"ar":"Project (3) in AI Engineering","en":"Project (3) in AI Engineering"},"credits":3,"reason":{"ar":"يتطلب 130 ساعة مكتسبة (معاك 114)","en":"Requires 130 earned credits (you have 114)"},"sourceId":"training"},{"code":"ECE 332","name":{"ar":"Neural Networks","en":"Neural Networks"},"credits":3,"reason":{"ar":"إعادة: بيتدرّس في الخريف فقط حسب الخطة","en":"Retake: offered in Fall only per the plan"},"sourceId":"catalog"}],"instructors":[{"id":"i1","name":{"ar":"د. سارة محمود","en":"Dr. Sara Mahmoud"},"courseCode":"ECE 321","section":"1","responses":142,"profile":{"clarity":88,"pace":45,"workload":50,"practical":70,"difficulty":55,"satisfaction":84},"aiSummary":{"ar":"التقييمات السابقة بتقول إن شرحها واضح والسرعة متوسطة، وده متماشي مع تفضيلك للشرح الواضح والعبء المتوسط.","en":"Historical feedback points to clear explanations and a moderate pace, which matches your preference for clarity and a moderate workload."}},{"id":"i2","name":{"ar":"د. عمرو خليل","en":"Dr. Amr Khalil"},"courseCode":"ECE 321","section":"2","responses":97,"profile":{"clarity":70,"pace":82,"workload":85,"practical":80,"difficulty":82,"satisfaction":72},"aiSummary":{"ar":"مناسب للطلاب اللي عايزين تحدي ومعامل متقدمة، لكن السرعة والعبء أعلى من تفضيلاتك الحالية.","en":"A good fit for students who want a challenge and advanced labs, but the pace and workload exceed your current preferences."}},{"id":"i3","name":{"ar":"د. ليلى حسن","en":"Dr. Laila Hassan"},"courseCode":"ECE 321","section":"3","responses":9,"profile":{"clarity":80,"pace":50,"workload":40,"practical":55,"difficulty":45,"satisfaction":79},"aiSummary":{"ar":"المؤشرات الأولية إيجابية وقريبة من تفضيلاتك، لكن عدد التقييمات قليل جدًا.","en":"Early signals are positive and close to your preferences, but there are very few responses."}},{"id":"i4","name":{"ar":"د. هاني فاروق","en":"Dr. Hany Farouk"},"courseCode":"CSE 315","section":"1","responses":64,"profile":{"clarity":76,"pace":60,"workload":65,"practical":85,"difficulty":60,"satisfaction":77},"aiSummary":{"ar":"أسلوب عملي جدًا بمشروع hardware كامل، والعبء أعلى شوية من المتوسط.","en":"Very hands-on with a full hardware project; workload is slightly above average."}},{"id":"i5","name":{"ar":"د. منى عادل","en":"Dr. Mona Adel"},"courseCode":"CSE 315","section":"2","responses":120,"profile":{"clarity":85,"pace":40,"workload":45,"practical":50,"difficulty":50,"satisfaction":82},"aiSummary":{"ar":"شرح منظم وسرعة هادية، مناسب لو عايز تفهم الأساسيات كويس قبل الجزء العملي.","en":"Structured explanations at a calm pace. A good fit if you want solid fundamentals before practice."}}],"dimensionLabels":{"clarity":{"ar":"وضوح الشرح","en":"Teaching clarity"},"pace":{"ar":"سرعة الشرح","en":"Teaching pace"},"workload":{"ar":"العبء الدراسي","en":"Workload"},"practical":{"ar":"عملي مقابل نظري","en":"Practical vs. theoretical"},"difficulty":{"ar":"صعوبة التقييم","en":"Assessment difficulty"},"satisfaction":{"ar":"رضا الطلاب","en":"Student satisfaction"}},"defaultPrefs":{"pace":40,"workload":50,"practical":65},"semesterNames":[{"ar":"ربيع 2027","en":"Spring 2027"},{"ar":"خريف 2027","en":"Fall 2027"},{"ar":"ربيع 2028","en":"Spring 2028"},{"ar":"خريف 2028","en":"Fall 2028"},{"ar":"ربيع 2029","en":"Spring 2029"},{"ar":"خريف 2029","en":"Fall 2029"},{"ar":"ربيع 2030","en":"Spring 2030"},{"ar":"خريف 2030","en":"Fall 2030"}],"baselinePlan":[[{"code":"ECE 321","credits":3,"category":"ECE","requires":["ECE 234"]},{"code":"ARI 381","credits":3,"category":"ARI","requires":[],"minCredits":96},{"code":"CSE 315","credits":3,"category":"CSE","requires":["CSE 317"]},{"code":"ECE 334","credits":3,"category":"ECE","requires":["BAS 218"],"slot":"E2"},{"code":"ENG 312","credits":2,"category":"ENG","requires":[]},{"code":"CSE 451","credits":3,"category":"CSE","requires":["CSE 313"]}],[{"code":"ECE 332","credits":3,"category":"ECE","requires":["BAS 218"]},{"code":"ARI 481","credits":3,"category":"ARI","requires":[],"minCredits":116},{"code":"ECE 435","credits":3,"category":"ECE","requires":["ECE 333"],"slot":"E3"},{"code":"ECE 432","credits":3,"category":"ECE","requires":["ECE 321"],"slot":"E4"},{"code":"CSE 423","credits":3,"category":"CSE","requires":["CSE 221"]},{"code":"UNR 471","credits":2,"category":"UNR","requires":[]}],[{"code":"CSE 351","credits":3,"category":"CSE","requires":["ECE 332"]},{"code":"ARI 371","credits":0,"category":"ARI","requires":[],"minCredits":120},{"code":"ARI 482","credits":3,"category":"ARI","requires":[],"minCredits":130},{"code":"CSE 413","credits":3,"category":"CSE","requires":["CSE 313"],"slot":"E5"}],[],[{"code":"CSE 452","credits":3,"category":"CSE","requires":["CSE 351"]}]],"baselineGraduationIndex":4,"minLoad":12,"scenarios":[{"id":"fail-dl","label":{"ar":"لو سقطت في Deep Learning","en":"What if I fail Deep Learning?"},"plan":[[{"code":"ECE 321","credits":3,"category":"ECE","requires":["ECE 234"]},{"code":"ARI 381","credits":3,"category":"ARI","requires":[],"minCredits":96},{"code":"CSE 315","credits":3,"category":"CSE","requires":["CSE 317"]},{"code":"ECE 334","credits":3,"category":"ECE","requires":["BAS 218"],"slot":"E2"},{"code":"ENG 312","credits":2,"category":"ENG","requires":[]},{"code":"CSE 451","credits":3,"category":"CSE","requires":["CSE 313"]}],[{"code":"ECE 332","credits":3,"category":"ECE","requires":["BAS 218"]},{"code":"ARI 481","credits":3,"category":"ARI","requires":[],"minCredits":116},{"code":"ECE 435","credits":3,"category":"ECE","requires":["ECE 333"],"slot":"E3"},{"code":"ECE 432","credits":3,"category":"ECE","requires":["ECE 321"],"slot":"E4"},{"code":"CSE 423","credits":3,"category":"CSE","requires":["CSE 221"]},{"code":"UNR 471","credits":2,"category":"UNR","requires":[]}],[{"code":"CSE 351","credits":3,"category":"CSE","requires":["ECE 332"]},{"code":"ARI 371","credits":0,"category":"ARI","requires":[],"minCredits":120},{"code":"ARI 482","credits":3,"category":"ARI","requires":[],"minCredits":130},{"code":"CSE 413","credits":3,"category":"CSE","requires":["CSE 313"],"slot":"E5"}],[],[{"code":"CSE 351","credits":3,"category":"CSE","requires":["ECE 332"]}],[],[{"code":"CSE 452","credits":3,"category":"CSE","requires":["CSE 351"]}]],"graduationIndex":6,"verdict":"delay","graduation":{"ar":"ربيع 2030","en":"Spring 2030"},"summary":{"ar":"هتعيد Deep Learning الربيع اللي بعده، وده هيأخر AI Applications سنة كمان. التخرج يبقى ربيع 2030. المقررات المتأثرة: 2.","en":"You retake Deep Learning the following Spring, which pushes AI Applications back another year. Graduation moves to Spring 2030. Affected courses: 2."},"ruleNote":{"ar":"CSE 452 يتطلب CSE 351، والاتنين بيتدرّسوا في الربيع بس","en":"CSE 452 requires CSE 351, and both are Spring-only"},"affected":["CSE 351","CSE 452"]},{"id":"fail-ece321","label":{"ar":"لو سقطت في Communication Networks","en":"What if I fail Communication Networks?"},"plan":[[{"code":"ECE 321","credits":3,"category":"ECE","requires":["ECE 234"]},{"code":"ARI 381","credits":3,"category":"ARI","requires":[],"minCredits":96},{"code":"CSE 315","credits":3,"category":"CSE","requires":["CSE 317"]},{"code":"ECE 334","credits":3,"category":"ECE","requires":["BAS 218"],"slot":"E2"},{"code":"ENG 312","credits":2,"category":"ENG","requires":[]},{"code":"CSE 451","credits":3,"category":"CSE","requires":["CSE 313"]}],[{"code":"ECE 332","credits":3,"category":"ECE","requires":["BAS 218"]},{"code":"ARI 481","credits":3,"category":"ARI","requires":[],"minCredits":116},{"code":"ECE 435","credits":3,"category":"ECE","requires":["ECE 333"],"slot":"E3"},{"code":"CSE 423","credits":3,"category":"CSE","requires":["CSE 221"]},{"code":"UNR 471","credits":2,"category":"UNR","requires":[]}],[{"code":"CSE 351","credits":3,"category":"CSE","requires":["ECE 332"]},{"code":"ECE 321","credits":3,"category":"ECE","requires":["ECE 234"]},{"code":"ARI 371","credits":0,"category":"ARI","requires":[],"minCredits":120},{"code":"ARI 482","credits":3,"category":"ARI","requires":[],"minCredits":130},{"code":"CSE 413","credits":3,"category":"CSE","requires":["CSE 313"],"slot":"E5"}],[{"code":"ECE 432","credits":3,"category":"ECE","requires":["ECE 321"],"slot":"E4"}],[{"code":"CSE 452","credits":3,"category":"CSE","requires":["CSE 351"]}]],"graduationIndex":4,"verdict":"same","graduation":{"ar":"ربيع 2029","en":"Spring 2029"},"summary":{"ar":"هتعيده ربيع 2028 واختياري IoT هيتأجل للخريف اللي بعده. موعد التخرج مش هيتغير، لأن سلسلة Deep Learning هي اللي محددة موعد تخرجك.","en":"You retake it in Spring 2028 and the IoT elective moves to the following Fall. Graduation does not change, because the Deep Learning chain sets your graduation date."},"ruleNote":{"ar":"ECE 432 (IoT) يتطلب ECE 321","en":"ECE 432 (IoT) requires ECE 321"},"affected":["ECE 321","ECE 432"]},{"id":"gpa3","label":{"ar":"لو معدلي وصل 3.00 (حد 21 ساعة)","en":"What if my GPA reaches 3.00 (21-credit limit)?"},"plan":[[{"code":"ECE 321","credits":3,"category":"ECE","requires":["ECE 234"]},{"code":"ARI 381","credits":3,"category":"ARI","requires":[],"minCredits":96},{"code":"CSE 315","credits":3,"category":"CSE","requires":["CSE 317"]},{"code":"ECE 334","credits":3,"category":"ECE","requires":["BAS 218"],"slot":"E2"},{"code":"ENG 312","credits":2,"category":"ENG","requires":[]},{"code":"CSE 451","credits":3,"category":"CSE","requires":["CSE 313"]},{"code":"CSE 413","credits":3,"category":"CSE","requires":["CSE 313"],"slot":"E5"}],[{"code":"ECE 332","credits":3,"category":"ECE","requires":["BAS 218"]},{"code":"ARI 481","credits":3,"category":"ARI","requires":[],"minCredits":116},{"code":"ECE 435","credits":3,"category":"ECE","requires":["ECE 333"],"slot":"E3"},{"code":"ECE 432","credits":3,"category":"ECE","requires":["ECE 321"],"slot":"E4"},{"code":"CSE 423","credits":3,"category":"CSE","requires":["CSE 221"]},{"code":"UNR 471","credits":2,"category":"UNR","requires":[]}],[{"code":"CSE 351","credits":3,"category":"CSE","requires":["ECE 332"]},{"code":"ARI 371","credits":0,"category":"ARI","requires":[],"minCredits":120},{"code":"ARI 482","credits":3,"category":"ARI","requires":[],"minCredits":130}],[],[{"code":"CSE 452","credits":3,"category":"CSE","requires":["CSE 351"]}]],"graduationIndex":4,"verdict":"same","graduation":{"ar":"ربيع 2029","en":"Spring 2029"},"summary":{"ar":"هتقدر تسجّل مقررات أكتر بدري، بس التخرج هيفضل زي ما هو. اللي مأخرك هو سلسلة المتطلبات، مش عدد الساعات.","en":"You can take more courses earlier, but graduation stays the same. Your bottleneck is the prerequisite chain, not the credit limit."},"ruleNote":{"ar":"معدل ≥ 3.00 ← حد أقصى 21 ساعة","en":"GPA ≥ 3.00 → up to 21 credit hours"},"affected":["CSE 413"]},{"id":"spring-2028","label":{"ar":"أقدر أتخرج ربيع 2028؟","en":"Can I graduate in Spring 2028?"},"plan":[[{"code":"ECE 321","credits":3,"category":"ECE","requires":["ECE 234"]},{"code":"ARI 381","credits":3,"category":"ARI","requires":[],"minCredits":96},{"code":"CSE 315","credits":3,"category":"CSE","requires":["CSE 317"]},{"code":"ECE 334","credits":3,"category":"ECE","requires":["BAS 218"],"slot":"E2"},{"code":"ENG 312","credits":2,"category":"ENG","requires":[]},{"code":"CSE 451","credits":3,"category":"CSE","requires":["CSE 313"]}],[{"code":"ECE 332","credits":3,"category":"ECE","requires":["BAS 218"]},{"code":"ARI 481","credits":3,"category":"ARI","requires":[],"minCredits":116},{"code":"ECE 435","credits":3,"category":"ECE","requires":["ECE 333"],"slot":"E3"},{"code":"ECE 432","credits":3,"category":"ECE","requires":["ECE 321"],"slot":"E4"},{"code":"CSE 423","credits":3,"category":"CSE","requires":["CSE 221"]},{"code":"UNR 471","credits":2,"category":"UNR","requires":[]}],[{"code":"CSE 351","credits":3,"category":"CSE","requires":["ECE 332"]},{"code":"ARI 371","credits":0,"category":"ARI","requires":[],"minCredits":120},{"code":"ARI 482","credits":3,"category":"ARI","requires":[],"minCredits":130},{"code":"CSE 413","credits":3,"category":"CSE","requires":["CSE 313"],"slot":"E5"}],[],[{"code":"CSE 452","credits":3,"category":"CSE","requires":["CSE 351"]}]],"graduationIndex":4,"verdict":"infeasible","graduation":{"ar":"غير ممكن بالقواعد الحالية","en":"Not possible under current rules"},"summary":{"ar":"لأ. Neural Networks بيتدرّس في الخريف بس (أقرب مرة خريف 2027)، وبعده Deep Learning في الربيع (ربيع 2028)، وبعده AI Applications في الربيع اللي بعده. فأقرب تخرج ربيع 2029.","en":"No. Neural Networks is Fall-only (earliest Fall 2027), Deep Learning follows in Spring 2028, and AI Applications needs the Spring after that. The earliest graduation is Spring 2029."},"ruleNote":{"ar":"ECE 332 (خريف) ← CSE 351 (ربيع) ← CSE 452 (ربيع)","en":"ECE 332 (Fall) → CSE 351 (Spring) → CSE 452 (Spring)"},"affected":[]}],"planAssumption":{"ar":"افتراض: كل مقرر بيتدرّس في فصل الخطة بتاعه بس (الفردي خريف والزوجي ربيع)، ومن غير ترم صيفي.","en":"Assumption: each course is offered only in its plan term (odd = Fall, even = Spring), with no summer term."},"chatSuggestions":[{"ar":"أسجل إيه الترم الجاي؟","en":"What should I register for next semester?"},{"ar":"ليه مش قادر أسجل Deep Learning؟","en":"Why can't I register for Deep Learning?"},{"ar":"فاضلي كام ساعة للتخرج؟","en":"How many credit hours do I have left?"},{"ar":"مين أنسب دكتور ليا في Communication Networks؟","en":"Which Communication Networks instructor suits me best?"}],"program":{"courses":[{"code":"BAS 011","name":"Mathematics (1)","category":"BAS","type":"mandatory","semester":1,"credits":3,"prereqs":[]},{"code":"BAS 021","name":"Mechanics (1)","category":"BAS","type":"mandatory","semester":1,"credits":3,"prereqs":[]},{"code":"BAS 031","name":"Physics (1)","category":"BAS","type":"mandatory","semester":1,"credits":3,"prereqs":[]},{"code":"BAS 041","name":"Fundamentals of Engineering Chemistry","category":"BAS","type":"mandatory","semester":1,"credits":3,"prereqs":[]},{"code":"PDE 052","name":"Engineering Drawing","category":"PDE","type":"mandatory","semester":1,"credits":3,"prereqs":[]},{"code":"UNR 061","name":"English Language (1)","category":"UNR","type":"mandatory","semester":1,"credits":2,"prereqs":[]},{"code":"BAS 012","name":"Mathematics (2)","category":"BAS","type":"mandatory","semester":2,"credits":3,"prereqs":["BAS 011"]},{"code":"BAS 022","name":"Mechanics (2)","category":"BAS","type":"mandatory","semester":2,"credits":3,"prereqs":["BAS 021"]},{"code":"BAS 032","name":"Physics (2)","category":"BAS","type":"mandatory","semester":2,"credits":3,"prereqs":[]},{"code":"CSE 042","name":"Intro to Computer Systems","category":"CSE","type":"mandatory","semester":2,"credits":3,"prereqs":[]},{"code":"PDE 051","name":"Principles of Manufacturing Engineering","category":"PDE","type":"mandatory","semester":2,"credits":3,"prereqs":[]},{"code":"UNR 021","name":"History of Engineering & Technology","category":"UNR","type":"mandatory","semester":2,"credits":1,"prereqs":[]},{"code":"BAS 115","name":"Linear Algebra","category":"BAS","type":"mandatory","semester":3,"credits":3,"prereqs":["BAS 012"]},{"code":"CSE 151","name":"Introduction to Artificial Intelligence","category":"CSE","type":"mandatory","semester":3,"credits":3,"prereqs":[]},{"code":"CSE 141","name":"Digital Design","category":"CSE","type":"mandatory","semester":3,"credits":3,"prereqs":["CSE 042"]},{"code":"UNR 181","name":"Law & Human Rights","category":"UNR","type":"mandatory","semester":3,"credits":2,"prereqs":[]},{"code":"ECE 121","name":"Electric Circuits","category":"ECE","type":"mandatory","semester":3,"credits":3,"prereqs":["BAS 032"]},{"code":"ENG 111","name":"Technical Report Writing","category":"ENG","type":"mandatory","semester":3,"credits":2,"prereqs":["UNR 061"]},{"code":"BAS 116","name":"Mathematical Methods for Engineers","category":"BAS","type":"mandatory","semester":4,"credits":3,"prereqs":["BAS 115"]},{"code":"ECE 122","name":"Electronics","category":"ECE","type":"mandatory","semester":4,"credits":3,"prereqs":["ECE 121"]},{"code":"CSE 111","name":"Programming (1)","category":"CSE","type":"mandatory","semester":4,"credits":3,"prereqs":["CSE 141"]},{"code":"CSE 112","name":"Algorithms & Data Structures","category":"CSE","type":"mandatory","semester":4,"credits":3,"prereqs":["CSE 042"]},{"code":"ELE 151","name":"Electric Power & Machines","category":"ELE","type":"mandatory","semester":4,"credits":3,"prereqs":["ECE 121"]},{"code":"UNR 121","name":"Research & Analysis Skills","category":"UNR","type":"mandatory","semester":4,"credits":2,"prereqs":[]},{"code":"ARI 171","name":"Practical Training in AI Engineering","category":"ARI","type":"project","semester":4,"credits":0,"prereqs":[],"minCredits":56},{"code":"BAS 216","name":"Statistics & Data Analysis","category":"BAS","type":"mandatory","semester":5,"credits":2,"prereqs":["BAS 115"]},{"code":"ECE 234","name":"Signals & Systems","category":"ECE","type":"mandatory","semester":5,"credits":3,"prereqs":["BAS 116"]},{"code":"UNR 241","name":"Communication & Presentation Skills","category":"UNR","type":"mandatory","semester":5,"credits":2,"prereqs":[]},{"code":"ECE 223","name":"Measurements & Instruments","category":"ECE","type":"mandatory","semester":5,"credits":3,"prereqs":["ECE 122"]},{"code":"CSE 251","name":"Machine Learning","category":"CSE","type":"mandatory","semester":5,"credits":3,"prereqs":["CSE 151"]},{"code":"CSE 221","name":"Automatic Control","category":"CSE","type":"mandatory","semester":5,"credits":3,"prereqs":["BAS 116"]},{"code":"BAS 217","name":"Discrete & Numerical Mathematics","category":"BAS","type":"mandatory","semester":6,"credits":3,"prereqs":["BAS 216"]},{"code":"ECE 224","name":"Sensors, Actuators & Sensor Networks","category":"ECE","type":"mandatory","semester":6,"credits":3,"prereqs":["ECE 223"]},{"code":"BAS 218","name":"Advanced Engineering Mathematics","category":"BAS","type":"mandatory","semester":6,"credits":3,"prereqs":["BAS 216"]},{"code":"UNR 261","name":"Professional Ethics","category":"UNR","type":"mandatory","semester":6,"credits":2,"prereqs":[]},{"code":"CSE 212","name":"Database Systems","category":"CSE","type":"mandatory","semester":6,"credits":3,"prereqs":["CSE 112"]},{"code":"ECE 235","name":"Signal Processing & Analysis","category":"ECE","type":"mandatory","semester":6,"credits":3,"prereqs":["ECE 234"]},{"code":"ARI 271","name":"Field Training (1) in AI Engineering","category":"ARI","type":"project","semester":6,"credits":0,"prereqs":[],"minCredits":90},{"code":"ELEC E1","name":"Elective (1)","category":"CSE","type":"elective","semester":7,"credits":3,"prereqs":[],"electiveGroup":"L300"},{"code":"ECE 332","name":"Neural Networks","category":"ECE","type":"mandatory","semester":7,"credits":3,"prereqs":["BAS 218"]},{"code":"CSE 331","name":"Programming (2)","category":"CSE","type":"mandatory","semester":7,"credits":3,"prereqs":["CSE 111"]},{"code":"CSE 313","name":"Data Management","category":"CSE","type":"mandatory","semester":7,"credits":3,"prereqs":["CSE 212"]},{"code":"CSE 317","name":"Computer Architecture","category":"CSE","type":"mandatory","semester":7,"credits":3,"prereqs":["CSE 141"]},{"code":"ECE 333","name":"Digital Image Processing","category":"ECE","type":"mandatory","semester":7,"credits":3,"prereqs":["ECE 235"]},{"code":"CSE 351","name":"Deep Learning","category":"CSE","type":"mandatory","semester":8,"credits":3,"prereqs":["ECE 332"]},{"code":"CSE 315","name":"Embedded Systems","category":"CSE","type":"mandatory","semester":8,"credits":3,"prereqs":["CSE 317"]},{"code":"ELEC E2","name":"Elective (2)","category":"CSE","type":"elective","semester":8,"credits":3,"prereqs":[],"electiveGroup":"L300"},{"code":"ECE 321","name":"Communication Networks","category":"ECE","type":"mandatory","semester":8,"credits":3,"prereqs":["ECE 234"]},{"code":"ENG 312","name":"Project Management","category":"ENG","type":"mandatory","semester":8,"credits":2,"prereqs":[]},{"code":"ARI 381","name":"Project (1) in AI Engineering","category":"ARI","type":"project","semester":8,"credits":3,"prereqs":[],"minCredits":96},{"code":"ARI 371","name":"Field Training (2) in AI Engineering","category":"ARI","type":"project","semester":8,"credits":0,"prereqs":[],"minCredits":120},{"code":"ELEC E3","name":"Elective (3)","category":"CSE","type":"elective","semester":9,"credits":3,"prereqs":[],"electiveGroup":"L400"},{"code":"ELEC E4","name":"Elective (4)","category":"CSE","type":"elective","semester":9,"credits":3,"prereqs":[],"electiveGroup":"L400"},{"code":"CSE 423","name":"Robotics","category":"CSE","type":"mandatory","semester":9,"credits":3,"prereqs":["CSE 221"]},{"code":"UNR 471","name":"Marketing","category":"UNR","type":"mandatory","semester":9,"credits":2,"prereqs":[]},{"code":"ARI 481","name":"Project (2) in AI Engineering","category":"ARI","type":"project","semester":9,"credits":3,"prereqs":[],"minCredits":116},{"code":"CSE 451","name":"Big Data Science","category":"CSE","type":"mandatory","semester":10,"credits":3,"prereqs":["CSE 313"]},{"code":"CSE 452","name":"AI Applications","category":"CSE","type":"mandatory","semester":10,"credits":3,"prereqs":["CSE 351"]},{"code":"ELEC E5","name":"Elective (5)","category":"CSE","type":"elective","semester":10,"credits":3,"prereqs":[],"electiveGroup":"L400"},{"code":"ARI 482","name":"Project (3) in AI Engineering","category":"ARI","type":"project","semester":10,"credits":3,"prereqs":[],"minCredits":130}],"electivePools":{"L300":[{"code":"CSE 316","name":"Decision-Making Systems","category":"CSE","credits":3,"prereqs":["BAS 218"],"description":"Decision making under certainty/uncertainty, linear programming, knowledge representation, decision support interfaces, guideline verification."},{"code":"ECE 334","name":"Pattern Recognition","category":"ECE","credits":3,"prereqs":["BAS 218"],"description":"Pattern recognition problem formulation, signal pre-processing, feature extraction, classification methods: supervised, unsupervised, parametric, non-parametric."},{"code":"BAS 315","name":"Optimization Methods","category":"BAS","credits":3,"prereqs":["BAS 218"],"description":"Linear, numerical, dynamic, and nonlinear optimization; heuristic methods."},{"code":"CSE 319","name":"Bioinformatics","category":"CSE","credits":3,"prereqs":["BAS 216"],"description":"DNA/protein databases, sequence alignment, phylogenetic trees, microarray analysis, protein structure prediction, comparative genomics."},{"code":"CSE 318","name":"Human-Computer Interaction","category":"CSE","credits":3,"prereqs":["CSE 251"],"description":"HCI introduction, cognitive psychology, design methods, human psychology simulation, design sensitivity, evaluation methods, error recovery."},{"code":"BAS 311","name":"Statistical Learning","category":"BAS","credits":3,"prereqs":["BAS 216"],"description":"Linear/logistic/polynomial regression, linear models, LDA, classification trees, random forests, SVM, PCA, cluster analysis."},{"code":"CSE 335","name":"Data Visualization & Analysis","category":"CSE","credits":3,"prereqs":["CSE 331","BAS 218"],"description":"Data analysis & visualization intro, Python/R programming, data description methods, high-dimensional data, statistical analysis, hypothesis testing, dashboard design."},{"code":"CSE 352","name":"Cognitive Psychology","category":"CSE","credits":3,"prereqs":[],"description":"Human information processing & AI, perception, human memory, visual cognition, language and thought."}],"L400":[{"code":"ECE 432","name":"Internet of Things (IoT)","category":"ECE","credits":3,"prereqs":["ECE 321"],"description":"IoT intro, hardware platforms & OS, wireless communication, IP-connected smart objects, embedded web services, industrial network tracking, standards & protocols."},{"code":"CSE 454","name":"Advanced Deep Learning","category":"CSE","credits":3,"prereqs":["CSE 351"],"description":"Advanced DL models: image-to-image networks, GANs for various signals, transfer learning, learning from small data, deep reinforcement learning, sequence modeling."},{"code":"CSE 455","name":"Natural Language Processing","category":"CSE","credits":3,"prereqs":["CSE 351"],"description":"NLP intro, information extraction, translation tools, sentiment analysis, word vector representations, probabilistic NLP, sequence models, RNN, LSTM, machine translation."},{"code":"ECE 435","name":"Computer Vision","category":"ECE","credits":3,"prereqs":["ECE 333"],"description":"Image formation, camera geometry, image statistics, motion estimation, stereo, image classification, scene understanding, deep learning with neural networks, optical flow, segmentation."},{"code":"CSE 412","name":"Soft Computing","category":"CSE","credits":3,"prereqs":["ECE 332"],"description":"Soft computing intro, neural networks, fuzzy sets, fuzzy logic, fuzzy classification, hybrid methods, neuro-fuzzy models, genetic algorithms."},{"code":"CSE 413","name":"High-Performance Computing Systems","category":"CSE","credits":3,"prereqs":["CSE 313"],"description":"Computer architecture, multi-core, vector representation, multithreading, distributed/shared memory, parallel computing, GPU computing, client-server communication."},{"code":"CSE 456","name":"AI Applications in Medical Systems","category":"CSE","credits":3,"prereqs":["CSE 351"],"description":"AI in medicine intro, medical signals & images, medical data mining, CNNs, image-to-image models, GANs – applied to tumor detection, medical image segmentation, vital signal analysis."},{"code":"CSE 457","name":"Reinforcement Learning","category":"CSE","credits":3,"prereqs":["CSE 351"],"description":"RL theory, state/action/reward definition, problem formulation in RL framework, deep RL as neural networks, DRL applications in AI."},{"code":"CSE 414","name":"Data Mining","category":"CSE","credits":3,"prereqs":["BAS 218","CSE 351"],"description":"Data mining concepts, reading & storing data, classification/clustering, feature extraction, statistical analysis, knowledge pattern inference, audio/text data, various ML algorithms."},{"code":"CSE 458","name":"AI in Signal & Audio Processing","category":"CSE","credits":3,"prereqs":["CSE 151","CSE 351"],"description":"DL for signal processing, advanced deep neural architectures, RNN models, LSTM, sequence-to-sequence networks, GANs for audio generation."},{"code":"CSE 459","name":"Machine Learning in Arts","category":"CSE","credits":3,"prereqs":["CSE 351"],"description":"AI/ML in arts intro, image-to-image learning, GANs, style-transfer networks – applied to artistic image generation, interior design, music composition, video colorization."}]},"categoryLabels":{"UNR":{"ar":"متطلبات الجامعة","en":"University Req."},"BAS":{"ar":"العلوم الأساسية","en":"Basic Sciences"},"ENG":{"ar":"العلوم الهندسية","en":"Engineering"},"CSE":{"ar":"علوم وهندسة الحاسب","en":"Computer Science"},"ECE":{"ar":"الإلكترونيات والاتصالات","en":"Electronics & Comm."},"ELE":{"ar":"الهندسة الكهربية","en":"Electrical Eng."},"PDE":{"ar":"هندسة الإنتاج","en":"Production Eng."},"ARI":{"ar":"مشروعات وتدريب الذكاء الاصطناعي","en":"AI Projects & Training"}},"typeLabels":{"mandatory":{"ar":"إجباري","en":"Mandatory"},"elective":{"ar":"اختياري","en":"Elective"},"project":{"ar":"مشروع / تدريب","en":"Project / Training"}},"facts":{"degree":{"ar":"بكالوريوس هندسة الذكاء الاصطناعي","en":"B.Sc. in Artificial Intelligence Engineering"},"institution":{"ar":"كلية الهندسة – جامعة المنصورة","en":"Faculty of Engineering – Mansoura University"},"totalCredits":160,"universityCredits":13,"collegeCredits":45,"specializationCredits":102,"semesters":10,"levels":5},"totalCredits":160},"regs":{"assessment":[{"title":{"ar":"مقررات نظري فقط","en":"Theory-only courses"},"parts":[{"label":{"ar":"منتصف الترم","en":"Midterm"},"pct":20},{"label":{"ar":"أعمال السنة","en":"Semester work"},"pct":30},{"label":{"ar":"النهائي","en":"Final"},"pct":50}]},{"title":{"ar":"نظري + معمل","en":"Theory + lab"},"parts":[{"label":{"ar":"منتصف الترم","en":"Midterm"},"pct":20},{"label":{"ar":"أعمال السنة","en":"Semester work"},"pct":20},{"label":{"ar":"امتحان المعمل","en":"Lab exam"},"pct":10},{"label":{"ar":"النهائي","en":"Final"},"pct":50}]},{"title":{"ar":"المشروعات","en":"Projects"},"parts":[{"label":{"ar":"متابعة دورية","en":"Periodic follow-up"},"pct":50},{"label":{"ar":"المناقشة النهائية","en":"Final discussion"},"pct":50}]}],"gpaFormula":{"ar":"المعدل = مجموع (نقاط التقدير × الساعات) ÷ مجموع الساعات","en":"GPA = Σ (grade points × credit hours) ÷ Σ credit hours"},"gradeScale":[{"grade":"A+","points":"4.00","range":"97 – 100"},{"grade":"A","points":"4.00","range":"93 – <97"},{"grade":"A−","points":"3.70","range":"89 – <93"},{"grade":"B+","points":"3.30","range":"84 – <89"},{"grade":"B","points":"3.00","range":"80 – <84"},{"grade":"B−","points":"2.70","range":"76 – <80"},{"grade":"C+","points":"2.30","range":"73 – <76"},{"grade":"C","points":"2.00","range":"70 – <73"},{"grade":"C−","points":"1.70","range":"67 – <70"},{"grade":"D+","points":"1.30","range":"64 – <67"},{"grade":"D","points":"1.00","range":"60 – <64"},{"grade":"F","points":"0.00","range":"< 60"}],"loadTable":[{"range":{"ar":"المعدل < 2.00","en":"GPA < 2.00"},"max":14,"maxGpa":2},{"range":{"ar":"2.00 ≤ المعدل < 3.00","en":"2.00 ≤ GPA < 3.00"},"max":18,"min":2,"maxGpa":3},{"range":{"ar":"المعدل ≥ 3.00","en":"GPA ≥ 3.00"},"max":21,"min":3}],"ruleSections":[{"id":"load","title":{"ar":"العبء الدراسي","en":"Academic load"},"items":[{"ar":"الحد الأدنى 12 ساعة في الخريف والربيع، إلا في ترم التخرج أو بموافقة المجلس.","en":"Minimum 12 credits in Fall and Spring, except in the graduation term or with council approval."},{"ar":"الترم الصيفي: 3 مقررات بحد أقصى، ومشروعات التخرج مش بتتسجل فيه.","en":"Summer term: at most 3 courses, and graduation projects cannot be registered."}],"note":{"ar":"تعارض في المصدر: جدول العبء بيقول 14 ساعة لمعدل أقل من 2.00، لكن قسم الإنذار بيقول 12 ساعة للطالب تحت الملاحظة. محتاج تأكيد من اللائحة الرسمية.","en":"Conflict in the source: the load table says 14 credits for GPA < 2.00, but the warning section caps students on probation at 12. Needs confirmation from the official bylaws."}},{"id":"passing","title":{"ar":"النجاح والحضور","en":"Passing & attendance"},"items":[{"ar":"النجاح: 60% على الأقل في المقرر، و40% على الأقل في الامتحان التحريري النهائي.","en":"To pass: at least 60% overall and at least 40% in the final written exam."},{"ar":"أقصى غياب 25% من المحاضرات والمعامل. إنذار أول عند 10% وتاني عند 20%.","en":"Maximum absence is 25% of lectures and labs, with warnings at 10% and 20%."},{"ar":"تجاوز 25% من غير عذر مقبول ← تقدير «محروم» ويتحسب في المعدل.","en":"Over 25% without an accepted excuse → a 'Deprived' grade that counts in the GPA."}]},{"id":"drop","title":{"ar":"الإضافة والحذف والانسحاب والإعادة","en":"Add, drop, withdraw & retake"},"items":[{"ar":"الحذف لحد آخر الأسبوع الرابع بموافقة المرشد الأكاديمي.","en":"Drop until the end of week 4, with academic advisor approval."},{"ar":"الانسحاب (W) لحد آخر الأسبوع العاشر (الثالث في الصيفي)، لو مش متجاوز نسبة الغياب.","en":"Withdraw (W) until the end of week 10 (week 3 in summer), if absence limits are not exceeded."},{"ar":"إعادة مقرر سقطت فيه (F): أعلى تقدير ممكن B+.","en":"Retaking a failed (F) course: the highest possible grade is B+."},{"ar":"إعادة اختياري سقطت فيه: بتاخد الأقل من التقديرين كحد أقصى. لو غيّرت الاختياري، بتاخد تقديرك الجديد.","en":"Retaking a failed elective is capped at the lower of the two grades; switching to a different elective keeps the new grade."}]},{"id":"warning","title":{"ar":"الإنذار والفصل","en":"Academic warning & dismissal"},"items":[{"ar":"إنذار لو المعدل التراكمي أقل من 2.00 بعد الترم التاني أو أي ترم بعده.","en":"Warning if the cumulative GPA is below 2.00 after the 2nd semester or any later one."},{"ar":"الطالب تحت الملاحظة مايسجلش أكتر من 12 ساعة لحد ما معدله يوصل 2.00.","en":"A student on probation may not register more than 12 credits until the GPA reaches 2.00."},{"ar":"الفصل بعد 3 أترام أساسية متتالية تحت 2.00، أو تجاوز 10 سنين دراسة.","en":"Dismissal after 3 consecutive main semesters below 2.00, or exceeding 10 years of study."},{"ar":"تحسين التقدير: لحد 5 مقررات طول مدة الدراسة.","en":"Grade improvement: up to 5 courses over the whole study period."}]},{"id":"graduation","title":{"ar":"متطلبات التخرج","en":"Graduation requirements"},"items":[{"ar":"160 ساعة معتمدة على الأقل، من غير أي تقدير أقل من D.","en":"At least 160 credit hours, with no grade below D."},{"ar":"معدل تراكمي 2.00 على الأقل (C).","en":"A cumulative GPA of at least 2.00 (C)."},{"ar":"النجاح في كل مشروعات التخرج وفي التدريب العملي والميداني.","en":"Passing all graduation projects plus the practical and field training."}]},{"id":"training","title":{"ar":"التدريب والمشروعات","en":"Training & projects"},"items":[{"ar":"ARI 171: تدريب عملي داخل الجامعة، أسبوعين / 60 ساعة على الأقل.","en":"ARI 171: practical training at the university, at least 2 weeks / 60 hours."},{"ar":"ARI 271 و ARI 371: تدريب ميداني خارجي، 4 أسابيع / 120 ساعة على الأقل، بشهادة رسمية.","en":"ARI 271 and ARI 371: external field training, at least 4 weeks / 120 hours, with an official certificate."},{"ar":"التدريب نجاح/رسوب ومش بيتحسب في المعدل.","en":"Training is graded Pass/Fail and does not count in the GPA."},{"ar":"مشروعات التخرج (ARI 381 و481 و482) في مجموعات من 2–3 طلاب.","en":"Graduation projects (ARI 381, 481, 482) are done in groups of 2–3 students."}]}]},"names":{"BAS 011":"Mathematics (1)","BAS 021":"Mechanics (1)","BAS 031":"Physics (1)","BAS 041":"Fundamentals of Engineering Chemistry","PDE 052":"Engineering Drawing","UNR 061":"English Language (1)","BAS 012":"Mathematics (2)","BAS 022":"Mechanics (2)","BAS 032":"Physics (2)","CSE 042":"Intro to Computer Systems","PDE 051":"Principles of Manufacturing Engineering","UNR 021":"History of Engineering & Technology","BAS 115":"Linear Algebra","CSE 151":"Introduction to Artificial Intelligence","CSE 141":"Digital Design","UNR 181":"Law & Human Rights","ECE 121":"Electric Circuits","ENG 111":"Technical Report Writing","BAS 116":"Mathematical Methods for Engineers","ECE 122":"Electronics","CSE 111":"Programming (1)","CSE 112":"Algorithms & Data Structures","ELE 151":"Electric Power & Machines","UNR 121":"Research & Analysis Skills","ARI 171":"Practical Training in AI Engineering","BAS 216":"Statistics & Data Analysis","ECE 234":"Signals & Systems","UNR 241":"Communication & Presentation Skills","ECE 223":"Measurements & Instruments","CSE 251":"Machine Learning","CSE 221":"Automatic Control","BAS 217":"Discrete & Numerical Mathematics","ECE 224":"Sensors, Actuators & Sensor Networks","BAS 218":"Advanced Engineering Mathematics","UNR 261":"Professional Ethics","CSE 212":"Database Systems","ECE 235":"Signal Processing & Analysis","ARI 271":"Field Training (1) in AI Engineering","ELEC E1":"Elective (1)","ECE 332":"Neural Networks","CSE 331":"Programming (2)","CSE 313":"Data Management","CSE 317":"Computer Architecture","ECE 333":"Digital Image Processing","CSE 351":"Deep Learning","CSE 315":"Embedded Systems","ELEC E2":"Elective (2)","ECE 321":"Communication Networks","ENG 312":"Project Management","ARI 381":"Project (1) in AI Engineering","ARI 371":"Field Training (2) in AI Engineering","ELEC E3":"Elective (3)","ELEC E4":"Elective (4)","CSE 423":"Robotics","UNR 471":"Marketing","ARI 481":"Project (2) in AI Engineering","CSE 451":"Big Data Science","CSE 452":"AI Applications","ELEC E5":"Elective (5)","ARI 482":"Project (3) in AI Engineering","CSE 316":"Decision-Making Systems","ECE 334":"Pattern Recognition","BAS 315":"Optimization Methods","CSE 319":"Bioinformatics","CSE 318":"Human-Computer Interaction","BAS 311":"Statistical Learning","CSE 335":"Data Visualization & Analysis","CSE 352":"Cognitive Psychology","ECE 432":"Internet of Things (IoT)","CSE 454":"Advanced Deep Learning","CSE 455":"Natural Language Processing","ECE 435":"Computer Vision","CSE 412":"Soft Computing","CSE 413":"High-Performance Computing Systems","CSE 456":"AI Applications in Medical Systems","CSE 457":"Reinforcement Learning","CSE 414":"Data Mining","CSE 458":"AI in Signal & Audio Processing","CSE 459":"Machine Learning in Arts"},"statuses":{"BAS 011":{"kind":"passed"},"BAS 021":{"kind":"passed"},"BAS 031":{"kind":"passed"},"BAS 041":{"kind":"passed"},"PDE 052":{"kind":"passed"},"UNR 061":{"kind":"passed"},"BAS 012":{"kind":"passed"},"BAS 022":{"kind":"passed"},"BAS 032":{"kind":"passed"},"CSE 042":{"kind":"passed"},"PDE 051":{"kind":"passed"},"UNR 021":{"kind":"passed"},"BAS 115":{"kind":"passed"},"CSE 151":{"kind":"passed"},"CSE 141":{"kind":"passed"},"UNR 181":{"kind":"passed"},"ECE 121":{"kind":"passed"},"ENG 111":{"kind":"passed"},"BAS 116":{"kind":"passed"},"ECE 122":{"kind":"passed"},"CSE 111":{"kind":"passed"},"CSE 112":{"kind":"passed"},"ELE 151":{"kind":"passed"},"UNR 121":{"kind":"passed"},"ARI 171":{"kind":"passed"},"BAS 216":{"kind":"passed"},"ECE 234":{"kind":"passed"},"UNR 241":{"kind":"passed"},"ECE 223":{"kind":"passed"},"CSE 251":{"kind":"passed"},"CSE 221":{"kind":"passed"},"BAS 217":{"kind":"passed"},"ECE 224":{"kind":"passed"},"BAS 218":{"kind":"passed"},"UNR 261":{"kind":"passed"},"CSE 212":{"kind":"passed"},"ECE 235":{"kind":"passed"},"ARI 271":{"kind":"passed"},"ELEC E1":{"kind":"passed"},"ECE 332":{"kind":"failed","eligibleToRetake":true,"missing":[]},"CSE 331":{"kind":"passed"},"CSE 313":{"kind":"passed"},"CSE 317":{"kind":"passed"},"ECE 333":{"kind":"passed"},"CSE 351":{"kind":"locked","missing":["ECE 332"],"creditsShort":0},"CSE 315":{"kind":"eligible"},"ELEC E2":{"kind":"eligible"},"ECE 321":{"kind":"eligible"},"ENG 312":{"kind":"eligible"},"ARI 381":{"kind":"eligible"},"ARI 371":{"kind":"locked","missing":[],"creditsShort":6},"ELEC E3":{"kind":"eligible"},"ELEC E4":{"kind":"eligible"},"CSE 423":{"kind":"eligible"},"UNR 471":{"kind":"eligible"},"ARI 481":{"kind":"locked","missing":[],"creditsShort":2},"CSE 451":{"kind":"eligible"},"CSE 452":{"kind":"locked","missing":["CSE 351"],"creditsShort":0},"ELEC E5":{"kind":"eligible"},"ARI 482":{"kind":"locked","missing":[],"creditsShort":16},"CSE 316":{"kind":"eligible"},"ECE 334":{"kind":"eligible"},"BAS 315":{"kind":"eligible"},"CSE 319":{"kind":"eligible"},"CSE 318":{"kind":"eligible"},"BAS 311":{"kind":"passed"},"CSE 335":{"kind":"eligible"},"CSE 352":{"kind":"eligible"},"ECE 432":{"kind":"locked","missing":["ECE 321"],"creditsShort":0},"CSE 454":{"kind":"locked","missing":["CSE 351"],"creditsShort":0},"CSE 455":{"kind":"locked","missing":["CSE 351"],"creditsShort":0},"ECE 435":{"kind":"eligible"},"CSE 412":{"kind":"locked","missing":["ECE 332"],"creditsShort":0},"CSE 413":{"kind":"eligible"},"CSE 456":{"kind":"locked","missing":["CSE 351"],"creditsShort":0},"CSE 457":{"kind":"locked","missing":["CSE 351"],"creditsShort":0},"CSE 414":{"kind":"locked","missing":["CSE 351"],"creditsShort":0},"CSE 458":{"kind":"locked","missing":["CSE 351"],"creditsShort":0},"CSE 459":{"kind":"locked","missing":["CSE 351"],"creditsShort":0}},"dependents":{"BAS 011":["BAS 012"],"BAS 021":["BAS 022"],"BAS 031":[],"BAS 041":[],"PDE 052":[],"UNR 061":["ENG 111"],"BAS 012":["BAS 115"],"BAS 022":[],"BAS 032":["ECE 121"],"CSE 042":["CSE 141","CSE 112"],"PDE 051":[],"UNR 021":[],"BAS 115":["BAS 116","BAS 216"],"CSE 151":["CSE 251","CSE 458"],"CSE 141":["CSE 111","CSE 317"],"UNR 181":[],"ECE 121":["ECE 122","ELE 151"],"ENG 111":[],"BAS 116":["ECE 234","CSE 221"],"ECE 122":["ECE 223"],"CSE 111":["CSE 331"],"CSE 112":["CSE 212"],"ELE 151":[],"UNR 121":[],"ARI 171":[],"BAS 216":["BAS 217","BAS 218","CSE 319","BAS 311"],"ECE 234":["ECE 235","ECE 321"],"UNR 241":[],"ECE 223":["ECE 224"],"CSE 251":["CSE 318"],"CSE 221":["CSE 423"],"BAS 217":[],"ECE 224":[],"BAS 218":["ECE 332","CSE 316","ECE 334","BAS 315","CSE 335","CSE 414"],"UNR 261":[],"CSE 212":["CSE 313"],"ECE 235":["ECE 333"],"ARI 271":[],"ELEC E1":[],"ECE 332":["CSE 351","CSE 412"],"CSE 331":["CSE 335"],"CSE 313":["CSE 451","CSE 413"],"CSE 317":["CSE 315"],"ECE 333":["ECE 435"],"CSE 351":["CSE 452","CSE 454","CSE 455","CSE 456","CSE 457","CSE 414","CSE 458","CSE 459"],"CSE 315":[],"ELEC E2":[],"ECE 321":["ECE 432"],"ENG 312":[],"ARI 381":[],"ARI 371":[],"ELEC E3":[],"ELEC E4":[],"CSE 423":[],"UNR 471":[],"ARI 481":[],"CSE 451":[],"CSE 452":[],"ELEC E5":[],"ARI 482":[],"CSE 316":[],"ECE 334":[],"BAS 315":[],"CSE 319":[],"CSE 318":[],"BAS 311":[],"CSE 335":[],"CSE 352":[],"ECE 432":[],"CSE 454":[],"CSE 455":[],"ECE 435":[],"CSE 412":[],"CSE 413":[],"CSE 456":[],"CSE 457":[],"CSE 414":[],"CSE 458":[],"CSE 459":[]}}};
+const P = D.program;
+
+// ------------------------------------------------------------------ icons (Lucide, ISC license)
+const ICONS = {
+  dashboard:'<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
+  chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/>',
+  sparkles:'<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
+  calendar:'<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M17 14h-6"/><path d="M13 18H7"/>',
+  library:'<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+  menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+  moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  languages:'<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>',
+  shield:'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+  book:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+  flask:'<path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/>',
+  alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  seat:'<path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M5 18v2"/><path d="M19 18v2"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  checkCircle:'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  xCircle:'<circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>',
+  x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  plus:'<path d="M5 12h14M12 5v14"/>',
+  lock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  unlock:'<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+  trophy:'<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+  mic:'<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/>',
+  send:'<path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/>',
+  stop:'<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>',
+  grad:'<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
+  history:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  rotate:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  move:'<path d="M18 8l4 4-4 4"/><path d="M2 12h20"/>',
+  arrowLeft:'<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  clock:'<path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h5"/><path d="M17.5 17.5 16 16.3V14"/><circle cx="16" cy="16" r="6"/>',
+  leaf:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+  flower:'<circle cx="12" cy="8" r="2"/><path d="M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1"/><path d="M12 10v12"/><path d="M12 22c4.2 0 7-1.667 7-5-4.2 0-7 1.667-7 5Z"/><path d="M12 22c-4.2 0-7-1.667-7-5 4.2 0 7 1.667 7 5Z"/>',
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  chevron:'<path d="m6 9 6 6 6-6"/>',
+  star:'<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+};
+const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+
+// Masari mark, fitted to the 1000px master artwork. Node holes are masked so any surface shows through.
+// Masari symbol: exact geometry of the brand export (masari-symbol-*.svg). Node holes are masked, mirrored in RTL via CSS.
+let markSeq = 0;
+const MARK_PATH = "M24 76 C24 58 50 66 50 50 C50 34 76 42 76 24";
+function mark(size) {
+  const id = "mk" + ++markSeq;
+  return `<svg class="mark" width="${size}" height="${size}" viewBox="6 6 88 88" aria-hidden="true"><mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><rect width="100" height="100" fill="white"/><circle cx="24" cy="76" r="5.5"/><circle cx="50" cy="50" r="5.5"/></mask><g mask="url(#${id})" fill="currentColor"><path d="${MARK_PATH}" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/><circle cx="24" cy="76" r="12.5"/><circle cx="50" cy="50" r="12.5"/></g><circle class="dot" cx="76" cy="24" r="12.5"/></svg>`;
+}
+// Simplified circular icon for small sizes (masari-chat-avatar.svg).
+const appIcon = (size) => `<svg width="${size}" height="${size}" viewBox="0 0 100 100" aria-hidden="true" style="flex-shrink:0"><circle cx="50" cy="50" r="50" fill="#1E2230"/><g transform="translate(19 19) scale(0.62)"><path d="${MARK_PATH}" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round"/><circle cx="24" cy="76" r="10" fill="#FFFFFF"/><circle cx="50" cy="50" r="10" fill="#FFFFFF"/><circle cx="76" cy="24" r="14" fill="#F27A2E"/></g></svg>`;
+
+// ------------------------------------------------------------------ state + i18n
+const store = {
+  get(k, f) { try { return localStorage.getItem(k) ?? f } catch { return f } },
+  set(k, v) { try { localStorage.setItem(k, v) } catch {} },
+};
+const emptyFilters = { q: "", level: "all", semester: "all", category: "all", type: "all", term: "all", status: "all" };
+const S = {
+  lang: store.get("masari.lang", "ar"),
+  theme: store.get("masari.theme", "system"),
+  selected: [...D.proposedNow],
+  tab: "courses",
+  catTab: "courses",
+  f: { ...emptyFilters },
+  openRow: null,
+  insCourse: "ECE 321",
+  prefs: { ...D.defaultPrefs },
+  scenario: null,
+  listening: false,
+  thinking: false,
+  messages: [
+    { role: "user", text: { ar: "أسجل إيه الترم الجاي، ومين الدكاترة المناسبين ليا؟", en: "What should I register for next semester, and which instructors suit me?" } },
+    { role: "assistant", kind: "recommendation" },
+    { role: "user", text: { ar: "طب ليه مش قادر أسجل Deep Learning؟", en: "And why can't I register for Deep Learning?" } },
+    { role: "assistant", kind: "prereq" },
+  ],
+};
+const t = (k) => dict[k][S.lang];
+const tr = (l) => l[S.lang];
+const num = (n, o) => new Intl.NumberFormat(S.lang === "ar" ? "ar-EG-u-nu-latn" : "en-US", o).format(n);
+const gpa = () => num(D.student.gpa, { minimumFractionDigits: 1 });
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const name = (code) => D.names[code] || code;
+const termOf = (sem) => (sem % 2 === 1 ? "fall" : "spring");
+const levelOf = (sem) => Math.floor((sem - 1) / 2);
+const listSep = () => (S.lang === "ar" ? "، " : ", ");
+
+// ------------------------------------------------------------------ demo logic
+function demoCompatibility(p, prefs) {
+  const paceFit = 100 - Math.abs(p.pace - prefs.pace);
+  const workloadFit = 100 - Math.max(0, p.workload - prefs.workload) * 1.2;
+  const practicalFit = 100 - Math.abs(p.practical - prefs.practical);
+  const fit = (paceFit + workloadFit + practicalFit) / 3;
+  return Math.round(Math.max(0, Math.min(100, 0.6 * fit + 0.25 * p.clarity + 0.15 * p.satisfaction)));
+}
+const confidence = (n) => (n >= 50 ? "high" : n >= 20 ? "medium" : "low");
+
+// ------------------------------------------------------------------ shared components
+const tipPill = (cls, icon, label, hint) => `<span class="pill ${cls}" tabindex="0" data-tip="${esc(hint)}">${ic(icon)}${esc(label)}</span>`;
+const verified = (x = "") => tipPill("pill-verified " + x, "shield", t("verified"), t("verifiedHint"));
+const demo = () => tipPill("pill-demo", "flask", t("demoData"), t("demoDataHint"));
+const source = (id) => { const s = D.sources[id]; return s ? `<span class="source">${ic("book", "i-sm")}<span class="sr-only">${t("source")}: </span><b>${esc(tr(s.title))}</b><span>· ${esc(tr(s.locator))}</span></span>` : ""; };
+const aiExp = (text) => `<div class="ai-exp"><span class="ai-label" tabindex="0" data-tip="${esc(t("aiExplanationHint"))}" style="position:relative;width:fit-content">${ic("sparkles", "i-sm")}${t("aiExplanation")}</span><p>${esc(text)}</p></div>`;
+const bar = (v, max = 100, fill = "", size = "", label = "") => `<div class="bar ${size}" role="progressbar" aria-valuemin="0" aria-valuemax="${max}" aria-valuenow="${v}" aria-label="${esc(label)}"><i class="${fill}" style="width:${Math.max(0, Math.min(100, (v / max) * 100))}%"></i></div>`;
+const code = (c) => `<bdi dir="ltr" class="code">${esc(c)}</bdi>`;
+const tag = (cat) => `<span class="tag tag-${cat}" title="${esc(tr(P.categoryLabels[cat]))}" aria-label="${esc(tr(P.categoryLabels[cat]))}">${cat}</span>`;
+const slotTag = (slot, group) => `<span class="slot">${esc(slot)}${group ? ` <span style="opacity:.7">· ${group}</span>` : ""}</span>`;
+function conf(level, n) {
+  const bars = { high: 3, medium: 2, low: 1 }[level];
+  const key = { high: "confHigh", medium: "confMedium", low: "confLow" }[level];
+  return `<span class="conf c-${level}"><span class="bars">${[1, 2, 3].map((i) => `<i class="${i <= bars ? "on" : ""}" style="height:${4 + i * 3}px"></i>`).join("")}</span><span class="muted">${t("confidence")}:</span><b style="font-weight:500">${t(key)}</b>${n != null ? `<span class="muted">· ${num(n)} ${t("responses")}</span>` : ""}</span>`;
+}
+function ring(v, max, size, inner) {
+  const r = (size - 8) / 2, c = 2 * Math.PI * r, pct = Math.min(1, v / max);
+  return `<div style="position:relative;width:${size}px;height:${size}px;flex-shrink:0"><svg width="${size}" height="${size}" style="transform:rotate(-90deg)" aria-hidden="true"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke-width="7" stroke="var(--muted)"/><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke-width="7" stroke="var(--primary)" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - pct)}"/></svg><div style="position:absolute;inset:0;display:grid;place-items:center">${inner}</div></div>`;
+}
+const pageHead = (title, sub, actions = "") => `<div class="page-head"><div><h2>${esc(title)}</h2>${sub ? `<p>${esc(sub)}</p>` : ""}</div>${actions ? `<div class="row wrap">${actions}</div>` : ""}</div>`;
+
+// ------------------------------------------------------------------ dashboard
+// "Your path": every connector is the logo's own segment (out of a node upward, into the next from below).
+// Desktop scales to the card; phones draw it 1:1, scroll sideways and open on "you are here".
+function rail() {
+  const STEP = 84, PAD = 48, H = 214, BASE = 136, RISE = 76, k = STEP * 0.24;
+  const sem = (c) => (P.courses.find((x) => x.code === c) || {}).semester || 0;
+  const completed = Math.max(...D.record.passed.map(sem));
+  const nodes = [
+    ...Array.from({ length: completed }, (_, i) => ({ kind: "done", label: `${t("semShort")} ${num(i + 1)}`, failed: D.record.failed.some((f) => sem(f) === i + 1) })),
+    ...D.baselinePlan.slice(0, D.baselineGraduationIndex + 1).map((term, i) => ({ kind: "term", label: tr(D.semesterNames[i]), credits: term.reduce((s, c) => s + c.credits, 0), empty: term.length === 0, grad: i === D.baselineGraduationIndex })),
+  ];
+  const W = PAD * 2 + STEP * (nodes.length - 1), rise = RISE / (nodes.length - 1);
+  const pts = nodes.map((_, i) => { const x = PAD + i * STEP; return { x: S.lang === "ar" ? W - x : x, y: BASE - i * rise }; });
+  const seg = (a, p) => `C${a.x} ${a.y - k} ${p.x} ${p.y + k} ${p.x} ${p.y}`;
+  const pathTo = (n) => pts.slice(0, n).map((p, i) => (i ? seg(pts[i - 1], p) : `M${p.x} ${p.y}`)).join(" ");
+  const a = pts[completed - 1], b = pts[completed], hx = (a.x + b.x) / 2, hy = (a.y + b.y) / 2;
+  const T = (x, y, fill, size, txt, weight = 400) => `<text x="${x}" y="${y}" text-anchor="middle" font-size="${size}" font-weight="${weight}" style="fill:${fill}">${esc(txt)}</text>`;
+  const out = nodes.map((n, i) => {
+    const p = pts[i];
+    if (n.kind === "done") return `<circle cx="${p.x}" cy="${p.y}" r="8.5" style="fill:var(--card);stroke:var(--brand-ink)" stroke-width="6.5"/>${n.failed ? `<circle cx="${p.x + 9}" cy="${p.y - 9}" r="4.5" style="fill:var(--warning);stroke:var(--card)" stroke-width="2"/>` : ""}${T(p.x, p.y + 38, "var(--muted-fg)", 13, n.label)}`;
+    if (n.grad) return `<circle cx="${p.x}" cy="${p.y}" r="15" style="fill:var(--brand-accent)"/>${T(p.x, p.y - 32, "var(--foreground)", 14, t("graduation"), 600)}${T(p.x, p.y + 42, "var(--foreground)", 13, n.label, 500)}`;
+    return `<circle cx="${p.x}" cy="${p.y}" r="8.5" style="fill:var(--card);stroke:${n.empty ? "var(--warning)" : "color-mix(in srgb,var(--muted-fg) 60%,transparent)"}" stroke-width="${n.empty ? 3 : 6.5}" ${n.empty ? 'stroke-dasharray="4 3.5"' : ""}/>${n.empty ? T(p.x, p.y - 30, "var(--warning)", 12, t("pathEmpty"), 500) : T(p.x, p.y - 30, "var(--muted-fg)", 12, `${num(n.credits)} ${t("creditsShort")}`)}${T(p.x, p.y + 40, "var(--foreground)", 13, n.label)}`;
+  }).join("");
+  return `<div class="rail-scroll" tabindex="0" role="region" aria-label="${esc(t("pathTitle"))}"><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(t("pathAria"))}"><path d="${pathTo(nodes.length)}" fill="none" style="stroke:color-mix(in srgb,var(--muted-fg) 25%,transparent)" stroke-width="7" stroke-linecap="round"/><path d="${pathTo(completed)}" fill="none" style="stroke:var(--brand-ink)" stroke-width="7" stroke-linecap="round"/>${out}<g id="youAreHere"><line x1="${hx}" x2="${hx}" y1="${hy - 34}" y2="${hy + 44}" style="stroke:var(--brand-accent)" stroke-width="2" stroke-dasharray="3 4"/>${T(hx, hy + 62, "var(--highlight-ink)", 12, t("youAreHere"), 600)}</g></svg></div>`;
+}
+function centerRail() {
+  const el = document.querySelector(".rail-scroll"), here = document.getElementById("youAreHere");
+  if (!el || !here || el.scrollWidth <= el.clientWidth) return;
+  const hb = here.getBoundingClientRect(), vb = el.getBoundingClientRect();
+  el.scrollBy({ left: hb.left + hb.width / 2 - (vb.left + vb.width / 2), behavior: "instant" });
+}
+function viewDashboard() {
+  const st = D.student, remaining = st.total - st.earned, grad = tr(st.estGraduation);
+  const proposal = D.recommendedCourses.filter((c) => D.proposedNow.includes(c.code));
+  const credits = proposal.reduce((s, c) => s + c.credits, 0);
+  const alertStyle = { warning: ["alert", "t-warn"], info: ["info", "t-neutral"], seat: ["seat", "t-orange"] };
+  const legend = [["transparent", "border:3px solid var(--brand-ink);width:12px;height:12px", t("pathLegendDone")], ["transparent", "border:3px solid color-mix(in srgb,var(--muted-fg) 45%,transparent);width:12px;height:12px", t("pathLegendPlanned")], ["transparent", "border:2px dashed var(--warning);width:12px;height:12px", t("pathLegendEmpty")], ["var(--warning)", "", t("pathHasFail")]];
+  return `<div class="dash">
+    <section aria-labelledby="hero-title">
+      <div class="hero-row">
+        <div><h1 id="hero-title">${t("greeting")}${S.lang === "ar" ? "، " : ", "}${esc(tr(st.name))}</h1>
+          <p>${S.lang === "ar" ? `فاضلك <b class="num">${num(remaining)}</b> ساعة، والتخرج المتوقع <b>${esc(grad)}</b>.` : `<b class="num">${num(remaining)}</b> credit hours to go. Estimated graduation: <b>${esc(grad)}</b>.`}</p></div>
+        <div class="row wrap"><a href="#/chat" class="btn btn-primary btn-lg">${ic("chat")}${t("askMasari")}</a><a href="#/plan" class="btn btn-outline btn-lg">${ic("calendar")}${t("navPlan")}</a></div>
+      </div>
+      <div class="path-card">
+        <div class="row wrap between" style="margin-bottom:8px"><h2 style="font-size:16px;font-weight:600">${t("pathTitle")}</h2>${verified()}</div>
+        ${rail()}
+        <p class="swipe">${ic("move", "i-sm")}${t("pathSwipe")}</p>
+        <p class="path-legend">${legend.map(([bg, extra, label]) => `<span><span class="lg-dot" style="background:${bg};${extra}"></span>${label}</span>`).join("")}</p>
+      </div>
+    </section>
+    <section class="stat-row" aria-label="${t("standing")}">
+      <div><p class="lbl">${t("gpa")}</p><div class="val">${ring(st.gpa, 4, 44, "")}<span class="big">${gpa()}</span><span class="muted">/ ${num(4, { minimumFractionDigits: 1 })}</span></div></div>
+      <div><p class="lbl">${t("earned")}</p><div class="val"><span class="big">${num(st.earned)}</span><span class="muted num">/ ${num(st.total)}</span></div></div>
+      <div><p class="lbl">${t("remaining")}</p><div class="val"><span class="big">${num(remaining)}</span><span class="muted">${t("creditHours")}</span></div></div>
+      <div><p class="lbl">${t("maxLoad")}</p><div class="val"><span class="big">${num(st.maxLoad)}</span><span class="muted">${t("creditHours")}</span></div><p class="hint">${esc(tr(st.maxLoadRule))}</p></div>
+    </section>
+    <div class="cols">
+      <section aria-labelledby="next-title">
+        <div class="sec-head"><h2 id="next-title">${t("nextSemester")}</h2><span class="muted num" style="font-size:14px">${num(credits)} / ${num(st.maxLoad)} ${t("creditHours")}</span></div>
+        <ol class="plist">${proposal.map((c) => `<li><div style="flex:1;min-width:0"><p style="font-weight:500">${esc(tr(c.name))}</p><p class="row wrap xs muted" style="gap:8px;margin-top:2px">${code(c.code)}<span class="num">${num(c.credits)} ${t("creditsShort")}</span>${c.slot ? slotTag(c.slot) : ""}</p></div><span class="hide-sm">${tag(c.category)}</span><span class="prio"><b>${num(c.priority)}</b><span>${t("priority")}</span></span></li>`).join("")}</ol>
+        <a href="#/recommendations" class="text-link">${t("viewAll")} ${ic("arrowLeft", "flip-ltr")}</a>
+      </section>
+      <section aria-labelledby="alerts-title">
+        <div class="sec-head"><h2 id="alerts-title">${t("alerts")}</h2></div>
+        <ul>${D.alerts.map((a) => { const [icon, cls] = alertStyle[a.kind]; return `<li class="alert-card"><span class="icon-tile ${cls}" style="width:36px;height:36px;border-radius:10px">${ic(icon)}</span><div class="stack-sm" style="min-width:0"><p style="font-weight:500">${esc(tr(a.title))}</p><p class="muted" style="font-size:14px;line-height:1.6">${esc(tr(a.body))}</p>${a.sourceId ? source(a.sourceId) : ""}${a.kind === "seat" ? `<button class="btn btn-outline btn-sm">${t("requestSeat")}</button>` : ""}</div></li>`; }).join("")}</ul>
+      </section>
+    </div>
+    <section aria-labelledby="req-title">
+      <div class="row wrap" style="gap:12px;margin-bottom:20px"><h2 id="req-title" style="font-size:20px;font-weight:600">${t("gradProgress")}</h2>${verified()}<span class="muted" style="font-size:14px">${t("gradProgressDesc")}</span></div>
+      <div class="cols">
+        <ul class="req-grid">${D.requirementGroups.map((g) => { const done = g.earned >= g.required; return `<li class="stack-sm"><div class="row between" style="font-size:14px"><span>${esc(tr(g.name))}</span><span class="num" style="${done ? "color:var(--verified);font-weight:500" : "color:var(--muted-fg)"}">${num(g.earned)}/${num(g.required)}</span></div>${bar(g.earned, g.required, done ? "ok" : "ink", "thin", tr(g.name))}</li>`; }).join("")}</ul>
+        <div class="stack"><h3 class="muted" style="font-size:14px;font-weight:500">${t("electives")}</h3>
+          <ul class="stack">${D.electiveCategories.map((e) => `<li class="stack-sm"><div class="row between" style="font-size:14px"><span>${esc(tr(e.name))}</span><span class="num muted">${num(e.done)}/${num(e.required)}</span></div><div class="row" style="gap:6px" role="img" aria-label="${esc(tr(e.name))}: ${e.done}/${e.required}">${Array.from({ length: e.required }, (_, i) => `<span style="height:8px;flex:1;border-radius:999px;background:${i < e.done ? "var(--highlight)" : "var(--muted)"}"></span>`).join("")}</div></li>`).join("")}</ul>
+          <div>${source("graduation")}</div></div>
+      </div>
+    </section>
+  </div>`;
+}
+
+// ------------------------------------------------------------------ chat
+const msgShell = (inner) => `<div class="msg">${appIcon(32)}<div class="msg-body"><p class="xs muted" style="font-weight:600">${t("appName")}</p>${inner}</div></div>`;
+function replyRecommendation() {
+  const picks = D.recommendedCourses.filter((c) => D.proposedNow.includes(c.code));
+  const credits = picks.reduce((s, c) => s + c.credits, 0), max = D.student.maxLoad, course = "ECE 321";
+  const best = D.instructors.filter((i) => i.courseCode === course).map((i) => ({ ...i, score: demoCompatibility(i.profile, D.defaultPrefs) }))
+    .filter((i) => confidence(i.responses) !== "low").sort((a, b) => b.score - a.score)[0];
+  const text = S.lang === "ar"
+    ? `رشحتلك ${picks.length} مقررات بمجموع ${credits} ساعة، وده تحت الحد المسموح ليك (${max}). بدأت بـ Communication Networks لأنه المتطلب الوحيد لاختياري IoT، وبعده مشروع التخرج (1) لأنه بيتسجل في الربيع بس. Deep Learning مش في القايمة لأنك محتاج تعدّي Neural Networks الأول. بالنسبة لـ Communication Networks، ${tr(best.name)} الأقرب لتفضيلك بناءً على ${best.responses} تقييم سابق.`
+    : `I suggest ${picks.length} courses totalling ${credits} credit hours, under your limit of ${max}. Communication Networks comes first because it is the only prerequisite for the IoT elective, then Project (1) because it runs in Spring only. Deep Learning is not on the list because you need to pass Neural Networks first. For Communication Networks, ${tr(best.name)} is closest to your preferences, based on ${best.responses} past evaluations.`;
+  return msgShell(`
+    <div class="card stack">
+      <div class="row wrap between">${verified()}<span class="row xs" style="gap:6px;color:var(--verified);font-weight:500">${ic("checkCircle", "i-sm")}${num(credits)} / ${num(max)} ${t("creditsShort")} · ${t("loadOk")}</span></div>
+      <ol class="stack-sm">${picks.map((c, i) => `<li class="row" style="gap:12px;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--muted) 60%,transparent)"><b class="xs muted num">${num(i + 1)}</b><div style="flex:1;min-width:0"><p style="font-weight:500">${esc(tr(c.name))}</p><p class="xs muted">${code(c.code)} · ${num(c.credits)} ${t("creditsShort")}</p></div><span class="hide-sm row" style="gap:6px">${c.slot ? slotTag(c.slot) : ""}${tag(c.category)}</span></li>`).join("")}</ol>
+      <div class="row wrap xs" style="border-top:1px solid var(--border);padding-top:12px">${ic("xCircle", "i-sm")}<span class="muted">${t("notEligible")}:</span>${D.ineligibleCourses.map((c) => `<span class="chip chip-danger">${code(c.code)}</span>`).join("")}</div>
+    </div>
+    <div class="card stack-sm">
+      <p class="xs muted">${t("forCourse")}: <b style="font-weight:500;color:var(--foreground)">${esc(name(course))}</b> ${code(course)}</p>
+      <div class="row wrap between"><div><p style="font-weight:600">${esc(tr(best.name))}</p><p class="xs muted">${t("section")} ${num(+best.section)}</p></div><div style="text-align:end"><p class="num" style="font-size:24px;font-weight:700;color:var(--primary)">${num(best.score)}%</p><p class="xs muted">${t("compatibility")}</p></div></div>
+      ${conf(confidence(best.responses), best.responses)}
+    </div>
+    ${aiExp(text)}
+    <div class="row wrap">${source("catalog")}${source("load")}${source("training")}</div>`);
+}
+function replyPrereq() {
+  const rows = [
+    { c: "CSE 351", req: "ECE 332", ok: false },
+    { c: "ECE 332", req: "BAS 218", ok: true, note: S.lang === "ar" ? "بيتدرّس خريف فقط" : "Fall only" },
+  ];
+  const text = S.lang === "ar"
+    ? "مش هتقدر تسجل Deep Learning (CSE 351) لأن متطلبه السابق Neural Networks (ECE 332) وإنت سقطت فيه. Neural Networks بيتدرّس في الخريف بس، فأقرب فرصة تعيده خريف 2027 (وأعلى تقدير هيبقى B+)، وبعدها تسجل Deep Learning في ربيع 2028."
+    : "You can't register for Deep Learning (CSE 351) because its prerequisite, Neural Networks (ECE 332), is not passed yet. Neural Networks runs in Fall only, so the earliest retake is Fall 2027 (capped at B+), and then you can take Deep Learning in Spring 2028.";
+  return msgShell(`<div class="card stack">${verified()}<ul class="stack-sm">${rows.map((r) => `<li class="row wrap"><b style="font-weight:500">${esc(name(r.c))}</b><span class="xs muted">${code(r.c)}</span><span class="muted">${t("requires")}</span>${code(r.req)}${r.ok ? `<span class="st st-passed">${ic("checkCircle", "i-sm")}${t("prereqsMet")}</span>` : `<span class="st st-failed">${ic("xCircle", "i-sm")}${t("missingPrereq")}</span>`}${r.note ? `<span class="xs muted">· ${r.note}</span>` : ""}</li>`).join("")}</ul></div>${aiExp(text)}<div class="row wrap">${source("catalog")}${source("retake")}</div>`);
+}
+const renderMessage = (m) => m.role === "user"
+  ? `<div class="bubble-user"><p>${esc(typeof m.text === "string" ? m.text : tr(m.text))}</p></div>`
+  : m.kind === "recommendation" ? replyRecommendation() : m.kind === "prereq" ? replyPrereq() : msgShell(aiExp(t("demoReply")));
+function viewChat() {
+  const st = D.student;
+  const rows = [[t("gpa"), gpa()], [t("earned"), `${num(st.earned)} / ${num(st.total)}`], [t("maxLoad"), `${num(st.maxLoad)} ${t("creditsShort")}`], [t("level"), tr(st.level)]];
+  return `<div class="chat-layout">
+    <section class="chat-main" aria-label="${t("chatTitle")}">
+      <div class="chat-log" id="chatLog"><div class="chat-inner" role="log" aria-live="polite" id="chatInner">${S.messages.map(renderMessage).join("")}${S.thinking ? msgShell(`<div class="typing" aria-label="…"><i></i><i></i><i></i></div>`) : ""}</div></div>
+      <div class="composer-wrap"><div class="composer-inner">
+        <div class="suggests" aria-label="${t("suggestions")}">${D.chatSuggestions.map((s, i) => `<button type="button" data-action="suggest" data-i="${i}">${esc(tr(s))}</button>`).join("")}</div>
+        ${S.listening ? `<div class="listening" role="status"><span class="pulse"></span>${t("listening")}</div>` : ""}
+        <form class="composer" id="composer">
+          <button type="button" class="btn ${S.listening ? "btn-primary" : "btn-ghost"}" data-action="mic" aria-pressed="${S.listening}" aria-label="${S.listening ? t("stopListening") : t("voiceInput")}">${ic(S.listening ? "stop" : "mic", "i-lg")}</button>
+          <label for="chatInput" class="sr-only">${t("chatPlaceholder")}</label>
+          <textarea id="chatInput" rows="1" placeholder="${t("chatPlaceholder")}"></textarea>
+          <button type="submit" class="btn btn-primary" id="sendBtn" disabled aria-label="${t("send")}">${ic("send", "i-lg flip-rtl")}</button>
+        </form>
+      </div></div>
+    </section>
+    <aside class="chat-side">
+      <button class="btn btn-outline" style="width:100%" data-action="new-chat">${ic("plus")}${t("newChat")}</button>
+      <section class="stack"><h3 style="font-size:14px;font-weight:600">${t("contextPanel")}</h3>
+        <dl class="dl">${rows.map(([k, v]) => `<div><dt class="muted">${k}</dt><dd class="num" style="font-weight:500">${esc(v)}</dd></div>`).join("")}</dl>
+        <div class="card card-sm"><p class="xs muted">${t("yourPreferences")}</p><p style="font-weight:500">${esc(tr(st.preferences.summary))}</p></div>
+      </section>
+      <section class="stack"><h3 class="row" style="font-size:14px;font-weight:600"><span style="color:var(--source)">${ic("book")}</span>${t("sourcesUsed")}</h3>
+        <ul class="stack-sm">${Object.values(D.sources).map((s) => `<li class="card card-sm"><p style="font-weight:500">${esc(tr(s.title))}</p><p class="xs muted">${esc(tr(s.locator))}</p></li>`).join("")}</ul>
+      </section>
+    </aside>
+  </div>`;
+}
+
+// ------------------------------------------------------------------ recommendations
+function courseCard(c, rank) {
+  const added = S.selected.includes(c.code);
+  return `<li><div class="card stack-lg ${added ? "ring" : ""}">
+    <div class="row wrap" style="align-items:flex-start;gap:12px">
+      <span class="icon-tile num" style="width:40px;height:40px;border-radius:12px;font-weight:700;${rank === 1 ? "background:var(--highlight-soft);color:var(--highlight-ink)" : "background:var(--muted);color:var(--muted-fg)"}" aria-label="${t("rank")} ${rank}">${rank === 1 ? ic("trophy", "i-lg") : num(rank)}</span>
+      <div style="flex:1;min-width:0" class="stack-sm"><h3 style="font-size:16px;font-weight:600">${esc(tr(c.name))}</h3><div class="row wrap xs muted">${code(c.code)}<span>·</span><span>${num(c.credits)} ${t("creditHours")}</span>${tag(c.category)}${c.slot ? slotTag(c.slot) : ""}</div></div>
+      <div style="width:112px;text-align:end" class="stack-sm"><p class="xs muted">${t("priority")}</p><p class="num" style="font-size:20px;font-weight:700;color:var(--primary)">${num(c.priority)}</p>${bar(c.priority, 100, "", "thin", t("priority"))}</div>
+    </div>
+    <div class="two">
+      <div class="verified-box stack-sm">${verified("pill-plain")}<ul class="check-list stack-sm">${c.verifiedReasons.map((r) => `<li>${ic("check", "i-sm")}<bdi>${esc(tr(r))}</bdi></li>`).join("")}</ul></div>
+      ${aiExp(tr(c.aiReason))}
+    </div>
+    <div class="row wrap between" style="border-top:1px solid var(--border);padding-top:12px;gap:12px">
+      <div class="row wrap xs" style="gap:8px 16px">
+        ${c.unlocks.length ? `<span class="row wrap" style="gap:6px"><span style="color:var(--primary)">${ic("unlock", "i-sm")}</span><span class="muted">${t("unlocks")} ${num(c.unlocks.length)} ${t("coursesWord")}:</span>${c.unlocks.map((u) => `<span class="chip" title="${esc(name(u))}">${code(u)}</span>`).join("")}</span>` : ""}
+        <span class="row wrap" style="gap:6px" aria-label="${t("sectionSeats")}">${c.sections.map((s) => `<span class="chip num ${s.seatsLeft === 0 ? "chip-danger" : "muted"}">${t("section")} ${num(+s.id)}: ${s.seatsLeft === 0 ? t("full") : `${num(s.seatsLeft)} ${t("seats")}`}</span>`).join("")}</span>
+      </div>
+      <div class="row">
+        ${c.sections.some((s) => s.seatsLeft === 0) ? `<button class="btn btn-outline">${t("requestSeat")}</button>` : ""}
+        <button class="btn ${added ? "btn-secondary" : "btn-primary"}" style="min-width:128px" aria-pressed="${added}" data-action="toggle-course" data-code="${c.code}">${ic(added ? "check" : "plus")}${added ? t("added") : t("addToPlan")}</button>
+      </div>
+    </div>
+  </div></li>`;
+}
+function coursesTab() {
+  const load = D.recommendedCourses.filter((c) => S.selected.includes(c.code)).reduce((s, c) => s + c.credits, 0);
+  const max = D.student.maxLoad, over = load > max;
+  return `<div class="side-layout">
+    <ol class="stack">${D.recommendedCourses.map((c, i) => courseCard(c, i + 1)).join("")}</ol>
+    <div class="stack sticky">
+      <div class="card ${over ? "ring-danger" : ""}">
+        <div class="card-head"><h3 class="card-title" style="justify-content:space-between">${t("selectedLoad")} ${verified()}</h3></div>
+        <div class="stack">
+          <p class="row" style="align-items:baseline;gap:6px"><span class="num" style="font-size:30px;font-weight:700;${over ? "color:var(--destructive)" : ""}">${num(load)}</span><span class="muted">/ ${num(max)} ${t("creditHours")}</span></p>
+          ${bar(load, max, over ? "bad" : "ok", "", t("selectedLoad"))}
+          <p class="row" role="status" style="font-weight:500;color:${over ? "var(--destructive)" : "var(--verified)"}">${ic(over ? "xCircle" : "checkCircle")}${over ? t("loadOver") : t("loadOk")}</p>
+          <p class="xs muted">${esc(tr(D.student.maxLoadRule))}</p>
+          <div>${source("load")}</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 class="card-title"><span class="muted">${ic("lock")}</span>${t("notEligible")}</h3></div>
+        <ul class="stack">${D.ineligibleCourses.map((c) => `<li class="stack-sm" style="padding:12px;border:1px dashed var(--border);border-radius:10px"><p style="font-weight:500">${esc(tr(c.name))} <span class="xs muted">${code(c.code)}</span></p><p class="row xs" style="align-items:flex-start;gap:6px;color:var(--destructive)">${ic("xCircle", "i-sm")}<bdi>${esc(tr(c.reason))}</bdi></p>${source(c.sourceId)}</li>`).join("")}</ul>
+      </div>
+    </div>
+  </div>`;
+}
+const prefSliders = [
+  { key: "pace", label: "prefPace", low: "slow", high: "fast" },
+  { key: "workload", label: "prefWorkload", low: "light", high: "heavy" },
+  { key: "practical", label: "prefPractical", low: "theoretical", high: "practical" },
+];
+function instructorCards() {
+  const ranked = D.instructors.filter((i) => i.courseCode === S.insCourse)
+    .map((i) => ({ ...i, score: demoCompatibility(i.profile, S.prefs), conf: confidence(i.responses) }))
+    .sort((a, b) => b.score - a.score);
+  const bestId = ranked.find((i) => i.conf !== "low")?.id;
+  const prefFor = { pace: S.prefs.pace, workload: S.prefs.workload, practical: S.prefs.practical };
+  return ranked.map((ins) => `<li><div class="card stack-lg ${ins.id === bestId ? "ring" : ""}">
+    <div class="row wrap between" style="align-items:flex-start;gap:12px">
+      <div class="row" style="gap:12px"><span class="avatar" style="width:44px;height:44px">${esc(tr(ins.name).replace(/^(د\.|Dr\.)\s*/, "").charAt(0))}</span>
+        <div><p class="row wrap" style="font-weight:600">${esc(tr(ins.name))}${ins.id === bestId ? `<span class="pill" style="height:20px;font-size:11px;background:var(--primary);color:var(--primary-fg)">${t("bestMatch")}</span>` : ""}</p><p class="xs muted">${t("section")} ${num(+ins.section)}</p></div></div>
+      <div style="text-align:end"><p class="num" style="font-size:30px;font-weight:700;color:var(--primary);line-height:1.2">${num(ins.score)}%</p><p class="xs muted">${t("compatibility")}</p></div>
+    </div>
+    ${conf(ins.conf, ins.responses)}
+    <dl class="dims">${Object.keys(D.dimensionLabels).map((k) => `<div class="stack-sm"><div class="row between xs"><dt class="muted">${esc(tr(D.dimensionLabels[k]))}</dt><dd class="num" style="font-weight:500">${num(ins.profile[k])}</dd></div><div style="position:relative">${bar(ins.profile[k], 100, "c2", "thin", tr(D.dimensionLabels[k]))}${prefFor[k] != null ? `<span class="pref-mark" style="inset-inline-start:calc(${prefFor[k]}% - 1px)" title="${t("youPrefer")}: ${prefFor[k]}"></span>` : ""}</div></div>`).join("")}
+      <div class="row xxs muted" style="grid-column:1/-1"><span class="pref-mark" style="position:static;transform:none;height:12px"></span>${t("youPrefer")}</div></dl>
+    ${aiExp(tr(ins.aiSummary))}
+    ${ins.conf === "low" ? `<p class="warn-note" style="font-weight:500">${ic("alert", "i-sm")}${t("limitedData")}</p>` : ""}
+  </div></li>`).join("");
+}
+function instructorsTab() {
+  const courses = [...new Set(D.instructors.map((i) => i.courseCode))];
+  return `<div class="side-layout rev">
+    <div class="stack sticky">
+      <div class="card"><div class="card-head"><h3 class="card-title">${t("forCourse")}</h3></div>
+        <div class="stack-sm" role="radiogroup" aria-label="${t("forCourse")}">${courses.map((c) => `<button type="button" class="choice" style="width:100%" role="radio" aria-checked="${S.insCourse === c}" data-action="ins-course" data-code="${c}">${esc(name(c))}<span class="xs">${code(c)}</span></button>`).join("")}</div>
+      </div>
+      <div class="card"><div class="card-head"><h3 class="card-title">${t("yourPreferences")}</h3><p class="card-desc">${t("prefsHint")}</p></div>
+        <div class="stack-lg">${prefSliders.map((s) => `<div class="stack-sm"><div class="row between"><label for="pref-${s.key}" style="font-weight:500">${t(s.label)}</label><span class="num muted" id="pv-${s.key}">${num(S.prefs[s.key])}</span></div><input type="range" id="pref-${s.key}" data-pref="${s.key}" min="0" max="100" step="5" value="${S.prefs[s.key]}"><div class="row between xxs muted"><span>${t(s.low)}</span><span>${t(s.high)}</span></div></div>`).join("")}
+          <p class="warn-note">${ic("alert", "i-sm")}${t("demoScoring")}</p></div>
+      </div>
+    </div>
+    <ol class="stack" id="insList">${instructorCards()}</ol>
+  </div>`;
+}
+function viewRecs() {
+  return `<div class="page">${pageHead(t("recTitle"), t("recSubtitle"))}
+    <div class="seg" role="tablist" style="margin-bottom:20px">
+      <button role="tab" aria-selected="${S.tab === "courses"}" data-action="tab" data-tab="courses">${t("tabCourses")}</button>
+      <button role="tab" aria-selected="${S.tab === "instructors"}" data-action="tab" data-tab="instructors">${t("tabInstructors")}</button>
+    </div>
+    <div role="tabpanel">${S.tab === "courses" ? coursesTab() : instructorsTab()}</div></div>`;
+}
+
+// ------------------------------------------------------------------ plan (precomputed by the planner)
+function viewPlan() {
+  const sc = D.scenarios.find((s) => s.id === S.scenario) || null;
+  const plan = sc ? sc.plan : D.baselinePlan;
+  const gradIdx = sc && sc.graduationIndex >= 0 ? sc.graduationIndex : D.baselineGraduationIndex;
+  let lastIdx = gradIdx; plan.forEach((tm, i) => { if (tm.length) lastIdx = Math.max(lastIdx, i); });
+  const baseIdx = new Map(D.baselinePlan.flatMap((sem, i) => sem.map((c) => [c.code, i])));
+  const max = D.student.maxLoad;
+  const verdict = { delay: ["clock", "chip-warn"], same: ["checkCircle", ""], infeasible: ["xCircle", "chip-danger"] };
+  let result = "";
+  if (sc) {
+    const [vi, vcls] = verdict[sc.verdict];
+    result = `<div class="two"><div class="stack" style="padding:16px;border:1px solid var(--border);border-radius:12px">
+      <div class="row wrap between">${verified()}<span class="pill ${vcls}" style="${sc.verdict === "same" ? "background:var(--verified-soft);color:var(--verified)" : ""};font-weight:600">${ic(vi, "i-sm")}${esc(tr(sc.graduation))}</span></div>
+      <p class="row" style="align-items:flex-start;gap:6px"><span class="muted">${ic("alert")}</span><bdi>${esc(tr(sc.ruleNote))}</bdi></p>
+      ${sc.affected.length ? `<div class="stack-sm"><p class="xs muted">${t("affected")} (${num(sc.affected.length)})</p><div class="row wrap" style="gap:6px">${sc.affected.map((c) => `<span class="chip chip-warn">${code(c)}</span>`).join("")}</div></div>` : ""}
+    </div>${aiExp(tr(sc.summary))}</div>`;
+  }
+  return `<div class="page">
+    ${pageHead(t("planTitle"), t("planSubtitle"), `<div class="card card-sm row" style="gap:12px;padding:10px 16px"><span style="color:var(--primary)">${ic("grad", "i-lg")}</span><div><p class="xs muted">${t("estGraduation")}</p><p style="font-weight:600">${esc(sc ? tr(sc.graduation) : tr(D.student.estGraduation))}</p></div></div>`)}
+    <div class="card" style="margin-bottom:8px">
+      <div class="card-head"><h3 class="card-title">${t("whatIf")}</h3><p class="card-desc">${t("whatIfDesc")}</p></div>
+      <div class="stack">
+        <div class="row wrap" role="radiogroup" aria-label="${t("scenario")}">${D.scenarios.map((s) => `<button type="button" class="choice" role="radio" aria-checked="${S.scenario === s.id}" data-action="scenario" data-id="${s.id}">${esc(tr(s.label))}</button>`).join("")}
+          ${sc ? `<button class="btn btn-ghost" style="height:44px" data-action="scenario" data-id="">${ic("history")}${t("reset")}</button>` : ""}</div>
+        ${result}
+      </div>
+    </div>
+    <p class="note-line">${ic("info", "i-sm")}${esc(tr(D.planAssumption))}</p>
+    <section class="plan-grid" aria-label="${t("planTitle")}">${plan.slice(0, lastIdx + 1).map((sem, i) => {
+      const load = sem.reduce((s, c) => s + c.credits, 0), over = load > max;
+      const under = sem.length > 0 && load < D.minLoad && i !== gradIdx;
+      const extra = i > D.baselineGraduationIndex;
+      return `<div class="card ${extra ? "ring-warn" : ""} ${sem.length ? "" : "empty-term"}">
+        <div class="card-head stack-sm"><h3 class="card-title" style="justify-content:space-between">${esc(tr(D.semesterNames[i]))}${i === gradIdx ? `<span style="color:var(--primary)" aria-label="${t("estGraduation")}">${ic("grad")}</span>` : ""}</h3>
+          <div class="row between xs"><span class="muted">${t("semesterLoad")}</span><span class="num" style="font-weight:500;${over ? "color:var(--destructive)" : under ? "color:var(--warning)" : ""}">${num(load)}/${num(max)}</span></div>${bar(load, max, over ? "bad" : under ? "warn" : "", "thin", t("semesterLoad"))}
+          ${under ? `<p class="under">${ic("alert", "i-sm")}${t("underMinLoad")}</p>` : ""}</div>
+        ${sem.length ? `<ul class="stack-sm">${sem.map((c) => {
+          const from = baseIdx.has(c.code) ? baseIdx.get(c.code) : i, moved = !!sc && from !== i, later = i > from;
+          const reqs = [...c.requires.map(code), ...(c.minCredits ? [`<span class="num">≥ ${num(c.minCredits)} ${t("creditsShort")}</span>`] : [])];
+          return `<li class="plan-item stack-sm ${moved ? "moved" : ""}"><div class="row between" style="align-items:flex-start"><p style="font-weight:500;line-height:1.4">${esc(name(c.code))}</p>${moved ? `<span class="row xxs" style="gap:4px;flex-shrink:0;color:var(--warning);font-weight:500">${ic("move", "i-sm " + (later ? "flip-rtl" : "flip-ltr"))}${later ? t("delayed") : t("movedEarlier")}</span>` : ""}</div>
+            <div class="row wrap xxs muted" style="gap:6px">${code(c.code)}<span>· ${num(c.credits)} ${t("creditsShort")}</span>${tag(c.category)}${c.slot ? slotTag(c.slot) : ""}</div>
+            ${reqs.length ? `<p class="xxs muted">${t("requires")}: ${reqs.join(listSep())}</p>` : ""}</li>`;
+        }).join("")}</ul>` : `<p class="xs muted">${t("noCoursesThisTerm")}</p>`}</div>`;
+    }).join("")}</section>
+    <div class="row wrap" style="margin-top:24px">${verified()}${source("catalog")}${source("load")}${source("training")}</div>
+  </div>`;
+}
+
+// ------------------------------------------------------------------ course catalog
+const statusKey = { passed: "stPassed", failed: "stFailed", eligible: "stEligible", locked: "stLocked" };
+const statusIcon = { passed: "check", failed: "x", eligible: "check", locked: "lock" };
+function statusPill(st) {
+  const missing = st.missing || [];
+  return `<span><span class="st st-${st.kind}">${ic(statusIcon[st.kind], "i-sm")}${t(statusKey[st.kind])}</span>${missing.length ? `<span class="st-note">${t("short")}: ${missing.map(code).join(listSep())}</span>` : ""}${st.creditsShort ? `<span class="st-note num">${t("short")}: ${num(st.creditsShort)} ${t("creditsShort")}</span>` : ""}</span>`;
+}
+function termBadge(sem) {
+  const fall = termOf(sem) === "fall";
+  return `<span style="display:inline-flex;flex-direction:column;line-height:1.3"><span class="row" style="gap:4px;font-weight:500;white-space:nowrap"><span style="color:${fall ? "var(--highlight-ink)" : "var(--chart2)"}">${ic(fall ? "leaf" : "flower", "i-sm")}</span>${t("semesterLabel")} ${num(sem)}</span><span class="xxs muted">${fall ? t("fall") : t("spring")} · ${t("levelLabel")} ${num(levelOf(sem))}</span></span>`;
+}
+const codeLinks = (codes) => codes.length
+  ? `<span class="row wrap" style="gap:4px">${codes.map((c) => { const ok = D.record.passed.includes(c); return `<button type="button" class="code-link ${ok ? "ok" : ""}" data-action="pick" data-code="${c}" title="${esc(name(c))}">${ok ? ic("check", "i-sm") : ""}${code(c)}</button>`; }).join("")}</span>`
+  : `<span class="muted">${t("none")}</span>`;
+
+function filteredCourses() {
+  const f = S.f, q = f.q.trim().toLowerCase();
+  const hit = (x) => x.code.toLowerCase().includes(q) || x.name.toLowerCase().includes(q);
+  return P.courses.filter((c) => {
+    if (q && !hit(c) && !(c.electiveGroup ? P.electivePools[c.electiveGroup].some(hit) : false)) return false;
+    if (f.level !== "all" && levelOf(c.semester) !== +f.level) return false;
+    if (f.semester !== "all" && c.semester !== +f.semester) return false;
+    if (f.category !== "all" && c.category !== f.category) return false;
+    if (f.type !== "all" && c.type !== f.type) return false;
+    if (f.term !== "all" && termOf(c.semester) !== f.term) return false;
+    if (f.status !== "all" && D.statuses[c.code].kind !== f.status) return false;
+    return true;
+  });
+}
+function courseRow(c) {
+  const isSlot = c.type === "elective", open = S.openRow === c.code, st = D.statuses[c.code];
+  const chosen = isSlot ? D.record.electiveChoices[c.code] : null;
+  const label = isSlot ? c.code.replace("ELEC ", "") : c.code;
+  const prereqCell = c.minCredits ? `<span class="num">≥ ${num(c.minCredits)} ${t("minEarned")}</span>`
+    : isSlot ? `<span class="muted">${t("slotOptions")}</span>`
+    : c.prereqs.length ? `<span class="row wrap" style="gap:4px">${c.prereqs.map((p) => `<span class="chip">${code(p)}</span>`).join("")}</span>` : `<span class="muted">${t("none")}</span>`;
+  let panel = "";
+  if (open) {
+    const inner = isSlot
+      ? `<div class="stack-sm"><p class="xs muted" style="font-weight:500">${t("slotOptions")} (${c.electiveGroup}, ${num(P.electivePools[c.electiveGroup].length)})</p><ul class="pool">${P.electivePools[c.electiveGroup].map((p) => `<li class="stack-sm ${chosen === p.code ? "pick" : ""}"><div class="row wrap between" style="align-items:flex-start"><div style="min-width:0"><p class="row wrap" style="font-weight:500">${esc(p.name)}${chosen === p.code ? `<span class="pick-badge">${ic("star", "i-sm")}${t("yourPick")}</span>` : ""}</p><p class="row wrap xs muted">${code(p.code)} · ${num(p.credits)} ${t("creditsShort")} ${tag(p.category)}</p></div>${statusPill(D.statuses[p.code])}</div><p class="desc" lang="en">${esc(p.description)}</p><div class="row wrap xs"><span class="muted">${t("prerequisites")}:</span>${codeLinks(p.prereqs)}</div></li>`).join("")}</ul></div>`
+      : `<dl class="two"><div class="stack-sm"><dt class="xs muted" style="font-weight:500">${t("prerequisites")}</dt><dd>${c.minCredits ? `<span class="num">≥ ${num(c.minCredits)} ${t("minEarned")}</span>` : codeLinks(c.prereqs)}</dd></div><div class="stack-sm"><dt class="xs muted" style="font-weight:500">${t("requiredBy")}</dt><dd>${codeLinks(D.dependents[c.code])}</dd></div></dl>`;
+    panel = `<div class="cpanel stack" id="row-${c.code.replace(" ", "-")}">${inner}</div>`;
+  }
+  return `<li class="crow ${isSlot ? "slot-row" : ""} ${open ? "open" : ""}">
+    <button type="button" class="crow-btn" data-action="row" data-code="${c.code}" aria-expanded="${open}">
+      <span class="md stack-sm">${code(label)}<span style="display:block;margin-top:4px">${tag(c.category)}</span></span>
+      <span style="min-width:0">
+        <span class="row wrap sm-only" style="gap:6px"><span class="xs muted">${code(label)}</span>${tag(c.category)}</span>
+        <span style="display:block;font-weight:500">${esc(isSlot ? `${c.name} · ${c.electiveGroup}` : c.name)}</span>
+        <span class="xs muted">${esc(tr(P.typeLabels[c.type]))}${chosen ? ` · ${t("yourPick")}: ${code(chosen)}` : ""}<span class="sm-only"> · ${num(c.credits)} ${t("creditsShort")} · ${t("semesterLabel")} ${num(c.semester)}</span></span>
+      </span>
+      <span class="md num" style="text-align:center;font-weight:600">${num(c.credits)}</span>
+      <span class="md">${termBadge(c.semester)}</span>
+      <span class="xl xs">${prereqCell}</span>
+      <span class="status-cell">${statusPill(st)}</span>
+      <span class="md">${ic("chevron", "chev")}</span>
+    </button>${panel}</li>`;
+}
+function catalogListHtml() {
+  const rows = filteredCourses(), cr = rows.reduce((s, c) => s + c.credits, 0);
+  return {
+    count: `${t("showing")} <b class="num" style="color:var(--foreground)">${num(rows.length)}</b> ${t("coursesWord")} · <span class="num">${num(cr)}</span> ${t("creditHours")}`,
+    list: rows.length ? rows.map(courseRow).join("") : `<li class="muted" style="padding:32px;text-align:center;border:1px dashed var(--border);border-radius:12px">${t("noResults")}</li>`,
+    active: Object.keys(emptyFilters).some((k) => S.f[k] !== emptyFilters[k]),
+  };
+}
+function select(key, label, options) {
+  return `<div class="field"><label for="f-${key}">${label}</label><select id="f-${key}" data-filter="${key}"><option value="all">${t("all")}</option>${options.map((o) => `<option value="${o.value}" ${S.f[key] === String(o.value) ? "selected" : ""}>${esc(o.label)}</option>`).join("")}</select></div>`;
+}
+function catalogCourses() {
+  const slots = P.courses.filter((c) => c.type === "elective").length, F = P.facts;
+  const stats = [
+    [num(P.totalCredits), t("statTotalCredits")], [num(P.courses.length - slots), t("statCourses")], [num(slots), t("statElectiveSlots")], [num(F.semesters), t("statSemesters")],
+    [`${num(F.universityCredits)} ${t("creditsShort")}`, t("universityReq"), t("perBylaws")], [`${num(F.collegeCredits)} ${t("creditsShort")}`, t("collegeReq"), t("perBylaws")], [`${num(F.specializationCredits)} ${t("creditsShort")}`, t("specializationReq"), t("perBylaws")],
+  ];
+  const sems = Array.from({ length: 10 }, (_, i) => i + 1).filter((s) => S.f.level === "all" || levelOf(s) === +S.f.level);
+  const L = catalogListHtml();
+  return `<section class="stats" aria-label="Program figures">${stats.map(([v, l, h]) => `<div class="card card-sm"><p class="stat-val num">${v}</p><p class="xs muted">${l}</p>${h ? `<p class="xxs muted" style="opacity:.8">${h}</p>` : ""}</div>`).join("")}</section>
+    <div class="card" style="margin-bottom:16px">
+      <div class="filters">
+        <div class="field f-search"><label for="f-q">${t("search")}</label><div class="search-wrap">${ic("search")}<input id="f-q" data-filter="q" value="${esc(S.f.q)}" placeholder="${t("searchPlaceholder")}" autocomplete="off"></div></div>
+        ${select("level", t("levelLabel"), [0, 1, 2, 3, 4].map((l) => ({ value: l, label: `${t("levelLabel")} ${num(l)}` })))}
+        ${select("semester", t("semesterLabel"), sems.map((s) => ({ value: s, label: `${t("semesterLabel")} ${num(s)} · ${termOf(s) === "fall" ? t("fall") : t("spring")}` })))}
+        ${select("category", t("departmentLabel"), Object.keys(P.categoryLabels).map((c) => ({ value: c, label: `${c} – ${tr(P.categoryLabels[c])}` })))}
+        ${select("type", t("typeLabel"), Object.keys(P.typeLabels).map((k) => ({ value: k, label: tr(P.typeLabels[k]) })))}
+        ${select("term", t("termLabel"), [{ value: "fall", label: t("fall") }, { value: "spring", label: t("spring") }])}
+        ${select("status", t("statusLabel"), Object.keys(statusKey).map((k) => ({ value: k, label: t(statusKey[k]) })))}
+      </div>
+      <div class="filter-foot">
+        <p class="muted" role="status" id="catCount">${L.count}</p>
+        <div class="row wrap">${verified()}<span class="xs muted hide-sm">${t("statusHint")}</span><button class="btn btn-ghost btn-sm" data-action="reset-filters" id="resetBtn" ${L.active ? "" : "hidden"}>${ic("rotate", "i-sm")}${t("resetFilters")}</button></div>
+      </div>
+    </div>
+    <ul id="catList" aria-label="${t("tabCatalogCourses")}">${L.list}</ul>
+    <div style="margin-top:16px">${source("catalog")}</div>`;
+}
+function catalogRegulations() {
+  const R = D.regs, s0 = R.ruleSections[0], g = D.record.gpa;
+  const srcFor = { drop: "retake", training: "training", graduation: "graduation" };
+  return `<div class="reg-grid">
+    <div class="card stack"><h3 class="card-title">${esc(tr(s0.title))} ${verified()}</h3>
+      <div class="tbl-wrap"><table class="tbl"><tbody>${R.loadTable.map((row) => { const mine = g >= (row.min ?? -Infinity) && g < (row.maxGpa ?? Infinity); return `<tr class="${mine ? "mine" : ""}"><td><bdi>${esc(tr(row.range))}</bdi>${mine ? `<span class="mine-badge">${t("yourLimit")}</span>` : ""}</td><td class="num" style="text-align:end;font-weight:600">${num(row.max)} ${t("creditsShort")}</td></tr>`; }).join("")}</tbody></table></div>
+      <ul class="bullets">${s0.items.map((i) => `<li>${esc(tr(i))}</li>`).join("")}</ul>
+      ${s0.note ? `<p class="conflict">${esc(tr(s0.note))}</p>` : ""}<div>${source("load")}</div></div>
+    <div class="card stack"><h3 class="card-title">${t("gradeScaleTitle")}</h3>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>${t("gradeCol")}</th><th>${t("pointsCol")}</th><th>%</th></tr></thead><tbody>${R.gradeScale.map((x) => `<tr><td class="code">${x.grade}</td><td class="num">${x.points}</td><td class="num" dir="ltr">${x.range}</td></tr>`).join("")}</tbody></table></div>
+      <p style="padding:12px;border-radius:10px;background:var(--muted)">${esc(tr(R.gpaFormula))}</p></div>
+    <div class="card full"><h3 class="card-title" style="margin-bottom:16px">${t("assessmentTitle")}</h3>
+      <div class="assess">${R.assessment.map((a) => `<div class="stack-sm"><p style="font-weight:500">${esc(tr(a.title))}</p><div class="split" role="img" aria-label="${esc(a.parts.map((p) => `${tr(p.label)} ${p.pct}%`).join(", "))}">${a.parts.map((p, i) => `<span style="width:${p.pct}%;background:${["var(--primary)", "var(--chart2)", "var(--highlight)", "color-mix(in srgb,var(--cat-dept) 40%,transparent)"][i]}"></span>`).join("")}</div><ul class="xs muted">${a.parts.map((p) => `<li class="row between"><span>${esc(tr(p.label))}</span><span class="num">${num(p.pct)}%</span></li>`).join("")}</ul></div>`).join("")}</div></div>
+    ${R.ruleSections.slice(1).map((s) => `<div class="card stack"><h3 class="card-title">${esc(tr(s.title))}</h3><ul class="bullets">${s.items.map((i) => `<li><bdi>${esc(tr(i))}</bdi></li>`).join("")}</ul>${srcFor[s.id] ? `<div>${source(srcFor[s.id])}</div>` : ""}</div>`).join("")}
+  </div>`;
+}
+function viewCatalog() {
+  return `<div class="page">${pageHead(t("catalogTitle"), `${tr(P.facts.degree)} · ${tr(P.facts.institution)}`)}
+    <div class="seg" role="tablist" style="margin-bottom:20px">
+      <button role="tab" aria-selected="${S.catTab === "courses"}" data-action="cat-tab" data-tab="courses">${t("tabCatalogCourses")}</button>
+      <button role="tab" aria-selected="${S.catTab === "regs"}" data-action="cat-tab" data-tab="regs">${t("tabRegulations")}</button>
+    </div>
+    <div role="tabpanel">${S.catTab === "courses" ? catalogCourses() : catalogRegulations()}</div>
+    <p class="xs muted" style="margin-top:24px">${t("catalogSource")}</p></div>`;
+}
+/** Re-render only the list so the search box keeps focus while typing. */
+function refreshCatalogList() {
+  const L = catalogListHtml();
+  document.getElementById("catList").innerHTML = L.list;
+  document.getElementById("catCount").innerHTML = L.count;
+  document.getElementById("resetBtn").hidden = !L.active;
+}
+
+// ------------------------------------------------------------------ shell + router
+const ROUTES = [
+  { path: "/", key: "navDashboard", short: "navDashboard", icon: "dashboard", view: viewDashboard },
+  { path: "/chat", key: "navChat", short: "navChatShort", icon: "chat", view: viewChat },
+  { path: "/recommendations", key: "navCourses", short: "navCoursesShort", icon: "sparkles", view: viewRecs },
+  { path: "/plan", key: "navPlan", short: "navPlanShort", icon: "calendar", view: viewPlan },
+  { path: "/catalog", key: "navCatalog", short: "navCatalogShort", icon: "library", view: viewCatalog },
+];
+const route = () => ROUTES.find((r) => r.path === (location.hash.slice(1) || "/")) || ROUTES[0];
+const isDark = () => S.theme === "dark" || (S.theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+
+function renderShell() {
+  const html = document.documentElement, r = route(), ar = S.lang === "ar";
+  html.lang = S.lang; html.dir = ar ? "rtl" : "ltr";
+  html.classList.toggle("dark", isDark());
+  document.getElementById("skip").textContent = t("skipToContent");
+  document.getElementById("banner").textContent = t("demoDataHint");
+  const logo = document.getElementById("logo");
+  logo.setAttribute("aria-label", t("appName"));
+  logo.innerHTML = `${mark(32)}<span><span class="lockup-name" lang="${ar ? "ar" : "en"}">${ar ? "مساري" : "Masari"}</span><span class="lockup-sub" lang="${ar ? "en" : "ar"}">${ar ? "Masari" : "مساري"}</span></span>`;
+  document.getElementById("topnav").setAttribute("aria-label", t("mainNav"));
+  document.getElementById("topnav").innerHTML = ROUTES.map((x) => `<a href="#${x.path}" ${x === r ? 'aria-current="page"' : ""}>${ic(x.icon)}<span class="short">${t(x.short)}</span><span class="full">${t(x.key)}</span></a>`).join("");
+  document.getElementById("bottomnav").setAttribute("aria-label", t("mainNav"));
+  document.getElementById("bottomnav").innerHTML = `<ul>${ROUTES.map((x) => `<li><a href="#${x.path}" ${x === r ? 'aria-current="page"' : ""}>${ic(x.icon)}<span>${t(x.short)}</span></a></li>`).join("")}</ul>`;
+  document.getElementById("studentChip").innerHTML = `<span class="sq">${esc(tr(D.student.fullName).charAt(0))}</span><span style="line-height:1.3"><span style="display:block;font-size:14px;font-weight:500">${esc(tr(D.student.fullName))}</span><span class="xs muted num" style="display:block">${esc(tr(D.student.level))}${ar ? "، " : ", "}GPA ${gpa()}</span></span>`;
+  document.getElementById("demoBadge").innerHTML = demo();
+  const lb = document.getElementById("langBtn");
+  lb.innerHTML = ic("languages") + `<span class="hide-sm">${t("switchLang")}</span><span class="sm-only">${ar ? "EN" : "ع"}</span>`;
+  lb.lang = ar ? "en" : "ar"; lb.setAttribute("aria-label", t("switchLangLabel"));
+  const tb = document.getElementById("themeBtn");
+  tb.innerHTML = ic(isDark() ? "sun" : "moon"); tb.setAttribute("aria-label", t("toggleTheme"));
+}
+
+function render() {
+  renderShell();
+  document.getElementById("main").innerHTML = route().view();
+  if (route().path === "/chat") bindChat();
+  if (route().path === "/") centerRail();
+}
+function scrollChat() { const log = document.getElementById("chatLog"); if (log) log.scrollTop = log.scrollHeight; }
+function bindChat() {
+  const input = document.getElementById("chatInput"), btn = document.getElementById("sendBtn");
+  input.addEventListener("input", () => { btn.disabled = !input.value.trim() || S.thinking; input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 160) + "px"; });
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(input.value); } });
+  document.getElementById("composer").addEventListener("submit", (e) => { e.preventDefault(); send(input.value); });
+}
+function send(text) {
+  const v = text.trim(); if (!v || S.thinking) return;
+  S.messages.push({ role: "user", text: v }); S.thinking = true;
+  render(); scrollChat(); document.getElementById("chatInput").focus();
+  // UI-only: the real reply will stream from the backend (RAG + rules engine + recommender).
+  setTimeout(() => { S.messages.push({ role: "assistant", kind: "demo" }); S.thinking = false; if (route().path === "/chat") { render(); scrollChat(); } }, 900);
+}
+
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-action]"); if (!el) return;
+  const a = el.dataset.action;
+  if (a === "lang") { S.lang = S.lang === "ar" ? "en" : "ar"; store.set("masari.lang", S.lang); render(); }
+  else if (a === "theme") { S.theme = isDark() ? "light" : "dark"; store.set("masari.theme", S.theme); renderShell(); }
+  else if (a === "open-drawer") document.body.classList.add("drawer-open");
+  else if (a === "close-drawer") document.body.classList.remove("drawer-open");
+  else if (a === "toggle-course") { const c = el.dataset.code; S.selected = S.selected.includes(c) ? S.selected.filter((x) => x !== c) : [...S.selected, c]; render(); }
+  else if (a === "tab") { S.tab = el.dataset.tab; render(); }
+  else if (a === "cat-tab") { S.catTab = el.dataset.tab; render(); }
+  else if (a === "ins-course") { S.insCourse = el.dataset.code; render(); }
+  else if (a === "scenario") { S.scenario = el.dataset.id || null; render(); }
+  else if (a === "mic") { S.listening = !S.listening; render(); }
+  else if (a === "suggest") send(tr(D.chatSuggestions[+el.dataset.i]));
+  else if (a === "new-chat") { S.messages = []; render(); }
+  else if (a === "row") { S.openRow = S.openRow === el.dataset.code ? null : el.dataset.code; refreshCatalogList(); }
+  else if (a === "pick") { S.f = { ...emptyFilters, q: el.dataset.code }; S.openRow = el.dataset.code; render(); window.scrollTo(0, 0); }
+  else if (a === "reset-filters") { S.f = { ...emptyFilters }; S.openRow = null; render(); }
+});
+document.addEventListener("input", (e) => {
+  const el = e.target;
+  if (el.dataset && el.dataset.pref) {
+    // Sliders update only the instructor list so dragging stays smooth.
+    const k = el.dataset.pref; S.prefs[k] = +el.value;
+    document.getElementById("pv-" + k).textContent = num(S.prefs[k]);
+    document.getElementById("insList").innerHTML = instructorCards();
+  } else if (el.dataset && el.dataset.filter === "q") { S.f.q = el.value; refreshCatalogList(); }
+});
+document.addEventListener("change", (e) => {
+  const k = e.target.dataset && e.target.dataset.filter; if (!k || k === "q") return;
+  S.f[k] = e.target.value; if (k === "level") S.f.semester = "all";
+  if (k === "level") render(); else refreshCatalogList();
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") document.body.classList.remove("drawer-open"); });
+window.addEventListener("hashchange", () => { document.body.classList.remove("drawer-open"); render(); window.scrollTo(0, 0); });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", renderShell);
+render();
+
+</script>
+</body>
+</html>

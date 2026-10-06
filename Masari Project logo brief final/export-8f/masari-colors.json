@@ -1,0 +1,36 @@
+{
+  "light": {
+    "primary": "#1E2230",
+    "accent": "#F27A2E",
+    "ink": "#14161F",
+    "muted": "#61657A",
+    "bg": "#F8F8F7",
+    "surface": "#FFFFFF",
+    "tint": "#EEEFF3",
+    "border": "#E4E4E2",
+    "button": "#1E2230",
+    "buttonText": "#FFFFFF"
+  },
+  "dark": {
+    "primary": "#FFFFFF",
+    "accent": "#F27A2E",
+    "ink": "#F2F2F0",
+    "muted": "#A3A7B6",
+    "bg": "#12141B",
+    "surface": "#1B1E28",
+    "tint": "#252A38",
+    "border": "#2A2E3B",
+    "button": "#F27A2E",
+    "buttonText": "#14161F"
+  },
+  "status": {
+    "success": "#2E9E6A",
+    "warning": "#E0A11B",
+    "error": "#D14B3F"
+  },
+  "fonts": {
+    "latin": "Sora",
+    "arabic": "Readex Pro",
+    "mono": "JetBrains Mono"
+  }
+}

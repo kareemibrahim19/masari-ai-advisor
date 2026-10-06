@@ -1,0 +1,28 @@
+/* Masari — 8f Charcoal + Orange */
+:root {
+  --masari-primary: #1E2230;
+  --masari-accent: #F27A2E;
+  --masari-ink: #14161F;
+  --masari-muted: #61657A;
+  --masari-bg: #F8F8F7;
+  --masari-surface: #FFFFFF;
+  --masari-tint: #EEEFF3;
+  --masari-border: #E4E4E2;
+  --masari-button: #1E2230;
+  --masari-button-text: #FFFFFF;
+  --masari-success: #2E9E6A;
+  --masari-warning: #E0A11B;
+  --masari-error: #D14B3F;
+}
+[data-theme="dark"] {
+  --masari-primary: #FFFFFF;
+  --masari-accent: #F27A2E;
+  --masari-ink: #F2F2F0;
+  --masari-muted: #A3A7B6;
+  --masari-bg: #12141B;
+  --masari-surface: #1B1E28;
+  --masari-tint: #252A38;
+  --masari-border: #2A2E3B;
+  --masari-button: #F27A2E;
+  --masari-button-text: #14161F;
+}

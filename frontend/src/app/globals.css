@@ -1,0 +1,246 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sora), var(--font-readex), system-ui, sans-serif;
+  --font-arabic: var(--font-readex), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --font-heading: var(--font-sans);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-accent: var(--brand-accent);
+  --color-highlight: var(--highlight);
+  --color-highlight-soft: var(--highlight-soft);
+  --color-highlight-ink: var(--highlight-ink);
+  --color-cat-dept: var(--cat-dept);
+  --color-cat-dept-soft: var(--cat-dept-soft);
+  --color-verified: var(--verified);
+  --color-verified-soft: var(--verified-soft);
+  --color-ai: var(--ai);
+  --color-ai-soft: var(--ai-soft);
+  --color-source: var(--source);
+  --color-source-soft: var(--source-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  /* Radius rule: chips 6px, buttons/inputs 10px, cards 14px, sheets 18px. */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 18px;
+  --radius-3xl: 22px;
+  --radius-4xl: 26px;
+}
+
+/*
+ * Masari design tokens: brand export "8f Charcoal + Orange" (masari-colors.css / .json).
+ *
+ * Orange is the single accent. It fails AA as text on light surfaces (2.8:1), so it is a FILL colour only;
+ * text uses --highlight-ink (#B4501A, 5.1:1). The same applies to the status colours: the brand values fill
+ * bars and dots, the "-ink" values below carry text.
+ *
+ * Provenance is encoded by FORM rather than by extra hues, so the page keeps one accent:
+ *   verified (rules engine)  → solid green badge
+ *   AI explanation (LLM)     → dashed outline on a tint
+ *   source (RAG citation)    → outlined document chip
+ */
+:root {
+  --brand-charcoal: #1e2230;
+  --brand-accent: #f27a2e;
+  --brand-ink: #1e2230; /* logo path colour on this theme */
+
+  --background: #f8f8f7;
+  --foreground: #14161f;
+  --card: #ffffff;
+  --card-foreground: #14161f;
+  --popover: #ffffff;
+  --popover-foreground: #14161f;
+  --primary: #1e2230;
+  --primary-foreground: #ffffff;
+  --secondary: #eeeff3;
+  --secondary-foreground: #1e2230;
+  --muted: #eeeff3;
+  --muted-foreground: #61657a;
+  --accent: #eeeff3;
+  --accent-foreground: #1e2230;
+  --destructive: #b53a2f;
+  --border: #e4e4e2;
+  --input: #d6d6d3;
+  --ring: rgb(242 122 46 / 0.55);
+  --chart-1: #1e2230;
+  --chart-2: #4b4f62;
+  --chart-3: #f27a2e;
+  --chart-4: #61657a;
+  --chart-5: #a3a7b6;
+  --radius: 10px;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #14161f;
+  --sidebar-primary: #1e2230;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eeeff3;
+  --sidebar-accent-foreground: #1e2230;
+  --sidebar-border: #e4e4e2;
+  --sidebar-ring: rgb(242 122 46 / 0.55);
+
+  --highlight: #f27a2e;
+  --highlight-soft: rgb(242 122 46 / 0.12);
+  --highlight-ink: #b4501a;
+  --cat-dept: #1e2230;
+  --cat-dept-soft: #eeeff3;
+
+  --verified: #1f7a50;
+  --verified-soft: rgb(46 158 106 / 0.12);
+  --ai: #4b4f62;
+  --ai-soft: #f2f3f6;
+  --source: #1e2230;
+  --source-soft: #ffffff;
+  --warning: #8a5d00;
+  --warning-soft: rgb(224 161 27 / 0.15);
+}
+
+.dark {
+  --brand-ink: #ffffff;
+
+  --background: #12141b;
+  --foreground: #f2f2f0;
+  --card: #1b1e28;
+  --card-foreground: #f2f2f0;
+  --popover: #1b1e28;
+  --popover-foreground: #f2f2f0;
+  --primary: #f27a2e;
+  --primary-foreground: #14161f;
+  --secondary: #252a38;
+  --secondary-foreground: #f2f2f0;
+  --muted: #252a38;
+  --muted-foreground: #a3a7b6;
+  --accent: #252a38;
+  --accent-foreground: #f2f2f0;
+  --destructive: #ef7a6e;
+  --border: #2a2e3b;
+  --input: #353a4a;
+  --ring: rgb(242 122 46 / 0.6);
+  --chart-1: #f2f2f0;
+  --chart-2: #c3c6d2;
+  --chart-3: #f27a2e;
+  --chart-4: #a3a7b6;
+  --chart-5: #61657a;
+  --sidebar: #1b1e28;
+  --sidebar-foreground: #f2f2f0;
+  --sidebar-primary: #f27a2e;
+  --sidebar-primary-foreground: #14161f;
+  --sidebar-accent: #252a38;
+  --sidebar-accent-foreground: #f2f2f0;
+  --sidebar-border: #2a2e3b;
+  --sidebar-ring: rgb(242 122 46 / 0.6);
+
+  --highlight-soft: rgb(242 122 46 / 0.14);
+  --highlight-ink: #f27a2e;
+  --cat-dept: #f2f2f0;
+  --cat-dept-soft: #252a38;
+
+  --verified: #4cc08a;
+  --verified-soft: rgb(46 158 106 / 0.16);
+  --ai: #c3c6d2;
+  --ai-soft: #20232e;
+  --source: #f2f2f0;
+  --source-soft: #1b1e28;
+  --warning: #f0b840;
+  --warning-soft: rgb(224 161 27 / 0.14);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: light;
+    -webkit-tap-highlight-color: transparent;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground;
+    touch-action: manipulation;
+    font-feature-settings: "ss01";
+  }
+  /* Arabic runs set in Readex Pro; Latin inside Arabic UI (course names, codes) keeps Sora. */
+  :lang(ar) {
+    font-family: var(--font-readex), var(--font-sora), system-ui, sans-serif;
+  }
+  :lang(ar) :lang(en),
+  bdi[dir="ltr"] {
+    font-family: var(--font-sora), system-ui, sans-serif;
+  }
+  ::selection {
+    background: rgb(242 122 46 / 0.25);
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href] {
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  /* Letter-spacing breaks Arabic joining: tracking utilities apply to Latin text only. */
+  :lang(ar) .tracking-tight,
+  :lang(ar) .tracking-tighter,
+  :lang(ar) .tracking-wide {
+    letter-spacing: normal;
+  }
+  :lang(ar) :lang(en).tracking-tight {
+    letter-spacing: -0.025em;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
