@@ -1,0 +1,2041 @@
+{
+  "program": {
+    "name_ar": "برنامج هندسة الذكاء الاصطناعي بنظام الساعات المعتمدة",
+    "name_en": "Artificial Intelligence Engineering (AIE)",
+    "faculty": "كلية الهندسة - جامعة المنصورة",
+    "total_credits": 160,
+    "semesters": 10,
+    "credit_breakdown": {
+      "university": 13,
+      "college": 45,
+      "specialization_mandatory": 78,
+      "specialization_elective": 15,
+      "projects": 9
+    },
+    "electives_required": 5,
+    "source": "دليل الطالب AIE، صفحات 21-31"
+  },
+  "rules": {
+    "max_credits_by_gpa": [
+      {
+        "gpa_min": 0,
+        "gpa_max": 2.0,
+        "max_credits": 14
+      },
+      {
+        "gpa_min": 2.0,
+        "gpa_max": 3.0,
+        "max_credits": 18
+      },
+      {
+        "gpa_min": 3.0,
+        "gpa_max": 4.01,
+        "max_credits": 21
+      }
+    ],
+    "min_credits_main_semester": 12,
+    "probation_max_credits": 12,
+    "summer": {
+      "max_courses": 3,
+      "projects_allowed": false
+    },
+    "prerequisite_min_grade": "D",
+    "retake_max_grade": "B+",
+    "warning_gpa_threshold": 2.0,
+    "dismissal_after_consecutive_low_semesters": 3,
+    "max_study_years": 10,
+    "graduation": {
+      "min_credits": 160,
+      "min_cgpa": 2.0,
+      "min_course_grade": "D",
+      "trainings_required": [
+        "ARI 171",
+        "ARI 271",
+        "ARI 371"
+      ],
+      "projects_required": [
+        "ARI 381",
+        "ARI 481",
+        "ARI 482"
+      ]
+    },
+    "standing_by_credits": [
+      {
+        "level": 1,
+        "name": "Freshman",
+        "min": 0,
+        "max": 32
+      },
+      {
+        "level": 2,
+        "name": "Sophomore",
+        "min": 32,
+        "max": 64
+      },
+      {
+        "level": 3,
+        "name": "Junior",
+        "min": 64,
+        "max": 112
+      },
+      {
+        "level": 4,
+        "name": "Senior",
+        "min": 112,
+        "max": 160
+      }
+    ],
+    "grade_points": {
+      "A+": 4.0,
+      "A": 4.0,
+      "A-": 3.7,
+      "B+": 3.3,
+      "B": 3.0,
+      "B-": 2.7,
+      "C+": 2.3,
+      "C": 2.0,
+      "C-": 1.7,
+      "D+": 1.3,
+      "D": 1.0,
+      "F": 0.0
+    },
+    "source_articles": [
+      "13",
+      "15",
+      "19",
+      "21",
+      "25",
+      "26",
+      "30"
+    ],
+    "elective_retake_cap": "lower_of_two_grades",
+    "improvement": {
+      "max_courses": 5,
+      "not_allowed_if_paid_reregistration": true
+    },
+    "attendance": {
+      "max_absence_pct": 25,
+      "warnings_at_pct": [
+        10,
+        20
+      ],
+      "base": "lecture_and_lab_hours",
+      "exceed_result": "Deprived (counts in GPA)"
+    },
+    "source_note": "القواعد مطابقة للداشبورد (المعتمدة من الفريق) في حالة الاختلاف مع اللائحة المطبوعة.",
+    "project_group_size": {
+      "min": 5,
+      "max": 8
+    }
+  },
+  "elective_slots": [
+    {
+      "slot": "E1",
+      "semester": 7,
+      "level": 300
+    },
+    {
+      "slot": "E2",
+      "semester": 8,
+      "level": 300
+    },
+    {
+      "slot": "E3",
+      "semester": 9,
+      "level": 400
+    },
+    {
+      "slot": "E4",
+      "semester": 9,
+      "level": 400
+    },
+    {
+      "slot": "E5",
+      "semester": 10,
+      "level": 400
+    }
+  ],
+  "courses": [
+    {
+      "code": "UNR 061",
+      "name_ar": "لغة إنجليزية (1)",
+      "credits": 2,
+      "category": "university",
+      "type": "mandatory",
+      "department": "UNR",
+      "weekly_load_hours": 5,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 1,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "English (1)",
+      "aliases_en": [
+        "English Language"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "UNR 021",
+      "name_ar": "تاريخ الهندسة والتكنولوجيا",
+      "credits": 1,
+      "category": "university",
+      "type": "mandatory",
+      "department": "UNR",
+      "weekly_load_hours": 2,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 2,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "History of Engineering and Technology",
+      "aliases_en": [
+        "History of Engineering & Technology"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "UNR 181",
+      "name_ar": "القانون وحقوق الإنسان",
+      "credits": 2,
+      "category": "university",
+      "type": "mandatory",
+      "department": "UNR",
+      "weekly_load_hours": 4,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 3,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Law and Human Rights",
+      "aliases_en": [
+        "Contemporary Social Problems"
+      ],
+      "note": "شجرة المقررات (ص32) تكتب UNR 181 باسم 'Contemporary social problems'، وتضع 'Law and Human Rights' بكود CSI 001. جدول المقررات (ص23) والخطة (ص28) يعتمدان UNR 181 = القانون وحقوق الإنسان، وتم اعتماده.",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "UNR 241",
+      "name_ar": "مهارات الاتصال والعرض",
+      "credits": 2,
+      "category": "university",
+      "type": "mandatory",
+      "department": "UNR",
+      "weekly_load_hours": 5,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 5,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Communication and Presentation Skills",
+      "aliases_en": [
+        "Communications and Presentation Skills"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "UNR 121",
+      "name_ar": "مهارات البحث والتحليل",
+      "credits": 2,
+      "category": "university",
+      "type": "mandatory",
+      "department": "UNR",
+      "weekly_load_hours": 5,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 4,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Research and Critical Thinking",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "UNR 261",
+      "name_ar": "آداب وأخلاقيات المهنة",
+      "credits": 2,
+      "category": "university",
+      "type": "mandatory",
+      "department": "UNR",
+      "weekly_load_hours": 4,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 6,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Ethics and Morals of the Profession",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "UNR 471",
+      "name_ar": "التسويق",
+      "credits": 2,
+      "category": "university",
+      "type": "mandatory",
+      "department": "UNR",
+      "weekly_load_hours": 4,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": 9,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Marketing",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 011",
+      "name_ar": "رياضيات (1)",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 1,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Mathematics (1)",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 021",
+      "name_ar": "ميكانيكا (1)",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 1,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Mechanics (1)",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 012",
+      "name_ar": "رياضيات (2)",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 2,
+      "prerequisites": [
+        "BAS 011"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Mathematics (2)",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 022",
+      "name_ar": "ميكانيكا (2)",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 2,
+      "prerequisites": [
+        "BAS 021"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Mechanics (2)",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 031",
+      "name_ar": "فيزياء (1)",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 1,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Physics (1)",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 032",
+      "name_ar": "فيزياء (2)",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 2,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Physics (2)",
+      "name_en_source": "English edition",
+      "note": "النسخة الإنجليزي تكتب المتطلب BAS 031 والنسخة العربي لا تذكر متطلبًا. لم يُضَف؛ يُحسم من الداشبورد."
+    },
+    {
+      "code": "BAS 041",
+      "name_ar": "كيمياء هندسية",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 1,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Engineering Chemistry",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "PDE 051",
+      "name_ar": "هندسة الإنتاج",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "PDE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 2,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Production Engineering",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "PDE 052",
+      "name_ar": "رسم هندسي",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "PDE",
+      "weekly_load_hours": 10,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 1,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Engineering Drawing",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ENG 111",
+      "name_ar": "كتابة تقارير فنية",
+      "credits": 2,
+      "category": "college",
+      "type": "mandatory",
+      "department": "ENG",
+      "weekly_load_hours": 6,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 3,
+      "prerequisites": [
+        "UNR 061"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Technical Reports Writing",
+      "aliases_en": [
+        "Technical Report Writing"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 115",
+      "name_ar": "الجبر الخطي",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 3,
+      "prerequisites": [
+        "BAS 012"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Linear Algebra",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 116",
+      "name_ar": "طرق رياضية للمهندسين",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 4,
+      "prerequisites": [
+        "BAS 115"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Mathematical Methods for Engineering",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 216",
+      "name_ar": "الإحصاء وتحليل البيانات",
+      "credits": 2,
+      "category": "college",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 6,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 5,
+      "prerequisites": [
+        "BAS 115"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Statistical Data Analysis",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ELE 151",
+      "name_ar": "قوى وآلات كهربية",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "ELE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 4,
+      "prerequisites": [
+        "ECE 121"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Electrical Power and Machines",
+      "aliases_en": [
+        "Power & Electrical Machines"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 217",
+      "name_ar": "الرياضيات المتقطعة العددية",
+      "credits": 3,
+      "category": "college",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 6,
+      "prerequisites": [
+        "BAS 216"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Discrete Mathematics",
+      "aliases_en": [
+        "Discrete and Numerical Mathematics"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ENG 312",
+      "name_ar": "إدارة المشروعات",
+      "credits": 2,
+      "category": "college",
+      "type": "mandatory",
+      "department": "ENG",
+      "weekly_load_hours": 5,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": 8,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Project Management",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 151",
+      "name_ar": "مقدمة للذكاء الاصطناعي",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 3,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Introduction to Artificial Intelligence",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 121",
+      "name_ar": "دوائر كهربية",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "ECE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 3,
+      "prerequisites": [
+        "BAS 032"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Electric Circuits",
+      "aliases_en": [
+        "Electrical Circuits"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 122",
+      "name_ar": "إلكترونيات",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "ECE",
+      "weekly_load_hours": 6,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 4,
+      "prerequisites": [
+        "ECE 121"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "note": "الاسم المعتمد: إلكترونيات (تم التأكيد من الفريق). يظهر في جدول الترم الرابع (ص28) باسم دوائر إلكترونية.",
+      "aliases_ar": [
+        "دوائر إلكترونية"
+      ],
+      "name_en": "Electronics",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 141",
+      "name_ar": "تصميم رقمي",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 3,
+      "prerequisites": [
+        "CSE 042"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Digital Design",
+      "aliases_en": [
+        "Digital Circuits Design"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 218",
+      "name_ar": "رياضيات هندسية متقدمة",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "BAS",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 6,
+      "prerequisites": [
+        "BAS 216"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Advanced Engineering Mathematics",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 221",
+      "name_ar": "تحكم آلي",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 6,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 5,
+      "prerequisites": [
+        "BAS 116"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Automatic Control",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 223",
+      "name_ar": "قياسات وأجهزة قياس",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "ECE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 5,
+      "prerequisites": [
+        "ECE 122"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Instrumentation and Measurements",
+      "aliases_en": [
+        "Instrumentation & Measurements"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 234",
+      "name_ar": "إشارات ونظم",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "ECE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 5,
+      "prerequisites": [
+        "BAS 116"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Signals and Systems",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 332",
+      "name_ar": "شبكات عصبونية",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "ECE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": 7,
+      "prerequisites": [
+        "BAS 218"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Neural Networks",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 112",
+      "name_ar": "خوارزميات وهياكل بيانات",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 4,
+      "prerequisites": [
+        "CSE 042"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Algorithms and Data Structures",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 333",
+      "name_ar": "معالجة صور رقمية",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "ECE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": 7,
+      "prerequisites": [
+        "ECE 235"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Digital Image Processing",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 251",
+      "name_ar": "تعلم الآلة",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 5,
+      "prerequisites": [
+        "CSE 151"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Machine Learning",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 042",
+      "name_ar": "مقدمة لنظم الحاسب",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 0,
+      "planned_semester": 2,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "note": "الاسم المعتمد: مقدمة لنظم الحاسب (تم التأكيد من الفريق). يظهر في جدول المقررات (ص25) باسم أساسيات البرمجة.",
+      "aliases_ar": [
+        "أساسيات البرمجة"
+      ],
+      "name_en": "Introduction to Computer Systems",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 423",
+      "name_ar": "روبوتكس",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 10,
+        "coursework": 20,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": 9,
+      "prerequisites": [
+        "CSE 221"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Robotics",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 351",
+      "name_ar": "التعلم العميق",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": 8,
+      "prerequisites": [
+        "ECE 332"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Deep Learning",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 313",
+      "name_ar": "إدارة البيانات",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": 7,
+      "prerequisites": [
+        "CSE 212"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Data Management",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 111",
+      "name_ar": "برمجة (1)",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 100,
+      "planned_semester": 4,
+      "prerequisites": [
+        "CSE 141"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Programming (1)",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 315",
+      "name_ar": "الأنظمة المتضمنة",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": 8,
+      "prerequisites": [
+        "CSE 317"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Embedded Systems",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 212",
+      "name_ar": "أنظمة قواعد البيانات",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 6,
+      "prerequisites": [
+        "CSE 112"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Database Systems",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 235",
+      "name_ar": "معالجة وتحليل الإشارات",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "ECE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 6,
+      "prerequisites": [
+        "ECE 234"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "note": "جدول الترم السادس (ص29) يكتب المتطلب السابق CSE 234 خطأً؛ الصحيح ECE 234 (إشارات ونظم) — تم التأكيد من الفريق.",
+      "name_en": "Digital Signal Processing",
+      "aliases_en": [
+        "Signal Processing and Analysis"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 224",
+      "name_ar": "مستشعرات ومؤثرات وشبكات الحساسات",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "ECE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 200,
+      "planned_semester": 6,
+      "prerequisites": [
+        "ECE 223"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Sensors, Actuators and Sensor Networks",
+      "aliases_en": [
+        "Sensors, Actuators & Sensor Networks"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 451",
+      "name_ar": "علم البيانات الكبيرة",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": 10,
+      "prerequisites": [
+        "CSE 313"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Big Data",
+      "aliases_code": [
+        "CSE 415"
+      ],
+      "note": "شجرة المقررات (ص32) تكتب الكود CSE 415، والجداول (ص25، ص31) تكتب CSE 451، وتم اعتماد CSE 451.",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 317",
+      "name_ar": "معمار الحاسب",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": 7,
+      "prerequisites": [
+        "CSE 141"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Computer Architecture",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 452",
+      "name_ar": "تطبيقات في الذكاء الاصطناعي",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": 10,
+      "prerequisites": [
+        "CSE 351"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "AI Applications",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 311",
+      "name_ar": "برمجة (2)",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": 7,
+      "prerequisites": [
+        "CSE 111",
+        "CSE 212"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Programming (2)",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 321",
+      "name_ar": "شبكات الاتصالات",
+      "credits": 3,
+      "category": "specialization",
+      "type": "mandatory",
+      "department": "ECE",
+      "weekly_load_hours": 8,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": 8,
+      "prerequisites": [
+        "ECE 234"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Communication Networks",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 316",
+      "name_ar": "نظم اتخاذ القرار",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": null,
+      "prerequisites": [
+        "BAS 218"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Decision-Making Systems",
+      "description_en": "Decision making under certainty/uncertainty, linear programming, knowledge representation, decision support interfaces, guideline verification.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 334",
+      "name_ar": "التعرف على الأنماط",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "ECE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": null,
+      "prerequisites": [
+        "BAS 218"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Pattern Recognition",
+      "description_en": "Pattern recognition problem formulation, signal pre-processing, feature extraction, classification methods: supervised, unsupervised, parametric, non-parametric.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 315",
+      "name_ar": "طرق في الاستمثال",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "BAS",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": null,
+      "prerequisites": [
+        "BAS 218"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Optimization Methods",
+      "description_en": "Linear, numerical, dynamic, and nonlinear optimization; heuristic methods.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 319",
+      "name_ar": "معلوماتية حيوية",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": null,
+      "prerequisites": [
+        "BAS 216"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Bioinformatics",
+      "description_en": "DNA/protein databases, sequence alignment, phylogenetic trees, microarray analysis, protein structure prediction, comparative genomics.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 318",
+      "name_ar": "التفاعل بين الإنسان والحاسب",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": null,
+      "prerequisites": [
+        "CSE 251"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Human Computer Interaction (HCI)",
+      "description_en": "HCI introduction, cognitive psychology, design methods, human psychology simulation, design sensitivity, evaluation methods, error recovery.",
+      "prerequisites_source": "dashboard",
+      "aliases_en": [
+        "Human-Computer Interaction"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "BAS 311",
+      "name_ar": "التعلم الإحصائي",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "BAS",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": null,
+      "prerequisites": [
+        "BAS 216"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Statistical Learning",
+      "description_en": "Linear/logistic/polynomial regression, linear models, LDA, classification trees, random forests, SVM, PCA, cluster analysis.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 335",
+      "name_ar": "عرض وتحليل البيانات",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": null,
+      "prerequisites": [
+        "CSE 311",
+        "BAS 218"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Data Analysis and Visualization",
+      "description_en": "Data analysis & visualization intro, Python/R programming, data description methods, high-dimensional data, statistical analysis, hypothesis testing, dashboard design.",
+      "prerequisites_source": "dashboard",
+      "note": "المتطلبات: الداشبورد تكتب CSE 331 خطأً والصحيح CSE 311 (تم التأكيد). الكود: الداشبورد والنسخة العربي CSE 335، والنسخة الإنجليزي ECE 335؛ تم اعتماد CSE 335 حسب الداشبورد.",
+      "aliases_en": [
+        "Data Visualization & Analysis"
+      ],
+      "name_en_source": "English edition",
+      "aliases_code": [
+        "ECE 335"
+      ]
+    },
+    {
+      "code": "CSE 352",
+      "name_ar": "علم النفس المعرفي",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 300,
+      "planned_semester": null,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Cognitive Science",
+      "description_en": "Human information processing & AI, perception, human memory, visual cognition, language and thought.",
+      "prerequisites_source": "dashboard",
+      "aliases_en": [
+        "Cognitive Psychology"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 432",
+      "name_ar": "إنترنت الأشياء (IoT)",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "ECE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": null,
+      "prerequisites": [
+        "ECE 321"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Internet of Things (IoT)",
+      "description_en": "IoT intro, hardware platforms & OS, wireless communication, IP-connected smart objects, embedded web services, industrial network tracking, standards & protocols.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 454",
+      "name_ar": "التعلم العميق المتقدم",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": null,
+      "prerequisites": [
+        "CSE 351"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Advanced Deep Learning",
+      "description_en": "Advanced DL models: image-to-image networks, GANs for various signals, transfer learning, learning from small data, deep reinforcement learning, sequence modeling.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 455",
+      "name_ar": "معالجة لغات طبيعية",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": null,
+      "prerequisites": [
+        "CSE 351"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Natural Language Processing",
+      "description_en": "NLP intro, information extraction, translation tools, sentiment analysis, word vector representations, probabilistic NLP, sequence models, RNN, LSTM, machine translation.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ECE 435",
+      "name_ar": "الرؤية بالحاسب",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "ECE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": null,
+      "prerequisites": [
+        "ECE 333"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Computer Vision",
+      "description_en": "Image formation, camera geometry, image statistics, motion estimation, stereo, image classification, scene understanding, deep learning with neural networks, optical flow, segmentation.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 412",
+      "name_ar": "حوسبة لينة",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": null,
+      "prerequisites": [
+        "ECE 332"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Soft Computing",
+      "description_en": "Soft computing intro, neural networks, fuzzy sets, fuzzy logic, fuzzy classification, hybrid methods, neuro-fuzzy models, genetic algorithms.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 413",
+      "name_ar": "نظم الحوسبة عالية الكفاءة",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": null,
+      "prerequisites": [
+        "CSE 313"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "High Performance Computing",
+      "description_en": "Computer architecture, multi-core, vector representation, multithreading, distributed/shared memory, parallel computing, GPU computing, client-server communication.",
+      "prerequisites_source": "dashboard",
+      "aliases_en": [
+        "High-Performance Computing Systems"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 456",
+      "name_ar": "تطبيقات الذكاء الاصطناعي في النظم الطبية",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": null,
+      "prerequisites": [
+        "CSE 351"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Biomedical Applications of AI",
+      "description_en": "AI in medicine intro, medical signals & images, medical data mining, CNNs, image-to-image models, GANs applied to tumor detection, medical image segmentation, vital signal analysis.",
+      "prerequisites_source": "dashboard",
+      "aliases_en": [
+        "AI Applications in Medical Systems"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 457",
+      "name_ar": "التعليم المعزز",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": null,
+      "prerequisites": [
+        "CSE 351"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Reinforcement Learning",
+      "description_en": "RL theory, state/action/reward definition, problem formulation in RL framework, deep RL as neural networks, DRL applications in AI.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 414",
+      "name_ar": "التنقيب في البيانات",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": null,
+      "prerequisites": [
+        "BAS 218",
+        "CSE 351"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Data Mining",
+      "description_en": "Data mining concepts, reading & storing data, classification/clustering, feature extraction, statistical analysis, knowledge pattern inference, audio/text data, various ML algorithms.",
+      "prerequisites_source": "dashboard",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 458",
+      "name_ar": "الذكاء الاصطناعي في معالجة الإشارات والأصوات",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": null,
+      "prerequisites": [
+        "CSE 151",
+        "CSE 351"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "AI Applications in Signal and Audio Processing",
+      "description_en": "DL for signal processing, advanced deep neural architectures, RNN models, LSTM, sequence-to-sequence networks, GANs for audio generation.",
+      "prerequisites_source": "dashboard",
+      "aliases_en": [
+        "AI in Signal & Audio Processing"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "CSE 459",
+      "name_ar": "تعلم الآلة وتطبيقاتها في الفنون",
+      "credits": 3,
+      "category": "specialization",
+      "type": "elective",
+      "department": "CSE",
+      "weekly_load_hours": 9,
+      "assessment": {
+        "midterm": 20,
+        "practical": 0,
+        "coursework": 30,
+        "final": 50
+      },
+      "level": 400,
+      "planned_semester": null,
+      "prerequisites": [
+        "CSE 351"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "name_en": "Applications of AI in Art",
+      "description_en": "AI/ML in arts intro, image-to-image learning, GANs, style-transfer networks applied to artistic image generation, interior design, music composition, video colorization.",
+      "prerequisites_source": "dashboard",
+      "aliases_en": [
+        "Machine Learning in Arts"
+      ],
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ARI 171",
+      "name_ar": "تدريب عملي على هندسة الذكاء الاصطناعي",
+      "credits": 0,
+      "category": "projects_training",
+      "type": "training",
+      "department": "ARI",
+      "weekly_load_hours": 3,
+      "assessment": null,
+      "level": 100,
+      "planned_semester": 4,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": false,
+      "graduation_requirement": true,
+      "name_en": "Practical Training in AI",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ARI 271",
+      "name_ar": "تدريب (1) على هندسة الذكاء الاصطناعي",
+      "credits": 0,
+      "category": "projects_training",
+      "type": "training",
+      "department": "ARI",
+      "weekly_load_hours": 3,
+      "assessment": null,
+      "level": 200,
+      "planned_semester": 6,
+      "prerequisites": [
+        "ARI 171"
+      ],
+      "min_level_required": null,
+      "graded": false,
+      "graduation_requirement": true,
+      "name_en": "Training (1) in AI",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ARI 371",
+      "name_ar": "تدريب (2) على هندسة الذكاء الاصطناعي",
+      "credits": 0,
+      "category": "projects_training",
+      "type": "training",
+      "department": "ARI",
+      "weekly_load_hours": 3,
+      "assessment": null,
+      "level": 300,
+      "planned_semester": 8,
+      "prerequisites": [
+        "ARI 271"
+      ],
+      "min_level_required": null,
+      "graded": false,
+      "graduation_requirement": true,
+      "name_en": "Training (2) in AI",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ARI 381",
+      "name_ar": "مشروع (1) في هندسة الذكاء الاصطناعي",
+      "credits": 3,
+      "category": "projects_training",
+      "type": "project",
+      "department": "ARI",
+      "weekly_load_hours": 12,
+      "assessment": {
+        "periodic_followup": 50,
+        "oral_discussion": 50
+      },
+      "level": 300,
+      "planned_semester": 8,
+      "prerequisites": [],
+      "min_level_required": 300,
+      "graded": true,
+      "graduation_requirement": true,
+      "note": "متطلب سابق: الوصول للمستوى 300.",
+      "name_en": "Project (1) in AI",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ARI 481",
+      "name_ar": "مشروع (2) في هندسة الذكاء الاصطناعي",
+      "credits": 3,
+      "category": "projects_training",
+      "type": "project",
+      "department": "ARI",
+      "weekly_load_hours": 12,
+      "assessment": {
+        "periodic_followup": 50,
+        "oral_discussion": 50
+      },
+      "level": 400,
+      "planned_semester": 9,
+      "prerequisites": [],
+      "min_level_required": 400,
+      "graded": true,
+      "graduation_requirement": true,
+      "note": "متطلب سابق: الوصول للمستوى 400.",
+      "name_en": "Project (2) in AI",
+      "name_en_source": "English edition"
+    },
+    {
+      "code": "ARI 482",
+      "name_ar": "مشروع (3) في هندسة الذكاء الاصطناعي",
+      "credits": 3,
+      "category": "projects_training",
+      "type": "project",
+      "department": "ARI",
+      "weekly_load_hours": 14,
+      "assessment": {
+        "periodic_followup": 50,
+        "oral_discussion": 50
+      },
+      "level": 400,
+      "planned_semester": 10,
+      "prerequisites": [
+        "ARI 481"
+      ],
+      "min_level_required": null,
+      "graded": true,
+      "graduation_requirement": true,
+      "name_en": "Project (3) in AI",
+      "name_en_source": "English edition"
+    }
+  ],
+  "elective_pools": [
+    {
+      "level": 300,
+      "slots": [
+        "E1",
+        "E2"
+      ],
+      "choose": 2,
+      "courses": [
+        "CSE 316",
+        "ECE 334",
+        "BAS 315",
+        "CSE 319",
+        "CSE 318",
+        "BAS 311",
+        "CSE 335",
+        "CSE 352"
+      ]
+    },
+    {
+      "level": 400,
+      "slots": [
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "choose": 3,
+      "courses": [
+        "ECE 432",
+        "CSE 454",
+        "CSE 455",
+        "ECE 435",
+        "CSE 412",
+        "CSE 413",
+        "CSE 456",
+        "CSE 457",
+        "CSE 414",
+        "CSE 458",
+        "CSE 459"
+      ]
+    }
+  ]
+}
