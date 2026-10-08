@@ -17,6 +17,7 @@ import {
   student,
   type PlannedCourse,
 } from "@/lib/mock-data"
+import { useDemoState } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
@@ -30,7 +31,7 @@ const indexOf = (plan: PlannedCourse[][]) => new Map(plan.flatMap((t, i) => t.ma
 
 export default function PlanPage() {
   const { t, tr, num } = useI18n()
-  const [scenarioId, setScenarioId] = React.useState<string | null>(null)
+  const { scenarioId, setScenarioId } = useDemoState()
   const scenario = scenarios.find((s) => s.id === scenarioId) ?? null
 
   const plan = scenario?.plan ?? baselinePlan

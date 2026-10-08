@@ -20,32 +20,14 @@ import {
   sources,
   student,
 } from "@/lib/mock-data"
-import { type L, useI18n } from "@/lib/i18n"
-
-type Message =
-  | { id: string; role: "user"; text: string | L }
-  | { id: string; role: "assistant"; kind: "recommendation" | "prereq" | "demo" }
-
-const seed: Message[] = [
-  {
-    id: "m1",
-    role: "user",
-    text: {
-      ar: "أسجل إيه الترم الجاي، ومين الدكاترة المناسبين ليا؟",
-      en: "What should I register for next semester, and which instructors suit me?",
-    },
-  },
-  { id: "m2", role: "assistant", kind: "recommendation" },
-  { id: "m3", role: "user", text: { ar: "طب ليه مش قادر أسجل Deep Learning؟", en: "And why can't I register for Deep Learning?" } },
-  { id: "m4", role: "assistant", kind: "prereq" },
-]
+import { useDemoState } from "@/lib/demo-state"
+import { useI18n } from "@/lib/i18n"
 
 export default function ChatPage() {
   const { t, tr } = useI18n()
-  const [messages, setMessages] = React.useState<Message[]>(seed)
+  // Chat history lives in the shared demo state, so it survives switching pages.
+  const { messages, thinking, listening, sendMessage, toggleListening } = useDemoState()
   const [draft, setDraft] = React.useState("")
-  const [listening, setListening] = React.useState(false)
-  const [thinking, setThinking] = React.useState(false)
   const endRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
@@ -53,16 +35,9 @@ export default function ChatPage() {
   }, [messages, thinking])
 
   const send = (text: string) => {
-    const value = text.trim()
-    if (!value || thinking) return
-    setMessages((m) => [...m, { id: crypto.randomUUID(), role: "user", text: value }])
+    if (!text.trim() || thinking) return
+    sendMessage(text)
     setDraft("")
-    setThinking(true)
-    // UI-only: the real reply will stream from the backend.
-    setTimeout(() => {
-      setMessages((m) => [...m, { id: crypto.randomUUID(), role: "assistant", kind: "demo" }])
-      setThinking(false)
-    }, 900)
   }
 
   return (
@@ -125,7 +100,7 @@ export default function ChatPage() {
                 className="size-11 shrink-0 rounded-xl"
                 aria-pressed={listening}
                 aria-label={listening ? t("stopListening") : t("voiceInput")}
-                onClick={() => setListening((l) => !l)}
+                onClick={toggleListening}
               >
                 {listening ? <Square className="size-4 fill-current" /> : <Mic className="size-5" />}
               </Button>
@@ -341,6 +316,7 @@ function Typing() {
 
 function ContextPanel() {
   const { t, tr, num } = useI18n()
+  const { newChat } = useDemoState()
   const rows: [string, string][] = [
     [t("gpa"), num(student.gpa, { minimumFractionDigits: 1 })],
     [t("earned"), `${num(student.earned)} / ${num(student.total)}`],
@@ -349,7 +325,7 @@ function ContextPanel() {
   ]
   return (
     <aside className="hidden h-[calc(100dvh-4rem)] space-y-6 overflow-y-auto border-s bg-card p-5 lg:block">
-      <Button variant="outline" className="h-10 w-full gap-2">
+      <Button variant="outline" className="h-10 w-full gap-2" onClick={newChat}>
         <Plus className="size-4" />
         {t("newChat")}
       </Button>

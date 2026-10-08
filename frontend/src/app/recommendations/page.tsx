@@ -11,27 +11,27 @@ import { AiExplanation, ConfidenceMeter, SourceChip, VerifiedBadge } from "@/com
 import {
   confidenceFromResponses,
   courseNames,
-  defaultPrefs,
   demoCompatibility,
   dimensionLabels,
   ineligibleCourses,
   instructors,
-  proposedNow,
   recommendedCourses,
   student,
   type RecommendedCourse,
   type StudentPrefs,
   type TeachingProfile,
 } from "@/lib/mock-data"
+import { type RecTab, useDemoState } from "@/lib/demo-state"
 import { type DictKey, useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
 export default function RecommendationsPage() {
   const { t } = useI18n()
+  const { recTab, setRecTab } = useDemoState()
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6">
       <PageHeader title={t("recTitle")} subtitle={t("recSubtitle")} />
-      <Tabs defaultValue="courses" className="gap-5">
+      <Tabs value={recTab} onValueChange={(v) => setRecTab(v as RecTab)} className="gap-5">
         <TabsList className="h-11! w-full sm:w-fit">
           <TabsTrigger value="courses" className="px-5">
             {t("tabCourses")}
@@ -55,10 +55,9 @@ export default function RecommendationsPage() {
 
 function CoursesTab() {
   const { t, tr, num } = useI18n()
-  const [selected, setSelected] = React.useState<string[]>(proposedNow)
+  const { selected, toggleCourse: toggle } = useDemoState()
   const load = recommendedCourses.filter((c) => selected.includes(c.code)).reduce((s, c) => s + c.credits, 0)
   const over = load > student.maxLoad
-  const toggle = (code: string) => setSelected((s) => (s.includes(code) ? s.filter((c) => c !== code) : [...s, code]))
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -232,8 +231,7 @@ const prefSliders: { key: keyof StudentPrefs; label: DictKey; low: DictKey; high
 
 function InstructorsTab() {
   const { t, tr, num } = useI18n()
-  const [course, setCourse] = React.useState("ECE 321")
-  const [prefs, setPrefs] = React.useState<StudentPrefs>(defaultPrefs)
+  const { insCourse: course, setInsCourse: setCourse, prefs, setPrefs } = useDemoState()
   const courseOptions = Array.from(new Set(instructors.map((i) => i.courseCode)))
 
   const ranked = instructors

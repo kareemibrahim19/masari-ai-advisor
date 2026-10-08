@@ -81,6 +81,19 @@ src/
   lib/mock-data.ts        demo data, also the draft frontend ↔ backend data contract
 ```
 
+- `src/lib/demo-state.tsx` holds the interactive state that survives switching pages: selected courses, the open
+  recommendations tab, instructor preferences, the what-if scenario and the chat history. A full refresh resets it.
+- `src/app/layout.tsx` has a small pre-paint script that applies the saved theme (`masari.theme`) and language
+  (`masari.lang`) before the page is drawn, so it never flashes the wrong one.
 - Colors are tokens in `src/app/globals.css` (`--verified`, `--ai`, `--source`, `--warning`, plus the shadcn tokens), with light and dark themes.
 - For RTL, use logical classes (`ms-`, `pe-`, `start-`, `text-start`) and never `ml-`/`left-`. Wrap course codes in `<Code>` so they don't reorder inside Arabic text.
 - `demoCompatibility()` is a placeholder formula. Replace it with the compatibility model's output.
+
+## Common changes
+
+- **Change colors**: edit the `:root` (light) and `.dark` (dark) blocks in `src/app/globals.css`. Start with
+  `--brand-charcoal` and `--brand-accent`; keep new colors there instead of writing them in components.
+- **Change or add text**: edit `src/lib/i18n.tsx` (both `ar` and `en`), then use `t("key")` in a component.
+- **Change demo data**: the student record is `record` in `src/lib/mock-data.ts`; everything else is computed from it.
+- **Add a page**: create `src/app/<name>/page.tsx`, then add it to the `nav` list in `src/components/masari/app-shell.tsx`
+  and add its menu labels to the translations.

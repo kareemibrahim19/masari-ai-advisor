@@ -193,6 +193,10 @@
   html.dark {
     color-scheme: dark;
   }
+  /* Set by the pre-paint script in layout.tsx while the English text replaces the Arabic prerender. */
+  html[data-lang-pending] body {
+    visibility: hidden;
+  }
   body {
     @apply bg-background text-foreground;
     touch-action: manipulation;

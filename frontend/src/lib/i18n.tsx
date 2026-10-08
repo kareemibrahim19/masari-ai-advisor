@@ -272,6 +272,8 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     const el = document.documentElement
     el.lang = lang
     el.dir = lang === "ar" ? "rtl" : "ltr"
+    // The pre-paint script in layout.tsx hides the Arabic prerender while English loads.
+    if (lang === "en") el.removeAttribute("data-lang-pending")
   }, [lang])
 
   const value = React.useMemo<I18nContextValue>(() => {
