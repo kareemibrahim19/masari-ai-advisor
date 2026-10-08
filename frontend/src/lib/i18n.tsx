@@ -85,6 +85,11 @@ const dict = {
     en: "This is a UI prototype. Real answers will come from the backend (RAG + rules engine + recommendation model) once it is connected.",
   },
   newChat: { ar: "محادثة جديدة", en: "New chat" },
+  ragSources: { ar: "المصادر اللي اتبحث فيها", en: "Sources searched" },
+  chatError: {
+    ar: "مساري مش قادر يرد دلوقتي. اتأكد إن خدمة الـ AI شغالة وجرب تاني كمان شوية.",
+    en: "Masari can't answer right now. Make sure the AI service is running and try again shortly.",
+  },
 
   // Recommendations
   recTitle: { ar: "توصيات المقررات والمحاضرين", en: "Course & instructor recommendations" },
