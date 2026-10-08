@@ -51,7 +51,7 @@ Keep this separation when connecting real APIs.
 
 ## Brand
 
-Source of truth: `../Masari Project logo brief final/export-8f/` (`masari-colors.css`, logo SVG/PNG). Clean copies of the logos are in `public/brand/`.
+Source of truth: `public/brand/` (`masari-colors.css` / `.json`, logo SVG/PNG). The favicon-32 and apple-touch-icon files live only in `src/app/` (`icon.svg`, `icon.png`, `apple-icon.png`), where Next.js picks them up.
 
 | Token | Light | Dark | Use |
 |---|---|---|---|

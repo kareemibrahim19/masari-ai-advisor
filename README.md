@@ -8,7 +8,8 @@ This repository contains the **web frontend prototype**.
 |---|---|
 | [`frontend/`](frontend/) | Next.js 16 + Tailwind v4 + shadcn/ui (Base UI) app. Arabic RTL by default, with English, light and dark themes. See [`frontend/README.md`](frontend/README.md). |
 | [`prototype/masari-prototype.html`](prototype/masari-prototype.html) | A single-file, offline-viewable version of the same UI. Open it in any browser. |
-| [`Masari Project logo brief final/`](Masari%20Project%20logo%20brief%20final/) | Brand source files: logo SVG/PNG set and the color palette (`masari-colors.css` / `.json`). |
+| [`ai/data/`](ai/data/) | AI data: course list (`courses.json`) and chunked regulations for RAG (`regulations_chunks.json`). |
+| [`frontend/public/brand/`](frontend/public/brand/) | Brand files: logo SVG/PNG set and the color palette (`masari-colors.css` / `.json`). |
 
 ## Run the app
 
