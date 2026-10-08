@@ -10,14 +10,15 @@ import sys
 from pathlib import Path
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from google.genai import errors
 from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from rag import Masari  # noqa: E402
+from rag import Masari  # noqa: E402  (also loads .env)
+import stt  # noqa: E402
 
 app = FastAPI(title="Masari AI Advisor")
 # Let the Next.js frontend (another origin) call /api/chat from the browser.
@@ -26,7 +27,7 @@ app.add_middleware(
     CORSMiddleware,
     # strip() drops spaces and a stray BOM that some shells add when the value is piped in.
     allow_origins=[
-        o.strip().lstrip("﻿")
+        o.strip().lstrip(chr(0xFEFF))
         for o in os.getenv("MASARI_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
     ],
     allow_methods=["POST"],
@@ -53,6 +54,21 @@ def chat(req: ChatRequest):
         return bot.answer(req.question.strip(), [m.model_dump() for m in req.history])
     except errors.APIError as e:
         raise HTTPException(502, f"Gemini error {e.code}: {e.message}")
+
+
+MAX_AUDIO_BYTES = 10 * 1024 * 1024  # ~10 minutes of compressed speech
+
+
+@app.post("/api/transcribe")
+async def transcribe(audio: UploadFile = File(...), language: str | None = Form(None)):
+    """Speech-to-text for the chat microphone (Whisper). Returns {"text": "..."}."""
+    data = await audio.read()
+    if len(data) > MAX_AUDIO_BYTES:
+        raise HTTPException(413, "Recording is too long")
+    try:
+        return {"text": stt.transcribe(data, audio.filename or "audio.webm", language or None)}
+    except stt.STTError as e:
+        raise HTTPException(502, str(e))
 
 
 @app.get("/")

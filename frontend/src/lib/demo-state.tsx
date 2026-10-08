@@ -21,7 +21,7 @@ export type ChatMessage =
   | { id: string; role: "assistant"; kind: "error"; detail: string }
 
 /** Masari AI service (ai/chatbot/server.py). Override with NEXT_PUBLIC_MASARI_API_URL. */
-const MASARI_API_URL = process.env.NEXT_PUBLIC_MASARI_API_URL ?? "http://localhost:8000"
+export const MASARI_API_URL = process.env.NEXT_PUBLIC_MASARI_API_URL ?? "http://localhost:8000"
 
 /** Turns the visible conversation into the history the AI service expects (real turns only, not the seeded demo). */
 function toHistory(messages: ChatMessage[]) {
@@ -58,9 +58,7 @@ type DemoState = {
   setScenarioId: (id: string | null) => void
   messages: ChatMessage[]
   thinking: boolean
-  listening: boolean
   sendMessage: (text: string) => void
-  toggleListening: () => void
   newChat: () => void
 }
 
@@ -74,7 +72,6 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
   const [scenarioId, setScenarioId] = React.useState<string | null>(null)
   const [messages, setMessages] = React.useState<ChatMessage[]>(seedMessages)
   const [thinking, setThinking] = React.useState(false)
-  const [listening, setListening] = React.useState(false)
   const pending = React.useRef<AbortController>(undefined)
 
   const toggleCourse = React.useCallback((code: string) => {
@@ -120,7 +117,6 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
     pending.current?.abort()
     setMessages([])
     setThinking(false)
-    setListening(false)
   }, [])
 
   const value = React.useMemo<DemoState>(
@@ -137,12 +133,10 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       setScenarioId,
       messages,
       thinking,
-      listening,
       sendMessage,
-      toggleListening: () => setListening((l) => !l),
       newChat,
     }),
-    [selected, toggleCourse, recTab, insCourse, prefs, scenarioId, messages, thinking, listening, sendMessage, newChat]
+    [selected, toggleCourse, recTab, insCourse, prefs, scenarioId, messages, thinking, sendMessage, newChat]
   )
 
   return <DemoStateContext.Provider value={value}>{children}</DemoStateContext.Provider>
