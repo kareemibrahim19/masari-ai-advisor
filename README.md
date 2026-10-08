@@ -1,5 +1,7 @@
 # Masari · مساري: AI Academic Advisor
 
+[![CI](https://github.com/kareemibrahim19/masari-ai-advisor/actions/workflows/ci.yml/badge.svg)](https://github.com/kareemibrahim19/masari-ai-advisor/actions/workflows/ci.yml)
+
 Masari is an AI Engineering graduation project: a personalized, explainable academic advisor. It explains university regulations, checks eligibility with a deterministic rules engine, recommends courses and instructors, and plans the path to graduation. The rules decide; the language model only explains.
 
 This repository contains the **website** and the **AI service** (a RAG chatbot over the program regulations) that powers its chat.
@@ -11,6 +13,24 @@ This repository contains the **website** and the **AI service** (a RAG chatbot o
 | [`ai/chatbot/`](ai/chatbot/) | Masari AI service: FastAPI + Gemini RAG chatbot (`/api/chat`) and Whisper speech-to-text for the microphone (`/api/transcribe`). See [`ai/chatbot/README.md`](ai/chatbot/README.md). |
 | [`ai/data/`](ai/data/) | AI data: course list (`courses.json`) and chunked regulations for RAG (`regulations_chunks.json`). |
 | [`frontend/public/brand/`](frontend/public/brand/) | Brand files: logo SVG/PNG set and the color palette (`masari-colors.css` / `.json`). |
+
+## Project structure
+
+```
+masari-ai-advisor/
+├── frontend/                 Next.js website
+│   ├── src/app/              one folder per screen (page.tsx)
+│   ├── src/components/       Masari components + shadcn/ui primitives
+│   ├── src/lib/              rules engine, program data, i18n, chat + voice client
+│   └── public/brand/         logos and color palette
+├── ai/
+│   ├── chatbot/              FastAPI RAG service (rag.py, server.py, stt.py)
+│   ├── data/                 courses + regulation chunks used by the chatbot
+│   ├── app.py                Vercel entrypoint
+│   └── requirements.txt
+├── prototype/                single-file HTML version of the UI
+└── .github/workflows/ci.yml  lint + build on every push and pull request
+```
 
 ## Run the app
 
@@ -42,3 +62,13 @@ The website reads the AI service URL from `NEXT_PUBLIC_MASARI_API_URL` (default 
 - **Program data is real**: courses, prerequisites, elective pools and regulations of the B.Sc. in AI Engineering (Faculty of Engineering, Mansoura University). It comes from the [AIE Program Guide](https://aieprogramguide.vercel.app/), an unofficial summary of the bylaws, so verify it against the official bylaws.
 - **Student, instructors and seat data are simulated.** Nothing is connected to a university system.
 - Recommendations, eligibility, the study plan and what-if results are computed by the rules engine in `frontend/src/lib/rules.ts`.
+
+## Checks
+
+Every push and pull request runs [CI](.github/workflows/ci.yml): the frontend is linted and built (`npm run lint`, `npm run build`, which also type-checks), and the AI service's dependencies are installed and its code compiled. Run the same frontend checks locally before pushing:
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```

@@ -1,4 +1,4 @@
-# Versioned: the website (frontend/), the standalone prototype (prototype/) and the brand files.
+# Versioned: the website (frontend/), the AI service and data (ai/) and the standalone prototype (prototype/).
 # Local agent tooling is not part of the project.
 .claude/
 .agents/
