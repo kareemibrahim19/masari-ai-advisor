@@ -4,6 +4,8 @@
 
 Masari is an AI Engineering graduation project: a personalized, explainable academic advisor. It explains university regulations, checks eligibility with a deterministic rules engine, recommends courses and instructors, and plans the path to graduation. The rules decide; the language model only explains.
 
+**Live demo:** https://masari-web-sigma.vercel.app
+
 This repository contains the **website** and the **AI service** (a RAG chatbot over the program regulations) that powers its chat.
 
 | Folder | What it is |
