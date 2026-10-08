@@ -187,6 +187,8 @@ class Masari:
         print(f"Embedding {len(texts)} chunks with {EMBED_MODEL}...", file=sys.stderr)
         v = self._embed(texts, "RETRIEVAL_DOCUMENT")
         CACHE_DIR.mkdir(exist_ok=True)
+        for old in CACHE_DIR.glob("embeddings-*.npy"):  # the cache is committed, so keep only the current one
+            old.unlink()
         np.save(path, v)
         return v
 
@@ -244,7 +246,8 @@ class Masari:
                 print(f"{model} failed ({code}), trying next model", file=sys.stderr)
                 if code == 429:
                     self.cooldown[model] = time.time() + 300
-                if code not in (404, 429, 503, "timeout") or i == len(models) - 1:
+                # 500/503/504 = Gemini-side trouble, 429 = quota, 404 = model retired: all worth trying the next model.
+                if code not in (404, 429, 500, 503, 504, "timeout") or i == len(models) - 1:
                     raise
         return {
             "answer": r.text,

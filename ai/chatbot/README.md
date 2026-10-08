@@ -28,6 +28,31 @@ merged with reciprocal-rank fusion) and asks Gemini to answer from them only, ci
    It listens on http://localhost:8000.
 4. Start the frontend (`cd frontend`, `npm install`, `npm run dev`) and open http://localhost:3000/chat.
 
+## Deploy (Render, from the public GitHub repo)
+
+**AI service** — New → Web Service → Public Git Repository:
+
+| Setting | Value |
+|---|---|
+| Branch | `main` |
+| Runtime | Python 3 |
+| Build command | `pip install -r ai/requirements.txt` |
+| Start command | `uvicorn server:app --app-dir ai/chatbot --host 0.0.0.0 --port $PORT` |
+| Environment | `GEMINI_API_KEY` = the team's key (secret), `MASARI_CORS_ORIGINS` = the website URL, e.g. `https://masari-web.onrender.com` |
+
+The embedding cache in `ai/chatbot/.cache/` is committed so the server starts without re-embedding.
+When `ai/data` changes, run the service locally once and commit the new cache file.
+
+**Website** — New → Static Site → Public Git Repository:
+
+| Setting | Value |
+|---|---|
+| Branch | `main` |
+| Root directory | `frontend` |
+| Build command | `npm ci && npm run build` |
+| Publish directory | `out` |
+| Environment | `STATIC_EXPORT` = `1`, `NEXT_PUBLIC_MASARI_API_URL` = the AI service URL, e.g. `https://masari-ai.onrender.com` |
+
 ## API
 
 `POST /api/chat`

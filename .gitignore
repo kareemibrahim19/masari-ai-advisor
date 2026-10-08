@@ -19,8 +19,8 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Chatbot embedding cache (rebuilt automatically)
-ai/chatbot/.cache/
+# The chatbot's embedding cache IS committed, so the hosted server starts without
+# re-embedding (and spending Gemini quota) on every restart. Stale caches are rebuilt locally.
 
 # Standalone HTML build output (rebuild with ai/chatbot/build_standalone.py)
 ai/chatbot/dist/
