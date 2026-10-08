@@ -6,7 +6,7 @@ merged with reciprocal-rank fusion) and asks Gemini to answer from them only, ci
 
 | File | What it does |
 |---|---|
-| `rag.py` | Chunking, embeddings (cached in `.cache/`), hybrid search, query rewriting, Gemini call with model fallback |
+| `rag.py` | Chunking, embeddings (cached in `embeddings/`, committed), hybrid search, query rewriting, Gemini call with model fallback |
 | `server.py` | FastAPI server: `POST /api/chat` for the frontend, plus a simple test page at `/` |
 | `build_standalone.py` + `standalone_template.html` | Builds `dist/masari-chat.html`, a single-file demo that calls Gemini from the browser with the user's own key |
 
@@ -28,30 +28,33 @@ merged with reciprocal-rank fusion) and asks Gemini to answer from them only, ci
    It listens on http://localhost:8000.
 4. Start the frontend (`cd frontend`, `npm install`, `npm run dev`) and open http://localhost:3000/chat.
 
-## Deploy (Render, from the public GitHub repo)
+## Deploy (Vercel Hobby, free, no card)
 
-**AI service** — New → Web Service → Public Git Repository:
+Two Vercel projects, deployed with the Vercel CLI (`npx vercel login` once).
 
-| Setting | Value |
-|---|---|
-| Branch | `main` |
-| Runtime | Python 3 |
-| Build command | `pip install -r ai/requirements.txt` |
-| Start command | `uvicorn server:app --app-dir ai/chatbot --host 0.0.0.0 --port $PORT` |
-| Environment | `GEMINI_API_KEY` = the team's key (secret), `MASARI_CORS_ORIGINS` = the website URL, e.g. `https://masari-web.onrender.com` |
+**AI service** — project root `ai/`. Vercel finds the FastAPI `app` in `ai/app.py` and installs `ai/requirements.txt`.
 
-The embedding cache in `ai/chatbot/.cache/` is committed so the server starts without re-embedding.
-When `ai/data` changes, run the service locally once and commit the new cache file.
+```bash
+cd ai
+npx vercel deploy --prod
+```
 
-**Website** — New → Static Site → Public Git Repository:
+Environment variables (Vercel → project → Settings → Environment Variables):
+`GEMINI_API_KEY` (secret) and `MASARI_CORS_ORIGINS` = the website URL.
 
-| Setting | Value |
-|---|---|
-| Branch | `main` |
-| Root directory | `frontend` |
-| Build command | `npm ci && npm run build` |
-| Publish directory | `out` |
-| Environment | `STATIC_EXPORT` = `1`, `NEXT_PUBLIC_MASARI_API_URL` = the AI service URL, e.g. `https://masari-ai.onrender.com` |
+The embedding cache in `ai/chatbot/embeddings/` is committed so the service starts without re-embedding
+(the hosted disk is read-only). When `ai/data` changes, run the service locally once and commit the new cache file.
+
+**Website** — project root `frontend/` (Next.js is detected automatically).
+
+```bash
+cd frontend
+npx vercel deploy --prod
+```
+
+Environment variable: `NEXT_PUBLIC_MASARI_API_URL` = the AI service URL (it is baked in at build time, so redeploy after changing it).
+
+`STATIC_EXPORT=1` in `next.config.ts` builds a plain static site instead (`out/`) for hosts that only serve files.
 
 ## API
 

@@ -1,0 +1,6 @@
+# Not needed by the hosted service
+chatbot/dist/
+scripts/
+**/__pycache__/
+.env*
+.vercel/

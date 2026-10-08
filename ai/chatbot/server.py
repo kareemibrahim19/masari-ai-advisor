@@ -24,7 +24,11 @@ app = FastAPI(title="Masari AI Advisor")
 # Comma-separated list, e.g. "http://localhost:3000,https://masari.example.com".
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("MASARI_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(","),
+    # strip() drops spaces and a stray BOM that some shells add when the value is piped in.
+    allow_origins=[
+        o.strip().lstrip("﻿")
+        for o in os.getenv("MASARI_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+    ],
     allow_methods=["POST"],
     allow_headers=["Content-Type"],
 )

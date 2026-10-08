@@ -18,8 +18,9 @@ from google.genai import errors, types
 from rank_bm25 import BM25Okapi
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DATA_DIR = REPO_ROOT / "ai" / "data"
-CACHE_DIR = Path(__file__).resolve().parent / ".cache"
+# Relative to this file, so it also works when only ai/ is deployed (e.g. on Vercel).
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+CACHE_DIR = Path(__file__).resolve().parent / "embeddings"  # not ".cache": hosts like Vercel skip dot-folders
 load_dotenv(REPO_ROOT / ".env")
 
 CHAT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
@@ -186,10 +187,13 @@ class Masari:
             return np.load(path)
         print(f"Embedding {len(texts)} chunks with {EMBED_MODEL}...", file=sys.stderr)
         v = self._embed(texts, "RETRIEVAL_DOCUMENT")
-        CACHE_DIR.mkdir(exist_ok=True)
-        for old in CACHE_DIR.glob("embeddings-*.npy"):  # the cache is committed, so keep only the current one
-            old.unlink()
-        np.save(path, v)
+        try:
+            CACHE_DIR.mkdir(exist_ok=True)
+            for old in CACHE_DIR.glob("embeddings-*.npy"):  # the cache is committed, so keep only the current one
+                old.unlink()
+            np.save(path, v)
+        except OSError:  # read-only disk on serverless hosts: keep the vectors in memory only
+            print("Could not save the embedding cache; commit an up-to-date one.", file=sys.stderr)
         return v
 
     def rewrite(self, question: str, history: list[dict]) -> str:
