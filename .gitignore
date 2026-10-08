@@ -11,8 +11,16 @@ node_modules/
 out/
 build/
 *.tsbuildinfo
+.venv/
+__pycache__/
 
 # Secrets and OS files
 .env*
 .DS_Store
 Thumbs.db
+
+# Chatbot embedding cache (rebuilt automatically)
+ai/chatbot/.cache/
+
+# Standalone HTML build output (rebuild with ai/chatbot/build_standalone.py)
+ai/chatbot/dist/
