@@ -77,6 +77,13 @@ const dict = {
   voiceInput: { ar: "إدخال صوتي", en: "Voice input" },
   listening: { ar: "بيسمعك… (عربي / English)", en: "Listening… (Arabic / English)" },
   stopListening: { ar: "إيقاف التسجيل", en: "Stop recording" },
+  transcribing: { ar: "بحوّل صوتك لكلام…", en: "Turning your voice into text…" },
+  micPermission: {
+    ar: "مساري محتاج إذن الميكروفون. اسمح بيه من علامة القفل جنب عنوان الموقع وجرب تاني.",
+    en: "Masari needs microphone access. Allow it from the lock icon next to the address and try again.",
+  },
+  micUnsupported: { ar: "المتصفح ده مش بيدعم التسجيل. جرب Chrome أو Edge.", en: "This browser can't record audio. Try Chrome or Edge." },
+  micError: { ar: "مقدرتش أفهم التسجيل. جرب تاني أو اكتب سؤالك.", en: "Couldn't transcribe that. Try again or type your question." },
   suggestions: { ar: "اقتراحات", en: "Suggestions" },
   contextPanel: { ar: "اللي مساري عارفه عنك", en: "What Masari knows" },
   sourcesUsed: { ar: "المصادر المستخدمة", en: "Sources used" },

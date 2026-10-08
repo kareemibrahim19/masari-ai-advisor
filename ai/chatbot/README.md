@@ -7,7 +7,8 @@ merged with reciprocal-rank fusion) and asks Gemini to answer from them only, ci
 | File | What it does |
 |---|---|
 | `rag.py` | Chunking, embeddings (cached in `embeddings/`, committed), hybrid search, query rewriting, Gemini call with model fallback |
-| `server.py` | FastAPI server: `POST /api/chat` for the frontend, plus a simple test page at `/` |
+| `server.py` | FastAPI server: `POST /api/chat` and `POST /api/transcribe` for the frontend, plus a simple test page at `/` |
+| `stt.py` | Speech-to-text for the chat microphone: open-source Whisper large-v3-turbo, via Groq (default) or locally with faster-whisper |
 | `build_standalone.py` + `standalone_template.html` | Builds `dist/masari-chat.html`, a single-file demo that calls Gemini from the browser with the user's own key |
 
 ## Run
@@ -20,6 +21,7 @@ merged with reciprocal-rank fusion) and asks Gemini to answer from them only, ci
 2. Create `.env` in the repo root (never commit it) with your own key from https://aistudio.google.com/apikey:
    ```
    GEMINI_API_KEY=your-key-here
+   GROQ_API_KEY=your-groq-key   # for the microphone, free at https://console.groq.com/keys
    ```
 3. Start the service (the first start embeds the data, about a minute on the free tier):
    ```bash
@@ -40,7 +42,7 @@ npx vercel deploy --prod
 ```
 
 Environment variables (Vercel → project → Settings → Environment Variables):
-`GEMINI_API_KEY` (secret) and `MASARI_CORS_ORIGINS` = the website URL.
+`GEMINI_API_KEY` and `GROQ_API_KEY` (secrets) and `MASARI_CORS_ORIGINS` = the website URL.
 
 The embedding cache in `ai/chatbot/embeddings/` is committed so the service starts without re-embedding
 (the hosted disk is read-only). When `ai/data` changes, run the service locally once and commit the new cache file.
@@ -70,6 +72,9 @@ Response:
 { "answer": "...markdown...", "model": "gemini-3.5-flash", "search_query": "...", "sources": [{ "id": "aie-reg-13-ar", "title": "مادة [13]: ...", "source": "regulation" }] }
 ```
 
+`POST /api/transcribe` (multipart form): `audio` = the recording (webm / mp4 / ogg / mp3 / wav, up to 10 MB),
+optional `language` = `ar` or `en` (auto-detected otherwise). Response: `{ "text": "..." }`.
+
 ## Settings (`.env`)
 
 | Variable | Default |
@@ -77,6 +82,9 @@ Response:
 | `GEMINI_MODEL` | `gemini-3.8-flash` (falls back to `gemini-3.5-flash`, `gemini-flash-latest`, `gemini-3.5-flash-lite` on 429/503/timeout) |
 | `GEMINI_REWRITE_MODEL` | `gemini-3.5-flash-lite` |
 | `GEMINI_EMBED_MODEL` | `gemini-embedding-001` |
+| `GROQ_API_KEY` | none; needed for the microphone with the `groq` backend |
+| `STT_BACKEND` | `groq`; `local` runs Whisper on this machine (`pip install faster-whisper`, downloads ~1.6 GB on first use, not for Vercel) |
+| `GROQ_STT_MODEL` / `LOCAL_STT_MODEL` | `whisper-large-v3-turbo` / `large-v3-turbo` |
 | `MASARI_CORS_ORIGINS` | `http://localhost:3000,http://127.0.0.1:3000` (comma-separated origins allowed to call the API) |
 
 The frontend reads the service URL from `NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000`).

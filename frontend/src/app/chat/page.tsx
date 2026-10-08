@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { BookOpenText, CheckCircle2, Mic, Plus, SendHorizontal, Square, XCircle } from "lucide-react"
+import { BookOpenText, CheckCircle2, Loader2, Mic, Plus, SendHorizontal, Square, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { AppIcon } from "@/components/masari/brand"
@@ -22,13 +22,17 @@ import {
 } from "@/lib/mock-data"
 import { useDemoState, type ChatMessage, type RagSource } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
+import { useVoiceInput } from "@/lib/use-voice-input"
 import { cn } from "@/lib/utils"
 
 export default function ChatPage() {
   const { t, tr } = useI18n()
   // Chat history lives in the shared demo state, so it survives switching pages.
-  const { messages, thinking, listening, sendMessage, toggleListening } = useDemoState()
+  const { messages, thinking, sendMessage } = useDemoState()
   const [draft, setDraft] = React.useState("")
+  // Voice: the transcript lands in the composer so the student can check it before sending.
+  const voice = useVoiceInput(React.useCallback((text: string) => setDraft((d) => (d.trim() ? `${d.trim()} ${text}` : text)), []))
+  const listening = voice.state === "recording"
   const endRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
@@ -86,6 +90,17 @@ export default function ChatPage() {
                 {t("listening")}
               </div>
             )}
+            {voice.state === "transcribing" && (
+              <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground" role="status">
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+                {t("transcribing")}
+              </div>
+            )}
+            {voice.error && (
+              <div className="rounded-lg bg-destructive/8 px-3 py-2 text-sm text-destructive" role="alert">
+                {voice.error === "permission" ? t("micPermission") : voice.error === "unsupported" ? t("micUnsupported") : t("micError")}
+              </div>
+            )}
 
             <form
               className="flex items-end gap-2 rounded-2xl border bg-card p-2 shadow-sm focus-within:ring-3 focus-within:ring-ring/30"
@@ -101,7 +116,8 @@ export default function ChatPage() {
                 className="size-11 shrink-0 rounded-xl"
                 aria-pressed={listening}
                 aria-label={listening ? t("stopListening") : t("voiceInput")}
-                onClick={toggleListening}
+                disabled={voice.state === "transcribing"}
+                onClick={voice.toggle}
               >
                 {listening ? <Square className="size-4 fill-current" /> : <Mic className="size-5" />}
               </Button>

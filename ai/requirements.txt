@@ -4,3 +4,4 @@ fastapi
 uvicorn
 rank_bm25
 numpy
+python-multipart
