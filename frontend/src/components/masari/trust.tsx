@@ -102,12 +102,29 @@ export function SourceChip({ sourceId, className }: { sourceId: string; classNam
   )
 }
 
+/** A regulation / course chunk the RAG service retrieved (title only, from the AI service). */
+export function RagSourceChip({ title, className }: { title: string; className?: string }) {
+  const { t } = useI18n()
+  return (
+    <span
+      className={cn(
+        "inline-flex max-w-full items-center gap-1.5 rounded-md border border-border bg-source-soft px-2 py-1 text-xs text-source",
+        className
+      )}
+    >
+      <BookOpenText className="size-3.5 shrink-0" aria-hidden />
+      <span className="sr-only">{t("source")}: </span>
+      <span className="truncate font-medium">{title}</span>
+    </span>
+  )
+}
+
 /** Explanation block written by the LLM — visually distinct from verified facts. */
 export function AiExplanation({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div className={cn("rounded-xl border border-dashed border-ai/40 bg-ai-soft px-3.5 py-3", className)}>
       <AiBadge className="mb-1.5 h-5 border-0 px-0" />
-      <p className="max-w-[68ch] text-sm leading-relaxed text-foreground/90 text-pretty">{children}</p>
+      <div className="max-w-[68ch] text-sm leading-relaxed text-foreground/90 text-pretty">{children}</div>
     </div>
   )
 }

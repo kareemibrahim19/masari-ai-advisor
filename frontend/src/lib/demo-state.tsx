@@ -3,7 +3,7 @@
 /**
  * Interactive demo state that must survive switching pages:
  * selected courses, the open recommendations tab, instructor preferences, the what-if scenario and the chat.
- * Nothing is saved to a server; a full page refresh resets it.
+ * Nothing is saved to a server; a full page refresh resets it. New chat questions go to the Masari AI service.
  */
 import * as React from "react"
 import { defaultPrefs, proposedNow, type StudentPrefs } from "@/lib/mock-data"
@@ -11,9 +11,25 @@ import type { L } from "@/lib/i18n"
 
 export type RecTab = "courses" | "instructors"
 
+/** A document the RAG service searched to write its answer. */
+export type RagSource = { id: string; title: string; source: string }
+
 export type ChatMessage =
   | { id: string; role: "user"; text: string | L }
   | { id: string; role: "assistant"; kind: "recommendation" | "prereq" | "demo" }
+  | { id: string; role: "assistant"; kind: "ai"; text: string; sources: RagSource[] }
+  | { id: string; role: "assistant"; kind: "error"; detail: string }
+
+/** Masari AI service (ai/chatbot/server.py). Override with NEXT_PUBLIC_MASARI_API_URL. */
+const MASARI_API_URL = process.env.NEXT_PUBLIC_MASARI_API_URL ?? "http://localhost:8000"
+
+/** Turns the visible conversation into the history the AI service expects (real turns only, not the seeded demo). */
+function toHistory(messages: ChatMessage[]) {
+  return messages.flatMap((m) => {
+    if (m.role === "user") return typeof m.text === "string" ? [{ role: "user", content: m.text }] : []
+    return m.kind === "ai" ? [{ role: "assistant", content: m.text }] : []
+  })
+}
 
 const seedMessages: ChatMessage[] = [
   {
@@ -59,7 +75,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
   const [messages, setMessages] = React.useState<ChatMessage[]>(seedMessages)
   const [thinking, setThinking] = React.useState(false)
   const [listening, setListening] = React.useState(false)
-  const replyTimer = React.useRef<ReturnType<typeof setTimeout>>(undefined)
+  const pending = React.useRef<AbortController>(undefined)
 
   const toggleCourse = React.useCallback((code: string) => {
     setSelected((s) => (s.includes(code) ? s.filter((c) => c !== code) : [...s, code]))
@@ -69,19 +85,39 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
     (text: string) => {
       const value = text.trim()
       if (!value || thinking) return
+      const history = toHistory(messages)
       setMessages((m) => [...m, { id: crypto.randomUUID(), role: "user", text: value }])
       setThinking(true)
-      // UI-only: the real reply will stream from the backend.
-      replyTimer.current = setTimeout(() => {
-        setMessages((m) => [...m, { id: crypto.randomUUID(), role: "assistant", kind: "demo" }])
+
+      const controller = new AbortController()
+      pending.current = controller
+      const reply = (msg: ChatMessage) => {
+        if (controller.signal.aborted) return // "New chat" was pressed while waiting
+        setMessages((m) => [...m, msg])
         setThinking(false)
-      }, 900)
+      }
+
+      fetch(`${MASARI_API_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: value, history }),
+        signal: controller.signal,
+      })
+        .then(async (res) => {
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`)
+          reply({ id: crypto.randomUUID(), role: "assistant", kind: "ai", text: data.answer ?? "", sources: data.sources ?? [] })
+        })
+        .catch((e: Error) => {
+          if (e.name === "AbortError") return
+          reply({ id: crypto.randomUUID(), role: "assistant", kind: "error", detail: e.message })
+        })
     },
-    [thinking]
+    [messages, thinking]
   )
 
   const newChat = React.useCallback(() => {
-    clearTimeout(replyTimer.current)
+    pending.current?.abort()
     setMessages([])
     setThinking(false)
     setListening(false)

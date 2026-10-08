@@ -11,8 +11,16 @@ node_modules/
 out/
 build/
 *.tsbuildinfo
+.venv/
+__pycache__/
 
 # Secrets and OS files
 .env*
 .DS_Store
 Thumbs.db
+
+# The chatbot's embedding cache IS committed, so the hosted server starts without
+# re-embedding (and spending Gemini quota) on every restart. Stale caches are rebuilt locally.
+
+# Standalone HTML build output (rebuild with ai/chatbot/build_standalone.py)
+ai/chatbot/dist/

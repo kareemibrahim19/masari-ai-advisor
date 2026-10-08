@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { AppIcon } from "@/components/masari/brand"
 import { CategoryTag, Code, SlotTag } from "@/components/masari/bits"
-import { AiExplanation, ConfidenceMeter, SourceChip, VerifiedBadge } from "@/components/masari/trust"
+import { AiExplanation, ConfidenceMeter, RagSourceChip, SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import {
   chatSuggestions,
   confidenceFromResponses,
@@ -20,8 +20,9 @@ import {
   sources,
   student,
 } from "@/lib/mock-data"
-import { useDemoState } from "@/lib/demo-state"
+import { useDemoState, type ChatMessage, type RagSource } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
+import { cn } from "@/lib/utils"
 
 export default function ChatPage() {
   const { t, tr } = useI18n()
@@ -52,7 +53,7 @@ export default function ChatPage() {
               m.role === "user" ? (
                 <UserBubble key={m.id} text={typeof m.text === "string" ? m.text : tr(m.text)} />
               ) : (
-                <AssistantMessage key={m.id} kind={m.kind} />
+                <AssistantMessage key={m.id} message={m} />
               )
             )}
             {thinking && <Typing />}
@@ -157,10 +158,83 @@ function AssistantShell({ children }: { children: React.ReactNode }) {
   )
 }
 
-function AssistantMessage({ kind }: { kind: "recommendation" | "prereq" | "demo" }) {
-  if (kind === "recommendation") return <RecommendationReply />
-  if (kind === "prereq") return <PrereqReply />
+function AssistantMessage({ message }: { message: Extract<ChatMessage, { role: "assistant" }> }) {
+  if (message.kind === "ai") return <AiReply text={message.text} sources={message.sources} />
+  if (message.kind === "error") return <ErrorReply detail={message.detail} />
+  if (message.kind === "recommendation") return <RecommendationReply />
+  if (message.kind === "prereq") return <PrereqReply />
   return <DemoReply />
+}
+
+/** A real answer from the Masari AI service (RAG over the regulations + Gemini). */
+function AiReply({ text, sources }: { text: string; sources: RagSource[] }) {
+  const { t } = useI18n()
+  return (
+    <AssistantShell>
+      <AiExplanation>
+        <SimpleMarkdown text={text} />
+      </AiExplanation>
+      {sources.length > 0 && (
+        <details className="group text-xs text-muted-foreground">
+          <summary className="cursor-pointer select-none">{t("ragSources")}</summary>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {sources.map((s) => (
+              <RagSourceChip key={s.id} title={s.title} />
+            ))}
+          </div>
+        </details>
+      )}
+    </AssistantShell>
+  )
+}
+
+function ErrorReply({ detail }: { detail: string }) {
+  const { t } = useI18n()
+  return (
+    <AssistantShell>
+      <div className="rounded-xl border border-destructive/30 bg-destructive/8 px-3.5 py-3 text-sm text-destructive" role="alert">
+        <p className="font-medium">{t("chatError")}</p>
+        <p className="mt-1 text-xs opacity-80" dir="ltr">
+          {detail}
+        </p>
+      </div>
+    </AssistantShell>
+  )
+}
+
+/** Renders the subset of Markdown the model uses: paragraphs, "-" / "*" / "1." lists and **bold**. */
+function SimpleMarkdown({ text }: { text: string }) {
+  const blocks: { list: "ul" | "ol" | null; lines: string[] }[] = []
+  for (const raw of text.split("\n")) {
+    const line = raw.trim()
+    if (!line) continue
+    const bullet = line.match(/^[-*•]\s+(.*)$/)
+    const numbered = line.match(/^\d+[.)]\s+(.*)$/)
+    const list = bullet ? "ul" : numbered ? "ol" : null
+    const content = bullet?.[1] ?? numbered?.[1] ?? line.replace(/^#+\s*/, "")
+    const last = blocks.at(-1)
+    if (list && last?.list === list) last.lines.push(content)
+    else blocks.push({ list, lines: [content] })
+  }
+  const inline = (s: string) =>
+    s.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+      part.startsWith("**") && part.endsWith("**") ? <strong key={i}>{part.slice(2, -2)}</strong> : part
+    )
+  return (
+    <div className="space-y-2">
+      {blocks.map((b, i) => {
+        if (!b.list) return <p key={i}>{inline(b.lines[0])}</p>
+        const List = b.list
+        return (
+          <List key={i} className={cn("space-y-1 ps-5", b.list === "ul" ? "list-disc" : "list-decimal")}>
+            {b.lines.map((l, j) => (
+              <li key={j}>{inline(l)}</li>
+            ))}
+          </List>
+        )
+      })}
+    </div>
+  )
 }
 
 function RecommendationReply() {
