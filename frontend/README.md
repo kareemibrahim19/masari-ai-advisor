@@ -1,4 +1,4 @@
-# Masari — Web Frontend (UI prototype)
+# Masari — Web Frontend
 
 Next.js 16 · Tailwind CSS v4 · shadcn/ui (Base UI) · Arabic RTL by default with an English toggle.
 
@@ -28,12 +28,15 @@ npm run dev
 
 Open http://localhost:3000.
 
+The chat needs the AI service running (see [`../ai/chatbot/README.md`](../ai/chatbot/README.md)). Its URL comes from
+`NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000`); if the service can't be reached, the chat shows an error message.
+
 ## Screens
 
 | Route | Screen |
 |---|---|
 | `/` | Student dashboard: GPA, graduation progress, alerts, next-semester proposal, electives |
-| `/chat` | Chat with Masari: text and voice input (UI only), verified results, AI explanations, sources |
+| `/chat` | Chat with Masari: answers come from the AI service (`ai/chatbot/`) with cited sources; text or voice input (recorded in the browser, transcribed by Whisper via `/api/transcribe`) |
 | `/recommendations` | Ranked courses with live credit-load validation; instructor compatibility with adjustable preferences |
 | `/plan` | Multi-semester plan with what-if scenarios (computed by the planner) |
 | `/catalog` | Course catalog: all AIE courses with filters, prerequisites, "prerequisite for", elective pools, the student's status per course, plus a Regulations tab |
@@ -79,6 +82,8 @@ src/
   components/ui/          shadcn/ui primitives
   lib/i18n.tsx            AR/EN dictionary, dir switching, number formatting
   lib/mock-data.ts        demo data, also the draft frontend ↔ backend data contract
+  lib/demo-state.tsx      shared state + the call to the AI service (POST /api/chat)
+  lib/use-voice-input.ts  microphone recording → POST /api/transcribe
 ```
 
 - `src/lib/demo-state.tsx` holds the interactive state that survives switching pages: selected courses, the open
