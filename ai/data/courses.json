@@ -1883,10 +1883,12 @@
       "planned_semester": 4,
       "prerequisites": [],
       "min_level_required": null,
+      "min_credits_required": 56,
       "graded": false,
       "graduation_requirement": true,
       "name_en": "Practical Training in AI",
-      "name_en_source": "English edition"
+      "name_en_source": "English edition",
+      "min_credits_source": "dashboard"
     },
     {
       "code": "ARI 271",
@@ -1903,10 +1905,12 @@
         "ARI 171"
       ],
       "min_level_required": null,
+      "min_credits_required": 90,
       "graded": false,
       "graduation_requirement": true,
       "name_en": "Training (1) in AI",
-      "name_en_source": "English edition"
+      "name_en_source": "English edition",
+      "min_credits_source": "dashboard"
     },
     {
       "code": "ARI 371",
@@ -1923,10 +1927,12 @@
         "ARI 271"
       ],
       "min_level_required": null,
+      "min_credits_required": 120,
       "graded": false,
       "graduation_requirement": true,
       "name_en": "Training (2) in AI",
-      "name_en_source": "English edition"
+      "name_en_source": "English edition",
+      "min_credits_source": "dashboard"
     },
     {
       "code": "ARI 381",
@@ -1944,11 +1950,13 @@
       "planned_semester": 8,
       "prerequisites": [],
       "min_level_required": 300,
+      "min_credits_required": 96,
       "graded": true,
       "graduation_requirement": true,
       "note": "متطلب سابق: الوصول للمستوى 300.",
       "name_en": "Project (1) in AI",
-      "name_en_source": "English edition"
+      "name_en_source": "English edition",
+      "min_credits_source": "dashboard"
     },
     {
       "code": "ARI 481",
@@ -1966,11 +1974,13 @@
       "planned_semester": 9,
       "prerequisites": [],
       "min_level_required": 400,
+      "min_credits_required": 116,
       "graded": true,
       "graduation_requirement": true,
       "note": "متطلب سابق: الوصول للمستوى 400.",
       "name_en": "Project (2) in AI",
-      "name_en_source": "English edition"
+      "name_en_source": "English edition",
+      "min_credits_source": "dashboard"
     },
     {
       "code": "ARI 482",
@@ -1990,10 +2000,12 @@
         "ARI 481"
       ],
       "min_level_required": null,
+      "min_credits_required": 130,
       "graded": true,
       "graduation_requirement": true,
       "name_en": "Project (3) in AI",
-      "name_en_source": "English edition"
+      "name_en_source": "English edition",
+      "min_credits_source": "dashboard"
     }
   ],
   "elective_pools": [

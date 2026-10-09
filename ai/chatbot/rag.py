@@ -85,6 +85,8 @@ def build_chunks() -> tuple[list[dict], dict]:
         ]
         if c.get("min_level_required"):
             lines.append(f"يشترط الوصول لمستوى: {c['min_level_required']}")
+        if c.get("min_credits_required"):
+            lines.append(f"يشترط اجتياز {c['min_credits_required']} ساعة معتمدة على الأقل قبل التسجيل في هذا المقرر.")
         if a:
             lines.append(f"توزيع الدرجات: أعمال سنة {a.get('coursework')}، منتصف الترم {a.get('midterm')}، عملي {a.get('practical')}، نهائي {a.get('final')}")
         if c.get("graded") is False:
