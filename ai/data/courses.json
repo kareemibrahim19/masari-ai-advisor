@@ -99,10 +99,66 @@
       "D": 1.0,
       "F": 0.0
     },
+    "grade_scale": [
+      {
+        "grade": "A+",
+        "min_percent": 97
+      },
+      {
+        "grade": "A",
+        "min_percent": 93
+      },
+      {
+        "grade": "A-",
+        "min_percent": 89
+      },
+      {
+        "grade": "B+",
+        "min_percent": 84
+      },
+      {
+        "grade": "B",
+        "min_percent": 80
+      },
+      {
+        "grade": "B-",
+        "min_percent": 76
+      },
+      {
+        "grade": "C+",
+        "min_percent": 73
+      },
+      {
+        "grade": "C",
+        "min_percent": 70
+      },
+      {
+        "grade": "C-",
+        "min_percent": 67
+      },
+      {
+        "grade": "D+",
+        "min_percent": 64
+      },
+      {
+        "grade": "D",
+        "min_percent": 60
+      },
+      {
+        "grade": "F",
+        "min_percent": 0
+      }
+    ],
+    "passing": {
+      "min_total_percent": 60,
+      "min_final_exam_percent": 40,
+      "source": "مادة 20"
+    },
     "source_articles": [
       "13",
       "15",
       "19",
+      "20",
       "21",
       "25",
       "26",
@@ -112,6 +168,13 @@
     "improvement": {
       "max_courses": 5,
       "not_allowed_if_paid_reregistration": true
+    },
+    "add_drop_withdraw": {
+      "drop_until_week": 4,
+      "withdraw_until_week": 10,
+      "withdraw_until_week_summer": 3,
+      "withdraw_grade": "W",
+      "source": "مادة 15"
     },
     "attendance": {
       "max_absence_pct": 25,

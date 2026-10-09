@@ -21,9 +21,9 @@ RULES = PROGRAM["rules"]
 COURSES = {c["code"]: c for c in PROGRAM["courses"]}
 GRADE_POINTS = RULES["grade_points"]
 
-# Percentage → letter, from the grading table (article 21).
-GRADE_SCALE = [(95, "A+"), (90, "A"), (85, "A-"), (80, "B+"), (75, "B"), (71, "B-"),
-               (68, "C+"), (65, "C"), (60, "C-"), (55, "D+"), (50, "D"), (0, "F")]
+# Percentage → letter (article 21) and the pass rule (article 20), both from courses.json.
+GRADE_SCALE = [(g["min_percent"], g["grade"]) for g in RULES["grade_scale"]]
+PASS = RULES["passing"]
 GRADE_AR = {"A+": "أ+", "A": "أ", "A-": "أ-", "B+": "ب+", "B": "ب", "B-": "ب-", "C+": "ج+", "C": "ج",
             "C-": "ج-", "D+": "د+", "D": "د", "F": "هـ", "P": "ناجح", "FP": "راسب"}
 TERM_AR = {"fall": "الأول", "spring": "الثاني", "summer": "الصيفي"}
@@ -33,20 +33,20 @@ MAX_SEMESTERS = 10
 
 # Six students, each built to exercise a different rule.
 PERSONAS = [
-    dict(key="excellent", enrolled=2024, mean=91, sd=5, gender="F",
-         name_ar="مريم خالد عبدالله الشافعي", name_en="Mariam Khaled Abdallah Elshafei",
+    dict(key="excellent", enrolled=2024, mean=94, sd=3.5, gender="F",
+         name_ar="هنا محمد رضا الشربيني", name_en="Hana Mohamed Reda Elsherbiny",
          guardian_job="مهندس مدني", hs_percent=97.8,
          note="متفوقة (معدل فوق 3.5): الحد الأقصى 21 ساعة."),
-    dict(key="probation", enrolled=2024, mean=64, sd=8, gender="M",
+    dict(key="probation", enrolled=2024, mean=72, sd=4, gender="M",
          fails={"BAS 012": 1, "BAS 115": 1, "CSE 141": 1}, summer_retakes=False,
          name_ar="يوسف محمود السيد النجار", name_en="Youssef Mahmoud Elsayed Elnaggar",
          guardian_job="محاسب", hs_percent=91.2,
          note="تحت الإنذار الأكاديمي (معدل أقل من 2): الحد الأقصى 12 ساعة، ومعرض للفصل لو استمر."),
-    dict(key="near_graduation", enrolled=2022, mean=80, sd=7, gender="F",
+    dict(key="near_graduation", enrolled=2022, mean=85, sd=5, gender="F",
          name_ar="سلمى أحمد فتحي القاضي", name_en="Salma Ahmed Fathy Elkady",
          guardian_job="طبيب", hs_percent=95.4,
          note="قربت تتخرج: في الترم التاسع ومعاها مشروع (2)، فاضلها الترم العاشر."),
-    dict(key="failed_prerequisite", enrolled=2022, mean=76, sd=7, gender="M",
+    dict(key="failed_prerequisite", enrolled=2022, mean=81, sd=5, gender="M",
          fails={"ECE 332": 1}, summer_retakes=False,
          name_ar="عمر حسن إبراهيم عيسى", name_en="Omar Hassan Ibrahim Eissa",
          guardian_job="مدرس", hs_percent=93.6,
@@ -55,7 +55,7 @@ PERSONAS = [
          name_ar="ملك طارق سامي حجازي", name_en="Malak Tarek Samy Hegazy",
          guardian_job="موظف بنك", hs_percent=96.1,
          note="طالبة جديدة في أول ترم: مسجلة مواد الترم الأول ومفيش نتايج لسه."),
-    dict(key="retake", enrolled=2023, mean=72, sd=7, gender="M",
+    dict(key="retake", enrolled=2023, mean=77, sd=5, gender="M",
          fails={"BAS 216": 1}, summer_retakes=True,
          name_ar="زياد عمرو مصطفى البدوي", name_en="Ziad Amr Mostafa Elbadawy",
          guardian_job="صيدلي", hs_percent=92.5,
@@ -65,7 +65,13 @@ PERSONAS = [
 
 # ------------------------------------------------------------------ helpers
 
-def letter(total: float) -> str:
+def letter(total: float, course: dict, marks: dict) -> str:
+    """Article 20: a pass needs 60% of the total and 40% of the final written exam."""
+    final_max = (course.get("assessment") or {}).get("final")
+    if total < PASS["min_total_percent"]:
+        return "F"
+    if final_max and marks.get("final", 0) < final_max * PASS["min_final_exam_percent"] / 100:
+        return "F"
     return next(g for cut, g in GRADE_SCALE if total >= cut)
 
 
@@ -189,18 +195,19 @@ def simulate(p: dict, rng: random.Random) -> list[dict]:
                    "attempt": attempts[code]}
             if not current:
                 if fails_left.get(code):
-                    total = rng.uniform(30, 46)
+                    total = rng.uniform(35, 58)
                     fails_left[code] -= 1
                 else:
-                    total = min(100, max(50, rng.gauss(p["mean"], p["sd"])))
+                    total = min(100, max(PASS["min_total_percent"], rng.gauss(p["mean"], p["sd"])))
                 total = round(total)
+                marks = split_marks(c, total)
                 if c.get("graded") is False:
-                    grade = "P" if total >= 50 else "FP"
+                    grade = "P" if total >= PASS["min_total_percent"] else "FP"
                 else:
-                    grade = letter(total)
+                    grade = letter(total, c, marks)
                     if attempts[code] > 1 and grade != "F":
                         grade = cap_retake(grade)
-                row.update(marks=split_marks(c, total), total=total, grade=grade, grade_ar=GRADE_AR[grade])
+                row.update(marks=marks, total=total, grade=grade, grade_ar=GRADE_AR[grade])
                 best[code] = row
             rows.append(row)
 

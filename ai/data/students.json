@@ -10,8 +10,8 @@
       "persona": "excellent",
       "persona_note": "متفوقة (معدل فوق 3.5): الحد الأقصى 21 ساعة.",
       "personal": {
-        "name_ar": "مريم خالد عبدالله الشافعي",
-        "name_en": "Mariam Khaled Abdallah Elshafei",
+        "name_ar": "هنا محمد رضا الشربيني",
+        "name_en": "Hana Mohamed Reda Elsherbiny",
         "gender": "أنثى",
         "birth_date": "2006-11-21",
         "birth_place": "المنصورة",
@@ -24,10 +24,10 @@
         "city": "المنصورة",
         "address": "80 شارع جيهان، المنصورة",
         "mobile": "01019597686",
-        "university_email": "mariam1655@std.mans.edu.eg"
+        "university_email": "hana1655@std.mans.edu.eg"
       },
       "guardian": {
-        "name": "خالد عبدالله الشافعي",
+        "name": "محمد رضا الشربيني",
         "relation": "الأب",
         "job": "مهندس مدني",
         "mobile": "01081011470"
@@ -62,10 +62,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 18,
-                "coursework": 26,
-                "final": 44
+                "coursework": 28,
+                "final": 46
               },
-              "total": 88,
+              "total": 92,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -76,11 +76,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
-                "coursework": 27,
-                "final": 46
+                "midterm": 19,
+                "coursework": 28,
+                "final": 47
               },
-              "total": 91,
+              "total": 94,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -91,12 +91,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
+                "midterm": 19,
                 "practical": 9,
-                "coursework": 18,
-                "final": 46
+                "coursework": 19,
+                "final": 47
               },
-              "total": 91,
+              "total": 94,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -123,11 +123,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
-                "coursework": 27,
-                "final": 46
+                "midterm": 19,
+                "coursework": 28,
+                "final": 47
               },
-              "total": 91,
+              "total": 94,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -138,11 +138,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
+                "midterm": 19,
                 "coursework": 28,
-                "final": 46
+                "final": 48
               },
-              "total": 92,
+              "total": 95,
               "grade": "A",
               "grade_ar": "أ"
             }
@@ -168,11 +168,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 17,
-                "coursework": 26,
-                "final": 42
+                "midterm": 18,
+                "coursework": 27,
+                "final": 45
               },
-              "total": 85,
+              "total": 90,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -183,11 +183,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
-                "coursework": 27,
-                "final": 45
+                "midterm": 19,
+                "coursework": 28,
+                "final": 46
               },
-              "total": 90,
+              "total": 93,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -198,12 +198,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
+                "midterm": 19,
                 "practical": 9,
-                "coursework": 18,
-                "final": 45
+                "coursework": 19,
+                "final": 46
               },
-              "total": 90,
+              "total": 93,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -214,11 +214,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 17,
-                "coursework": 26,
-                "final": 44
+                "midterm": 18,
+                "coursework": 27,
+                "final": 46
               },
-              "total": 87,
+              "total": 91,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -229,12 +229,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 17,
+                "midterm": 18,
                 "practical": 9,
-                "coursework": 17,
-                "final": 44
+                "coursework": 18,
+                "final": 46
               },
-              "total": 87,
+              "total": 91,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -245,11 +245,11 @@
               "credits": 1,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
+                "midterm": 19,
                 "coursework": 28,
-                "final": 46
+                "final": 48
               },
-              "total": 92,
+              "total": 95,
               "grade": "A",
               "grade_ar": "أ"
             }
@@ -275,11 +275,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 40
+                "midterm": 17,
+                "coursework": 26,
+                "final": 43
               },
-              "total": 80,
+              "total": 86,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -293,9 +293,9 @@
                 "midterm": 18,
                 "practical": 9,
                 "coursework": 18,
-                "final": 43
+                "final": 47
               },
-              "total": 88,
+              "total": 92,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -307,10 +307,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 19,
-                "coursework": 28,
-                "final": 47
+                "coursework": 29,
+                "final": 48
               },
-              "total": 94,
+              "total": 96,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -322,11 +322,11 @@
               "attempt": 1,
               "marks": {
                 "midterm": 19,
-                "practical": 9,
+                "practical": 10,
                 "coursework": 19,
-                "final": 46
+                "final": 47
               },
-              "total": 93,
+              "total": 95,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -339,9 +339,9 @@
               "marks": {
                 "midterm": 19,
                 "coursework": 28,
-                "final": 46
+                "final": 48
               },
-              "total": 93,
+              "total": 95,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -352,11 +352,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 19,
+                "midterm": 20,
                 "coursework": 29,
                 "final": 49
               },
-              "total": 97,
+              "total": 98,
               "grade": "A+",
               "grade_ar": "أ+"
             }
@@ -382,11 +382,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
-                "coursework": 27,
-                "final": 45
+                "midterm": 19,
+                "coursework": 28,
+                "final": 46
               },
-              "total": 90,
+              "total": 93,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -397,11 +397,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
-                "coursework": 27,
-                "final": 45
+                "midterm": 19,
+                "coursework": 28,
+                "final": 47
               },
-              "total": 90,
+              "total": 94,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -412,13 +412,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
-                "coursework": 27,
-                "final": 44
+                "midterm": 19,
+                "coursework": 28,
+                "final": 46
               },
-              "total": 89,
-              "grade": "A-",
-              "grade_ar": "أ-"
+              "total": 93,
+              "grade": "A",
+              "grade_ar": "أ"
             },
             {
               "code": "ECE 122",
@@ -430,9 +430,9 @@
                 "midterm": 19,
                 "practical": 10,
                 "coursework": 19,
-                "final": 48
+                "final": 49
               },
-              "total": 96,
+              "total": 97,
               "grade": "A+",
               "grade_ar": "أ+"
             },
@@ -443,11 +443,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
+                "midterm": 19,
                 "coursework": 28,
-                "final": 46
+                "final": 48
               },
-              "total": 92,
+              "total": 95,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -458,20 +458,20 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 39
+                "midterm": 17,
+                "coursework": 26,
+                "final": 42
               },
-              "total": 79,
-              "grade": "B",
-              "grade_ar": "ب"
+              "total": 85,
+              "grade": "B+",
+              "grade_ar": "ب+"
             }
           ],
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.83,
-            "cumulative_gpa": 3.86,
+            "term_gpa": 3.92,
+            "cumulative_gpa": 3.88,
             "cumulative_earned_hours": 66
           }
         },
@@ -488,7 +488,7 @@
               "credits": 0,
               "attempt": 1,
               "marks": {},
-              "total": 87,
+              "total": 91,
               "grade": "P",
               "grade_ar": "ناجح"
             }
@@ -497,7 +497,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 3.86,
+            "cumulative_gpa": 3.88,
             "cumulative_earned_hours": 66
           }
         },
@@ -609,13 +609,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 10,
-                "coursework": 15,
-                "final": 26
+                "midterm": 13,
+                "coursework": 20,
+                "final": 33
               },
-              "total": 51,
-              "grade": "D",
-              "grade_ar": "د"
+              "total": 66,
+              "grade": "D+",
+              "grade_ar": "د+"
             },
             {
               "code": "BAS 021",
@@ -624,13 +624,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 11,
-                "coursework": 16,
-                "final": 28
+                "midterm": 14,
+                "coursework": 20,
+                "final": 34
               },
-              "total": 55,
-              "grade": "D+",
-              "grade_ar": "د+"
+              "total": 68,
+              "grade": "C-",
+              "grade_ar": "ج-"
             },
             {
               "code": "BAS 031",
@@ -639,14 +639,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 12,
-                "practical": 6,
-                "coursework": 12,
-                "final": 28
+                "midterm": 14,
+                "practical": 7,
+                "coursework": 14,
+                "final": 34
               },
-              "total": 58,
-              "grade": "D+",
-              "grade_ar": "د+"
+              "total": 69,
+              "grade": "C-",
+              "grade_ar": "ج-"
             },
             {
               "code": "BAS 041",
@@ -655,12 +655,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "practical": 6,
-                "coursework": 13,
-                "final": 33
+                "midterm": 14,
+                "practical": 7,
+                "coursework": 14,
+                "final": 37
               },
-              "total": 65,
+              "total": 72,
               "grade": "C",
               "grade_ar": "ج"
             },
@@ -671,11 +671,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 35
+                "midterm": 15,
+                "coursework": 22,
+                "final": 38
               },
-              "total": 70,
+              "total": 75,
               "grade": "C+",
               "grade_ar": "ج+"
             },
@@ -686,11 +686,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 20,
-                "final": 34
+                "midterm": 15,
+                "coursework": 22,
+                "final": 37
               },
-              "total": 68,
+              "total": 74,
               "grade": "C+",
               "grade_ar": "ج+"
             }
@@ -698,8 +698,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 1.66,
-            "cumulative_gpa": 1.66,
+            "term_gpa": 1.86,
+            "cumulative_gpa": 1.86,
             "cumulative_earned_hours": 17
           }
         },
@@ -716,11 +716,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 9,
-                "coursework": 13,
-                "final": 22
+                "midterm": 11,
+                "coursework": 16,
+                "final": 28
               },
-              "total": 44,
+              "total": 55,
               "grade": "F",
               "grade_ar": "هـ"
             },
@@ -733,11 +733,11 @@
               "marks": {
                 "midterm": 16,
                 "coursework": 24,
-                "final": 41
+                "final": 40
               },
-              "total": 81,
-              "grade": "B+",
-              "grade_ar": "ب+"
+              "total": 80,
+              "grade": "B",
+              "grade_ar": "ب"
             },
             {
               "code": "BAS 032",
@@ -746,14 +746,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 11,
-                "practical": 6,
-                "coursework": 11,
-                "final": 27
+                "midterm": 14,
+                "practical": 7,
+                "coursework": 14,
+                "final": 33
               },
-              "total": 55,
-              "grade": "D+",
-              "grade_ar": "د+"
+              "total": 68,
+              "grade": "C-",
+              "grade_ar": "ج-"
             },
             {
               "code": "CSE 042",
@@ -762,20 +762,20 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "coursework": 20,
-                "final": 34
+                "midterm": 15,
+                "coursework": 22,
+                "final": 37
               },
-              "total": 67,
-              "grade": "C",
-              "grade_ar": "ج"
+              "total": 74,
+              "grade": "C+",
+              "grade_ar": "ج+"
             }
           ],
           "summary": {
             "registered_hours": 12,
             "earned_hours": 9,
-            "term_gpa": 1.65,
-            "cumulative_gpa": 1.66,
+            "term_gpa": 1.75,
+            "cumulative_gpa": 1.81,
             "cumulative_earned_hours": 26
           }
         },
@@ -792,12 +792,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 7,
-                "practical": 4,
-                "coursework": 7,
-                "final": 19
+                "midterm": 9,
+                "practical": 5,
+                "coursework": 9,
+                "final": 23
               },
-              "total": 37,
+              "total": 46,
               "grade": "F",
               "grade_ar": "هـ"
             },
@@ -808,11 +808,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 35
+                "midterm": 15,
+                "coursework": 22,
+                "final": 38
               },
-              "total": 70,
+              "total": 75,
               "grade": "C+",
               "grade_ar": "ج+"
             },
@@ -823,14 +823,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 11,
-                "practical": 6,
-                "coursework": 11,
-                "final": 28
+                "midterm": 14,
+                "practical": 7,
+                "coursework": 14,
+                "final": 33
               },
-              "total": 56,
-              "grade": "D+",
-              "grade_ar": "د+"
+              "total": 68,
+              "grade": "C-",
+              "grade_ar": "ج-"
             },
             {
               "code": "ENG 111",
@@ -839,20 +839,20 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 11,
-                "coursework": 16,
-                "final": 28
+                "midterm": 14,
+                "coursework": 20,
+                "final": 34
               },
-              "total": 55,
-              "grade": "D+",
-              "grade_ar": "د+"
+              "total": 68,
+              "grade": "C-",
+              "grade_ar": "ج-"
             }
           ],
           "summary": {
             "registered_hours": 11,
             "earned_hours": 8,
-            "term_gpa": 1.22,
-            "cumulative_gpa": 1.54,
+            "term_gpa": 1.4,
+            "cumulative_gpa": 1.7,
             "cumulative_earned_hours": 34
           }
         },
@@ -869,13 +869,13 @@
               "credits": 3,
               "attempt": 2,
               "marks": {
-                "midterm": 13,
-                "coursework": 20,
-                "final": 34
+                "midterm": 15,
+                "coursework": 22,
+                "final": 36
               },
-              "total": 67,
-              "grade": "C",
-              "grade_ar": "ج"
+              "total": 73,
+              "grade": "C+",
+              "grade_ar": "ج+"
             },
             {
               "code": "PDE 051",
@@ -884,14 +884,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "practical": 6,
-                "coursework": 13,
-                "final": 32
+                "midterm": 14,
+                "practical": 7,
+                "coursework": 14,
+                "final": 37
               },
-              "total": 64,
-              "grade": "C-",
-              "grade_ar": "ج-"
+              "total": 72,
+              "grade": "C",
+              "grade_ar": "ج"
             },
             {
               "code": "UNR 021",
@@ -900,13 +900,13 @@
               "credits": 1,
               "attempt": 1,
               "marks": {
-                "midterm": 12,
-                "coursework": 18,
-                "final": 31
+                "midterm": 14,
+                "coursework": 21,
+                "final": 35
               },
-              "total": 61,
-              "grade": "C-",
-              "grade_ar": "ج-"
+              "total": 70,
+              "grade": "C",
+              "grade_ar": "ج"
             },
             {
               "code": "CSE 112",
@@ -915,11 +915,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 35
+                "midterm": 15,
+                "coursework": 22,
+                "final": 38
               },
-              "total": 70,
+              "total": 75,
               "grade": "C+",
               "grade_ar": "ج+"
             },
@@ -930,20 +930,20 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "coursework": 19,
-                "final": 31
+                "midterm": 14,
+                "coursework": 21,
+                "final": 36
               },
-              "total": 63,
-              "grade": "C-",
-              "grade_ar": "ج-"
+              "total": 71,
+              "grade": "C",
+              "grade_ar": "ج"
             }
           ],
           "summary": {
             "registered_hours": 12,
             "earned_hours": 12,
-            "term_gpa": 1.92,
-            "cumulative_gpa": 1.73,
+            "term_gpa": 2.15,
+            "cumulative_gpa": 1.91,
             "cumulative_earned_hours": 46
           }
         },
@@ -1041,13 +1041,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 34
+                "midterm": 15,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 69,
-              "grade": "C+",
-              "grade_ar": "ج+"
+              "total": 77,
+              "grade": "B-",
+              "grade_ar": "ب-"
             },
             {
               "code": "BAS 021",
@@ -1056,13 +1056,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 24,
+                "final": 40
               },
-              "total": 73,
-              "grade": "B-",
-              "grade_ar": "ب-"
+              "total": 80,
+              "grade": "B",
+              "grade_ar": "ب"
             },
             {
               "code": "BAS 031",
@@ -1071,12 +1071,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
+                "midterm": 16,
                 "practical": 8,
-                "coursework": 15,
-                "final": 37
+                "coursework": 16,
+                "final": 42
               },
-              "total": 75,
+              "total": 82,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -1087,12 +1087,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 17,
-                "practical": 8,
-                "coursework": 17,
-                "final": 43
+                "midterm": 18,
+                "practical": 9,
+                "coursework": 18,
+                "final": 44
               },
-              "total": 85,
+              "total": 89,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -1103,11 +1103,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 17,
-                "coursework": 26,
-                "final": 43
+                "midterm": 18,
+                "coursework": 27,
+                "final": 44
               },
-              "total": 86,
+              "total": 89,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -1118,11 +1118,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
+                "midterm": 19,
                 "coursework": 28,
-                "final": 46
+                "final": 47
               },
-              "total": 92,
+              "total": 94,
               "grade": "A",
               "grade_ar": "أ"
             }
@@ -1130,8 +1130,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.19,
-            "cumulative_gpa": 3.19,
+            "term_gpa": 3.31,
+            "cumulative_gpa": 3.31,
             "cumulative_earned_hours": 17
           }
         },
@@ -1148,11 +1148,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 17,
-                "coursework": 26,
-                "final": 44
+                "midterm": 18,
+                "coursework": 27,
+                "final": 45
               },
-              "total": 87,
+              "total": 90,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -1163,13 +1163,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 34
+                "midterm": 15,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 69,
-              "grade": "C+",
-              "grade_ar": "ج+"
+              "total": 77,
+              "grade": "B-",
+              "grade_ar": "ب-"
             },
             {
               "code": "BAS 032",
@@ -1178,14 +1178,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "practical": 7,
-                "coursework": 14,
-                "final": 34
+                "midterm": 15,
+                "practical": 8,
+                "coursework": 15,
+                "final": 39
               },
-              "total": 69,
-              "grade": "C+",
-              "grade_ar": "ج+"
+              "total": 77,
+              "grade": "B-",
+              "grade_ar": "ب-"
             },
             {
               "code": "CSE 042",
@@ -1194,11 +1194,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 40
+                "midterm": 17,
+                "coursework": 26,
+                "final": 42
               },
-              "total": 80,
+              "total": 85,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -1209,12 +1209,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
+                "midterm": 17,
                 "practical": 8,
-                "coursework": 15,
-                "final": 39
+                "coursework": 17,
+                "final": 41
               },
-              "total": 77,
+              "total": 83,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -1225,11 +1225,11 @@
               "credits": 1,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 23,
-                "final": 38
+                "midterm": 16,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 76,
+              "total": 82,
               "grade": "B",
               "grade_ar": "ب"
             }
@@ -1237,8 +1237,8 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 2.92,
-            "cumulative_gpa": 3.06,
+            "term_gpa": 3.08,
+            "cumulative_gpa": 3.2,
             "cumulative_earned_hours": 33
           }
         },
@@ -1255,13 +1255,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 42
               },
-              "total": 79,
-              "grade": "B",
-              "grade_ar": "ب"
+              "total": 84,
+              "grade": "B+",
+              "grade_ar": "ب+"
             },
             {
               "code": "CSE 141",
@@ -1273,9 +1273,9 @@
                 "midterm": 18,
                 "practical": 9,
                 "coursework": 18,
-                "final": 44
+                "final": 46
               },
-              "total": 89,
+              "total": 91,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -1286,11 +1286,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 23,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 78,
+              "total": 83,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -1302,11 +1302,11 @@
               "attempt": 1,
               "marks": {
                 "midterm": 17,
-                "practical": 8,
+                "practical": 9,
                 "coursework": 17,
-                "final": 41
+                "final": 44
               },
-              "total": 83,
+              "total": 87,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -1317,13 +1317,13 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 23,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 42
               },
-              "total": 78,
-              "grade": "B",
-              "grade_ar": "ب"
+              "total": 84,
+              "grade": "B+",
+              "grade_ar": "ب+"
             },
             {
               "code": "UNR 181",
@@ -1333,10 +1333,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 20,
-                "coursework": 30,
+                "coursework": 29,
                 "final": 49
               },
-              "total": 99,
+              "total": 98,
               "grade": "A+",
               "grade_ar": "أ+"
             }
@@ -1344,8 +1344,8 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 3.31,
-            "cumulative_gpa": 3.14,
+            "term_gpa": 3.41,
+            "cumulative_gpa": 3.27,
             "cumulative_earned_hours": 49
           }
         },
@@ -1362,11 +1362,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 17,
-                "coursework": 26,
-                "final": 43
+                "midterm": 18,
+                "coursework": 27,
+                "final": 45
               },
-              "total": 86,
+              "total": 90,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -1378,10 +1378,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 17,
-                "coursework": 25,
-                "final": 41
+                "coursework": 26,
+                "final": 44
               },
-              "total": 83,
+              "total": 87,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -1393,10 +1393,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 18,
-                "coursework": 26,
-                "final": 44
+                "coursework": 27,
+                "final": 46
               },
-              "total": 88,
+              "total": 91,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -1407,14 +1407,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "practical": 7,
-                "coursework": 15,
-                "final": 36
+                "midterm": 16,
+                "practical": 8,
+                "coursework": 16,
+                "final": 40
               },
-              "total": 73,
-              "grade": "B-",
-              "grade_ar": "ب-"
+              "total": 80,
+              "grade": "B",
+              "grade_ar": "ب"
             },
             {
               "code": "ELE 151",
@@ -1423,11 +1423,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 17,
-                "coursework": 26,
-                "final": 43
+                "midterm": 18,
+                "coursework": 27,
+                "final": 44
               },
-              "total": 86,
+              "total": 89,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -1438,20 +1438,20 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 20,
-                "final": 34
+                "midterm": 15,
+                "coursework": 23,
+                "final": 38
               },
-              "total": 68,
-              "grade": "C+",
-              "grade_ar": "ج+"
+              "total": 76,
+              "grade": "B-",
+              "grade_ar": "ب-"
             }
           ],
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.29,
-            "cumulative_gpa": 3.18,
+            "term_gpa": 3.39,
+            "cumulative_gpa": 3.3,
             "cumulative_earned_hours": 66
           }
         },
@@ -1468,7 +1468,7 @@
               "credits": 0,
               "attempt": 1,
               "marks": {},
-              "total": 84,
+              "total": 88,
               "grade": "P",
               "grade_ar": "ناجح"
             }
@@ -1477,7 +1477,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 3.18,
+            "cumulative_gpa": 3.3,
             "cumulative_earned_hours": 66
           }
         },
@@ -1494,11 +1494,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 23,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 77,
+              "total": 83,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -1509,12 +1509,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 17,
-                "practical": 8,
-                "coursework": 17,
-                "final": 43
+                "midterm": 18,
+                "practical": 9,
+                "coursework": 18,
+                "final": 44
               },
-              "total": 85,
+              "total": 89,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -1525,14 +1525,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
+                "midterm": 17,
                 "practical": 8,
-                "coursework": 16,
-                "final": 39
+                "coursework": 17,
+                "final": 43
               },
-              "total": 79,
-              "grade": "B",
-              "grade_ar": "ب"
+              "total": 85,
+              "grade": "B+",
+              "grade_ar": "ب+"
             },
             {
               "code": "ECE 223",
@@ -1541,12 +1541,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "practical": 7,
-                "coursework": 14,
-                "final": 36
+                "midterm": 16,
+                "practical": 8,
+                "coursework": 16,
+                "final": 39
               },
-              "total": 71,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -1557,11 +1557,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 23,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 78,
+              "total": 83,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -1572,11 +1572,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 40
+                "midterm": 17,
+                "coursework": 26,
+                "final": 42
               },
-              "total": 80,
+              "total": 85,
               "grade": "B+",
               "grade_ar": "ب+"
             }
@@ -1584,8 +1584,8 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 3.11,
-            "cumulative_gpa": 3.17,
+            "term_gpa": 3.17,
+            "cumulative_gpa": 3.27,
             "cumulative_earned_hours": 82
           }
         },
@@ -1602,13 +1602,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 24,
+                "final": 40
               },
-              "total": 73,
-              "grade": "B-",
-              "grade_ar": "ب-"
+              "total": 80,
+              "grade": "B",
+              "grade_ar": "ب"
             },
             {
               "code": "BAS 218",
@@ -1617,13 +1617,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 42
               },
-              "total": 79,
-              "grade": "B",
-              "grade_ar": "ب"
+              "total": 84,
+              "grade": "B+",
+              "grade_ar": "ب+"
             },
             {
               "code": "CSE 212",
@@ -1632,11 +1632,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 40
+                "midterm": 17,
+                "coursework": 26,
+                "final": 42
               },
-              "total": 80,
+              "total": 85,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -1647,11 +1647,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 24,
+                "final": 39
               },
-              "total": 72,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -1662,13 +1662,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "coursework": 20,
-                "final": 32
+                "midterm": 15,
+                "coursework": 22,
+                "final": 38
               },
-              "total": 65,
-              "grade": "C",
-              "grade_ar": "ج"
+              "total": 75,
+              "grade": "C+",
+              "grade_ar": "ج+"
             },
             {
               "code": "UNR 261",
@@ -1677,20 +1677,20 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "coursework": 19,
-                "final": 32
+                "midterm": 15,
+                "coursework": 22,
+                "final": 36
               },
-              "total": 64,
-              "grade": "C-",
-              "grade_ar": "ج-"
+              "total": 73,
+              "grade": "C+",
+              "grade_ar": "ج+"
             }
           ],
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.62,
-            "cumulative_gpa": 3.07,
+            "term_gpa": 2.85,
+            "cumulative_gpa": 3.2,
             "cumulative_earned_hours": 99
           }
         },
@@ -1707,7 +1707,7 @@
               "credits": 0,
               "attempt": 1,
               "marks": {},
-              "total": 83,
+              "total": 87,
               "grade": "P",
               "grade_ar": "ناجح"
             }
@@ -1716,7 +1716,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 3.07,
+            "cumulative_gpa": 3.2,
             "cumulative_earned_hours": 99
           }
         },
@@ -1733,11 +1733,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 38
+                "midterm": 16,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 75,
+              "total": 82,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -1748,11 +1748,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 36
+                "midterm": 16,
+                "coursework": 24,
+                "final": 39
               },
-              "total": 71,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -1763,11 +1763,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 40
+                "midterm": 17,
+                "coursework": 26,
+                "final": 42
               },
-              "total": 80,
+              "total": 85,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -1778,12 +1778,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
+                "midterm": 19,
                 "practical": 9,
-                "coursework": 18,
+                "coursework": 19,
                 "final": 46
               },
-              "total": 91,
+              "total": 93,
               "grade": "A",
               "grade_ar": "أ"
             },
@@ -1794,14 +1794,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
+                "midterm": 17,
                 "practical": 8,
-                "coursework": 16,
-                "final": 38
+                "coursework": 17,
+                "final": 42
               },
-              "total": 78,
-              "grade": "B",
-              "grade_ar": "ب"
+              "total": 84,
+              "grade": "B+",
+              "grade_ar": "ب+"
             },
             {
               "code": "CSE 352",
@@ -1810,11 +1810,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
-                "coursework": 27,
+                "midterm": 19,
+                "coursework": 28,
                 "final": 46
               },
-              "total": 91,
+              "total": 93,
               "grade": "A",
               "grade_ar": "أ"
             }
@@ -1822,8 +1822,8 @@
           "summary": {
             "registered_hours": 18,
             "earned_hours": 18,
-            "term_gpa": 3.33,
-            "cumulative_gpa": 3.11,
+            "term_gpa": 3.38,
+            "cumulative_gpa": 3.23,
             "cumulative_earned_hours": 117
           }
         },
@@ -1840,10 +1840,10 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "periodic_followup": 44,
-                "oral_discussion": 43
+                "periodic_followup": 45,
+                "oral_discussion": 45
               },
-              "total": 87,
+              "total": 90,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -1854,11 +1854,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 25,
-                "final": 41
+                "midterm": 17,
+                "coursework": 26,
+                "final": 43
               },
-              "total": 82,
+              "total": 86,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -1869,11 +1869,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 23,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 77,
+              "total": 83,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -1884,11 +1884,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 23,
-                "final": 38
+                "midterm": 16,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 76,
+              "total": 82,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -1899,11 +1899,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 17,
-                "coursework": 25,
-                "final": 42
+                "midterm": 18,
+                "coursework": 26,
+                "final": 44
               },
-              "total": 84,
+              "total": 88,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -1914,20 +1914,20 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 37
+                "midterm": 16,
+                "coursework": 24,
+                "final": 41
               },
-              "total": 74,
-              "grade": "B-",
-              "grade_ar": "ب-"
+              "total": 81,
+              "grade": "B",
+              "grade_ar": "ب"
             }
           ],
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.16,
-            "cumulative_gpa": 3.12,
+            "term_gpa": 3.21,
+            "cumulative_gpa": 3.23,
             "cumulative_earned_hours": 134
           }
         },
@@ -1944,7 +1944,7 @@
               "credits": 0,
               "attempt": 1,
               "marks": {},
-              "total": 100,
+              "total": 99,
               "grade": "P",
               "grade_ar": "ناجح"
             }
@@ -1953,7 +1953,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 3.12,
+            "cumulative_gpa": 3.23,
             "cumulative_earned_hours": 134
           }
         },
@@ -2058,11 +2058,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 25,
-                "final": 41
+                "midterm": 17,
+                "coursework": 26,
+                "final": 42
               },
-              "total": 82,
+              "total": 85,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -2073,11 +2073,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 38
+                "midterm": 16,
+                "coursework": 24,
+                "final": 40
               },
-              "total": 75,
+              "total": 80,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -2088,14 +2088,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "practical": 7,
-                "coursework": 13,
-                "final": 34
+                "midterm": 15,
+                "practical": 8,
+                "coursework": 15,
+                "final": 37
               },
-              "total": 67,
-              "grade": "C",
-              "grade_ar": "ج"
+              "total": 75,
+              "grade": "C+",
+              "grade_ar": "ج+"
             },
             {
               "code": "BAS 041",
@@ -2104,12 +2104,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
+                "midterm": 17,
                 "practical": 8,
-                "coursework": 16,
-                "final": 42
+                "coursework": 17,
+                "final": 43
               },
-              "total": 82,
+              "total": 85,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -2120,11 +2120,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 25,
-                "final": 41
+                "midterm": 17,
+                "coursework": 26,
+                "final": 42
               },
-              "total": 82,
+              "total": 85,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -2135,11 +2135,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 24,
+                "final": 39
               },
-              "total": 73,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             }
@@ -2147,8 +2147,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.95,
-            "cumulative_gpa": 2.95,
+            "term_gpa": 3.0,
+            "cumulative_gpa": 3.0,
             "cumulative_earned_hours": 17
           }
         },
@@ -2165,11 +2165,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 23,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 78,
+              "total": 83,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -2180,11 +2180,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 24,
+                "final": 39
               },
-              "total": 73,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -2195,12 +2195,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
+                "midterm": 16,
                 "practical": 8,
-                "coursework": 15,
-                "final": 39
+                "coursework": 16,
+                "final": 42
               },
-              "total": 77,
+              "total": 82,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -2212,10 +2212,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 17,
-                "coursework": 25,
-                "final": 42
+                "coursework": 26,
+                "final": 44
               },
-              "total": 84,
+              "total": 87,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -2226,12 +2226,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
+                "midterm": 17,
                 "practical": 8,
-                "coursework": 16,
-                "final": 40
+                "coursework": 17,
+                "final": 42
               },
-              "total": 80,
+              "total": 84,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -2242,11 +2242,11 @@
               "credits": 1,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 79,
+              "total": 83,
               "grade": "B",
               "grade_ar": "ب"
             }
@@ -2255,7 +2255,7 @@
             "registered_hours": 16,
             "earned_hours": 16,
             "term_gpa": 3.06,
-            "cumulative_gpa": 3.0,
+            "cumulative_gpa": 3.03,
             "cumulative_earned_hours": 33
           }
         },
@@ -2272,11 +2272,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 72,
+              "total": 78,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -2287,12 +2287,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "practical": 7,
-                "coursework": 15,
-                "final": 37
+                "midterm": 16,
+                "practical": 8,
+                "coursework": 16,
+                "final": 39
               },
-              "total": 74,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -2303,11 +2303,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 41
+                "midterm": 17,
+                "coursework": 25,
+                "final": 42
               },
-              "total": 81,
+              "total": 84,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -2318,14 +2318,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "practical": 7,
-                "coursework": 14,
-                "final": 34
+                "midterm": 15,
+                "practical": 8,
+                "coursework": 15,
+                "final": 38
               },
-              "total": 69,
-              "grade": "C+",
-              "grade_ar": "ج+"
+              "total": 76,
+              "grade": "B-",
+              "grade_ar": "ب-"
             },
             {
               "code": "ENG 111",
@@ -2336,11 +2336,11 @@
               "marks": {
                 "midterm": 18,
                 "coursework": 27,
-                "final": 45
+                "final": 46
               },
-              "total": 90,
-              "grade": "A",
-              "grade_ar": "أ"
+              "total": 91,
+              "grade": "A-",
+              "grade_ar": "أ-"
             },
             {
               "code": "UNR 181",
@@ -2350,10 +2350,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 17,
-                "coursework": 25,
-                "final": 42
+                "coursework": 26,
+                "final": 44
               },
-              "total": 84,
+              "total": 87,
               "grade": "B+",
               "grade_ar": "ب+"
             }
@@ -2361,8 +2361,8 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 2.98,
-            "cumulative_gpa": 2.99,
+            "term_gpa": 3.01,
+            "cumulative_gpa": 3.02,
             "cumulative_earned_hours": 49
           }
         },
@@ -2379,11 +2379,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 23,
-                "final": 38
+                "midterm": 16,
+                "coursework": 24,
+                "final": 41
               },
-              "total": 76,
+              "total": 81,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -2394,11 +2394,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 24,
+                "final": 39
               },
-              "total": 73,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -2409,13 +2409,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "coursework": 20,
-                "final": 32
+                "midterm": 15,
+                "coursework": 22,
+                "final": 36
               },
-              "total": 65,
-              "grade": "C",
-              "grade_ar": "ج"
+              "total": 73,
+              "grade": "C+",
+              "grade_ar": "ج+"
             },
             {
               "code": "ECE 122",
@@ -2424,12 +2424,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 17,
+                "midterm": 18,
                 "practical": 9,
-                "coursework": 17,
+                "coursework": 18,
                 "final": 44
               },
-              "total": 87,
+              "total": 89,
               "grade": "A-",
               "grade_ar": "أ-"
             },
@@ -2440,11 +2440,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 36
+                "midterm": 15,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 71,
+              "total": 77,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -2455,11 +2455,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 37
+                "midterm": 16,
+                "coursework": 24,
+                "final": 39
               },
-              "total": 74,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             }
@@ -2467,8 +2467,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.81,
-            "cumulative_gpa": 2.94,
+            "term_gpa": 2.86,
+            "cumulative_gpa": 2.98,
             "cumulative_earned_hours": 66
           }
         },
@@ -2485,7 +2485,7 @@
               "credits": 0,
               "attempt": 1,
               "marks": {},
-              "total": 79,
+              "total": 83,
               "grade": "P",
               "grade_ar": "ناجح"
             }
@@ -2494,7 +2494,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 2.94,
+            "cumulative_gpa": 2.98,
             "cumulative_earned_hours": 66
           }
         },
@@ -2512,10 +2512,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 17,
-                "coursework": 25,
-                "final": 41
+                "coursework": 26,
+                "final": 43
               },
-              "total": 83,
+              "total": 86,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -2526,14 +2526,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "practical": 7,
-                "coursework": 14,
-                "final": 34
+                "midterm": 15,
+                "practical": 8,
+                "coursework": 15,
+                "final": 38
               },
-              "total": 69,
-              "grade": "C+",
-              "grade_ar": "ج+"
+              "total": 76,
+              "grade": "B-",
+              "grade_ar": "ب-"
             },
             {
               "code": "CSE 251",
@@ -2542,12 +2542,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "practical": 7,
-                "coursework": 15,
-                "final": 36
+                "midterm": 16,
+                "practical": 8,
+                "coursework": 16,
+                "final": 39
               },
-              "total": 73,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -2561,11 +2561,11 @@
                 "midterm": 18,
                 "practical": 9,
                 "coursework": 18,
-                "final": 45
+                "final": 46
               },
-              "total": 90,
-              "grade": "A",
-              "grade_ar": "أ"
+              "total": 91,
+              "grade": "A-",
+              "grade_ar": "أ-"
             },
             {
               "code": "ECE 234",
@@ -2574,11 +2574,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 36
+                "midterm": 16,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 71,
+              "total": 78,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -2589,11 +2589,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 79,
+              "total": 83,
               "grade": "B",
               "grade_ar": "ب"
             }
@@ -2601,8 +2601,8 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 2.98,
-            "cumulative_gpa": 2.95,
+            "term_gpa": 3.0,
+            "cumulative_gpa": 2.98,
             "cumulative_earned_hours": 82
           }
         },
@@ -2619,11 +2619,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 38
+                "midterm": 16,
+                "coursework": 24,
+                "final": 41
               },
-              "total": 75,
+              "total": 81,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -2635,10 +2635,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 17,
-                "coursework": 25,
-                "final": 42
+                "coursework": 26,
+                "final": 43
               },
-              "total": 84,
+              "total": 86,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -2649,11 +2649,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 38
+                "midterm": 16,
+                "coursework": 24,
+                "final": 40
               },
-              "total": 75,
+              "total": 80,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -2669,8 +2669,8 @@
                 "final": 46
               },
               "total": 92,
-              "grade": "A",
-              "grade_ar": "أ"
+              "grade": "A-",
+              "grade_ar": "أ-"
             },
             {
               "code": "ECE 235",
@@ -2679,11 +2679,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 79,
+              "total": 83,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -2694,11 +2694,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 24,
+                "final": 39
               },
-              "total": 73,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             }
@@ -2706,8 +2706,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.19,
-            "cumulative_gpa": 2.99,
+            "term_gpa": 3.14,
+            "cumulative_gpa": 3.01,
             "cumulative_earned_hours": 99
           }
         },
@@ -2724,7 +2724,7 @@
               "credits": 0,
               "attempt": 1,
               "marks": {},
-              "total": 89,
+              "total": 91,
               "grade": "P",
               "grade_ar": "ناجح"
             }
@@ -2733,7 +2733,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 2.99,
+            "cumulative_gpa": 3.01,
             "cumulative_earned_hours": 99
           }
         },
@@ -2751,10 +2751,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 17,
-                "coursework": 25,
-                "final": 41
+                "coursework": 26,
+                "final": 43
               },
-              "total": 83,
+              "total": 86,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -2765,13 +2765,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 35
+                "midterm": 15,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 70,
-              "grade": "C+",
-              "grade_ar": "ج+"
+              "total": 77,
+              "grade": "B-",
+              "grade_ar": "ب-"
             },
             {
               "code": "CSE 317",
@@ -2780,13 +2780,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "coursework": 20,
-                "final": 33
+                "midterm": 15,
+                "coursework": 22,
+                "final": 37
               },
-              "total": 66,
-              "grade": "C",
-              "grade_ar": "ج"
+              "total": 74,
+              "grade": "C+",
+              "grade_ar": "ج+"
             },
             {
               "code": "ECE 332",
@@ -2795,12 +2795,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 6,
-                "practical": 3,
-                "coursework": 6,
-                "final": 16
+                "midterm": 7,
+                "practical": 4,
+                "coursework": 7,
+                "final": 18
               },
-              "total": 31,
+              "total": 36,
               "grade": "F",
               "grade_ar": "هـ"
             },
@@ -2811,14 +2811,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 12,
-                "practical": 6,
-                "coursework": 12,
-                "final": 30
+                "midterm": 14,
+                "practical": 7,
+                "coursework": 14,
+                "final": 35
               },
-              "total": 60,
-              "grade": "C-",
-              "grade_ar": "ج-"
+              "total": 70,
+              "grade": "C",
+              "grade_ar": "ج"
             },
             {
               "code": "BAS 311",
@@ -2827,20 +2827,20 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 34
+                "midterm": 15,
+                "coursework": 23,
+                "final": 38
               },
-              "total": 69,
-              "grade": "C+",
-              "grade_ar": "ج+"
+              "total": 76,
+              "grade": "B-",
+              "grade_ar": "ب-"
             }
           ],
           "summary": {
             "registered_hours": 18,
             "earned_hours": 15,
-            "term_gpa": 1.93,
-            "cumulative_gpa": 2.83,
+            "term_gpa": 2.17,
+            "cumulative_gpa": 2.88,
             "cumulative_earned_hours": 114
           }
         },
@@ -2857,10 +2857,10 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "periodic_followup": 40,
-                "oral_discussion": 40
+                "periodic_followup": 42,
+                "oral_discussion": 42
               },
-              "total": 80,
+              "total": 84,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -2871,11 +2871,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 39
+                "midterm": 17,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 79,
+              "total": 83,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -2886,13 +2886,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 35
+                "midterm": 15,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 70,
-              "grade": "C+",
-              "grade_ar": "ج+"
+              "total": 77,
+              "grade": "B-",
+              "grade_ar": "ب-"
             },
             {
               "code": "ENG 312",
@@ -2901,11 +2901,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 72,
+              "total": 78,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -2916,20 +2916,20 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "coursework": 19,
-                "final": 32
+                "midterm": 14,
+                "coursework": 22,
+                "final": 36
               },
-              "total": 64,
-              "grade": "C-",
-              "grade_ar": "ج-"
+              "total": 72,
+              "grade": "C",
+              "grade_ar": "ج"
             }
           ],
           "summary": {
             "registered_hours": 14,
             "earned_hours": 14,
-            "term_gpa": 2.59,
-            "cumulative_gpa": 2.8,
+            "term_gpa": 2.74,
+            "cumulative_gpa": 2.87,
             "cumulative_earned_hours": 128
           }
         },
@@ -2946,7 +2946,7 @@
               "credits": 0,
               "attempt": 1,
               "marks": {},
-              "total": 76,
+              "total": 81,
               "grade": "P",
               "grade_ar": "ناجح"
             }
@@ -2955,7 +2955,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 2.8,
+            "cumulative_gpa": 2.87,
             "cumulative_earned_hours": 128
           }
         },
@@ -3163,10 +3163,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 17,
-                "coursework": 25,
-                "final": 41
+                "coursework": 26,
+                "final": 42
               },
-              "total": 83,
+              "total": 85,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -3177,11 +3177,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 22,
-                "final": 36
+                "midterm": 15,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 72,
+              "total": 77,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -3192,14 +3192,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 12,
-                "practical": 6,
-                "coursework": 12,
-                "final": 29
+                "midterm": 13,
+                "practical": 7,
+                "coursework": 13,
+                "final": 34
               },
-              "total": 59,
-              "grade": "D+",
-              "grade_ar": "د+"
+              "total": 67,
+              "grade": "C-",
+              "grade_ar": "ج-"
             },
             {
               "code": "BAS 041",
@@ -3211,9 +3211,9 @@
                 "midterm": 17,
                 "practical": 8,
                 "coursework": 17,
-                "final": 41
+                "final": 43
               },
-              "total": 83,
+              "total": 85,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -3224,11 +3224,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 73,
+              "total": 78,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -3240,10 +3240,10 @@
               "attempt": 1,
               "marks": {
                 "midterm": 16,
-                "coursework": 23,
-                "final": 39
+                "coursework": 24,
+                "final": 41
               },
-              "total": 78,
+              "total": 81,
               "grade": "B",
               "grade_ar": "ب"
             }
@@ -3251,8 +3251,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.7,
-            "cumulative_gpa": 2.7,
+            "term_gpa": 2.77,
+            "cumulative_gpa": 2.77,
             "cumulative_earned_hours": 17
           }
         },
@@ -3271,11 +3271,11 @@
               "marks": {
                 "midterm": 17,
                 "coursework": 26,
-                "final": 42
+                "final": 43
               },
-              "total": 85,
-              "grade": "A-",
-              "grade_ar": "أ-"
+              "total": 86,
+              "grade": "B+",
+              "grade_ar": "ب+"
             },
             {
               "code": "BAS 022",
@@ -3284,13 +3284,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 38
+                "midterm": 16,
+                "coursework": 24,
+                "final": 39
               },
-              "total": 75,
-              "grade": "B",
-              "grade_ar": "ب"
+              "total": 79,
+              "grade": "B-",
+              "grade_ar": "ب-"
             },
             {
               "code": "BAS 032",
@@ -3302,9 +3302,9 @@
                 "midterm": 17,
                 "practical": 8,
                 "coursework": 17,
-                "final": 41
+                "final": 43
               },
-              "total": 83,
+              "total": 85,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -3315,11 +3315,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 73,
+              "total": 78,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -3330,12 +3330,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "practical": 7,
-                "coursework": 15,
-                "final": 36
+                "midterm": 16,
+                "practical": 8,
+                "coursework": 16,
+                "final": 38
               },
-              "total": 73,
+              "total": 78,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -3346,11 +3346,11 @@
               "credits": 1,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 37
+                "midterm": 16,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 74,
+              "total": 78,
               "grade": "B-",
               "grade_ar": "ب-"
             }
@@ -3358,8 +3358,8 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 3.06,
-            "cumulative_gpa": 2.87,
+            "term_gpa": 2.93,
+            "cumulative_gpa": 2.85,
             "cumulative_earned_hours": 33
           }
         },
@@ -3376,13 +3376,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 38
+                "midterm": 16,
+                "coursework": 24,
+                "final": 39
               },
-              "total": 75,
-              "grade": "B",
-              "grade_ar": "ب"
+              "total": 79,
+              "grade": "B-",
+              "grade_ar": "ب-"
             },
             {
               "code": "CSE 141",
@@ -3391,12 +3391,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
+                "midterm": 17,
                 "practical": 8,
-                "coursework": 16,
-                "final": 41
+                "coursework": 17,
+                "final": 42
               },
-              "total": 81,
+              "total": 84,
               "grade": "B+",
               "grade_ar": "ب+"
             },
@@ -3407,11 +3407,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 36
+                "midterm": 16,
+                "coursework": 23,
+                "final": 39
               },
-              "total": 73,
+              "total": 78,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -3422,12 +3422,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 12,
-                "practical": 6,
-                "coursework": 12,
-                "final": 31
+                "midterm": 14,
+                "practical": 7,
+                "coursework": 14,
+                "final": 34
               },
-              "total": 61,
+              "total": 69,
               "grade": "C-",
               "grade_ar": "ج-"
             },
@@ -3438,11 +3438,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 36
+                "midterm": 15,
+                "coursework": 23,
+                "final": 38
               },
-              "total": 71,
+              "total": 76,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -3453,11 +3453,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 23,
-                "final": 39
+                "midterm": 16,
+                "coursework": 24,
+                "final": 40
               },
-              "total": 77,
+              "total": 80,
               "grade": "B",
               "grade_ar": "ب"
             }
@@ -3465,8 +3465,8 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 2.72,
-            "cumulative_gpa": 2.82,
+            "term_gpa": 2.66,
+            "cumulative_gpa": 2.79,
             "cumulative_earned_hours": 49
           }
         },
@@ -3483,11 +3483,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 36
+                "midterm": 15,
+                "coursework": 23,
+                "final": 38
               },
-              "total": 71,
+              "total": 76,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -3498,11 +3498,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 21,
-                "final": 36
+                "midterm": 15,
+                "coursework": 23,
+                "final": 38
               },
-              "total": 71,
+              "total": 76,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -3513,13 +3513,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "coursework": 19,
-                "final": 31
+                "midterm": 14,
+                "coursework": 21,
+                "final": 35
               },
-              "total": 63,
-              "grade": "C-",
-              "grade_ar": "ج-"
+              "total": 70,
+              "grade": "C",
+              "grade_ar": "ج"
             },
             {
               "code": "ECE 122",
@@ -3528,12 +3528,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "practical": 7,
-                "coursework": 14,
-                "final": 36
+                "midterm": 15,
+                "practical": 8,
+                "coursework": 15,
+                "final": 38
               },
-              "total": 71,
+              "total": 76,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -3544,13 +3544,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
-                "final": 40
+                "midterm": 17,
+                "coursework": 25,
+                "final": 41
               },
-              "total": 80,
-              "grade": "B+",
-              "grade_ar": "ب+"
+              "total": 83,
+              "grade": "B",
+              "grade_ar": "ب"
             },
             {
               "code": "UNR 121",
@@ -3559,20 +3559,20 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 24,
+                "midterm": 17,
+                "coursework": 25,
                 "final": 41
               },
-              "total": 81,
-              "grade": "B+",
-              "grade_ar": "ب+"
+              "total": 83,
+              "grade": "B",
+              "grade_ar": "ب"
             }
           ],
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.7,
-            "cumulative_gpa": 2.79,
+            "term_gpa": 2.66,
+            "cumulative_gpa": 2.75,
             "cumulative_earned_hours": 66
           }
         },
@@ -3589,7 +3589,7 @@
               "credits": 0,
               "attempt": 1,
               "marks": {},
-              "total": 80,
+              "total": 82,
               "grade": "P",
               "grade_ar": "ناجح"
             }
@@ -3598,7 +3598,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 2.79,
+            "cumulative_gpa": 2.75,
             "cumulative_earned_hours": 66
           }
         },
@@ -3615,11 +3615,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 7,
-                "coursework": 10,
-                "final": 18
+                "midterm": 9,
+                "coursework": 13,
+                "final": 21
               },
-              "total": 35,
+              "total": 43,
               "grade": "F",
               "grade_ar": "هـ"
             },
@@ -3630,14 +3630,14 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "practical": 6,
-                "coursework": 13,
-                "final": 32
+                "midterm": 14,
+                "practical": 7,
+                "coursework": 14,
+                "final": 37
               },
-              "total": 64,
-              "grade": "C-",
-              "grade_ar": "ج-"
+              "total": 72,
+              "grade": "C",
+              "grade_ar": "ج"
             },
             {
               "code": "CSE 251",
@@ -3646,12 +3646,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "practical": 7,
-                "coursework": 15,
-                "final": 37
+                "midterm": 16,
+                "practical": 8,
+                "coursework": 16,
+                "final": 39
               },
-              "total": 74,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -3662,12 +3662,12 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
+                "midterm": 16,
                 "practical": 8,
-                "coursework": 15,
-                "final": 38
+                "coursework": 16,
+                "final": 40
               },
-              "total": 76,
+              "total": 80,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -3678,11 +3678,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 14,
-                "coursework": 20,
-                "final": 34
+                "midterm": 15,
+                "coursework": 22,
+                "final": 37
               },
-              "total": 68,
+              "total": 74,
               "grade": "C+",
               "grade_ar": "ج+"
             },
@@ -3693,20 +3693,20 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 13,
-                "coursework": 20,
-                "final": 34
+                "midterm": 15,
+                "coursework": 22,
+                "final": 36
               },
-              "total": 67,
-              "grade": "C",
-              "grade_ar": "ج"
+              "total": 73,
+              "grade": "C+",
+              "grade_ar": "ج+"
             }
           ],
           "summary": {
             "registered_hours": 16,
             "earned_hours": 14,
-            "term_gpa": 2.07,
-            "cumulative_gpa": 2.65,
+            "term_gpa": 2.16,
+            "cumulative_gpa": 2.64,
             "cumulative_earned_hours": 80
           }
         },
@@ -3723,11 +3723,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 23,
-                "final": 38
+                "midterm": 16,
+                "coursework": 24,
+                "final": 40
               },
-              "total": 76,
+              "total": 80,
               "grade": "B",
               "grade_ar": "ب"
             },
@@ -3738,13 +3738,13 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 11,
-                "coursework": 16,
-                "final": 27
+                "midterm": 13,
+                "coursework": 19,
+                "final": 32
               },
-              "total": 54,
-              "grade": "D",
-              "grade_ar": "د"
+              "total": 64,
+              "grade": "D+",
+              "grade_ar": "د+"
             },
             {
               "code": "ECE 235",
@@ -3753,11 +3753,11 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 22,
-                "final": 37
+                "midterm": 16,
+                "coursework": 24,
+                "final": 39
               },
-              "total": 74,
+              "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
             },
@@ -3768,11 +3768,11 @@
               "credits": 2,
               "attempt": 1,
               "marks": {
-                "midterm": 15,
-                "coursework": 23,
-                "final": 39
+                "midterm": 16,
+                "coursework": 24,
+                "final": 40
               },
-              "total": 77,
+              "total": 80,
               "grade": "B",
               "grade_ar": "ب"
             }
@@ -3780,7 +3780,7 @@
           "summary": {
             "registered_hours": 11,
             "earned_hours": 11,
-            "term_gpa": 2.37,
+            "term_gpa": 2.45,
             "cumulative_gpa": 2.62,
             "cumulative_earned_hours": 91
           }
@@ -3798,7 +3798,7 @@
               "credits": 0,
               "attempt": 1,
               "marks": {},
-              "total": 68,
+              "total": 74,
               "grade": "P",
               "grade_ar": "ناجح"
             },
@@ -3809,11 +3809,11 @@
               "credits": 2,
               "attempt": 2,
               "marks": {
-                "midterm": 16,
+                "midterm": 17,
                 "coursework": 25,
-                "final": 41
+                "final": 42
               },
-              "total": 82,
+              "total": 84,
               "grade": "B+",
               "grade_ar": "ب+"
             }
