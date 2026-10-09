@@ -35,3 +35,44 @@ jobs:
           cache-dependency-path: ai/requirements.txt
       - run: pip install -r ai/requirements.txt
       - run: python -m compileall -q ai/app.py ai/chatbot
+
+  # After a merge to main passes the checks above, publish both parts to Vercel
+  # (live site: https://masari-web-sigma.vercel.app, AI service: https://masari-ai-pink.vercel.app).
+  # Needs the repository secret VERCEL_TOKEN (a token from the Vercel account that owns the projects).
+  # API keys stay in the Vercel project settings, never here.
+  deploy:
+    name: Deploy ${{ matrix.name }} to Vercel
+    needs: [frontend, ai]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: vercel-${{ matrix.name }}
+      cancel-in-progress: false
+    strategy:
+      matrix:
+        include:
+          - name: AI service
+            dir: ai
+            project: prj_hAkztWHFeaJdtf3C0WlGxe8g3Ryf # masari-ai
+          - name: website
+            dir: frontend
+            project: prj_enKPGvJLCyvIgd8F1oNDVjnEWGle # masari-web
+    env:
+      VERCEL_ORG_ID: team_7UE3QDGsPLtkQmWq8hpkA56D # Masari team
+      VERCEL_PROJECT_ID: ${{ matrix.project }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Deploy
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::warning::VERCEL_TOKEN secret is not set; skipping deploy."
+            exit 0
+          fi
+          npx --yes vercel@63 deploy --prod --yes --token "$VERCEL_TOKEN"
