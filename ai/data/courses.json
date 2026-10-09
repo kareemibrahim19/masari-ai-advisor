@@ -42,6 +42,8 @@
     "prerequisite_min_grade": "D",
     "retake_max_grade": "B+",
     "warning_gpa_threshold": 2.0,
+    "warning_starts_after_main_semester": 2,
+    "warning_source": "dashboard: الإنذار لو المعدل التراكمي أقل من 2.00 بعد الترم الأساسي التاني أو أي ترم بعده",
     "dismissal_after_consecutive_low_semesters": 3,
     "max_study_years": 10,
     "graduation": {

@@ -37,11 +37,11 @@ PERSONAS = [
          name_ar="هنا محمد رضا الشربيني", name_en="Hana Mohamed Reda Elsherbiny",
          guardian_job="مهندس مدني", hs_percent=97.8,
          note="متفوقة (معدل فوق 3.5): الحد الأقصى 21 ساعة."),
-    dict(key="probation", enrolled=2024, mean=72, sd=4, gender="M",
-         fails={"BAS 012": 1, "BAS 115": 1, "CSE 141": 1}, summer_retakes=False,
+    dict(key="probation", enrolled=2024, mean=73, sd=4, gender="M",
+         fails={"BAS 115": 1, "CSE 141": 1, "ECE 121": 1}, summer_retakes=False,
          name_ar="يوسف محمود السيد النجار", name_en="Youssef Mahmoud Elsayed Elnaggar",
          guardian_job="محاسب", hs_percent=91.2,
-         note="تحت الإنذار الأكاديمي (معدل أقل من 2): الحد الأقصى 12 ساعة، ومعرض للفصل لو استمر."),
+         note="تحت الإنذار الأكاديمي ترمين ورا بعض (معدل أقل من 2): الحد الأقصى 12 ساعة، ولو الترم ده كمان تحت 2 يتفصل (3 ترمات متتالية)."),
     dict(key="near_graduation", enrolled=2022, mean=85, sd=5, gender="F",
          name_ar="سلمى أحمد فتحي القاضي", name_en="Salma Ahmed Fathy Elkady",
          guardian_job="طبيب", hs_percent=95.4,
@@ -99,11 +99,23 @@ def timeline(enrolled: int):
         year += 1
 
 
-def max_load(cgpa):
+def on_warning(cgpa, main_done: int) -> bool:
+    """Academic warning: cumulative GPA under 2.00 from the 2nd main semester on (dashboard)."""
+    return (cgpa is not None and cgpa < RULES["warning_gpa_threshold"]
+            and main_done >= RULES["warning_starts_after_main_semester"])
+
+
+def level_of(earned: int) -> dict:
+    """Standing by earned credits (Freshman / Sophomore / Junior / Senior), as on the portal's hours page."""
+    band = next(b for b in reversed(RULES["standing_by_credits"]) if earned >= b["min"])
+    return {"level": band["level"], "name": band["name"]}
+
+
+def max_load(cgpa, main_done: int):
     if cgpa is None:
         return 21
-    if cgpa < RULES["warning_gpa_threshold"]:
-        return RULES["probation_max_credits"]  # team decision: probation → 12 (dashboard)
+    if on_warning(cgpa, main_done):
+        return RULES["probation_max_credits"]  # team decision: a student on warning → 12 (dashboard)
     for band in RULES["max_credits_by_gpa"]:
         if band["gpa_min"] <= cgpa < band["gpa_max"]:
             return band["max_credits"]
@@ -127,12 +139,13 @@ def split_marks(course: dict, total: float) -> dict:
 
 # ------------------------------------------------------------------ simulation
 
-def simulate(p: dict, rng: random.Random) -> list[dict]:
+def simulate(p: dict, rng: random.Random) -> tuple[list[dict], dict]:
     fails_left = dict(p.get("fails", {}))
     best: dict[str, dict] = {}       # code -> latest attempt (latest counts, retakes capped at B+)
     attempts: dict[str, int] = {}
     electives_taken: set[str] = set()
     terms = []
+    main_done, low_streak = 0, 0
 
     def passed(code):
         a = best.get(code)
@@ -179,7 +192,7 @@ def simulate(p: dict, rng: random.Random) -> list[dict]:
                         choice = rng.choice(options)
                         electives_taken.add(choice)
                         due.append(COURSES[choice])
-            limit, load, pick = max_load(gpa_now()), 0, []
+            limit, load, pick = max_load(gpa_now(), main_done), 0, []
             for c in due:
                 if load + c["credits"] <= limit:
                     pick.append(c["code"])
@@ -223,8 +236,34 @@ def simulate(p: dict, rng: random.Random) -> list[dict]:
                 "cumulative_gpa": gpa_now(),
                 "cumulative_earned_hours": earned(),
             }
+            if term != "summer":
+                main_done += 1
+                warned = on_warning(gpa_now(), main_done)
+                low_streak = low_streak + 1 if warned else 0
+                entry["summary"]["academic_standing"] = "إنذار أكاديمي" if warned else "منتظم"
         terms.append(entry)
-    return terms
+
+    # The portal's "hours progress" view: level, required vs passed hours, split by course type.
+    passed_codes = [c for c in best if passed(c)]
+    by_type = lambda *types: sum(COURSES[c]["credits"] for c in passed_codes if COURSES[c]["type"] in types)
+    cgpa = gpa_now()
+    now = next((t for t in terms if t["status"] == "in_progress"), None)
+    status = {
+        **level_of(earned()),
+        "required_hours": PROGRAM["program"]["total_credits"],
+        "earned_hours": earned(),
+        "mandatory_hours": by_type("mandatory"),
+        "elective_hours": by_type("elective"),
+        "project_hours": by_type("project"),
+        "trainings_passed": [c for c in RULES["graduation"]["trainings_required"] if passed(c)],
+        "cumulative_gpa": cgpa,
+        "main_semesters_completed": main_done,
+        "academic_standing": "إنذار أكاديمي" if on_warning(cgpa, main_done) else "منتظم",
+        "consecutive_warning_semesters": low_streak,
+        "current_term": {"academic_year": now["academic_year"], "term_ar": now["term_ar"],
+                         "registered_hours": sum(r["credits"] for r in now["courses"])} if now else None,
+    }
+    return terms, status
 
 
 # ------------------------------------------------------------------ fictional personal data
@@ -245,6 +284,7 @@ def build(p):
     birth = f"{birth_year}-{rng.randint(1, 12):02d}-{rng.randint(1, 28):02d}"
     father = " ".join(p["name_ar"].split()[1:])
     hs_total = round(410 * p["hs_percent"] / 100, 1)
+    terms, status = simulate(p, rng)
     return {
         "student_id": sid,
         "persona": p["key"],
@@ -274,7 +314,8 @@ def build(p):
             "university": "جامعة المنصورة", "faculty": "كلية الهندسة",
             "program": "هندسة الذكاء الاصطناعي (AIE)", "enrollment_year": f"{p['enrolled']}-{p['enrolled'] + 1}",
         },
-        "terms": simulate(p, rng),
+        "academic_status": status,
+        "terms": terms,
     }
 
 
