@@ -19,6 +19,7 @@ from pydantic import BaseModel
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from rag import Masari  # noqa: E402  (also loads .env)
 import stt  # noqa: E402
+import students  # noqa: E402
 
 app = FastAPI(title="Masari AI Advisor")
 # Let the Next.js frontend (another origin) call /api/chat from the browser.
@@ -30,7 +31,7 @@ app.add_middleware(
         o.strip().lstrip(chr(0xFEFF))
         for o in os.getenv("MASARI_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
     ],
-    allow_methods=["POST"],
+    allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
 )
 bot = Masari()  # builds / loads the search index once at startup
@@ -69,6 +70,21 @@ async def transcribe(audio: UploadFile = File(...), language: str | None = Form(
         return {"text": stt.transcribe(data, audio.filename or "audio.webm", language or None)}
     except stt.STTError as e:
         raise HTTPException(502, str(e))
+
+
+@app.get("/api/students")
+def list_students():
+    """Mock students for the frontend's "choose a student" screen (one card per student)."""
+    return {"students": students.list_students()}
+
+
+@app.get("/api/students/{student_id}")
+def get_student(student_id: str):
+    """Full record of one student: personal, contact, guardian, qualification, academic status, all terms."""
+    s = students.get_student(student_id)
+    if not s:
+        raise HTTPException(404, "Student not found")
+    return s
 
 
 @app.get("/")
