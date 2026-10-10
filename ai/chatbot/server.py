@@ -30,7 +30,6 @@ app = FastAPI(title="Masari AI Advisor")
 KNOWN_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://masari-ai-advisor.vercel.app",
     "https://masari-web-sigma.vercel.app",
 ]
 # strip() drops spaces and a stray BOM that some shells add when the value is piped in.

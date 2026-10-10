@@ -45,7 +45,7 @@ check("generic tool endpoint", r["max_credits"] == 12, r)
 check("unknown tool 404", c.post("/api/tools/nope", json={}).status_code == 404)
 
 # CORS: both site domains are allowed, a stranger is not
-for origin, ok in (("https://masari-ai-advisor.vercel.app", True), ("https://masari-web-sigma.vercel.app", True),
+for origin, ok in (("https://masari-web-sigma.vercel.app", True), ("https://masari-ai-advisor.vercel.app", False),
                    ("https://evil.example.com", False)):
     h = c.options("/api/chat", headers={"Origin": origin, "Access-Control-Request-Method": "POST",
                                         "Access-Control-Request-Headers": "content-type"})
