@@ -41,7 +41,10 @@ export type RankedInstructor = {
   reasons: L[]
 }
 
-export type Ranking = { basis: Basis; items: RankedInstructor[]; source: "api" | "demo" }
+/** An instructor the student asked to avoid, as the service reports it for this course. */
+export type ExcludedInstructor = { key: string; name: L }
+
+export type Ranking = { basis: Basis; items: RankedInstructor[]; excluded: ExcludedInstructor[]; source: "api" | "demo" }
 
 type ApiInstructor = {
   instructor_id: string
@@ -56,6 +59,8 @@ type ApiInstructor = {
   reasons_en: string[]
 }
 
+type ApiExcluded = { instructor_id: string; name_ar: string; name_en: string }
+
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
   const res = await fetch(`${MASARI_API_URL}${path}`, { signal })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -66,9 +71,10 @@ const isDefault = (p: StudentPrefs) =>
   p.pace === defaultPrefs.pace && p.workload === defaultPrefs.workload && p.practical === defaultPrefs.practical
 
 /** The simulated ranking from demo-content.ts, used only when the AI service cannot be reached. */
-function demoRanking(course: string, prefs: StudentPrefs): Ranking {
+function demoRanking(course: string, prefs: StudentPrefs, excluded: string[]): Ranking {
+  const skipped = (id: string) => excluded.some((k) => k === id || k === `${id}:${course}`)
   const items = demoInstructors
-    .filter((i) => i.courseCode === course)
+    .filter((i) => i.courseCode === course && !skipped(i.id))
     .map((i) => ({
       id: i.id,
       name: i.name,
@@ -80,7 +86,10 @@ function demoRanking(course: string, prefs: StudentPrefs): Ranking {
       reasons: [i.aiSummary],
     }))
     .sort((a, b) => b.score - a.score)
-  return { basis: "surveys_and_preferences", items, source: "demo" }
+  const gone = demoInstructors
+    .filter((i) => i.courseCode === course && skipped(i.id))
+    .map((i) => ({ key: i.id, name: i.name }))
+  return { basis: "surveys_and_preferences", items, excluded: gone, source: "demo" }
 }
 
 /** Courses that have instructor data: from the service, else the simulated ones. */
@@ -101,10 +110,21 @@ export function useInstructorCourses(): string[] {
  * The ranking of a course's instructors for the signed-in student. Preferences are sent only after the student
  * moves a slider; until then the service ranks by the student's own history (or the surveys alone).
  */
-export function useInstructorRanking(studentId: string, course: string, prefs: StudentPrefs): Ranking & { loading: boolean } {
-  const [state, setState] = React.useState<Ranking & { key: string }>({ basis: "surveys_only", items: [], source: "api", key: "" })
+export function useInstructorRanking(
+  studentId: string,
+  course: string,
+  prefs: StudentPrefs,
+  excluded: string[] = []
+): Ranking & { loading: boolean } {
+  const [state, setState] = React.useState<Ranking & { key: string }>({
+    basis: "surveys_only",
+    items: [],
+    excluded: [],
+    source: "api",
+    key: "",
+  })
   const stated = !isDefault(prefs)
-  const key = `${studentId}|${course}|${stated ? `${prefs.pace},${prefs.workload},${prefs.practical}` : "-"}`
+  const key = `${studentId}|${course}|${stated ? `${prefs.pace},${prefs.workload},${prefs.practical}` : "-"}|${excluded.join(",")}`
 
   React.useEffect(() => {
     if (!course) return
@@ -116,12 +136,18 @@ export function useInstructorRanking(studentId: string, course: string, prefs: S
         q.set("workload", String(prefs.workload))
         q.set("practical", String(prefs.practical))
       }
-      getJson<{ basis: Basis; ranking: ApiInstructor[] }>(`/api/instructors/recommend?${q}`, c.signal)
+      excluded.forEach((k) => q.append("exclude", k))
+      getJson<{ basis: Basis; ranking: ApiInstructor[]; excluded?: ApiExcluded[] }>(`/api/instructors/recommend?${q}`, c.signal)
         .then((r) =>
           setState({
             key,
             basis: r.basis,
             source: "api",
+            excluded: (r.excluded ?? []).map((x) => ({
+              // the entry in the student's list that removed this instructor (everywhere or in this course only)
+              key: excluded.includes(`${x.instructor_id}:${course}`) ? `${x.instructor_id}:${course}` : x.instructor_id,
+              name: { ar: x.name_ar, en: x.name_en },
+            })),
             items: r.ranking.map((x) => ({
               id: x.instructor_id,
               name: { ar: x.name_ar, en: x.name_en },
@@ -135,7 +161,7 @@ export function useInstructorRanking(studentId: string, course: string, prefs: S
           })
         )
         .catch((e: Error) => {
-          if (e.name !== "AbortError") setState({ key, ...demoRanking(course, prefs) })
+          if (e.name !== "AbortError") setState({ key, ...demoRanking(course, prefs, excluded) })
         })
     }, 250) // wait for the slider to stop moving
     return () => {

@@ -14,6 +14,15 @@ import type { StudentView } from "@/lib/student-view"
 
 export type RecTab = "courses" | "instructors"
 
+/**
+ * Something the chat asks the website to change on its pages, returned by the AI service next to the answer:
+ * remove an instructor from the recommendations, bring one back, or move the preference sliders.
+ */
+export type ChatAction =
+  | { type: "avoid_instructor"; key: string; instructor_id: string; name_ar: string; name_en: string; course_code: string | null }
+  | { type: "restore_instructor"; key: string; instructor_id: string }
+  | { type: "set_preferences"; preferences: Partial<StudentPrefs> }
+
 /** A document the RAG service searched to write its answer. */
 export type RagSource = { id: string; title: string; source: string }
 
@@ -80,6 +89,9 @@ type DemoState = {
   setInsCourse: (code: string) => void
   prefs: StudentPrefs
   setPrefs: React.Dispatch<React.SetStateAction<StudentPrefs>>
+  /** Instructors the student asked (in the chat) not to see: "i4" everywhere, "i4:CSE 315" in one course. */
+  excluded: string[]
+  restoreInstructor: (key: string) => void
   scenarioId: string | null
   setScenarioId: (id: string | null) => void
   messages: ChatMessage[]
@@ -97,6 +109,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
   const [recTab, setRecTab] = React.useState<RecTab>("courses")
   const [insCourse, setInsCourse] = React.useState(() => defaultInstructorCourse(view))
   const [prefs, setPrefs] = React.useState<StudentPrefs>(defaultPrefs)
+  const [excluded, setExcluded] = React.useState<string[]>([])
   const [scenarioId, setScenarioId] = React.useState<string | null>(null)
   const [messages, setMessages] = React.useState<ChatMessage[]>(() => seedMessages(view))
   const [thinking, setThinking] = React.useState(false)
@@ -104,6 +117,24 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
 
   const toggleCourse = React.useCallback((code: string) => {
     setSelected((s) => (s.includes(code) ? s.filter((c) => c !== code) : [...s, code]))
+  }, [])
+
+  // Preferences are sent only once the student has moved a slider (or asked for a style in the chat).
+  const prefsTouched = prefs.pace !== defaultPrefs.pace || prefs.workload !== defaultPrefs.workload || prefs.practical !== defaultPrefs.practical
+
+  const restoreInstructor = React.useCallback((key: string) => {
+    setExcluded((list) => list.filter((k) => k !== key))
+  }, [])
+
+  /** Applies what the chat asked the pages to change. */
+  const applyActions = React.useCallback((actions: ChatAction[]) => {
+    for (const a of actions) {
+      if (a.type === "avoid_instructor") setExcluded((list) => (list.includes(a.key) ? list : [...list, a.key]))
+      else if (a.type === "restore_instructor")
+        // "i4" also clears the per-course entries of that instructor
+        setExcluded((list) => list.filter((k) => k !== a.key && k.split(":")[0] !== a.instructor_id))
+      else if (a.type === "set_preferences") setPrefs((p) => ({ ...p, ...a.preferences }))
+    }
   }, [])
 
   const sendMessage = React.useCallback(
@@ -126,12 +157,21 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // student_id lets the service run its tools (credit limit, standing, GPA, instructors...) on this student.
-        body: JSON.stringify({ question: value, history, student_id: view.student.id }),
+        // excluded_instructors / preferences tell it what the recommendations page currently shows, so the chat
+        // never suggests someone the student removed.
+        body: JSON.stringify({
+          question: value,
+          history,
+          student_id: view.student.id,
+          excluded_instructors: excluded,
+          preferences: prefsTouched ? prefs : null,
+        }),
         signal: controller.signal,
       })
         .then(async (res) => {
           const data = await res.json().catch(() => ({}))
           if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`)
+          if (!controller.signal.aborted && Array.isArray(data.actions)) applyActions(data.actions as ChatAction[])
           reply({ id: crypto.randomUUID(), role: "assistant", kind: "ai", text: data.answer ?? "", sources: data.sources ?? [] })
         })
         .catch((e: Error) => {
@@ -139,7 +179,8 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
           reply({ id: crypto.randomUUID(), role: "assistant", kind: "error", detail: e.message })
         })
     },
-    [messages, thinking, view.student.id]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [messages, thinking, view.student.id, excluded, prefs, applyActions]
   )
 
   const newChat = React.useCallback(() => {
@@ -158,6 +199,8 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       setInsCourse,
       prefs,
       setPrefs,
+      excluded,
+      restoreInstructor,
       scenarioId,
       setScenarioId,
       messages,
@@ -165,7 +208,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       sendMessage,
       newChat,
     }),
-    [selected, toggleCourse, recTab, insCourse, prefs, scenarioId, messages, thinking, sendMessage, newChat]
+    [selected, toggleCourse, recTab, insCourse, prefs, excluded, restoreInstructor, scenarioId, messages, thinking, sendMessage, newChat]
   )
 
   return <DemoStateContext.Provider value={value}>{children}</DemoStateContext.Provider>

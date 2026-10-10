@@ -255,7 +255,8 @@ function RecommendationReply() {
   // for this student (the same ranking the recommendations page shows).
   const withData = useInstructorCourses()
   const course = picks.find((c) => withData.includes(c.code))?.code
-  const { items: ranking } = useInstructorRanking(student.id, course ?? "", defaultPrefs)
+  const { excluded } = useDemoState()
+  const { items: ranking } = useInstructorRanking(student.id, course ?? "", defaultPrefs, excluded)
   const best = course ? ranking.find((i) => i.conf !== "low") : undefined
   const top = picks[0]
   const locked = ineligibleCourses.find((c) => c.missing.length > 0)

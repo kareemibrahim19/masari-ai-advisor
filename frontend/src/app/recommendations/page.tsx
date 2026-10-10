@@ -224,7 +224,7 @@ const prefSliders: { key: keyof StudentPrefs; label: DictKey; low: DictKey; high
 function InstructorsTab() {
   const { t, tr, num, lang } = useI18n()
   const view = useStudentView()
-  const { insCourse: course, setInsCourse: setCourse, prefs, setPrefs } = useDemoState()
+  const { insCourse: course, setInsCourse: setCourse, prefs, setPrefs, excluded, restoreInstructor } = useDemoState()
   // This term's proposed courses that have instructor data (else the first few courses that have any).
   const withData = useInstructorCourses()
   const proposed = view.proposedNow.filter((c) => withData.includes(c))
@@ -236,7 +236,7 @@ function InstructorsTab() {
 
   // Ranking from the AI service: by the surveys alone for a first-year student, with the student's own
   // grades once they have them, and with the sliders once the student moves them.
-  const { items: ranked, basis, source, loading } = useInstructorRanking(view.student.id, course, prefs)
+  const { items: ranked, basis, source, loading, excluded: removed } = useInstructorRanking(view.student.id, course, prefs, excluded)
   // "Best match" goes to the top score among instructors with at least medium confidence.
   const bestId = ranked.find((i) => i.conf !== "low")?.id
   const sep = lang === "ar" ? "، " : ", "
@@ -313,6 +313,26 @@ function InstructorsTab() {
         <span className="rounded-full bg-secondary px-2 py-0.5 font-medium text-secondary-foreground">{tr(basisText[basis])}</span>
         {source === "demo" && <span className="text-warning">{t("offlineRanking")}</span>}
       </p>
+      {removed.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-xs">
+          <span className="text-muted-foreground">{t("removedByYou")}:</span>
+          {removed.map((r) => (
+            <span key={r.key} className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2 py-0.5">
+              {tr(r.name)}
+              <button
+                type="button"
+                onClick={() => restoreInstructor(r.key)}
+                className="font-medium text-primary underline-offset-2 hover:underline focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+              >
+                {t("bringBack")}
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      {ranked.length === 0 && !loading && removed.length > 0 && (
+        <p className="rounded-lg bg-warning-soft px-3 py-2 text-xs font-medium text-warning">{t("allRemoved")}</p>
+      )}
       <ol className={cn("space-y-3 transition-opacity", loading && "opacity-60")}>
         {ranked.map((ins) => (
           <li key={ins.id}>
