@@ -70,7 +70,8 @@ Environment variable: `NEXT_PUBLIC_MASARI_API_URL` = the AI service URL (it is b
 
 `excluded_instructors` (optional list, `"i4"` = everywhere, `"i4:CSE 315"` = in that course) and `preferences`
 (optional `{pace, workload, practical}`, 0-100) tell the service what the recommendations page currently shows,
-so the chat agrees with it.
+so the chat agrees with it. The courses tab is described by `selected_courses` (codes chosen),
+`eligible_courses` (`[{ "code", "credits" }]`, in priority order: what the page offers) and `max_load`.
 
 `student_id` is optional: the id of the student chosen on the login / picker screen (from `GET /api/students`).
 With it, the model can call the student-data tools (credit limit, warning, GPA, eligibility, instructor
@@ -90,7 +91,9 @@ Response:
 `actions` lists changes the website should apply to its pages because of what the student said, e.g.
 `{ "type": "avoid_instructor", "key": "i4", "instructor_id": "i4", "name_ar": "...", "course_code": null }`,
 `{ "type": "restore_instructor", "key": "i4", "instructor_id": "i4" }` or
-`{ "type": "set_preferences", "preferences": { "pace": 20, "practical": 80 } }`. The service keeps no state: the
+`{ "type": "set_preferences", "preferences": { "pace": 20, "practical": 80 } }`,
+`{ "type": "select_course", "course_code": "CSE 151" }`, `{ "type": "unselect_course", "course_code": "CSE 151" }` or
+`{ "type": "set_selection", "courses": ["BAS 011", "..."] }` (the chosen schedule). The service keeps no state: the
 website stores the result and sends it back with the next question (see `excluded_instructors` above).
 
 `tools_used` lists the tools the model called in this answer (empty when it answered from the regulations

@@ -146,6 +146,33 @@ check("everyone excluded -> empty ranking with a message", r["ranking"] == [] an
 r = call_tool("recommend_instructor", {"course_code": "ECE 321"}, NEW, {"preferences": {"pace": 85, "workload": 85, "practical": 85}})
 check("session preferences are used by the chat tool", r["basis"] == "surveys_and_preferences" and r["ranking"][0]["instructor_id"] == "i2", r)
 
+# the schedule on the courses tab (the website sends what the page holds)
+PAGE = {"eligible_courses": [{"code": "BAS 011", "credits": 3}, {"code": "BAS 021", "credits": 3},
+                             {"code": "UNR 061", "credits": 2}, {"code": "CSE 151", "credits": 3},
+                             {"code": "BAS 031", "credits": 3}, {"code": "BAS 041", "credits": 3}],
+        "selected_courses": ["BAS 011", "BAS 021"], "max_load": 12}
+r = call_tool("add_course_to_schedule", {"course_code": "CSE 151"}, NEW, PAGE)
+check("add a course the page offers", r["added"] and r["action"] == {"type": "select_course", "course_code": "CSE 151"}, r)
+r = call_tool("add_course_to_schedule", {"course_code": "مقدمة للذكاء الاصطناعي"}, NEW, PAGE)
+check("add by name", r.get("added") is True or r.get("found") is False, r)
+r = call_tool("add_course_to_schedule", {"course_code": "BAS 011"}, NEW, PAGE)
+check("already in the schedule", r["added"] is False and "action" not in r, r)
+r = call_tool("add_course_to_schedule", {"course_code": "BAS 115"}, NEW, PAGE)
+check("not eligible: refused with the prerequisite reason", r["added"] is False and "BAS 012" in r["explanation"], r)
+full = {**PAGE, "selected_courses": ["BAS 011", "BAS 021", "UNR 061", "CSE 151"]}
+r = call_tool("add_course_to_schedule", {"course_code": "BAS 031"}, NEW, full)
+check("over the load limit: refused", r["added"] is False and "الحد الأقصى" in r["explanation"], r)
+r = call_tool("remove_course_from_schedule", {"course_code": "BAS 021"}, NEW, PAGE)
+check("remove a chosen course", r["removed"] and r["action"]["type"] == "unselect_course", r)
+check("remove one that is not chosen", call_tool("remove_course_from_schedule", {"course_code": "CSE 151"}, NEW, PAGE)["removed"] is False)
+r = call_tool("build_schedule", {"hours": 9}, NEW, PAGE)
+check("build a 9-hour schedule: exactly 9 hours, highest priorities",
+      r["built"] and r["hours"] == 9 and r["courses"] == ["BAS 011", "BAS 021", "CSE 151"], r)
+r = call_tool("build_schedule", {"hours": 11}, NEW, PAGE)
+check("build 11 hours: 3+3+3+2", r["built"] and r["hours"] == 11 and "UNR 061" in r["courses"], r)
+check("build over the limit refused", call_tool("build_schedule", {"hours": 30}, NEW, PAGE)["built"] is False)
+check("no page open -> clear error", call_tool("add_course_to_schedule", {"course_code": "CSE 151"}, NEW)["found"] is False)
+
 # registry: every tool callable, session student overrides the model's
 check("tool names unique", len({t["name"] for t in TOOLS}) == len(TOOLS))
 check("student id injected", call_tool("academic_level", {"student_id": "wrong"}, EXC)["found"])

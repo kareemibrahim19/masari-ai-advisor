@@ -88,6 +88,15 @@ TOOLS += [
        {**_PREFS}, [], ins.set_instructor_preferences),
 ]
 
+TOOLS += [
+    _t("add_course_to_schedule", "الطالب عايز يضيف مادة لجدوله في صفحة التوصيات (تاب المواد). بتتأكد إنه مؤهل ليها وإن الحمل مش هيعدّي الحد، وبعدها بتضيفها في الصفحة.",
+       {**_STUDENT, "course_code": _COURSE}, ["student_id", "course_code"], rules.add_course_to_schedule, True),
+    _t("remove_course_from_schedule", "الطالب عايز يشيل مادة من جدوله في صفحة التوصيات (تاب المواد).",
+       {"course_code": _COURSE}, ["course_code"], rules.remove_course_from_schedule),
+    _t("build_schedule", "الطالب عايز جدول بعدد ساعات معين (مثلًا 15 ساعة): بتختار أعلى المواد أولوية ليه في الحد ده وتحطها في الصفحة.",
+       {"hours": {"type": "number", "description": "عدد الساعات المطلوب للجدول."}}, ["hours"], rules.build_schedule),
+]
+
 _BY_NAME = {t["name"]: t for t in TOOLS}
 
 
@@ -107,6 +116,11 @@ def call_tool(name: str, args: dict | None = None, student_id: str | None = None
         return {"found": False, "error": f"أداة غير معروفة: {name}"}
     args = {k: v for k, v in (args or {}).items() if v is not None}
     session = session or {}
+    if name in ("add_course_to_schedule", "remove_course_from_schedule", "build_schedule"):
+        args["eligible"] = session.get("eligible_courses") or []
+        args["max_load"] = session.get("max_load")
+        if name != "build_schedule":
+            args["selected"] = session.get("selected_courses") or []
     if name == "recommend_instructor":
         if session.get("excluded") and "exclude" not in args:
             args["exclude"] = list(session["excluded"])

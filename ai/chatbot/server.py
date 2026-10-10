@@ -55,6 +55,10 @@ class ChatRequest(BaseModel):
     # What the website currently holds for this student, so the chat agrees with the recommendations page:
     excluded_instructors: list[str] = []  # instructors the student asked to avoid ("i4" or "i4:CSE 315")
     preferences: dict[str, float] | None = None  # pace / workload / practical (0-100), only if the student set them
+    # The schedule on the courses tab: what is chosen, what may be chosen (by priority, with credits) and the limit.
+    selected_courses: list[str] = []
+    eligible_courses: list[dict] = []  # [{"code": "CSE 151", "credits": 3}, ...]
+    max_load: float | None = None
 
 
 @app.post("/api/chat")
@@ -64,7 +68,9 @@ def chat(req: ChatRequest):
     if req.student_id and not students.get_student(req.student_id):
         raise HTTPException(404, "Student not found")
     try:
-        session = {"excluded": req.excluded_instructors, "preferences": req.preferences}
+        session = {"excluded": req.excluded_instructors, "preferences": req.preferences,
+                   "selected_courses": req.selected_courses, "eligible_courses": req.eligible_courses,
+                   "max_load": req.max_load}
         return bot.answer(req.question.strip(), [m.model_dump() for m in req.history], req.student_id, session)
     except errors.APIError as e:
         if e.code == 429:  # the model quota is used up for now

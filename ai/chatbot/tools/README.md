@@ -47,6 +47,9 @@
 | `avoid_instructor` | الطالب مش عايز دكتور: بيشيله من صفحة الترشيحات (كل المواد أو مادة واحدة). بترجّع `action` الفرونت بيطبّقه | `instructor`، `course_code` اختياري |
 | `restore_instructor` | يرجّع دكتور اتشال | `instructor`، `course_code` اختياري |
 | `set_instructor_preferences` | الطالب وصف أسلوب الشرح اللي بيحبه: بيحرّك السلايدرز في الصفحة | `pace`، `workload`، `practical` (0–100) |
+| `add_course_to_schedule` | الطالب عايز يضيف مادة لجدوله في تاب المواد: بتتأكد إنه مؤهل ليها وإن الحمل مش هيعدّي الحد، وبترجّع `action` الصفحة بتطبّقه، أو سبب الرفض | `student_id`، `course_code` |
+| `remove_course_from_schedule` | يشيل مادة من الجدول (وبينبّه لو الجدول نزل تحت 12 ساعة) | `course_code` |
+| `build_schedule` | جدول بعدد ساعات معين: أكبر عدد ساعات تحت الرقم المطلوب، وبين التركيبات المتساوية الأعلى أولوية | `hours` |
 | `recommend_instructor` | ترتيب دكاترة المادة للطالب مع الأسباب | `student_id`، `course_code`، التفضيلات اختياري |
 
 ### الترشيح بيتغير مع الطالب (`basis`)

@@ -424,7 +424,8 @@ def drop_withdraw_info(current_week: int, term_type: str = "main", student_id: s
 
 # ---------------------------------------------------------------- 11. registration eligibility
 
-def registration_eligibility(student_id: str, course_code: str, term_type: str = "current") -> dict:
+def registration_eligibility(student_id: str, course_code: str, term_type: str = "current",
+                             check_load: bool = True) -> dict:
     """Can this student register this course now? Runs every registration rule and lists each check."""
     s, err = _student(student_id)
     if err:
@@ -487,7 +488,7 @@ def registration_eligibility(student_id: str, course_code: str, term_type: str =
             f"محتاج {need_hours} ساعة ناجح فيها، وعنده {st['earned_hours']}.")
 
     # Credit-limit headroom (only meaningful for the current main term).
-    if term != "summer" and cur and term == cur["term"] and code not in now_codes:
+    if check_load and term != "summer" and cur and term == cur["term"] and code not in now_codes:
         lim = credit_limit(student_id)
         fits = lim["registered_hours"] + c["credits"] <= lim["max_credits"]
         add("credit_limit", fits, f"مسجل {lim['registered_hours']} ساعة والحد الأقصى {lim['max_credits']}"
@@ -497,3 +498,106 @@ def registration_eligibility(student_id: str, course_code: str, term_type: str =
             "eligible": not failing, "checks": checks,
             "blockers": [k["detail"] for k in failing],
             "explanation": ("يقدر يسجل المادة." if not failing else "مينفعش يسجل المادة لأن: " + " | ".join(k["detail"] for k in failing))}
+
+
+# ---------------------------------------------------------------- the schedule on the recommendations page
+# The website holds the student's chosen courses; the chat can ask it to add or remove one, or to build a
+# schedule of a given size. `selected`, `eligible` and `max_load` are what the page currently shows (the
+# website sends them with every question), so the answer in the chat is the same one the page will show.
+
+def _schedule_ctx(selected, eligible, max_load):
+    """(selected codes, {code: credits} of the courses the page offers, max load) or an error dict."""
+    if not eligible:
+        return None, {"found": False, "error": "مفيش جدول مفتوح دلوقتي. افتح صفحة التوصيات الأول."}
+    offered = {e["code"]: e["credits"] for e in eligible}
+    return ({"selected": [c for c in (selected or []) if c in offered], "offered": offered,
+             "max_load": max_load or d.rules()["max_credits_by_gpa"][-1]["max_credits"]}), None
+
+
+def _resolve(query: str, offered: dict) -> str | None:
+    """A course code the page offers, from a code or a name."""
+    code = d.normalize_code(query) or query.strip()
+    if code in offered:
+        return code
+    c = d.find_course(query)
+    return c["code"] if c and c["code"] in offered else None
+
+
+def add_course_to_schedule(student_id: str, course_code: str, selected: list[str] | None = None,
+                           eligible: list[dict] | None = None, max_load: float | None = None) -> dict:
+    """Add a course to the student's chosen schedule on the recommendations page, if they may take it."""
+    ctx, err = _schedule_ctx(selected, eligible, max_load)
+    if err:
+        return err
+    code = _resolve(course_code, ctx["offered"])
+    if not code:
+        course = d.find_course(course_code)
+        if not course:
+            return d.not_found("المادة", course_code)
+        r = registration_eligibility(student_id, course["code"], check_load=False)
+        why = "؛ ".join(r.get("blockers", [])) or "المادة مش في قايمة المواد المتاحة ليك الترم ده."
+        return {"found": True, "added": False, "course": d.course_label(course["code"]),
+                "explanation": f"مقدرتش أضيف {d.course_label(course['code'])}: {why}"}
+    if code in ctx["selected"]:
+        return {"found": True, "added": False, "course": d.course_label(code),
+                "explanation": f"{d.course_label(code)} موجودة في جدولك فعلًا."}
+    load = sum(ctx["offered"][c] for c in ctx["selected"])
+    credits = ctx["offered"][code]
+    if load + credits > ctx["max_load"]:
+        return {"found": True, "added": False, "course": d.course_label(code), "load": load, "max_load": ctx["max_load"],
+                "explanation": (f"مقدرتش أضيف {d.course_label(code)}: جدولك {load} ساعة والمادة {credits}، "
+                                f"فهتعدّي الحد الأقصى ({ctx['max_load']}). شيل مادة الأول أو اختار مادة أقل ساعات."),
+                "article": ARTICLES["load"]}
+    return {"found": True, "added": True, "course": d.course_label(code), "load": load + credits,
+            "max_load": ctx["max_load"], "action": {"type": "select_course", "course_code": code},
+            "explanation": f"ضفت {d.course_label(code)} لجدولك، وبقى {load + credits} من {ctx['max_load']} ساعة."}
+
+
+def remove_course_from_schedule(course_code: str, selected: list[str] | None = None,
+                                eligible: list[dict] | None = None, max_load: float | None = None) -> dict:
+    """Take a course out of the student's chosen schedule on the recommendations page."""
+    ctx, err = _schedule_ctx(selected, eligible, max_load)
+    if err:
+        return err
+    code = _resolve(course_code, ctx["offered"])
+    if not code or code not in ctx["selected"]:
+        return {"found": True, "removed": False,
+                "explanation": f"{course_code} مش في جدولك دلوقتي، فمفيش حاجة تتشال."}
+    load = sum(ctx["offered"][c] for c in ctx["selected"]) - ctx["offered"][code]
+    minimum = d.rules()["min_credits_main_semester"]
+    warn = (f" ملحوظة: الجدول بقى {load} ساعة وده أقل من الحد الأدنى {minimum} (إلا في التخرج أو بموافقة المجلس)."
+            if load < minimum else "")
+    return {"found": True, "removed": True, "course": d.course_label(code), "load": load,
+            "action": {"type": "unselect_course", "course_code": code},
+            "explanation": f"شيلت {d.course_label(code)} من جدولك، وبقى {load} ساعة.{warn}",
+            **({"article": ARTICLES["load"]} if warn else {})}
+
+
+def build_schedule(hours: float, eligible: list[dict] | None = None, max_load: float | None = None) -> dict:
+    """Pick the highest-priority courses the student may take, up to the requested number of hours."""
+    ctx, err = _schedule_ctx([], eligible, max_load)
+    if err:
+        return err
+    minimum, cap = d.rules()["min_credits_main_semester"], ctx["max_load"]
+    if hours > cap:
+        return {"found": True, "built": False, "max_load": cap,
+                "explanation": f"الحد الأقصى ليك {cap} ساعة، فمينفعش جدول {round(hours)} ساعة (مادة 13).",
+                "article": ARTICLES["load"]}
+    note = (f" ملحوظة: {round(hours)} أقل من الحد الأدنى {minimum} ساعة (إلا في التخرج أو بموافقة المجلس)."
+            if hours < minimum else "")
+    # The most hours that fit under the request; among equal totals, the combination of the highest-priority
+    # courses (the page lists them by priority, so an earlier course weighs more).
+    budget = int(hours)
+    best: dict[int, tuple[int, list[str]]] = {0: (0, [])}
+    for rank, e in enumerate(eligible):
+        weight, cr = len(eligible) - rank, int(e["credits"])
+        for h, (score, codes) in sorted(best.items(), reverse=True):
+            nh = h + cr
+            if nh <= budget and (nh not in best or best[nh][0] < score + weight):
+                best[nh] = (score + weight, codes + [e["code"]])
+    total = max(best)
+    picked = [e["code"] for e in eligible if e["code"] in best[total][1]]
+    names = "، ".join(d.course_label(c) if c in d.courses() else c for c in picked)
+    return {"found": True, "built": True, "hours": total, "courses": picked,
+            "action": {"type": "set_selection", "courses": picked},
+            "explanation": f"جهّزت جدول {total} ساعة بأعلى المواد أولوية: {names}.{note}"}
