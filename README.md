@@ -4,7 +4,7 @@
 
 Masari is an AI Engineering graduation project: a personalized, explainable academic advisor. It explains university regulations, checks eligibility with a deterministic rules engine, recommends courses and instructors, and plans the path to graduation. The rules decide; the language model only explains.
 
-**Live demo:** https://masari-ai-advisor.vercel.app
+**Live demo:** https://masari-web-sigma.vercel.app
 
 This repository contains the **website** and the **AI service** (a RAG chatbot over the program regulations) that powers its chat.
 
@@ -24,9 +24,10 @@ masari-ai-advisor/
 │   ├── src/app/              one folder per screen (page.tsx)
 │   ├── src/components/       Masari components + shadcn/ui primitives
 │   ├── src/lib/              rules engine, program data, i18n, chat + voice client
-│   └── public/brand/         logos and color palette
+│   ├── public/brand/         logos and color palette
+│   └── public/calendar/      the faculty's academic calendar image (replaced each semester)
 ├── ai/
-│   ├── chatbot/              FastAPI RAG service (rag.py, server.py, stt.py)
+│   ├── chatbot/              FastAPI RAG service (rag.py, server.py, stt.py) and tools/ (rules, instructors, graduation planner)
 │   ├── data/                 courses + regulation chunks used by the chatbot
 │   ├── app.py                Vercel entrypoint
 │   └── requirements.txt
@@ -53,17 +54,21 @@ The website reads the AI service URL from `NEXT_PUBLIC_MASARI_API_URL` (default 
 
 ## Screens
 
-- **Dashboard**: the "your path" graduation rail, academic standing, next-term proposal and alerts.
-- **Ask Masari**: chat answered by the AI service from the regulations, with cited sources, typed or spoken (microphone → Whisper). Rule-verified results, AI explanations and regulation sources are visually distinct.
+- **Dashboard**: the "your path" graduation rail (it follows the target picked on the graduation plan, with summer semesters), academic standing, next-term proposal and alerts.
+- **Ask Masari**: chat answered by the AI service from the regulations and the student's own record, with cited sources, typed or spoken (microphone → Whisper). An empty chat greets the student and offers simple starter questions.
 - **Recommendations**: ranked courses with live credit-load validation, plus instructor compatibility.
-- **Study plan**: a multi-semester plan with what-if scenarios.
-- **Course catalog**: every AI Engineering course with prerequisites, plus the program regulations.
+- **Graduation plan**: pick a target of 4, 4.5 or 5 years (5 = the regulation plan) and whether summer semesters are possible. The plan is solved semester by semester; a target that is not possible says why (for example a project's credit-hour threshold or a failed course in a prerequisite chain) and shows the earliest graduation instead. What-if: courses of this semester you might fail (multi-select) and the semester GPA you expect.
+- **Course catalog**: every AI Engineering course with prerequisites (Arabic names in Arabic), plus the program regulations.
+- **Academic calendar**: the calendar icon in the header shows the faculty's calendar for the current semester.
+
+Each semester, replace the calendar image in `frontend/public/calendar/` and update `frontend/src/lib/academic-calendar.ts`.
 
 ## Data
 
 - **Program data is real**: courses, prerequisites, elective pools and regulations of the B.Sc. in AI Engineering (Faculty of Engineering, Mansoura University). It comes from the [AIE Program Guide](https://aieprogramguide.vercel.app/), an unofficial summary of the bylaws, so verify it against the official bylaws.
 - **Student, instructors and seat data are simulated.** Nothing is connected to a university system.
-- Recommendations, eligibility, the study plan and what-if results are computed by the rules engine in `frontend/src/lib/rules.ts`.
+- Recommendations and eligibility are computed by the rules engine in `frontend/src/lib/rules.ts`.
+- The graduation plan is computed by the AI service (`POST /api/plan`, [`ai/chatbot/tools/planner.py`](ai/chatbot/tools/planner.py)) as a small integer program (scipy / HiGHS) over the regulations: prerequisites, each course's semester, the GPA credit cap, project hour thresholds and summer limits. Summer courses are marked "if the college opens them". Tests: `ai/tests/test_planner.py`.
 
 ## Checks
 

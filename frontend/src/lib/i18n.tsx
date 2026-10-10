@@ -133,8 +133,19 @@ const dict = {
     en: "Adjust your preferences and watch the ranking update.",
   },
   demoScoring: {
-    ar: "حساب توضيحي مؤقت، هيتبدل بنموذج التوافق الفعلي.",
-    en: "Placeholder scoring. To be replaced by the trained compatibility model.",
+    ar: "التقييمات هنا بيانات تجريبية، والحساب هيتبدل بنموذج التوافق المدرَّب لما استبيانات الطلبة الحقيقية توصل.",
+    en: "The evaluations here are simulated. The scoring will be replaced by the trained compatibility model once real student surveys arrive.",
+  },
+  rankingBasis: { ar: "أساس الترتيب", en: "Ranking based on" },
+  removedByYou: { ar: "اتشال بناءً على طلبك في الشات", en: "Removed at your request in the chat" },
+  bringBack: { ar: "رجّعه", en: "Bring back" },
+  allRemoved: {
+    ar: "كل دكاترة المادة دي مستبعدين. رجّع واحد منهم عشان يظهر الترشيح.",
+    en: "Every instructor of this course is removed. Bring one back to see a recommendation.",
+  },
+  offlineRanking: {
+    ar: "الخدمة مش متاحة دلوقتي، فالأرقام دي تجريبية محلية.",
+    en: "The AI service is unreachable, so these numbers are local demo values.",
   },
   youPrefer: { ar: "تفضيلك", en: "Your preference" },
   limitedData: {

@@ -29,7 +29,7 @@ load_dotenv(REPO_ROOT / ".env")
 CHAT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 REWRITE_MODEL = os.getenv("GEMINI_REWRITE_MODEL", "gemini-3.5-flash-lite")
 FALLBACK_MODELS = ["gemini-3.5-flash", "gemini-flash-latest", "gemini-3.5-flash-lite"]
-MODEL_TIMEOUT_MS = 25_000
+MODEL_TIMEOUT_MS = 20_000
 EMBED_MODEL = os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001")
 TOP_K = 8
 RETRY_DELAYS = [3, 8, 20]
@@ -48,6 +48,10 @@ SYSTEM_PROMPT = """أنت "مساري"، المرشد الأكاديمي الذ�
 8. عندك أدوات (tools). لو السؤال عن أرقام الطالب نفسه أو قرار محسوب (حد الساعات، الإنذار، المعدل، الإعادة والتحسين، أهلية تسجيل مادة، المستوى، الاختياري، الغياب، الحذف والانسحاب، الدكاترة) نادِ الأداة المناسبة، ومتحسبهاش بنفسك. ونتيجة الأداة هي المرجع، اشرحها للطالب بس وبنفس لغته.
 9. لو الأداة رجّعت found=false أو error، قول للطالب إيه الناقص (كود مادة غلط مثلًا) بدل ما تخمّن.
 10. في ترشيح الدكاترة اذكر مصدر الترشيح (basis_ar) والسبب، ولو الثقة منخفضة (عدد التقييمات قليل) قولها صراحة. ولو الطالب قال تفضيلاته (سرعة/عبء/عملي) مرّرها للأداة.
+11. لو السؤال عن مادة معينة (كودها، ساعاتها، متطلباتها) نادِ course_info، ولو الطالب ذكر اسم مادة من غير كود أو الاسم مش واضح نادِ find_courses الأول. ولو سأل "اعيد انهي مادة" أو "احسن معدلي" نادِ improvement_candidates.
+12. لو الطالب قال إنه مش عايز دكتور معين نادِ avoid_instructor (وده بيشيله من صفحة الترشيحات)، ولو غيّر رأيه نادِ restore_instructor. ولو وصف أسلوب الشرح اللي بيحبه (بطيء/سريع، خفيف/تقيل، عملي/نظري) نادِ set_instructor_preferences بأرقام من 0 لـ 100 (بطيء=20، سريع=80، خفيف=20، تقيل=80، نظري=20، عملي=80). وبعدها قوله بوضوح إن الصفحة اتحدّثت.
+13. لو الطالب طلب يضيف أو يشيل مادة من جدوله نادِ add_course_to_schedule أو remove_course_from_schedule، ولو طلب جدول بعدد ساعات معين نادِ build_schedule. وقول للطالب لو الصفحة اتحدّثت، ولو المادة مقدرتش تتضاف اشرح السبب من نتيجة الأداة.
+14. ابدأ الرد بالإجابة المباشرة في أول سطر (نعم/لا/الرقم)، وبعدها السبب ورقم المادة. من غير مقدمات زي "بناءً على" ومن غير تكرار السؤال.
 """
 
 REWRITE_PROMPT = """حوّل سؤال الطالب الأخير لسؤال بحث واحد واضح بالعربية الفصحى، يكون مستقل بذاته (استخدم المحادثة السابقة لفهم الإشارات زي "طب والصيفي؟").
@@ -173,7 +177,7 @@ class Masari:
         self.cooldown: dict[str, float] = {}  # model -> time it can be used again
         self.rules_json = json.dumps(self.data["rules"], ensure_ascii=False, indent=1)
 
-    def _embed(self, texts: list[str], task: str) -> np.ndarray:
+    def _embed(self, texts: list[str], task: str, wait_on_429: bool = True) -> np.ndarray:
         out = []
         # Free tier: 100 embedded texts per minute, so send at most 90 at a time.
         for i in range(0, len(texts), 90):
@@ -182,7 +186,7 @@ class Masari:
                 time.sleep(61)
             r = _with_retry(lambda: self.client.models.embed_content(
                 model=EMBED_MODEL, contents=batch,
-                config=types.EmbedContentConfig(task_type=task)))
+                config=types.EmbedContentConfig(task_type=task)), wait_on_429=wait_on_429)
             out.extend(e.values for e in r.embeddings)
         v = np.array(out, dtype=np.float32)
         return v / np.linalg.norm(v, axis=1, keepdims=True)
@@ -209,7 +213,8 @@ class Masari:
         hist = "\n".join(f"{m['role']}: {m['content'][:400]}" for m in history[-6:]) or "(لا يوجد)"
         try:
             r = _with_retry(lambda: self.client.models.generate_content(
-                model=REWRITE_MODEL, contents=REWRITE_PROMPT.format(history=hist, question=question)))
+                model=REWRITE_MODEL, contents=REWRITE_PROMPT.format(history=hist, question=question)),
+                wait_on_429=False)
             return (r.text or "").strip() or question
         except errors.APIError:
             return question
@@ -217,10 +222,17 @@ class Masari:
     def search(self, queries: list[str], k: int = TOP_K) -> list[dict]:
         """Hybrid search: reciprocal-rank fusion of BM25 and embedding ranks."""
         scores = np.zeros(len(self.chunks))
-        qv = self._embed(queries, "RETRIEVAL_QUERY")
+        # If the embedding service is out of quota or down, search by keywords only instead of waiting a minute.
+        try:
+            qv = self._embed(queries, "RETRIEVAL_QUERY", wait_on_429=False)
+        except (errors.APIError, httpx.TimeoutException) as e:
+            print(f"query embedding failed ({getattr(e, 'code', 'timeout')}), using keyword search only", file=sys.stderr)
+            qv = [None] * len(queries)
         for q, v in zip(queries, qv):
-            for ranking in (np.argsort(-self.bm25.get_scores(_tokenize(q))),
-                            np.argsort(-(self.vectors @ v))):
+            rankings = [np.argsort(-self.bm25.get_scores(_tokenize(q)))]
+            if v is not None:
+                rankings.append(np.argsort(-(self.vectors @ v)))
+            for ranking in rankings:
                 for rank, idx in enumerate(ranking[:30]):
                     scores[idx] += 1 / (60 + rank)
         # Explicit course codes in the question always pull in that course.
@@ -232,30 +244,51 @@ class Masari:
 
     def _generate(self, contents: list, config) -> tuple:
         """One Gemini call with model fallback. If a model is busy, out of quota or too slow, try the
-        next one; models that hit their quota are skipped for a few minutes."""
+        next one; a model that just failed is skipped for a while so the next questions don't wait on it again.
+
+        Thinking is kept short (LOW): the answers come from tool results and retrieved text, and long
+        thinking took ~20 s instead of ~5 s. A model that doesn't accept the setting is called without it.
+        """
         models = [m for m in dict.fromkeys([CHAT_MODEL, *FALLBACK_MODELS])
                   if self.cooldown.get(m, 0) < time.time()] or FALLBACK_MODELS[-1:]
         for i, model in enumerate(models):
             try:
-                r = _with_retry(lambda: self.client.models.generate_content(
-                    model=model, contents=contents, config=config), delays=[2], wait_on_429=False)
+                try:
+                    cfg = config.model_copy(update={"thinking_config": types.ThinkingConfig(thinking_level="LOW")})
+                    r = _with_retry(lambda: self.client.models.generate_content(
+                        model=model, contents=contents, config=cfg), delays=[2], wait_on_429=False)
+                except errors.ClientError as e:
+                    if e.code != 400:
+                        raise
+                    r = _with_retry(lambda: self.client.models.generate_content(
+                        model=model, contents=contents, config=config), delays=[2], wait_on_429=False)
                 return r, model
             except (errors.APIError, httpx.TimeoutException) as e:
                 code = getattr(e, "code", "timeout")
                 print(f"{model} failed ({code}), trying next model", file=sys.stderr)
-                if code == 429:
-                    self.cooldown[model] = time.time() + 300
-                # 500/503/504 = Gemini-side trouble, 429 = quota, 404 = model retired: all worth trying the next model.
+                # 429 = quota (wait longer); 500/503/504/timeout = the model is struggling right now.
+                self.cooldown[model] = time.time() + (300 if code == 429 else 90)
+                # 404 = model retired: also worth trying the next model.
                 if code not in (404, 429, 500, 503, 504, "timeout") or i == len(models) - 1:
                     raise
 
-    def answer(self, question: str, history: list[dict], student_id: str | None = None) -> dict:
+    def answer(self, question: str, history: list[dict], student_id: str | None = None,
+               session: dict | None = None) -> dict:
         search_q = self.rewrite(question, history)
         hits = self.search(list(dict.fromkeys([search_q, question])))
 
         context = "\n\n".join(f"[{h['title']}]\n{h['text']}" for h in hits)
         who = (f"الطالب الحالي: رقمه {student_id} (الأدوات هتستخدمه تلقائيًا)." if student_id else
                "مفيش طالب محدد في المحادثة دي، فمتنادِش أدوات بيانات الطالب؛ لو السؤال عن أرقامه اطلب منه يختار طالب.")
+        session = session or {}
+        if session.get("excluded"):
+            who += f"\nالدكاترة اللي الطالب طلب يستبعدهم (متقترحهمش): {', '.join(session['excluded'])}."
+        if session.get("eligible_courses"):
+            sel = session.get("selected_courses") or []
+            who += (f"\nالجدول المختار في صفحة التوصيات: {', '.join(sel) or 'فاضي'} "
+                    f"(الحد الأقصى {session.get('max_load')} ساعة).")
+        if session.get("preferences"):
+            who += f"\nتفضيلات الطالب الحالية في الصفحة (0-100): {session['preferences']}."
         contents = [types.Content(role="user" if m["role"] == "user" else "model",
                                   parts=[types.Part(text=m["content"])]) for m in history[-10:]]
         contents.append(types.Content(role="user", parts=[types.Part(text=(
@@ -280,7 +313,7 @@ class Masari:
             contents.append(r.candidates[0].content)  # keep the model's own turn (thought signatures included)
             parts = []
             for fc in calls:
-                result = call_tool(fc.name, dict(fc.args or {}), student_id)
+                result = call_tool(fc.name, dict(fc.args or {}), student_id, session)
                 tools_used.append({"name": fc.name, "args": dict(fc.args or {}), "result": result})
                 parts.append(types.Part.from_function_response(name=fc.name, response={"result": result}))
             contents.append(types.Content(role="user", parts=parts))
@@ -290,6 +323,9 @@ class Masari:
             "search_query": search_q,
             "sources": [{"id": h["id"], "title": h["title"], "source": h["source"]} for h in hits],
             "tools_used": tools_used,
+            # Changes the website should apply to its pages (remove an instructor, move a preference slider...).
+            "actions": [t["result"]["action"] for t in tools_used
+                        if isinstance(t["result"], dict) and t["result"].get("action")],
         }
 
 

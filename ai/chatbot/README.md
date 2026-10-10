@@ -68,6 +68,11 @@ Environment variable: `NEXT_PUBLIC_MASARI_API_URL` = the AI service URL (it is b
 { "question": "اقدر اسجل كام ساعة؟", "history": [{ "role": "user", "content": "..." }, { "role": "assistant", "content": "..." }], "student_id": "897948891" }
 ```
 
+`excluded_instructors` (optional list, `"i4"` = everywhere, `"i4:CSE 315"` = in that course) and `preferences`
+(optional `{pace, workload, practical}`, 0-100) tell the service what the recommendations page currently shows,
+so the chat agrees with it. The courses tab is described by `selected_courses` (codes chosen),
+`eligible_courses` (`[{ "code", "credits" }]`, in priority order: what the page offers) and `max_load`.
+
 `student_id` is optional: the id of the student chosen on the login / picker screen (from `GET /api/students`).
 With it, the model can call the student-data tools (credit limit, warning, GPA, eligibility, instructor
 recommendation...) and they run on that student's record. Without it only regulation and course questions
@@ -83,9 +88,31 @@ Response:
 }
 ```
 
+`actions` lists changes the website should apply to its pages because of what the student said, e.g.
+`{ "type": "avoid_instructor", "key": "i4", "instructor_id": "i4", "name_ar": "...", "course_code": null }`,
+`{ "type": "restore_instructor", "key": "i4", "instructor_id": "i4" }` or
+`{ "type": "set_preferences", "preferences": { "pace": 20, "practical": 80 } }`,
+`{ "type": "select_course", "course_code": "CSE 151" }`, `{ "type": "unselect_course", "course_code": "CSE 151" }` or
+`{ "type": "set_selection", "courses": ["BAS 011", "..."] }` (the chosen schedule). The service keeps no state: the
+website stores the result and sends it back with the next question (see `excluded_instructors` above).
+
 `tools_used` lists the tools the model called in this answer (empty when it answered from the regulations
 only). Instructor recommendations carry `basis` / `basis_ar` (surveys only, surveys + preferences, surveys +
 performance), `confidence` and `reasons` in their `result`, which the recommendations screen can show directly.
+
+### Endpoints for the pages (no chat needed)
+
+The recommendations page and the chat card show the same results as the chat tools:
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/instructors/courses` | courses that have instructor survey data (`code`, names, `sections`) |
+| `GET /api/instructors/recommend?course_code=ECE 321&student_id=...` | instructors of the course ranked for the student: `basis` (`surveys_only` / `surveys_and_preferences` / `surveys_and_performance`), `basis_ar`, `basis_en`, and per instructor `score`, `confidence`, `profile`, `reasons` / `reasons_en` |
+| `POST /api/tools/{name}` with `{ "args": {...}, "student_id": "..." }` | runs any tool from `tools/` directly (404 for an unknown tool or student) |
+
+Add `exclude` (repeatable, `i4` or `i4:CSE 315`) to leave instructors out; they come back in the `excluded` list.
+Add `pace`, `workload`, `practical` (0-100) to `recommend` only when the student set them; without them the
+ranking uses the student's own grades (or the surveys alone for a first-year student).
 
 `POST /api/transcribe` (multipart form): `audio` = the recording (webm / mp4 / ogg / mp3 / wav, up to 10 MB),
 optional `language` = `ar` or `en` (auto-detected otherwise). Response: `{ "text": "..." }`.
@@ -127,6 +154,6 @@ The current term (Fall 2026-2027) is `in_progress`: courses are registered and h
 | `GROQ_API_KEY` | none; needed for the microphone with the `groq` backend |
 | `STT_BACKEND` | `groq`; `local` runs Whisper on this machine (`pip install faster-whisper`, downloads ~1.6 GB on first use, not for Vercel) |
 | `GROQ_STT_MODEL` / `LOCAL_STT_MODEL` | `whisper-large-v3-turbo` / `large-v3-turbo` |
-| `MASARI_CORS_ORIGINS` | `http://localhost:3000,http://127.0.0.1:3000` (comma-separated origins allowed to call the API; the live site URLs are always allowed) |
+| `MASARI_CORS_ORIGINS` | none. The site domains (`masari-web-sigma.vercel.app`, localhost:3000) are always allowed; list extra origins here, comma-separated |
 
 The frontend reads the service URL from `NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000` in development, `https://masari-ai-pink.vercel.app` in production builds).
