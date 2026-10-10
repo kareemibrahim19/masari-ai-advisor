@@ -21,7 +21,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Bar, Code, PageHeader } from "@/components/masari/bits"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import { courseNames } from "@/lib/demo-content"
@@ -171,25 +170,12 @@ export default function PlanPage() {
                       <span>
                         {cell.feasible ? t("possible") : t("notPossible")}
                         {cell.feasible && cell.summer_courses > 0 && ` · ${num(cell.summer_courses)} ${t("summerCoursesCount")}`}
-                        {!cell.feasible && cell.why && (
-                          <span className="ms-1 inline-flex items-center gap-0.5 underline decoration-dotted underline-offset-2">
-                            <Info className="size-3" aria-hidden />
-                            {t("whyShort")}
-                          </span>
-                        )}
                       </span>
                     </span>
                   )}
                 </>
               )
-              // Not possible: hovering (or focusing) the target shows why. Picking it shows the reason below too.
-              if (cell && !cell.feasible && cell.why)
-                return (
-                  <Tooltip key={years}>
-                    <TooltipTrigger render={button}>{body}</TooltipTrigger>
-                    <TooltipContent className="max-w-xs text-start leading-relaxed">{tr(cell.why)}</TooltipContent>
-                  </Tooltip>
-                )
+              // Why a target is not possible shows in the result box below once it is picked.
               return React.cloneElement(button, {}, body)
             })}
           </div>
