@@ -109,6 +109,22 @@ check("compare picks one", r["found"] and "better_for_student" in r, r)
 check("compare wrong course", call_tool("compare_instructors", {"course_code": "ECE 321", "instructor_a": "سارة",
                                                               "instructor_b": "هاني"})["found"] is False)
 
+# find_courses / improvement_candidates / compare without a course
+r = call_tool("find_courses", {"query": "الذكاء الاصطناعي"})
+check("find_courses puts the closest name first", r["found"] and r["matches"][0]["code"] == "CSE 151", r)
+check("find_courses nothing", call_tool("find_courses", {"query": "zzzzqq"})["found"] is False)
+r = call_tool("improvement_candidates", {}, RETAKE)
+check("improvement candidates ranked by gain", r["found"] and r["candidates"]
+      and r["candidates"] == sorted(r["candidates"], key=lambda x: -x["gain_if_A"]), r)
+check("improvement candidates never offer an A student's course", all(c["current_grade"] not in ("A", "A+", "A-") for c in r["candidates"]))
+check("improvement: new student has none", call_tool("improvement_candidates", {}, NEW)["candidates"] == [])
+r = call_tool("compare_instructors", {"instructor_a": "هاني", "instructor_b": "منى"}, EXC)
+check("compare infers the one shared course", r["found"] and "CSE 315" in r["course"], r)
+r = call_tool("compare_instructors", {"instructor_a": "سارة", "instructor_b": "عمرو"}, EXC)
+check("compare lists several shared courses", r["found"] is False and len(r["common_courses"]) > 1, r)
+r = call_tool("compare_instructors", {"instructor_a": "سارة", "instructor_b": "هاني"}, EXC)
+check("compare: no shared course", r["found"] is False, r)
+
 # registry: every tool callable, session student overrides the model's
 check("tool names unique", len({t["name"] for t in TOOLS}) == len(TOOLS))
 check("student id injected", call_tool("academic_level", {"student_id": "wrong"}, EXC)["found"])

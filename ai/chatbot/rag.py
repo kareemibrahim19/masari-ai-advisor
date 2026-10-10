@@ -48,6 +48,8 @@ SYSTEM_PROMPT = """أنت "مساري"، المرشد الأكاديمي الذ�
 8. عندك أدوات (tools). لو السؤال عن أرقام الطالب نفسه أو قرار محسوب (حد الساعات، الإنذار، المعدل، الإعادة والتحسين، أهلية تسجيل مادة، المستوى، الاختياري، الغياب، الحذف والانسحاب، الدكاترة) نادِ الأداة المناسبة، ومتحسبهاش بنفسك. ونتيجة الأداة هي المرجع، اشرحها للطالب بس وبنفس لغته.
 9. لو الأداة رجّعت found=false أو error، قول للطالب إيه الناقص (كود مادة غلط مثلًا) بدل ما تخمّن.
 10. في ترشيح الدكاترة اذكر مصدر الترشيح (basis_ar) والسبب، ولو الثقة منخفضة (عدد التقييمات قليل) قولها صراحة. ولو الطالب قال تفضيلاته (سرعة/عبء/عملي) مرّرها للأداة.
+11. لو السؤال عن مادة معينة (كودها، ساعاتها، متطلباتها) نادِ course_info، ولو الطالب ذكر اسم مادة من غير كود أو الاسم مش واضح نادِ find_courses الأول. ولو سأل "اعيد انهي مادة" أو "احسن معدلي" نادِ improvement_candidates.
+12. ابدأ الرد بالإجابة المباشرة في أول سطر (نعم/لا/الرقم)، وبعدها السبب ورقم المادة. من غير مقدمات زي "بناءً على" ومن غير تكرار السؤال.
 """
 
 REWRITE_PROMPT = """حوّل سؤال الطالب الأخير لسؤال بحث واحد واضح بالعربية الفصحى، يكون مستقل بذاته (استخدم المحادثة السابقة لفهم الإشارات زي "طب والصيفي؟").
@@ -173,7 +175,7 @@ class Masari:
         self.cooldown: dict[str, float] = {}  # model -> time it can be used again
         self.rules_json = json.dumps(self.data["rules"], ensure_ascii=False, indent=1)
 
-    def _embed(self, texts: list[str], task: str) -> np.ndarray:
+    def _embed(self, texts: list[str], task: str, wait_on_429: bool = True) -> np.ndarray:
         out = []
         # Free tier: 100 embedded texts per minute, so send at most 90 at a time.
         for i in range(0, len(texts), 90):
@@ -182,7 +184,7 @@ class Masari:
                 time.sleep(61)
             r = _with_retry(lambda: self.client.models.embed_content(
                 model=EMBED_MODEL, contents=batch,
-                config=types.EmbedContentConfig(task_type=task)))
+                config=types.EmbedContentConfig(task_type=task)), wait_on_429=wait_on_429)
             out.extend(e.values for e in r.embeddings)
         v = np.array(out, dtype=np.float32)
         return v / np.linalg.norm(v, axis=1, keepdims=True)
@@ -209,7 +211,8 @@ class Masari:
         hist = "\n".join(f"{m['role']}: {m['content'][:400]}" for m in history[-6:]) or "(لا يوجد)"
         try:
             r = _with_retry(lambda: self.client.models.generate_content(
-                model=REWRITE_MODEL, contents=REWRITE_PROMPT.format(history=hist, question=question)))
+                model=REWRITE_MODEL, contents=REWRITE_PROMPT.format(history=hist, question=question)),
+                wait_on_429=False)
             return (r.text or "").strip() or question
         except errors.APIError:
             return question
@@ -217,10 +220,17 @@ class Masari:
     def search(self, queries: list[str], k: int = TOP_K) -> list[dict]:
         """Hybrid search: reciprocal-rank fusion of BM25 and embedding ranks."""
         scores = np.zeros(len(self.chunks))
-        qv = self._embed(queries, "RETRIEVAL_QUERY")
+        # If the embedding service is out of quota or down, search by keywords only instead of waiting a minute.
+        try:
+            qv = self._embed(queries, "RETRIEVAL_QUERY", wait_on_429=False)
+        except (errors.APIError, httpx.TimeoutException) as e:
+            print(f"query embedding failed ({getattr(e, 'code', 'timeout')}), using keyword search only", file=sys.stderr)
+            qv = [None] * len(queries)
         for q, v in zip(queries, qv):
-            for ranking in (np.argsort(-self.bm25.get_scores(_tokenize(q))),
-                            np.argsort(-(self.vectors @ v))):
+            rankings = [np.argsort(-self.bm25.get_scores(_tokenize(q)))]
+            if v is not None:
+                rankings.append(np.argsort(-(self.vectors @ v)))
+            for ranking in rankings:
                 for rank, idx in enumerate(ranking[:30]):
                     scores[idx] += 1 / (60 + rank)
         # Explicit course codes in the question always pull in that course.

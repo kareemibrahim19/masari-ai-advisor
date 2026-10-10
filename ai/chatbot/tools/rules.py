@@ -141,6 +141,69 @@ def _attempts_of(student: dict, code: str) -> list[dict]:
     return [c for t in student["terms"] if t["status"] == "published" for c in t["courses"] if c["code"] == code]
 
 
+def _improvements_used(student: dict) -> int:
+    """Improvements already used = repeats of a course the student had already passed (article 30)."""
+    used = 0
+    for code in {c["code"] for t in student["terms"] if t["status"] == "published" for c in t["courses"]}:
+        rows = _attempts_of(student, code)
+        used += sum(1 for i in range(1, len(rows)) if rows[i - 1]["grade"] not in ("F", "FP"))
+    return used
+
+
+def improvement_candidates(student_id: str, limit: int = 5) -> dict:
+    """Which passed courses are worth improving: the ones that would raise the cumulative GPA the most (article 30)."""
+    s, err = _student(student_id)
+    if err:
+        return err
+    gp = d.rules()["grade_points"]
+    graded = [a for a in d.best_attempts(s).values() if a["grade"] in gp]
+    hours = sum(a["credits"] for a in graded)
+    points = sum(gp[a["grade"]] * a["credits"] for a in graded)
+    if not hours:
+        return {"found": True, "candidates": [], "explanation": "لسه مفيش مواد ليها تقدير، فمفيش حاجة تتحسّن."}
+    cgpa = points / hours
+    left = d.rules()["improvement"]["max_courses"] - _improvements_used(s)
+    now = {c["code"] for c in d.current_courses(s)}
+    rows = []
+    for a in graded:
+        if gp[a["grade"]] >= 3.7 or a["code"] in now:
+            continue
+        gain = (points - gp[a["grade"]] * a["credits"] + 4.0 * a["credits"]) / hours - cgpa
+        rows.append({"course": d.course_label(a["code"]), "code": a["code"], "credits": a["credits"],
+                     "current_grade": a["grade"], "gpa_if_A": round(cgpa + gain, 2), "gain_if_A": round(gain, 3)})
+    rows.sort(key=lambda r: r["gain_if_A"], reverse=True)
+    top = rows[:limit]
+    if top:
+        picks = "، ".join(f"{r['code']} (من {r['current_grade']} للمعدل {r['gpa_if_A']})" for r in top[:3])
+        text = f"معدلك دلوقتي {cgpa:.2f} وفاضل لك {max(0, left)} مواد تحسين. أكتر مواد هتفرق لو جبت فيها A: {picks}."
+    else:
+        text = "كل موادك تقديرها A- أو أعلى، فمفيش مادة محتاجة تحسين."
+    return {"found": True, "cumulative_gpa": round(cgpa, 2), "improvements_left": max(0, left), "candidates": top,
+            "article": ARTICLES["improve"], "explanation": text}
+
+
+def find_courses(query: str, limit: int = 5) -> dict:
+    """Courses whose name (Arabic or English) or code matches the words of a query; for names without a code."""
+    # Strip the Arabic "ال" so "الذكاء" also matches "للذكاء" inside a course name.
+    words = [w[2:] if w.startswith("ال") and len(w) > 4 else w
+             for w in (query or "").lower().replace("(", " ").replace(")", " ").split() if len(w) > 1]
+    if not words:
+        return {"found": False, "error": "اكتب اسم المادة أو جزء منه."}
+    rows = []
+    for c in d.courses().values():
+        text = " ".join([c["code"], c["name_ar"], c.get("name_en", ""), *c.get("aliases_en", [])]).lower()
+        hits = sum(1 for w in words if w in text)
+        if hits:
+            rows.append((hits, c))
+    # More matching words first; among equals the shorter name is the closer match ("مقدمة للذكاء الاصطناعي").
+    rows.sort(key=lambda r: (-r[0], len(r[1]["name_ar"]), r[1]["code"]))
+    top = [{"code": c["code"], "name_ar": c["name_ar"], "name_en": c.get("name_en"), "credits": c["credits"],
+            "planned_semester": c["planned_semester"], "type": c["type"]} for _, c in rows[:limit]]
+    if not top:
+        return {"found": False, "matches": [], "error": f"مفيش مادة اسمها قريب من '{query}'"}
+    return {"found": True, "matches": top}
+
+
 def retake_info(student_id: str, course_code: str) -> dict:
     """Retake of a failed course (article 15) or improvement of a passed one (article 30)."""
     s, err = _student(student_id)

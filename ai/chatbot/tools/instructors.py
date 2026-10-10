@@ -252,10 +252,25 @@ def recommend_instructor(student_id: str, course_code: str, pace: float | None =
             "note": "الأرقام من استبيانات محاكاة لحد ما الاستبيانات الحقيقية تتحمل."}
 
 
-def compare_instructors(course_code: str, instructor_a: str, instructor_b: str,
+def compare_instructors(instructor_a: str, instructor_b: str, course_code: str | None = None,
                         student_id: str | None = None, pace: float | None = None,
                         workload: float | None = None, practical: float | None = None) -> dict:
-    """Two instructors of the same course side by side; with a student, who fits them better."""
+    """Two instructors of the same course side by side; with a student, who fits them better.
+
+    The course can be left out when the two instructors have exactly one course in common.
+    """
+    if not course_code:
+        ia, ib = _find_instructor(instructor_a), _find_instructor(instructor_b)
+        if not ia or not ib:
+            return d.not_found("الدكتور", instructor_a if not ia else instructor_b)
+        mine = lambda x: {o["course_code"] for o in _offerings() if o["instructor_id"] == x["id"]}
+        common = sorted(mine(ia) & mine(ib))
+        if not common:
+            return {"found": False, "error": f"{ia['name_ar']} و{ib['name_ar']} مبيدرّسوش أي مادة مع بعض."}
+        if len(common) > 1:
+            return {"found": False, "common_courses": [d.course_label(c) for c in common],
+                    "error": "بيدرّسوا أكتر من مادة مع بعض، اختار مادة: " + "، ".join(d.course_label(c) for c in common)}
+        course_code = common[0]
     c = d.find_course(course_code)
     if not c:
         return d.not_found("المادة", course_code)

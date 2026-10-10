@@ -63,6 +63,8 @@ def chat(req: ChatRequest):
     try:
         return bot.answer(req.question.strip(), [m.model_dump() for m in req.history], req.student_id)
     except errors.APIError as e:
+        if e.code == 429:  # the model quota is used up for now
+            raise HTTPException(503, "مساري مشغول دلوقتي بسبب كتر الطلبات، جرّب تاني بعد دقيقة.")
         raise HTTPException(502, f"Gemini error {e.code}: {e.message}")
 
 
