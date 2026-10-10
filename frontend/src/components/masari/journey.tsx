@@ -6,6 +6,7 @@
  * going straight up and arrives at the next node from below, so the route reads as the logo, repeated.
  *   ◎ charcoal ring  completed semester     ○ grey ring     planned semester
  *   ◌ dashed ring    semester with no courses (should not happen)   ● orange dot    graduation (the logo's destination dot)
+ *   ◇ grey diamond   summer semester with courses                   ◉ orange ring   you are here
  * Mirrored in Arabic so the path reads right-to-left.
  *
  * Desktop: the drawing scales to the card. Phones: drawn at 1:1 so labels stay readable,
@@ -50,7 +51,7 @@ export function JourneyRail({ plan, loading = false }: { plan?: GraduationPlan |
         <span className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
           <Legend swatch="size-3 rounded-full border-[3px] border-brand-ink" label={t("pathLegendDone")} />
           <Legend swatch="size-3 rounded-full border-[3px] border-muted-foreground/45" label={t("pathLegendPlanned")} />
-          <Legend swatch="size-2.5 rounded-full border-[2.5px] border-warning" label={t("pathLegendSummer")} />
+          <Legend swatch="size-2.5 rotate-45 rounded-[2px] border-[2.5px] border-muted-foreground/60" label={t("pathLegendSummer")} />
           <Legend swatch="size-2.5 rounded-full bg-warning" label={t("pathHasFail")} />
         </span>
       </figcaption>
@@ -200,11 +201,21 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
           if (n.summer) {
             return (
               <g key={i}>
-                <circle cx={p.x} cy={p.y} r="5.5" className="fill-card stroke-warning" strokeWidth="3.5" />
+                {/* A diamond in the planned-semester grey: orange stays for "you are here" and graduation. */}
+                <rect
+                  x={p.x - 5.5}
+                  y={p.y - 5.5}
+                  width="11"
+                  height="11"
+                  rx="1.5"
+                  transform={`rotate(45 ${p.x} ${p.y})`}
+                  className="fill-card stroke-muted-foreground/60"
+                  strokeWidth="3.5"
+                />
                 <text x={p.x} y={p.y - 22} textAnchor="middle" className="fill-muted-foreground text-[11px] tabular">
                   {num(n.credits)} {t("creditsShort")}
                 </text>
-                <text x={p.x} y={p.y + 30} textAnchor="middle" className="fill-warning text-[11.5px]">
+                <text x={p.x} y={p.y + 30} textAnchor="middle" className="fill-muted-foreground text-[11.5px] italic">
                   {n.label}
                 </text>
               </g>
