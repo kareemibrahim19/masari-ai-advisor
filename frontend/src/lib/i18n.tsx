@@ -22,6 +22,8 @@ const dict = {
     en: "Courses and regulations come from the AIE Program Guide; the student, instructors and seats are simulated. Not connected to a university system.",
   },
   switchLang: { ar: "English", en: "العربية" },
+  academicCalendar: { ar: "التقويم الأكاديمي", en: "Academic calendar" },
+  openFullSize: { ar: "افتح الصورة بالحجم الكامل", en: "Open full size" },
   toggleTheme: { ar: "تبديل الوضع الليلي", en: "Toggle dark mode" },
   openMenu: { ar: "فتح القائمة", en: "Open menu" },
 
