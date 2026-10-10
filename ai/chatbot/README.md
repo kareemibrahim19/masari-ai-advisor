@@ -142,4 +142,4 @@ The current term (Fall 2026-2027) is `in_progress`: courses are registered and h
 | `GROQ_STT_MODEL` / `LOCAL_STT_MODEL` | `whisper-large-v3-turbo` / `large-v3-turbo` |
 | `MASARI_CORS_ORIGINS` | none. The site domains (`masari-ai-advisor.vercel.app`, `masari-web-sigma.vercel.app`, localhost:3000) are always allowed; list extra origins here, comma-separated |
 
-The frontend reads the service URL from `NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000`).
+The frontend reads the service URL from `NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000` in development, `https://masari-ai-pink.vercel.app` in production builds).

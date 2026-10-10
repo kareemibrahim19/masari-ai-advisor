@@ -37,7 +37,7 @@ Open http://localhost:3000. The site opens on `/login`: the access code is the s
 (for example `883941655`). Signing out (the icon next to the student's name) returns to the login page.
 
 The chat needs the AI service running (see [`../ai/chatbot/README.md`](../ai/chatbot/README.md)). Its URL comes from
-`NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000`); if the service can't be reached, the chat shows an error message.
+`NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000` in development, `https://masari-ai-pink.vercel.app` in production builds); if the service can't be reached, the chat shows an error message.
 
 ## Screens
 
