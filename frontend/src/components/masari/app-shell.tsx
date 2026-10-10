@@ -6,7 +6,6 @@ import * as React from "react"
 import { CalendarRange, Languages, LayoutDashboard, Library, LogOut, MessageSquareText, Moon, Sparkles, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Lockup } from "@/components/masari/brand"
-import { DemoBadge } from "@/components/masari/trust"
 import { DemoStateProvider } from "@/lib/demo-state"
 import { type DictKey, useI18n } from "@/lib/i18n"
 import { useStudent, useStudentView } from "@/lib/student-context"
@@ -174,9 +173,6 @@ function Shell({ children }: { children: React.ReactNode }) {
         {t("skipToContent")}
       </a>
 
-      {/* Always-visible reminder that nothing here is real student data. */}
-      <p className="bg-warning-soft px-4 py-1.5 text-center text-xs text-warning">{t("demoDataHint")}</p>
-
       <header className="sticky top-0 z-30 border-b bg-background/88 backdrop-blur supports-backdrop-filter:bg-background/75">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 md:px-6 lg:gap-4 xl:gap-6">
           <Link href="/" aria-label={t("appName")} className="shrink-0 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring">
@@ -186,7 +182,6 @@ function Shell({ children }: { children: React.ReactNode }) {
           <TopNav />
 
           <div className="ms-auto flex items-center gap-0.5 sm:gap-1">
-            <DemoBadge className="me-1 hidden md:inline-flex" />
             <Button
               variant="ghost"
               className="h-10 gap-1.5 px-3"

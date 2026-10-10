@@ -88,9 +88,9 @@ const dict = {
   suggestions: { ar: "اقتراحات", en: "Suggestions" },
   contextPanel: { ar: "اللي مساري عارفه عنك", en: "What Masari knows" },
   sourcesUsed: { ar: "المصادر المستخدمة", en: "Sources used" },
-  demoReply: {
-    ar: "دي نسخة تجريبية من الواجهة. الرد الحقيقي هييجي من الـ backend (RAG + محرك القواعد + نموذج التوصيات) بعد ربطه.",
-    en: "This is a UI prototype. Real answers will come from the backend (RAG + rules engine + recommendation model) once it is connected.",
+  chatWelcome: {
+    ar: "أنا مساري، مرشدك الأكاديمي. اسألني عن اللائحة، ساعاتك، أو خطة تخرجك.",
+    en: "I'm Masari, your academic advisor. Ask me about the regulations, your credit hours, or your graduation plan.",
   },
   newChat: { ar: "محادثة جديدة", en: "New chat" },
   ragSources: { ar: "المصادر اللي اتبحث فيها", en: "Sources searched" },

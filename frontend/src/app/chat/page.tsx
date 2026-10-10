@@ -1,16 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { BookOpenText, CheckCircle2, Loader2, Mic, Plus, SendHorizontal, Square, XCircle } from "lucide-react"
+import { BookOpenText, Loader2, Mic, Plus, SendHorizontal, Square } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { AppIcon } from "@/components/masari/brand"
-import { CategoryTag, Code, SlotTag } from "@/components/masari/bits"
-import { AiExplanation, ConfidenceMeter, RagSourceChip, SourceChip, VerifiedBadge } from "@/components/masari/trust"
-import { findCourse, termOf } from "@/lib/aie-program"
-import { chatSuggestions, confidenceFromResponses, courseNames, defaultPrefs, demoCompatibility, instructors, sources } from "@/lib/demo-content"
-import { RETAKE_MAX_GRADE } from "@/lib/rules"
-import { lockedExample, useDemoState, type ChatMessage, type RagSource } from "@/lib/demo-state"
+import { AiBadge, RagSourceChip } from "@/components/masari/trust"
+import { chatSuggestions, sources } from "@/lib/demo-content"
+import { useDemoState, type ChatMessage, type RagSource } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
 import { useStudentView } from "@/lib/student-context"
 import { useVoiceInput } from "@/lib/use-voice-input"
@@ -44,7 +41,12 @@ export default function ChatPage() {
         </h1>
         {/* relative: keeps the absolutely positioned sr-only labels inside the scroll area, not stretching the page. */}
         <div className="relative flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6 md:px-6" role="log" aria-live="polite">
+          {messages.length === 0 && !thinking && <Welcome onPick={send} />}
+          <div
+            className={cn("mx-auto w-full max-w-3xl space-y-8 px-4 py-6 md:px-6", messages.length === 0 && !thinking && "hidden")}
+            role="log"
+            aria-live="polite"
+          >
             {messages.map((m) =>
               m.role === "user" ? (
                 <UserBubble key={m.id} text={typeof m.text === "string" ? m.text : tr(m.text)} />
@@ -60,19 +62,6 @@ export default function ChatPage() {
         {/* Composer */}
         <div className="border-t bg-background/90 backdrop-blur">
           <div className="mx-auto w-full max-w-3xl space-y-3 px-4 py-3 md:px-6">
-            <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]" aria-label={t("suggestions")}>
-              {chatSuggestions.map((s) => (
-                <button
-                  key={s.en}
-                  type="button"
-                  onClick={() => send(tr(s))}
-                  className="h-9 shrink-0 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-                >
-                  {tr(s)}
-                </button>
-              ))}
-            </div>
-
             {listening && (
               <div className="flex items-center gap-2 rounded-lg bg-primary/8 px-3 py-2 text-sm text-primary" role="status">
                 <span className="relative flex size-2.5">
@@ -153,13 +142,17 @@ function UserBubble({ text }: { text: string }) {
   )
 }
 
+/** Masari's side of the conversation: no bubble, just the mark, the name and the AI label, then the text. */
 function AssistantShell({ children }: { children: React.ReactNode }) {
   const { t } = useI18n()
   return (
     <div className="flex gap-3">
-      <AppIcon className="mt-0.5 size-8" />
-      <div className="min-w-0 flex-1 space-y-3">
-        <p className="text-xs font-semibold text-muted-foreground">{t("appName")}</p>
+      <AppIcon className="mt-0.5 size-7 shrink-0" />
+      <div className="min-w-0 flex-1 space-y-2.5">
+        <p className="flex items-center gap-2 text-sm font-semibold">
+          {t("appName")}
+          <AiBadge className="h-5 border-0 bg-ai-soft px-1.5 text-[11px]" />
+        </p>
         {children}
       </div>
     </div>
@@ -167,24 +160,21 @@ function AssistantShell({ children }: { children: React.ReactNode }) {
 }
 
 function AssistantMessage({ message }: { message: Extract<ChatMessage, { role: "assistant" }> }) {
-  if (message.kind === "ai") return <AiReply text={message.text} sources={message.sources} />
   if (message.kind === "error") return <ErrorReply detail={message.detail} />
-  if (message.kind === "recommendation") return <RecommendationReply />
-  if (message.kind === "prereq") return <PrereqReply />
-  return <DemoReply />
+  return <AiReply text={message.text} sources={message.sources} />
 }
 
-/** A real answer from the Masari AI service (RAG over the regulations + Gemini). */
+/** An answer from the Masari AI service (RAG over the regulations + the rule tools + Gemini). */
 function AiReply({ text, sources }: { text: string; sources: RagSource[] }) {
   const { t } = useI18n()
   return (
     <AssistantShell>
-      <AiExplanation>
+      <div className="max-w-[70ch] text-[15px] leading-7 text-foreground/90 text-pretty">
         <SimpleMarkdown text={text} />
-      </AiExplanation>
+      </div>
       {sources.length > 0 && (
         <details className="group text-xs text-muted-foreground">
-          <summary className="cursor-pointer select-none">{t("ragSources")}</summary>
+          <summary className="cursor-pointer select-none hover:text-foreground">{t("ragSources")}</summary>
           <div className="mt-2 flex flex-wrap gap-2">
             {sources.map((s) => (
               <RagSourceChip key={s.id} title={s.title} />
@@ -210,229 +200,97 @@ function ErrorReply({ detail }: { detail: string }) {
   )
 }
 
-/** Renders the subset of Markdown the model uses: paragraphs, "-" / "*" / "1." lists and **bold**. */
+type Block = { kind: "p" | "h" | "ul" | "ol"; lines: string[] }
+
+/** Renders the Markdown the model uses: headings, paragraphs, "-" / "*" / "1." lists, **bold** and `code`. */
 function SimpleMarkdown({ text }: { text: string }) {
-  const blocks: { list: "ul" | "ol" | null; lines: string[] }[] = []
+  const blocks: Block[] = []
   for (const raw of text.split("\n")) {
     const line = raw.trim()
-    if (!line) continue
+    if (!line) {
+      blocks.push({ kind: "p", lines: [] }) // a blank line ends the current paragraph or list
+      continue
+    }
+    const heading = line.match(/^#{1,6}\s+(.*)$/)
     const bullet = line.match(/^[-*•]\s+(.*)$/)
     const numbered = line.match(/^\d+[.)]\s+(.*)$/)
-    const list = bullet ? "ul" : numbered ? "ol" : null
-    const content = bullet?.[1] ?? numbered?.[1] ?? line.replace(/^#+\s*/, "")
+    const kind: Block["kind"] = heading ? "h" : bullet ? "ul" : numbered ? "ol" : "p"
+    const content = heading?.[1] ?? bullet?.[1] ?? numbered?.[1] ?? line
     const last = blocks.at(-1)
-    if (list && last?.list === list) last.lines.push(content)
-    else blocks.push({ list, lines: [content] })
+    // List items group together; every other line is its own paragraph or heading.
+    if (last && last.kind === kind && (kind === "ul" || kind === "ol") && last.lines.length) last.lines.push(content)
+    else blocks.push({ kind, lines: [content] })
   }
   const inline = (s: string) =>
-    s.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-      part.startsWith("**") && part.endsWith("**") ? <strong key={i}>{part.slice(2, -2)}</strong> : part
-    )
-  return (
-    <div className="space-y-2">
-      {blocks.map((b, i) => {
-        if (!b.list) return <p key={i}>{inline(b.lines[0])}</p>
-        const List = b.list
+    s.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((part, i) => {
+      if (part.startsWith("**") && part.endsWith("**"))
         return (
-          <List key={i} className={cn("space-y-1 ps-5", b.list === "ul" ? "list-disc" : "list-decimal")}>
-            {b.lines.map((l, j) => (
-              <li key={j}>{inline(l)}</li>
-            ))}
-          </List>
+          <strong key={i} className="font-semibold text-foreground">
+            {part.slice(2, -2)}
+          </strong>
         )
-      })}
+      if (part.startsWith("`") && part.endsWith("`"))
+        return (
+          <code key={i} dir="ltr" className="rounded bg-muted px-1 py-0.5 font-mono text-[0.9em]">
+            {part.slice(1, -1)}
+          </code>
+        )
+      return part
+    })
+  return (
+    <div className="space-y-3">
+      {blocks
+        .filter((b) => b.lines.length)
+        .map((b, i) => {
+          if (b.kind === "h")
+            return (
+              <p key={i} className="pt-1 font-semibold text-foreground">
+                {inline(b.lines[0])}
+              </p>
+            )
+          if (b.kind === "p") return <p key={i}>{inline(b.lines[0])}</p>
+          const List = b.kind
+          return (
+            <List key={i} className={cn("space-y-1.5 ps-5 marker:text-muted-foreground", b.kind === "ul" ? "list-disc" : "list-decimal")}>
+              {b.lines.map((l, j) => (
+                <li key={j} className="ps-1">
+                  {inline(l)}
+                </li>
+              ))}
+            </List>
+          )
+        })}
     </div>
   )
 }
 
-function RecommendationReply() {
-  const { t, tr, num, lang } = useI18n()
-  const { recommendedCourses, proposedNow, ineligibleCourses, student } = useStudentView()
-  // The planner's proposal for this term: already checked for prerequisites, credit thresholds and the load limit.
-  const picks = recommendedCourses.filter((c) => proposedNow.includes(c.code))
-  const credits = picks.reduce((s, c) => s + c.credits, 0)
-  // Instructor suggestion for the first proposed course that has (simulated) instructor data.
-  const course = picks.find((c) => instructors.some((i) => i.courseCode === c.code))?.code
-  const best = course
-    ? instructors
-        .filter((i) => i.courseCode === course)
-        .map((i) => ({ ...i, score: demoCompatibility(i.profile, defaultPrefs) }))
-        .filter((i) => confidenceFromResponses(i.responses) !== "low")
-        .sort((a, b) => b.score - a.score)[0]
-    : undefined
-  const top = picks[0]
-  const locked = ineligibleCourses.find((c) => c.missing.length > 0)
-
-  // Wording assembled from the verified facts above (placeholder until the AI service writes it).
-  const explanation =
-    lang === "ar"
-      ? [
-          `رشحتلك ${num(picks.length)} مقررات بمجموع ${num(credits)} ساعة، وده في حدود المسموح ليك (${num(student.maxLoad)}).`,
-          top && `بدأت بـ ${tr(top.name)} لأنه الأعلى أولوية${top.unlocks.length ? `، وهو متطلب سابق لـ ${num(top.unlocks.length)} مقررات` : ""}.`,
-          locked && `${tr(locked.name)} مش في القايمة لأن متطلبه السابق ${locked.missing.join("، ")} لسه متعداش.`,
-          best && course && `بالنسبة لـ ${tr(courseNames[course])}، ${tr(best.name)} الأقرب لتفضيلك بناءً على ${num(best.responses)} تقييم سابق.`,
-        ]
-      : [
-          `I suggest ${picks.length} courses totalling ${credits} credit hours, within your limit of ${student.maxLoad}.`,
-          top && `${tr(top.name)} comes first because it has the highest priority${top.unlocks.length ? ` and is a prerequisite for ${top.unlocks.length} courses` : ""}.`,
-          locked && `${tr(locked.name)} is not on the list because its prerequisite ${locked.missing.join(", ")} is not passed yet.`,
-          best && course && `For ${tr(courseNames[course])}, ${tr(best.name)} is closest to your preferences, based on ${best.responses} past evaluations.`,
-        ]
-
-  return (
-    <AssistantShell>
-      {/* Verified facts from the rules engine */}
-      <div className="space-y-3 rounded-xl border bg-card p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <VerifiedBadge />
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-verified">
-            <CheckCircle2 className="size-3.5" aria-hidden />
-            {num(credits)} / {num(student.maxLoad)} {t("creditsShort")} · {t("loadOk")}
-          </span>
-        </div>
-        <ol className="space-y-2">
-          {picks.map((c, i) => (
-            <li key={c.code} className="flex items-center gap-3 rounded-lg bg-muted/60 px-3 py-2">
-              <span className="text-xs font-bold text-muted-foreground tabular-nums">{num(i + 1)}</span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{tr(c.name)}</p>
-                <p className="text-xs text-muted-foreground">
-                  <Code>{c.code}</Code> · {num(c.credits)} {t("creditsShort")}
-                </p>
-              </div>
-              {c.slot && <SlotTag slot={c.slot} className="hidden sm:inline-flex" />}
-              <CategoryTag category={c.category} className="hidden sm:inline-flex" />
-            </li>
-          ))}
-        </ol>
-        {ineligibleCourses.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 border-t pt-3 text-xs">
-            <XCircle className="size-3.5 text-destructive" aria-hidden />
-            <span className="text-muted-foreground">{t("notEligible")}:</span>
-            {ineligibleCourses.map((c) => (
-              <span key={c.code} className="rounded-md bg-destructive/8 px-1.5 py-0.5 text-destructive">
-                <Code>{c.code}</Code>
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Instructor suggestion */}
-      {best && course && (
-        <div className="space-y-2 rounded-xl border bg-card p-4">
-          <p className="text-xs text-muted-foreground">
-            {t("forCourse")}: <span className="font-medium text-foreground">{tr(courseNames[course])}</span> <Code>{course}</Code>
-          </p>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="font-semibold">{tr(best.name)}</p>
-              <p className="text-xs text-muted-foreground">
-                {t("section")} {num(Number(best.section))}
-              </p>
-            </div>
-            <div className="text-end">
-              <p className="text-2xl font-bold text-primary tabular-nums">{num(best.score)}%</p>
-              <p className="text-xs text-muted-foreground">{t("compatibility")}</p>
-            </div>
-          </div>
-          <ConfidenceMeter level={confidenceFromResponses(best.responses)} responses={best.responses} />
-        </div>
-      )}
-
-      <AiExplanation>{explanation.filter(Boolean).join(" ")}</AiExplanation>
-
-      <div className="flex flex-wrap gap-2">
-        <SourceChip sourceId="catalog" />
-        <SourceChip sourceId="load" />
-        <SourceChip sourceId="training" />
-      </div>
-    </AssistantShell>
-  )
-}
-
-function PrereqReply() {
+/** Empty chat: a greeting with the student's name and a few simple questions to start from. */
+function Welcome({ onPick }: { onPick: (text: string) => void }) {
   const { t, tr, lang } = useI18n()
-  const view = useStudentView()
-  const locked = lockedExample(view)
-  if (!locked) return null
-  const { record, student, semesterNames, startTerm } = view
-  const passed = (code: string) => record.passed.includes(code)
-  const semOf = (code: string) => (findCourse(code) as { semester?: number } | undefined)?.semester
-  const termNote = (code: string) => {
-    const sem = semOf(code)
-    if (!sem) return undefined
-    if (lang === "ar") return termOf(sem) === "fall" ? "بيتدرّس خريف فقط" : "بيتدرّس ربيع فقط"
-    return termOf(sem) === "fall" ? "Fall only" : "Spring only"
-  }
-  const rows: { code: string; requires: string; ok: boolean; note?: string }[] = [
-    { code: locked.code, requires: locked.missing.join(", "), ok: false },
-    ...locked.missing.map((p) => {
-      const pre = findCourse(p)?.prereqs ?? []
-      return { code: p, requires: pre.join(", ") || "—", ok: pre.every(passed), note: termNote(p) }
-    }),
-  ]
-
-  // When can the first missing prerequisite be taken? Already this term, or the next term it is offered in.
-  const p = locked.missing[0]
-  const pSem = semOf(p)
-  const offset = startTerm === "spring" ? 1 : 0
-  const nextIdx = pSem ? semesterNames.findIndex((_, i) => (i + offset) % 2 === (termOf(pSem) === "fall" ? 0 : 1)) : -1
-  const failedBefore = record.failed.includes(p)
-  const pName = tr(courseNames[p])
-  let when = ""
-  if (student.registeredNow.includes(p)) when = lang === "ar" ? `وإنت مسجّل ${pName} الترم ده.` : `You are registered for ${pName} this term.`
-  else if (nextIdx >= 0) {
-    const cap = failedBefore ? (lang === "ar" ? ` (وأعلى تقدير هيبقى ${RETAKE_MAX_GRADE})` : ` (capped at ${RETAKE_MAX_GRADE})`) : ""
-    when = lang === "ar" ? `أقرب فرصة تاخد ${pName} ${tr(semesterNames[nextIdx])}${cap}.` : `The earliest chance to take ${pName} is ${tr(semesterNames[nextIdx])}${cap}.`
-  }
-
+  const { student } = useStudentView()
   return (
-    <AssistantShell>
-      <div className="space-y-3 rounded-xl border bg-card p-4">
-        <VerifiedBadge />
-        <ul className="space-y-2 text-sm">
-          {rows.map((r) => (
-            <li key={r.code} className="flex flex-wrap items-center gap-2">
-              <span className="font-medium">{tr(courseNames[r.code])}</span>
-              <Code className="text-xs text-muted-foreground">{r.code}</Code>
-              <span className="text-muted-foreground">{t("requires")}</span>
-              <Code>{r.requires}</Code>
-              {r.ok ? (
-                <span className="inline-flex items-center gap-1 rounded-md bg-verified-soft px-2 py-0.5 text-xs font-medium text-verified">
-                  <CheckCircle2 className="size-3.5" aria-hidden />
-                  {t("prereqsMet")}
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 rounded-md bg-destructive/8 px-2 py-0.5 text-xs font-medium text-destructive">
-                  <XCircle className="size-3.5" aria-hidden />
-                  {t("missingPrereq")}
-                </span>
-              )}
-              {r.note && <span className="text-xs text-muted-foreground">· {r.note}</span>}
-            </li>
-          ))}
-        </ul>
+    <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center gap-8 px-4 py-10 text-center md:px-6">
+      <div className="space-y-3">
+        <AppIcon className="mx-auto size-12" />
+        <h2 className="text-2xl font-semibold tracking-tight text-balance md:text-3xl">
+          {lang === "ar" ? `أهلاً يا ${tr(student.name)}` : `Hi ${tr(student.name)}`}
+        </h2>
+        <p className="mx-auto max-w-[46ch] text-[15px] leading-relaxed text-muted-foreground text-pretty">{t("chatWelcome")}</p>
       </div>
-      <AiExplanation>
-        {lang === "ar"
-          ? `مش هتقدر تسجل ${tr(locked.name)} (${locked.code}) لأن متطلبه السابق ${pName} (${p}) لسه متعداش${failedBefore ? " وإنت سقطت فيه" : ""}. ${when}`
-          : `You can't register for ${tr(locked.name)} (${locked.code}) because its prerequisite, ${pName} (${p}), is not passed yet. ${when}`}
-      </AiExplanation>
-      <div className="flex flex-wrap gap-2">
-        <SourceChip sourceId="catalog" />
-        <SourceChip sourceId="retake" />
-      </div>
-    </AssistantShell>
-  )
-}
-
-function DemoReply() {
-  const { t } = useI18n()
-  return (
-    <AssistantShell>
-      <AiExplanation>{t("demoReply")}</AiExplanation>
-    </AssistantShell>
+      <ul className="grid w-full grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2" aria-label={t("suggestions")}>
+        {chatSuggestions.map((s) => (
+          <li key={s.en}>
+            <button
+              type="button"
+              onClick={() => onPick(tr(s))}
+              className="h-full min-h-12 w-full rounded-xl border bg-card px-4 py-3 text-start text-sm leading-snug transition-colors hover:border-primary/40 hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+            >
+              {tr(s)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 

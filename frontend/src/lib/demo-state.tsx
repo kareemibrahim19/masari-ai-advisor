@@ -6,7 +6,6 @@
  * Nothing is saved to a server; a full page refresh resets it. New chat questions go to the Masari AI service.
  */
 import * as React from "react"
-import { courseNameL } from "@/lib/aie-program"
 import { defaultPrefs, instructors, type StudentPrefs } from "@/lib/demo-content"
 import type { L } from "@/lib/i18n"
 import { useStudentView } from "@/lib/student-context"
@@ -19,7 +18,6 @@ export type RagSource = { id: string; title: string; source: string }
 
 export type ChatMessage =
   | { id: string; role: "user"; text: string | L }
-  | { id: string; role: "assistant"; kind: "recommendation" | "prereq" | "demo" }
   | { id: string; role: "assistant"; kind: "ai"; text: string; sources: RagSource[] }
   | { id: string; role: "assistant"; kind: "error"; detail: string }
 
@@ -37,34 +35,6 @@ function toHistory(messages: ChatMessage[]) {
     if (m.role === "user") return typeof m.text === "string" ? [{ role: "user", content: m.text }] : []
     return m.kind === "ai" ? [{ role: "assistant", content: m.text }] : []
   })
-}
-
-/** The course the seeded "why can't I register…?" exchange is about: the first one blocked by a missing prerequisite. */
-export const lockedExample = (view: StudentView) => view.ineligibleCourses.find((c) => c.missing.length > 0)
-
-/** Opening conversation, built from the signed-in student's own results (not written for one student). */
-function seedMessages(view: StudentView): ChatMessage[] {
-  if (!view.proposedNow.length) return []
-  const out: ChatMessage[] = [
-    {
-      id: "m1",
-      role: "user",
-      text: {
-        ar: "أسجل إيه الترم ده، ومين الدكاترة المناسبين ليا؟",
-        en: "What should I register for this semester, and which instructors suit me?",
-      },
-    },
-    { id: "m2", role: "assistant", kind: "recommendation" },
-  ]
-  const locked = lockedExample(view)
-  if (locked) {
-    const name = courseNameL(locked.code).en
-    out.push(
-      { id: "m3", role: "user", text: { ar: `طب ليه مش قادر أسجل ${name}؟`, en: `And why can't I register for ${name}?` } },
-      { id: "m4", role: "assistant", kind: "prereq" }
-    )
-  }
-  return out
 }
 
 /** Instructor tab default: the first proposed course that has instructor data, else the first course with any. */
@@ -98,9 +68,10 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
   const [insCourse, setInsCourse] = React.useState(() => defaultInstructorCourse(view))
   const [prefs, setPrefs] = React.useState<StudentPrefs>(defaultPrefs)
   const [scenarioId, setScenarioId] = React.useState<string | null>(null)
-  const [messages, setMessages] = React.useState<ChatMessage[]>(() => seedMessages(view))
+  const [messages, setMessages] = React.useState<ChatMessage[]>([])
   const [thinking, setThinking] = React.useState(false)
   const pending = React.useRef<AbortController>(undefined)
+  const studentId = view.student.id
 
   const toggleCourse = React.useCallback((code: string) => {
     setSelected((s) => (s.includes(code) ? s.filter((c) => c !== code) : [...s, code]))
@@ -125,7 +96,8 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       fetch(`${MASARI_API_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: value, history }),
+        // student_id lets the service answer with the student's own record (credit limit, standing, plan…).
+        body: JSON.stringify({ question: value, history, student_id: studentId }),
         signal: controller.signal,
       })
         .then(async (res) => {
@@ -138,7 +110,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
           reply({ id: crypto.randomUUID(), role: "assistant", kind: "error", detail: e.message })
         })
     },
-    [messages, thinking]
+    [messages, thinking, studentId]
   )
 
   const newChat = React.useCallback(() => {

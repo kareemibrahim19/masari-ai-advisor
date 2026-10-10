@@ -189,12 +189,14 @@ export const planAssumption: L = {
   en: "Assumption: each course is offered only in its plan semester (odd = Fall, even = Spring), with no summer semester.",
 }
 
-// ---------------------------------------------------------------- Chat seed
+// ---------------------------------------------------------------- Chat suggestions
 
 export const chatSuggestions: L[] = [
-  { ar: "أسجل إيه الترم الجاي؟", en: "What should I register for next semester?" },
-  { ar: "ليه مش قادر أسجل Deep Learning؟", en: "Why can't I register for Deep Learning?" },
-  { ar: "فاضلي كام ساعة للتخرج؟", en: "How many credit hours do I have left?" },
-  { ar: "مين أنسب دكتور ليا في Communication Networks؟", en: "Which Communication Networks instructor suits me best?" },
+  { ar: "لو معدلي بين 2 و3، أقدر أسجل كام ساعة؟", en: "If my GPA is between 2 and 3, how many credit hours can I register?" },
+  { ar: "أقدر أسجل كام ساعة الترم ده؟", en: "How many credit hours can I register this semester?" },
+  { ar: "إمتى أقدر أسجل مشروع التخرج؟", en: "When can I register the graduation project?" },
+  { ar: "إيه اللي يحصل لو معدلي نزل تحت 2؟", en: "What happens if my GPA drops below 2?" },
+  { ar: "أقدر آخد كام مادة في الترم الصيفي؟", en: "How many courses can I take in the summer semester?" },
+  { ar: "فاضلي كام ساعة عشان أتخرج؟", en: "How many credit hours do I have left to graduate?" },
 ]
 
