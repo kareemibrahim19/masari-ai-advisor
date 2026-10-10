@@ -131,8 +131,13 @@ const dict = {
     en: "Adjust your preferences and watch the ranking update.",
   },
   demoScoring: {
-    ar: "حساب توضيحي مؤقت، هيتبدل بنموذج التوافق الفعلي.",
-    en: "Placeholder scoring. To be replaced by the trained compatibility model.",
+    ar: "التقييمات هنا بيانات تجريبية، والحساب هيتبدل بنموذج التوافق المدرَّب لما استبيانات الطلبة الحقيقية توصل.",
+    en: "The evaluations here are simulated. The scoring will be replaced by the trained compatibility model once real student surveys arrive.",
+  },
+  rankingBasis: { ar: "أساس الترتيب", en: "Ranking based on" },
+  offlineRanking: {
+    ar: "الخدمة مش متاحة دلوقتي، فالأرقام دي تجريبية محلية.",
+    en: "The AI service is unreachable, so these numbers are local demo values.",
   },
   youPrefer: { ar: "تفضيلك", en: "Your preference" },
   limitedData: {

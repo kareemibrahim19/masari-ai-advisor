@@ -120,7 +120,8 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       fetch(`${MASARI_API_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: value, history }),
+        // student_id lets the service run its tools (credit limit, standing, GPA, instructors...) on this student.
+        body: JSON.stringify({ question: value, history, student_id: view.student.id }),
         signal: controller.signal,
       })
         .then(async (res) => {
@@ -133,7 +134,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
           reply({ id: crypto.randomUUID(), role: "assistant", kind: "error", detail: e.message })
         })
     },
-    [messages, thinking]
+    [messages, thinking, view.student.id]
   )
 
   const newChat = React.useCallback(() => {

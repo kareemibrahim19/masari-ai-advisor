@@ -8,15 +8,8 @@ import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Bar, CategoryTag, Code, PageHeader, SlotTag } from "@/components/masari/bits"
 import { AiExplanation, ConfidenceMeter, SourceChip, VerifiedBadge } from "@/components/masari/trust"
-import {
-  confidenceFromResponses,
-  courseNames,
-  demoCompatibility,
-  dimensionLabels,
-  instructors,
-  type StudentPrefs,
-  type TeachingProfile,
-} from "@/lib/demo-content"
+import { courseNames, dimensionLabels, type StudentPrefs, type TeachingProfile } from "@/lib/demo-content"
+import { basisText, useInstructorCourses, useInstructorRanking } from "@/lib/data/instructor-source"
 import { useStudentView } from "@/lib/student-context"
 import type { RecommendedCourse } from "@/lib/student-view"
 import { type RecTab, useDemoState } from "@/lib/demo-state"
@@ -229,16 +222,24 @@ const prefSliders: { key: keyof StudentPrefs; label: DictKey; low: DictKey; high
 ]
 
 function InstructorsTab() {
-  const { t, tr, num } = useI18n()
+  const { t, tr, num, lang } = useI18n()
+  const view = useStudentView()
   const { insCourse: course, setInsCourse: setCourse, prefs, setPrefs } = useDemoState()
-  const courseOptions = Array.from(new Set(instructors.map((i) => i.courseCode)))
+  // This term's proposed courses that have instructor data (else the first few courses that have any).
+  const withData = useInstructorCourses()
+  const proposed = view.proposedNow.filter((c) => withData.includes(c))
+  const courseOptions = proposed.length ? proposed : withData.slice(0, 6)
+  const firstOption = courseOptions[0]
+  React.useEffect(() => {
+    if (firstOption && !courseOptions.includes(course)) setCourse(firstOption)
+  }, [firstOption, course, setCourse]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const ranked = instructors
-    .filter((i) => i.courseCode === course)
-    .map((i) => ({ ...i, score: demoCompatibility(i.profile, prefs), conf: confidenceFromResponses(i.responses) }))
-    .sort((a, b) => b.score - a.score)
+  // Ranking from the AI service: by the surveys alone for a first-year student, with the student's own
+  // grades once they have them, and with the sliders once the student moves them.
+  const { items: ranked, basis, source, loading } = useInstructorRanking(view.student.id, course, prefs)
   // "Best match" goes to the top score among instructors with at least medium confidence.
   const bestId = ranked.find((i) => i.conf !== "low")?.id
+  const sep = lang === "ar" ? "، " : ", "
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
@@ -306,7 +307,13 @@ function InstructorsTab() {
         </Card>
       </div>
 
-      <ol className="space-y-3">
+      <div className="space-y-3">
+      <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground" aria-live="polite">
+        <span>{t("rankingBasis")}:</span>
+        <span className="rounded-full bg-secondary px-2 py-0.5 font-medium text-secondary-foreground">{tr(basisText[basis])}</span>
+        {source === "demo" && <span className="text-warning">{t("offlineRanking")}</span>}
+      </p>
+      <ol className={cn("space-y-3 transition-opacity", loading && "opacity-60")}>
         {ranked.map((ins) => (
           <li key={ins.id}>
             <Card className={cn(ins.id === bestId && "ring-primary/50")}>
@@ -338,7 +345,7 @@ function InstructorsTab() {
 
                 <ProfileBars profile={ins.profile} prefs={prefs} />
 
-                <AiExplanation>{tr(ins.aiSummary)}</AiExplanation>
+                {ins.reasons.length > 0 && <AiExplanation>{ins.reasons.map((r) => tr(r)).join(sep)}</AiExplanation>}
 
                 {ins.conf === "low" && (
                   <p className="flex items-center gap-1.5 rounded-lg bg-warning-soft px-3 py-2 text-xs font-medium text-warning">
@@ -351,6 +358,7 @@ function InstructorsTab() {
           </li>
         ))}
       </ol>
+      </div>
     </div>
   )
 }

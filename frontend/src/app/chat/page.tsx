@@ -8,7 +8,8 @@ import { AppIcon } from "@/components/masari/brand"
 import { CategoryTag, Code, SlotTag } from "@/components/masari/bits"
 import { AiExplanation, ConfidenceMeter, RagSourceChip, SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import { findCourse, termOf } from "@/lib/aie-program"
-import { chatSuggestions, confidenceFromResponses, courseNames, defaultPrefs, demoCompatibility, instructors, sources } from "@/lib/demo-content"
+import { chatSuggestions, courseNames, defaultPrefs, sources } from "@/lib/demo-content"
+import { useInstructorCourses, useInstructorRanking } from "@/lib/data/instructor-source"
 import { RETAKE_MAX_GRADE } from "@/lib/rules"
 import { lockedExample, useDemoState, type ChatMessage, type RagSource } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
@@ -250,15 +251,12 @@ function RecommendationReply() {
   // The planner's proposal for this term: already checked for prerequisites, credit thresholds and the load limit.
   const picks = recommendedCourses.filter((c) => proposedNow.includes(c.code))
   const credits = picks.reduce((s, c) => s + c.credits, 0)
-  // Instructor suggestion for the first proposed course that has (simulated) instructor data.
-  const course = picks.find((c) => instructors.some((i) => i.courseCode === c.code))?.code
-  const best = course
-    ? instructors
-        .filter((i) => i.courseCode === course)
-        .map((i) => ({ ...i, score: demoCompatibility(i.profile, defaultPrefs) }))
-        .filter((i) => confidenceFromResponses(i.responses) !== "low")
-        .sort((a, b) => b.score - a.score)[0]
-    : undefined
+  // Instructor suggestion for the first proposed course that has instructor data, ranked by the AI service
+  // for this student (the same ranking the recommendations page shows).
+  const withData = useInstructorCourses()
+  const course = picks.find((c) => withData.includes(c.code))?.code
+  const { items: ranking } = useInstructorRanking(student.id, course ?? "", defaultPrefs)
+  const best = course ? ranking.find((i) => i.conf !== "low") : undefined
   const top = picks[0]
   const locked = ineligibleCourses.find((c) => c.missing.length > 0)
 
@@ -335,7 +333,7 @@ function RecommendationReply() {
               <p className="text-xs text-muted-foreground">{t("compatibility")}</p>
             </div>
           </div>
-          <ConfidenceMeter level={confidenceFromResponses(best.responses)} responses={best.responses} />
+          <ConfidenceMeter level={best.conf} responses={best.responses} />
         </div>
       )}
 
