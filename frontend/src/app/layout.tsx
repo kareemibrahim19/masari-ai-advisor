@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next"
 import { JetBrains_Mono, Readex_Pro, Sora } from "next/font/google"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AppShell } from "@/components/masari/app-shell"
-import { DemoStateProvider } from "@/lib/demo-state"
 import { I18nProvider } from "@/lib/i18n"
+import { StudentProvider } from "@/lib/student-context"
 import "./globals.css"
 
 // Runs while the HTML is parsed, before the first paint, so the saved theme never flashes.
@@ -19,7 +19,7 @@ const mono = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], 
 
 export const metadata: Metadata = {
   title: "Masari · مساري",
-  description: "AI academic advisor for the AI Engineering program. UI prototype with a simulated student.",
+  description: "AI academic advisor for the AI Engineering program. UI prototype with simulated students.",
   openGraph: { images: ["/brand/masari-lockup-light.png"] },
 }
 
@@ -44,9 +44,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full">
         <I18nProvider>
           <TooltipProvider delay={300}>
-            <DemoStateProvider>
+            <StudentProvider>
               <AppShell>{children}</AppShell>
-            </DemoStateProvider>
+            </StudentProvider>
           </TooltipProvider>
         </I18nProvider>
       </body>

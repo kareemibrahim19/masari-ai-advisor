@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { categoryLabel, type Category } from "@/lib/mock-data"
+import { categoryLabels as categoryLabel, type Category } from "@/lib/aie-program"
 import { useI18n } from "@/lib/i18n"
 
 export function Bar({

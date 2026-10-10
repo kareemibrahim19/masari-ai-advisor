@@ -1,0 +1,105 @@
+/* Login page: design "Concept A · Quiet card" (design-concepts/login/concept-a.html).
+   Colours are the app tokens from globals.css, so light/dark themes follow the rest of the site. */
+
+.page { min-height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; }
+
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; max-width: 1280px; margin: 0 auto; padding: 14px 24px; }
+.tools { display: flex; align-items: center; gap: 2px; }
+.tool {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 40px; min-width: 40px; padding: 0 12px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--foreground); font-size: 14px; font-weight: 500; cursor: pointer;
+  transition: background-color 0.15s;
+}
+.tool:hover { background: var(--muted); }
+.toolIcon { padding: 0; }
+
+.stage { position: relative; display: grid; place-items: center; padding: 16px 16px 48px; overflow: hidden; isolation: isolate; }
+/* The logo's path, drawn very large and very quietly behind the card. */
+.watermark { position: fixed; z-index: -1; height: min(92dvh, 860px); width: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+:global([dir="rtl"]) .watermark { transform: translate(-50%, -50%) scaleX(-1); }
+.watermark path { stroke: var(--muted); }
+.watermark .node { fill: var(--background); stroke: var(--muted); }
+.watermark .dest { fill: var(--brand-accent); opacity: 0.16; }
+
+.card {
+  width: 100%; max-width: 440px; padding: 36px 32px 28px;
+  border: 1px solid var(--border); border-radius: 18px; background: var(--card);
+  box-shadow: 0 1px 2px rgb(20 22 31 / 0.04), 0 24px 48px -28px rgb(20 22 31 / 0.22);
+}
+:global(.dark) .card { box-shadow: none; }
+.head { text-align: center; }
+.appIcon { display: block; width: 52px; height: 52px; margin: 0 auto 18px; }
+.title { margin: 0; font-size: 26px; font-weight: 600; line-height: 1.3; letter-spacing: -0.02em; text-wrap: balance; }
+.sub { max-width: 34ch; margin: 8px auto 0; color: var(--muted-foreground); font-size: 15px; line-height: 1.6; text-wrap: pretty; }
+
+.form { margin-top: 28px; }
+.label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; color: var(--muted-foreground); }
+.input {
+  width: 100%; height: 58px; padding: 0 20px;
+  border: 1px solid var(--input); border-radius: 12px; background: var(--card); color: var(--foreground);
+  font-family: var(--font-jetbrains), ui-monospace, monospace; font-size: 22px; font-weight: 500;
+  letter-spacing: 0.2em; text-align: center; direction: ltr;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input::placeholder { color: color-mix(in srgb, var(--muted-foreground) 55%, transparent); letter-spacing: 0.2em; }
+.input:focus { outline: none; border-color: var(--brand-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-accent) 18%, transparent); }
+.input[aria-invalid="true"] { border-color: var(--destructive); }
+.input[aria-invalid="true"]:focus { box-shadow: 0 0 0 4px color-mix(in srgb, var(--destructive) 12%, transparent); }
+.shake { animation: shake 0.35s ease; }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+.msg { display: flex; align-items: flex-start; gap: 6px; margin: 10px 0 0; font-size: 13px; line-height: 1.5; color: var(--destructive); }
+.msgIcon { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; height: 50px; margin-top: 16px; padding: 0 20px; border: 0; border-radius: 10px;
+  background: var(--primary); color: var(--primary-foreground); font-size: 15px; font-weight: 600; white-space: nowrap; cursor: pointer;
+  transition: background-color 0.15s, transform 0.15s, opacity 0.15s;
+}
+.btn:hover:not(:disabled) { background: color-mix(in srgb, var(--primary) 88%, var(--background)); }
+.btn:active:not(:disabled) { transform: scale(0.98); }
+.btn[aria-busy="true"] { cursor: progress; opacity: 0.9; }
+.icon { width: 18px; height: 18px; flex-shrink: 0; }
+:global([dir="rtl"]) .flip { transform: scaleX(-1); }
+.spin { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.demoRow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; margin: 14px 0 0; font-size: 13px; color: var(--muted-foreground); }
+.demoCode {
+  display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border: 1px dashed var(--input); border-radius: 8px;
+  background: transparent; color: var(--foreground); font-family: var(--font-jetbrains), ui-monospace, monospace; font-size: 13px; font-weight: 500;
+  direction: ltr; unicode-bidi: isolate; cursor: pointer;
+}
+.demoCode:hover { border-color: var(--brand-accent); background: color-mix(in srgb, var(--brand-accent) 12%, transparent); }
+
+.divider { height: 1px; margin: 24px 0 18px; background: var(--border); }
+.notes { display: grid; gap: 10px; font-size: 13px; color: var(--muted-foreground); }
+.notes p { display: flex; gap: 8px; align-items: flex-start; margin: 0; line-height: 1.55; }
+.noteIcon { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+
+.success { text-align: center; animation: rise 0.35s ease both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+.okBadge { display: grid; place-items: center; width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 50%; background: var(--verified-soft); color: var(--verified); }
+.okIcon { width: 28px; height: 28px; }
+.okTitle { margin: 0; font-size: 22px; font-weight: 600; }
+.okSub { margin: 6px 0 0; color: var(--muted-foreground); }
+.okBar { height: 6px; margin: 20px auto 4px; max-width: 240px; overflow: hidden; border-radius: 999px; background: var(--muted); }
+.okBar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--verified); animation: fill 1.2s ease forwards; }
+@keyframes fill { to { width: 100%; } }
+
+.foot { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; padding: 16px; font-size: 12px; color: var(--muted-foreground); }
+.demoPill { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: var(--warning-soft); color: var(--warning); font-size: 12px; font-weight: 500; white-space: nowrap; }
+.pillIcon { width: 15px; height: 15px; }
+
+@media (max-width: 639px) {
+  .bar { padding: 10px 12px; }
+  .card { padding: 28px 20px 22px; border-radius: 16px; }
+  .title { font-size: 23px; }
+  .stage { align-items: start; padding-top: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shake, .spin, .success, .okBar i { animation-duration: 0.01ms; animation-iteration-count: 1; }
+}

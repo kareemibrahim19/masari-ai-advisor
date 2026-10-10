@@ -25,8 +25,8 @@ import {
   type PoolCourse,
 } from "@/lib/aie-program"
 import { assessment, gpaFormula, gradeScale, loadTable, ruleSections } from "@/lib/aie-regulations"
-import { record } from "@/lib/mock-data"
 import { statusOf, type Status } from "@/lib/rules"
+import { useStudentView } from "@/lib/student-context"
 import { type DictKey, useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
@@ -116,6 +116,7 @@ function TermBadge({ semester }: { semester: number }) {
 
 function CodeLinks({ codes, onPick }: { codes: string[]; onPick: (code: string) => void }) {
   const { t } = useI18n()
+  const { record } = useStudentView()
   if (!codes.length) return <span className="text-muted-foreground">{t("none")}</span>
   return (
     <span className="flex flex-wrap gap-1">
@@ -192,7 +193,8 @@ function CoursesCatalog() {
     setOpen(code)
   }
 
-  const statuses = React.useMemo(() => new Map(courses.map((c) => [c.code, statusOf(c.code, record)])), [])
+  const { record } = useStudentView()
+  const statuses = React.useMemo(() => new Map(courses.map((c) => [c.code, statusOf(c.code, record)])), [record])
   const q = f.q.trim().toLowerCase()
   const rows = courses.filter((c) => {
     if (q) {
@@ -331,6 +333,7 @@ function CourseRow({
   onPick: (code: string) => void
 }) {
   const { t, tr, num } = useI18n()
+  const { record } = useStudentView()
   const isSlot = c.type === "elective"
   const deps = dependentsOf(c.code)
   const chosen = isSlot ? record.electiveChoices[c.code] : undefined
@@ -436,6 +439,7 @@ function CourseRow({
 
 function ElectiveOptions({ group, chosen, onPick }: { group: "L300" | "L400"; chosen?: string; onPick: (code: string) => void }) {
   const { t, num } = useI18n()
+  const { record } = useStudentView()
   return (
     <div className="space-y-2">
       <p className="text-xs font-medium text-muted-foreground">
@@ -479,6 +483,7 @@ function ElectiveOptions({ group, chosen, onPick }: { group: "L300" | "L400"; ch
 
 function Regulations() {
   const { t, tr, num } = useI18n()
+  const { record } = useStudentView()
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
       <Card>
@@ -492,7 +497,7 @@ function Regulations() {
           <table className="w-full text-sm">
             <tbody className="divide-y">
               {loadTable.map((row) => {
-                const mine = record.gpa >= (row.min ?? -Infinity) && record.gpa < (row.maxGpa ?? Infinity)
+                const mine = record.gpa !== null && record.gpa >= (row.min ?? -Infinity) && record.gpa < (row.maxGpa ?? Infinity)
                 return (
                   <tr key={row.max} className={cn(mine && "bg-primary/8")}>
                     <td className="px-3 py-2.5">

@@ -1,14 +1,15 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import * as React from "react"
-import { CalendarRange, Languages, LayoutDashboard, Library, MessageSquareText, Moon, Sparkles, Sun } from "lucide-react"
+import { CalendarRange, Languages, LayoutDashboard, Library, LogOut, MessageSquareText, Moon, Sparkles, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Lockup } from "@/components/masari/brand"
 import { DemoBadge } from "@/components/masari/trust"
-import { student } from "@/lib/mock-data"
+import { DemoStateProvider } from "@/lib/demo-state"
 import { type DictKey, useI18n } from "@/lib/i18n"
+import { useStudent, useStudentView } from "@/lib/student-context"
 import { cn } from "@/lib/utils"
 import { createStoredValue } from "@/lib/use-stored"
 
@@ -25,7 +26,8 @@ const isActive = (href: string, pathname: string) => (href === "/" ? pathname ==
 type Theme = "system" | "light" | "dark"
 const useStoredTheme = createStoredValue<Theme>("masari.theme", "system", (v): v is Theme => ["system", "light", "dark"].includes(v))
 
-function useTheme() {
+/** Light/dark theme saved as masari.theme. Also used by the login page, which has no app shell. */
+export function useTheme() {
   const [theme, setTheme] = useStoredTheme()
   const systemDark = React.useSyncExternalStore(
     (cb) => {
@@ -114,24 +116,54 @@ function BottomNav() {
 
 function StudentChip() {
   const { tr, num, t, lang } = useI18n()
+  const { student } = useStudentView()
+  const full = tr(student.fullName)
+  // The header shows the first two names; the full name is in the tooltip and on the dashboard.
+  const short = full.split(/\s+/).slice(0, 2).join(" ")
   return (
-    <div className="flex shrink-0 items-center gap-2.5 ps-1 sm:ps-2" aria-label={t("studentProfile")}>
+    <div className="flex min-w-0 shrink-0 items-center gap-2.5 ps-1 sm:ps-2" aria-label={t("studentProfile")} title={full}>
       <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-primary text-sm font-semibold text-primary-foreground">
-        {tr(student.fullName).charAt(0)}
+        {full.charAt(0)}
       </span>
-      <span className="leading-tight whitespace-nowrap">
-        <span className="block text-sm font-medium">{tr(student.fullName)}</span>
+      <span className="hidden leading-tight whitespace-nowrap sm:block">
+        <span className="block text-sm font-medium">{short}</span>
         <span className="block text-xs text-muted-foreground tabular">
-          {tr(student.level)}{lang === "ar" ? "، " : ", "}GPA {num(student.gpa, { minimumFractionDigits: 1 })}
+          {tr(student.level)}{lang === "ar" ? "، " : ", "}GPA {student.gpa === null ? "—" : num(student.gpa, { minimumFractionDigits: 1 })}
         </span>
       </span>
     </div>
   )
 }
 
+/**
+ * Frame around every page, and the login gate: /login renders on its own; every other page needs a
+ * signed-in student and sends visitors without one to /login.
+ */
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const { ready, view } = useStudent()
+  const isLogin = pathname === "/login"
+
+  React.useEffect(() => {
+    if (ready && !view && !isLogin) router.replace("/login")
+  }, [ready, view, isLogin, router])
+
+  if (isLogin) return <>{children}</>
+  if (!ready || !view) return null
+  return (
+    // Keyed by student, so selections, chat and scenarios start fresh for each student who signs in.
+    <DemoStateProvider key={view.student.id}>
+      <Shell>{children}</Shell>
+    </DemoStateProvider>
+  )
+}
+
+function Shell({ children }: { children: React.ReactNode }) {
   const { t, lang, setLang } = useI18n()
   const { dark, toggle } = useTheme()
+  const { signOut } = useStudent()
+  const router = useRouter()
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -170,6 +202,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {dark ? <Sun className="size-[18px]" aria-hidden /> : <Moon className="size-[18px]" aria-hidden />}
             </Button>
             <StudentChip />
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              className="size-10"
+              onClick={() => {
+                signOut()
+                router.replace("/login")
+              }}
+              aria-label={t("signOut")}
+              title={t("signOut")}
+            >
+              <LogOut className="size-[18px] rtl:-scale-x-100" aria-hidden />
+            </Button>
           </div>
         </div>
       </header>

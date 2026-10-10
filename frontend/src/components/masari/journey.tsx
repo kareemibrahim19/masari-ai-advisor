@@ -13,9 +13,9 @@
  */
 import * as React from "react"
 import { MoveHorizontal } from "lucide-react"
-import { baselineGraduationIndex, baselinePlan, record, semesterNames } from "@/lib/mock-data"
 import { findCourse } from "@/lib/aie-program"
 import { useI18n } from "@/lib/i18n"
+import { useStudentView } from "@/lib/student-context"
 
 const STEP = 84 // px between nodes at 1:1
 const PAD = 48
@@ -64,16 +64,19 @@ function Rail() {
   const { t, tr, num, dir } = useI18n()
   const scroller = React.useRef<HTMLDivElement>(null)
   const here = React.useRef<SVGGElement>(null)
+  const { baselineGraduationIndex, baselinePlan, record, semesterNames, student } = useStudentView()
 
   const semOf = (code: string) => (findCourse(code) as { semester?: number })?.semester ?? 0
-  const completed = Math.max(...record.passed.map(semOf))
+  // Main (non-summer) semesters already finished, as recorded in the student file.
+  const completed = student.completedSemesters
   const nodes: Node[] = [
     ...Array.from({ length: completed }, (_, i) => ({
       kind: "done" as const,
       label: `${t("semShort")} ${num(i + 1)}`,
       failed: record.failed.some((f) => semOf(f) === i + 1),
     })),
-    ...baselinePlan.slice(0, baselineGraduationIndex + 1).map((term, i) => ({
+    // Planned terms up to graduation (all planned terms if graduation is beyond the planning horizon).
+    ...(baselineGraduationIndex >= 0 ? baselinePlan.slice(0, baselineGraduationIndex + 1) : baselinePlan).map((term, i) => ({
       kind: "term" as const,
       label: tr(semesterNames[i]),
       credits: term.reduce((s, c) => s + c.credits, 0),
@@ -93,8 +96,10 @@ function Rail() {
   const seg = (a: { x: number; y: number }, p: { x: number; y: number }) => `C${a.x} ${a.y - k} ${p.x} ${p.y + k} ${p.x} ${p.y}`
   const pathTo = (n: number) => pts.slice(0, n).map((p, i) => (i ? seg(pts[i - 1], p) : `M${p.x} ${p.y}`)).join(" ")
   const doneCount = completed
-  const a = pts[doneCount - 1]
-  const b = pts[doneCount]
+  // "You are here" sits between the last finished semester and the next term; a first-term student is before the first node.
+  const half = (dir === "rtl" ? -STEP : STEP) / 2
+  const a = pts[doneCount - 1] ?? { x: pts[doneCount].x - half, y: pts[doneCount].y }
+  const b = pts[doneCount] ?? { x: a.x + half * 2, y: a.y }
   const hx = (a.x + b.x) / 2
   const hy = (a.y + b.y) / 2
 

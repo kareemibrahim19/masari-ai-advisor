@@ -6,17 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Bar, CategoryTag, Code, PageHeader, SlotTag } from "@/components/masari/bits"
 import { AiExplanation, SourceChip, VerifiedBadge } from "@/components/masari/trust"
-import {
-  baselineGraduationIndex,
-  baselinePlan,
-  courseNames,
-  minLoad,
-  planAssumption,
-  scenarios,
-  semesterNames,
-  student,
-  type PlannedCourse,
-} from "@/lib/mock-data"
+import { courseNames, planAssumption } from "@/lib/demo-content"
+import { useStudentView } from "@/lib/student-context"
+import type { PlannedCourse } from "@/lib/student-view"
 import { useDemoState } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
@@ -32,6 +24,7 @@ const indexOf = (plan: PlannedCourse[][]) => new Map(plan.flatMap((t, i) => t.ma
 export default function PlanPage() {
   const { t, tr, num } = useI18n()
   const { scenarioId, setScenarioId } = useDemoState()
+  const { baselineGraduationIndex, baselinePlan, minLoad, scenarios, semesterNames, student } = useStudentView()
   const scenario = scenarios.find((s) => s.id === scenarioId) ?? null
 
   const plan = scenario?.plan ?? baselinePlan
@@ -209,6 +202,7 @@ export default function PlanPage() {
 
 function ScenarioResult({ scenarioId }: { scenarioId: string }) {
   const { t, tr, num } = useI18n()
+  const { scenarios } = useStudentView()
   const s = scenarios.find((x) => x.id === scenarioId)!
   const v = verdictStyle[s.verdict]
   const Icon = v.icon

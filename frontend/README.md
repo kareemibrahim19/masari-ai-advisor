@@ -4,17 +4,24 @@ Next.js 16 · Tailwind CSS v4 · shadcn/ui (Base UI) · Arabic RTL by default wi
 
 > **Program data is real, student data is simulated.** Courses, prerequisites, elective pools and regulations for the
 > Mansoura University AI Engineering program come from the [AIE Program Guide](https://aieprogramguide.vercel.app/)
-> (an unofficial summary of the bylaws, so verify against the official ones). The student, instructors and seats are demo data.
+> (an unofficial summary of the bylaws, so verify against the official ones). The six students, instructors and seats are demo data.
 > No university system is connected.
 
 ## Data & rules
 
 | File | What it holds |
 |---|---|
-| `src/lib/aie-program.ts` | The program: 60 plan entries (incl. 5 elective slots), the L300/L400 elective pools, categories, helpers (`dependentsOf`, `chainDepth`, …) |
+| `src/data/demo/students.json` | Copy of `ai/data/students.json`: the six fictional students (records, terms, grades) |
+| `src/lib/aie-program.ts` | The program: 60 plan entries (incl. 5 elective slots), the L300/L400 elective pools, categories, helpers (`dependentsOf`, `chainDepth`, …). Programming (2) is `CSE 311`, as in `ai/data/courses.json` and `students.json` |
 | `src/lib/aie-regulations.ts` | Regulations shown in the catalog: load table, grading, assessment, warning, graduation, training |
-| `src/lib/rules.ts` | **Deterministic rules engine**: `statusOf` (eligibility), `maxLoad`, `planGraduation` (semester planner) |
-| `src/lib/mock-data.ts` | The demo student's record + everything **computed** from it: recommendations, ineligible courses, plan, what-ifs |
+| `src/lib/rules.ts` | **Deterministic rules engine**: `statusOf` (eligibility), `maxLoad` (GPA band, 12 on academic warning, 18 in the first term), `planGraduation` (semester planner) |
+| `src/lib/data/student-source.ts` | **The only place student data is fetched**: `findStudentByAccessCode`, `getStudent`. Swap its bodies for API calls when the backend is ready |
+| `src/lib/data/student-adapter.ts` | Turns a `students.json` record into the rules engine's `StudentRecord` (published results only; the term in progress counts as neither passed nor failed) |
+| `src/lib/data/types.ts` | Types of both JSON files: also the contract the backend should return |
+| `src/lib/student-view.ts` | Everything **computed** for the signed-in student: progress, load limit, recommendations, ineligible courses, alerts, plan, what-ifs |
+| `src/lib/demo-content.ts` | Demo content that is not student data: regulation sources, simulated instructors and section seats, default preferences, chat suggestions |
+
+`src/data/demo/students.json` must match `ai/data/students.json`; when that file changes, copy it again.
 
 The planner assumes each course runs only in its plan term (odd = Fall, even = Spring) and that there's no summer term.
 The UI states this assumption.
@@ -26,7 +33,8 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000.
+Open http://localhost:3000. The site opens on `/login`: the access code is the student's ID from `students.json`
+(for example `883941655`). Signing out (the icon next to the student's name) returns to the login page.
 
 The chat needs the AI service running (see [`../ai/chatbot/README.md`](../ai/chatbot/README.md)). Its URL comes from
 `NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000`); if the service can't be reached, the chat shows an error message.
@@ -35,7 +43,8 @@ The chat needs the AI service running (see [`../ai/chatbot/README.md`](../ai/cha
 
 | Route | Screen |
 |---|---|
-| `/` | Student dashboard: GPA, graduation progress, alerts, next-semester proposal, electives |
+| `/login` | Sign in with an access code (the student ID). Every other page needs a signed-in student |
+| `/` | Student dashboard: GPA, graduation progress, alerts, this-semester proposal, electives |
 | `/chat` | Chat with Masari: answers come from the AI service (`ai/chatbot/`) with cited sources; text or voice input (recorded in the browser, transcribed by Whisper via `/api/transcribe`) |
 | `/recommendations` | Ranked courses with live credit-load validation; instructor compatibility with adjustable preferences |
 | `/plan` | Multi-semester plan with what-if scenarios (computed by the planner) |
@@ -81,7 +90,10 @@ src/
   components/masari/      app shell, trust badges, small UI bits
   components/ui/          shadcn/ui primitives
   lib/i18n.tsx            AR/EN dictionary, dir switching, number formatting
-  lib/mock-data.ts        demo data, also the draft frontend ↔ backend data contract
+  lib/student-view.ts     everything computed for the signed-in student
+  lib/data/               where student data comes from (source, adapter, types: the backend contract)
+  lib/demo-content.ts     simulated instructors, seats, sources, chat suggestions
+  data/demo/              copy of ai/data/students.json
   lib/demo-state.tsx      shared state + the call to the AI service (POST /api/chat)
   lib/use-voice-input.ts  microphone recording → POST /api/transcribe
 ```
@@ -99,6 +111,20 @@ src/
 - **Change colors**: edit the `:root` (light) and `.dark` (dark) blocks in `src/app/globals.css`. Start with
   `--brand-charcoal` and `--brand-accent`; keep new colors there instead of writing them in components.
 - **Change or add text**: edit `src/lib/i18n.tsx` (both `ar` and `en`), then use `t("key")` in a component.
-- **Change demo data**: the student record is `record` in `src/lib/mock-data.ts`; everything else is computed from it.
+- **Change demo data**: edit `ai/data/students.json`, then copy it to `src/data/demo/students.json`; everything shown is computed from it.
+
+## Connecting the backend later
+
+The frontend needs from the backend:
+
+1. **Login**: an endpoint that takes the access code and returns the student (or "invalid code"), plus how the session is kept (cookie or token).
+2. **Student record**: the full record in the shape of `students.json` (see `src/lib/data/types.ts`), or a note of any differences.
+3. **Courses and rules**: in the shape of `courses.json`.
+4. **Instructors, survey profiles and section seats** (now simulated in `src/lib/demo-content.ts`).
+5. **Student preferences** (read and save).
+6. **Chat**: the chat request should include the student's ID so answers are about that student.
+7. **The API address**, set in `NEXT_PUBLIC_MASARI_API_URL`.
+
+Then only `src/lib/data/student-source.ts` (and, for 3–5, `aie-program.ts` / `demo-content.ts`) needs to change.
 - **Add a page**: create `src/app/<name>/page.tsx`, then add it to the `nav` list in `src/components/masari/app-shell.tsx`
   and add its menu labels to the translations.

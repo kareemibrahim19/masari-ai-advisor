@@ -13,14 +13,12 @@ import {
   courseNames,
   demoCompatibility,
   dimensionLabels,
-  ineligibleCourses,
   instructors,
-  recommendedCourses,
-  student,
-  type RecommendedCourse,
   type StudentPrefs,
   type TeachingProfile,
-} from "@/lib/mock-data"
+} from "@/lib/demo-content"
+import { useStudentView } from "@/lib/student-context"
+import type { RecommendedCourse } from "@/lib/student-view"
 import { type RecTab, useDemoState } from "@/lib/demo-state"
 import { type DictKey, useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
@@ -56,6 +54,7 @@ export default function RecommendationsPage() {
 function CoursesTab() {
   const { t, tr, num } = useI18n()
   const { selected, toggleCourse: toggle } = useDemoState()
+  const { recommendedCourses, ineligibleCourses, student } = useStudentView()
   const load = recommendedCourses.filter((c) => selected.includes(c.code)).reduce((s, c) => s + c.credits, 0)
   const over = load > student.maxLoad
 
@@ -171,7 +170,7 @@ function CourseCard({ course: c, rank, added, onToggle }: { course: RecommendedC
                 ))}
               </ul>
             </div>
-            <AiExplanation>{tr(c.aiReason)}</AiExplanation>
+            {tr(c.aiReason) && <AiExplanation>{tr(c.aiReason)}</AiExplanation>}
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">

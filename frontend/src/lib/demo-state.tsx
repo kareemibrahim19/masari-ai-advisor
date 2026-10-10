@@ -6,8 +6,11 @@
  * Nothing is saved to a server; a full page refresh resets it. New chat questions go to the Masari AI service.
  */
 import * as React from "react"
-import { defaultPrefs, proposedNow, type StudentPrefs } from "@/lib/mock-data"
+import { courseNameL } from "@/lib/aie-program"
+import { defaultPrefs, instructors, type StudentPrefs } from "@/lib/demo-content"
 import type { L } from "@/lib/i18n"
+import { useStudentView } from "@/lib/student-context"
+import type { StudentView } from "@/lib/student-view"
 
 export type RecTab = "courses" | "instructors"
 
@@ -31,19 +34,37 @@ function toHistory(messages: ChatMessage[]) {
   })
 }
 
-const seedMessages: ChatMessage[] = [
-  {
-    id: "m1",
-    role: "user",
-    text: {
-      ar: "أسجل إيه الترم الجاي، ومين الدكاترة المناسبين ليا؟",
-      en: "What should I register for next semester, and which instructors suit me?",
+/** The course the seeded "why can't I register…?" exchange is about: the first one blocked by a missing prerequisite. */
+export const lockedExample = (view: StudentView) => view.ineligibleCourses.find((c) => c.missing.length > 0)
+
+/** Opening conversation, built from the signed-in student's own results (not written for one student). */
+function seedMessages(view: StudentView): ChatMessage[] {
+  if (!view.proposedNow.length) return []
+  const out: ChatMessage[] = [
+    {
+      id: "m1",
+      role: "user",
+      text: {
+        ar: "أسجل إيه الترم ده، ومين الدكاترة المناسبين ليا؟",
+        en: "What should I register for this term, and which instructors suit me?",
+      },
     },
-  },
-  { id: "m2", role: "assistant", kind: "recommendation" },
-  { id: "m3", role: "user", text: { ar: "طب ليه مش قادر أسجل Deep Learning؟", en: "And why can't I register for Deep Learning?" } },
-  { id: "m4", role: "assistant", kind: "prereq" },
-]
+    { id: "m2", role: "assistant", kind: "recommendation" },
+  ]
+  const locked = lockedExample(view)
+  if (locked) {
+    const name = courseNameL(locked.code).en
+    out.push(
+      { id: "m3", role: "user", text: { ar: `طب ليه مش قادر أسجل ${name}؟`, en: `And why can't I register for ${name}?` } },
+      { id: "m4", role: "assistant", kind: "prereq" }
+    )
+  }
+  return out
+}
+
+/** Instructor tab default: the first proposed course that has instructor data, else the first course with any. */
+const defaultInstructorCourse = (view: StudentView) =>
+  view.proposedNow.find((code) => instructors.some((i) => i.courseCode === code)) ?? instructors[0]?.courseCode ?? ""
 
 type DemoState = {
   selected: string[]
@@ -64,13 +85,15 @@ type DemoState = {
 
 const DemoStateContext = React.createContext<DemoState | null>(null)
 
+/** Mounted per signed-in student (keyed by student id in the app shell), so it starts fresh for each student. */
 export function DemoStateProvider({ children }: { children: React.ReactNode }) {
-  const [selected, setSelected] = React.useState<string[]>(proposedNow)
+  const view = useStudentView()
+  const [selected, setSelected] = React.useState<string[]>(view.proposedNow)
   const [recTab, setRecTab] = React.useState<RecTab>("courses")
-  const [insCourse, setInsCourse] = React.useState("ECE 321")
+  const [insCourse, setInsCourse] = React.useState(() => defaultInstructorCourse(view))
   const [prefs, setPrefs] = React.useState<StudentPrefs>(defaultPrefs)
   const [scenarioId, setScenarioId] = React.useState<string | null>(null)
-  const [messages, setMessages] = React.useState<ChatMessage[]>(seedMessages)
+  const [messages, setMessages] = React.useState<ChatMessage[]>(() => seedMessages(view))
   const [thinking, setThinking] = React.useState(false)
   const pending = React.useRef<AbortController>(undefined)
 
