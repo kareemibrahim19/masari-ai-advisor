@@ -132,10 +132,16 @@ export default function PlanPage() {
         title={t("planTitle")}
         subtitle={t("planSubtitle")}
         actions={
-          plan && (
-            <div className="flex items-center gap-3 rounded-xl border bg-card px-4 py-2.5">
-              <GraduationCap className="size-5 text-primary" aria-hidden />
-              <div>
+          plan &&
+          !(error && !inputRejected) && (
+            // While the new target / scenario is computing, the old date is dimmed instead of shown as current.
+            <div className="flex items-center gap-3 rounded-xl border bg-card px-4 py-2.5" aria-busy={loading}>
+              {loading ? (
+                <LoaderCircle className="size-5 animate-spin text-muted-foreground" aria-hidden />
+              ) : (
+                <GraduationCap className="size-5 text-primary" aria-hidden />
+              )}
+              <div className={cn("transition-opacity", loading && "opacity-50")}>
                 <p className="text-xs text-muted-foreground">{t("estGraduation")}</p>
                 <p className="text-sm font-semibold">{plan.graduation_term ? tr(plan.graduation_term) : "—"}</p>
               </div>

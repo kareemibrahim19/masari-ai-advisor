@@ -16,6 +16,9 @@ The solver keeps the plan as close to the regulation plan as it can and uses sum
 training and graduation requests only when the target needs them.
 """
 
+import threading
+from functools import lru_cache
+
 import numpy as np
 from scipy.optimize import Bounds, LinearConstraint, milp
 from scipy.sparse import coo_matrix
@@ -37,6 +40,9 @@ COST_TRAINING_IN_MAIN = 25
 COST_GRADUATION_REQUEST = 60
 COST_UNDER_MIN_HOUR = 2  # per hour a main term with courses falls below the 12-hour minimum
 MAX_GRADUATION_REQUESTS = 1
+
+# HiGHS can deadlock when several web requests solve at the same time, so solves run one at a time.
+_SOLVE_LOCK = threading.Lock()
 
 FLAG_AR = {
     "regular": "في ميعادها حسب اللائحة",
@@ -275,8 +281,9 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     A = coo_matrix((vals, (rows, cols)), shape=(len(lo), n)).tocsr()
     upper = np.ones(n)
     upper[n_s + 1::2] = min_load  # the shortfall variables count hours
-    res = milp(np.array(cost, dtype=float), integrality=np.ones(n), bounds=Bounds(0, upper),
-               constraints=LinearConstraint(A, lo, hi), options={"time_limit": 10})
+    with _SOLVE_LOCK:
+        res = milp(np.array(cost, dtype=float), integrality=np.ones(n), bounds=Bounds(0, upper),
+                   constraints=LinearConstraint(A, lo, hi), options={"time_limit": 10})
     if res.x is None or res.status not in (0, 1):
         return None
     return {code_of[ii]: (ti, flag) for k, (ii, ti, flag) in enumerate(var) if res.x[k] > 0.5}
@@ -293,8 +300,16 @@ def _term_label(t: dict) -> dict:
 
 
 def _plan_for(proj: dict, cap: int, current: dict, main_now: int, last_main: int, allow_summer: bool):
-    terms = _terms_after(current, main_now + 1, last_main)
-    placed = _solve(proj["passed"], proj["earned"], cap, terms, last_main, allow_summer)
+    return _plan_cached(frozenset(proj["passed"]), proj["earned"], cap, current["term"], current["academic_year"],
+                        main_now, last_main, allow_summer)
+
+
+@lru_cache(maxsize=512)
+def _plan_cached(passed: frozenset, earned: int, cap: int, term: str, year: str, main_now: int, last_main: int,
+                 allow_summer: bool):
+    """Same inputs, same plan: switching targets back and forth on the page reuses earlier solves."""
+    terms = _terms_after({"term": term, "academic_year": year}, main_now + 1, last_main)
+    placed = _solve(set(passed), earned, cap, terms, last_main, allow_summer)
     return terms, placed
 
 
