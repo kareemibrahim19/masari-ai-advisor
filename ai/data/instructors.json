@@ -1,0 +1,2635 @@
+{
+ "_note": "بيانات وهمية للدكاترة واستبيانات التقييم، بنفس الشكل اللي هتيجي بيه الداتا الحقيقية.",
+ "dimensions": [
+  "clarity",
+  "pace",
+  "workload",
+  "practical",
+  "difficulty",
+  "satisfaction"
+ ],
+ "instructors": [
+  {
+   "id": "i1",
+   "name_ar": "د. سارة محمود",
+   "name_en": "Dr. Sara Mahmoud",
+   "department": "ECE",
+   "style": "frontend_demo",
+   "profile": {
+    "clarity": 88,
+    "pace": 45,
+    "workload": 50,
+    "practical": 70,
+    "difficulty": 55,
+    "satisfaction": 84
+   },
+   "responses": 142
+  },
+  {
+   "id": "i2",
+   "name_ar": "د. عمرو خليل",
+   "name_en": "Dr. Amr Khalil",
+   "department": "ECE",
+   "style": "frontend_demo",
+   "profile": {
+    "clarity": 70,
+    "pace": 82,
+    "workload": 85,
+    "practical": 80,
+    "difficulty": 82,
+    "satisfaction": 72
+   },
+   "responses": 97
+  },
+  {
+   "id": "i3",
+   "name_ar": "د. ليلى حسن",
+   "name_en": "Dr. Laila Hassan",
+   "department": "ECE",
+   "style": "frontend_demo",
+   "profile": {
+    "clarity": 80,
+    "pace": 50,
+    "workload": 40,
+    "practical": 55,
+    "difficulty": 45,
+    "satisfaction": 79
+   },
+   "responses": 9
+  },
+  {
+   "id": "i4",
+   "name_ar": "د. هاني فاروق",
+   "name_en": "Dr. Hany Farouk",
+   "department": "CSE",
+   "style": "frontend_demo",
+   "profile": {
+    "clarity": 76,
+    "pace": 60,
+    "workload": 65,
+    "practical": 85,
+    "difficulty": 60,
+    "satisfaction": 77
+   },
+   "responses": 64
+  },
+  {
+   "id": "i5",
+   "name_ar": "د. منى عادل",
+   "name_en": "Dr. Mona Adel",
+   "department": "CSE",
+   "style": "frontend_demo",
+   "profile": {
+    "clarity": 85,
+    "pace": 40,
+    "workload": 45,
+    "practical": 50,
+    "difficulty": 50,
+    "satisfaction": 82
+   },
+   "responses": 120
+  },
+  {
+   "id": "i6",
+   "name_ar": "د. طارق منصور",
+   "name_en": "Dr. Tarek Mansour",
+   "department": "CSE",
+   "style": "calm_clear",
+   "profile": {
+    "clarity": 82,
+    "pace": 51,
+    "workload": 39,
+    "practical": 47,
+    "difficulty": 54,
+    "satisfaction": 76
+   },
+   "responses": 110
+  },
+  {
+   "id": "i7",
+   "name_ar": "د. رانيا السيد",
+   "name_en": "Dr. Rania Elsayed",
+   "department": "CSE",
+   "style": "balanced",
+   "profile": {
+    "clarity": 74,
+    "pace": 50,
+    "workload": 53,
+    "practical": 51,
+    "difficulty": 51,
+    "satisfaction": 74
+   },
+   "responses": 14
+  },
+  {
+   "id": "i8",
+   "name_ar": "د. أحمد شاهين",
+   "name_en": "Dr. Ahmed Shaheen",
+   "department": "CSE",
+   "style": "calm_clear",
+   "profile": {
+    "clarity": 86,
+    "pace": 44,
+    "workload": 53,
+    "practical": 56,
+    "difficulty": 45,
+    "satisfaction": 82
+   },
+   "responses": 110
+  },
+  {
+   "id": "i9",
+   "name_ar": "د. نهى عبد الله",
+   "name_en": "Dr. Noha Abdallah",
+   "department": "CSE",
+   "style": "hands_on",
+   "profile": {
+    "clarity": 67,
+    "pace": 72,
+    "workload": 63,
+    "practical": 89,
+    "difficulty": 60,
+    "satisfaction": 71
+   },
+   "responses": 85
+  },
+  {
+   "id": "i10",
+   "name_ar": "د. وليد صبري",
+   "name_en": "Dr. Walid Sabry",
+   "department": "CSE",
+   "style": "calm_clear",
+   "profile": {
+    "clarity": 83,
+    "pace": 41,
+    "workload": 37,
+    "practical": 57,
+    "difficulty": 47,
+    "satisfaction": 77
+   },
+   "responses": 8
+  },
+  {
+   "id": "i11",
+   "name_ar": "د. دعاء إبراهيم",
+   "name_en": "Dr. Doaa Ibrahim",
+   "department": "CSE",
+   "style": "hands_on",
+   "profile": {
+    "clarity": 73,
+    "pace": 63,
+    "workload": 61,
+    "practical": 89,
+    "difficulty": 58,
+    "satisfaction": 77
+   },
+   "responses": 150
+  },
+  {
+   "id": "i12",
+   "name_ar": "د. كريم نجيب",
+   "name_en": "Dr. Karim Naguib",
+   "department": "CSE",
+   "style": "theoretical",
+   "profile": {
+    "clarity": 81,
+    "pace": 53,
+    "workload": 50,
+    "practical": 34,
+    "difficulty": 60,
+    "satisfaction": 69
+   },
+   "responses": 8
+  },
+  {
+   "id": "i13",
+   "name_ar": "د. هبة الجمال",
+   "name_en": "Dr. Heba Elgamal",
+   "department": "CSE",
+   "style": "balanced",
+   "profile": {
+    "clarity": 80,
+    "pace": 54,
+    "workload": 58,
+    "practical": 60,
+    "difficulty": 55,
+    "satisfaction": 75
+   },
+   "responses": 110
+  },
+  {
+   "id": "i14",
+   "name_ar": "د. محمد رأفت",
+   "name_en": "Dr. Mohamed Raafat",
+   "department": "ECE",
+   "style": "theoretical",
+   "profile": {
+    "clarity": 83,
+    "pace": 61,
+    "workload": 59,
+    "practical": 28,
+    "difficulty": 63,
+    "satisfaction": 62
+   },
+   "responses": 60
+  },
+  {
+   "id": "i15",
+   "name_ar": "د. ياسمين فوزي",
+   "name_en": "Dr. Yasmin Fawzy",
+   "department": "ECE",
+   "style": "balanced",
+   "profile": {
+    "clarity": 68,
+    "pace": 60,
+    "workload": 46,
+    "practical": 56,
+    "difficulty": 52,
+    "satisfaction": 69
+   },
+   "responses": 110
+  },
+  {
+   "id": "i16",
+   "name_ar": "د. شريف عزت",
+   "name_en": "Dr. Sherif Ezzat",
+   "department": "ECE",
+   "style": "theoretical",
+   "profile": {
+    "clarity": 80,
+    "pace": 62,
+    "workload": 60,
+    "practical": 30,
+    "difficulty": 73,
+    "satisfaction": 61
+   },
+   "responses": 150
+  },
+  {
+   "id": "i17",
+   "name_ar": "د. إيمان زكي",
+   "name_en": "Dr. Eman Zaki",
+   "department": "BAS",
+   "style": "hands_on",
+   "profile": {
+    "clarity": 79,
+    "pace": 59,
+    "workload": 60,
+    "practical": 86,
+    "difficulty": 63,
+    "satisfaction": 71
+   },
+   "responses": 8
+  },
+  {
+   "id": "i18",
+   "name_ar": "د. خالد عامر",
+   "name_en": "Dr. Khaled Amer",
+   "department": "BAS",
+   "style": "hands_on",
+   "profile": {
+    "clarity": 72,
+    "pace": 68,
+    "workload": 70,
+    "practical": 90,
+    "difficulty": 61,
+    "satisfaction": 72
+   },
+   "responses": 150
+  },
+  {
+   "id": "i19",
+   "name_ar": "د. مروة حلمي",
+   "name_en": "Dr. Marwa Helmy",
+   "department": "BAS",
+   "style": "fast_demanding",
+   "profile": {
+    "clarity": 78,
+    "pace": 80,
+    "workload": 83,
+    "practical": 78,
+    "difficulty": 82,
+    "satisfaction": 75
+   },
+   "responses": 14
+  },
+  {
+   "id": "i20",
+   "name_ar": "د. أسامة غنيم",
+   "name_en": "Dr. Osama Ghoneim",
+   "department": "BAS",
+   "style": "fast_demanding",
+   "profile": {
+    "clarity": 70,
+    "pace": 78,
+    "workload": 83,
+    "practical": 78,
+    "difficulty": 87,
+    "satisfaction": 70
+   },
+   "responses": 14
+  },
+  {
+   "id": "i21",
+   "name_ar": "د. سمر لطفي",
+   "name_en": "Dr. Samar Lotfy",
+   "department": "BAS",
+   "style": "balanced",
+   "profile": {
+    "clarity": 81,
+    "pace": 49,
+    "workload": 47,
+    "practical": 53,
+    "difficulty": 60,
+    "satisfaction": 74
+   },
+   "responses": 85
+  },
+  {
+   "id": "i22",
+   "name_ar": "د. بسمة وهبة",
+   "name_en": "Dr. Basma Wahba",
+   "department": "UNR",
+   "style": "fast_demanding",
+   "profile": {
+    "clarity": 76,
+    "pace": 82,
+    "workload": 76,
+    "practical": 74,
+    "difficulty": 86,
+    "satisfaction": 65
+   },
+   "responses": 25
+  },
+  {
+   "id": "i23",
+   "name_ar": "د. إسلام جاد",
+   "name_en": "Dr. Islam Gad",
+   "department": "UNR",
+   "style": "balanced",
+   "profile": {
+    "clarity": 81,
+    "pace": 57,
+    "workload": 60,
+    "practical": 56,
+    "difficulty": 52,
+    "satisfaction": 76
+   },
+   "responses": 25
+  },
+  {
+   "id": "i24",
+   "name_ar": "د. عبير سالم",
+   "name_en": "Dr. Abeer Salem",
+   "department": "ENG",
+   "style": "fast_demanding",
+   "profile": {
+    "clarity": 72,
+    "pace": 73,
+    "workload": 83,
+    "practical": 82,
+    "difficulty": 84,
+    "satisfaction": 65
+   },
+   "responses": 40
+  },
+  {
+   "id": "i25",
+   "name_ar": "د. مصطفى رشدي",
+   "name_en": "Dr. Mostafa Roushdy",
+   "department": "ENG",
+   "style": "theoretical",
+   "profile": {
+    "clarity": 80,
+    "pace": 55,
+    "workload": 59,
+    "practical": 29,
+    "difficulty": 63,
+    "satisfaction": 71
+   },
+   "responses": 8
+  }
+ ],
+ "offerings": [
+  {
+   "course_code": "UNR 061",
+   "section": "1",
+   "instructor_id": "i22",
+   "offered_term": "fall",
+   "responses": 10,
+   "profile": {
+    "clarity": 70,
+    "pace": 80,
+    "workload": 79,
+    "practical": 73,
+    "difficulty": 84,
+    "satisfaction": 63
+   }
+  },
+  {
+   "course_code": "UNR 021",
+   "section": "1",
+   "instructor_id": "i23",
+   "offered_term": "spring",
+   "responses": 18,
+   "profile": {
+    "clarity": 93,
+    "pace": 60,
+    "workload": 65,
+    "practical": 46,
+    "difficulty": 48,
+    "satisfaction": 82
+   }
+  },
+  {
+   "course_code": "UNR 181",
+   "section": "1",
+   "instructor_id": "i23",
+   "offered_term": "fall",
+   "responses": 15,
+   "profile": {
+    "clarity": 92,
+    "pace": 61,
+    "workload": 57,
+    "practical": 53,
+    "difficulty": 56,
+    "satisfaction": 78
+   }
+  },
+  {
+   "course_code": "UNR 241",
+   "section": "1",
+   "instructor_id": "i23",
+   "offered_term": "fall",
+   "responses": 15,
+   "profile": {
+    "clarity": 87,
+    "pace": 65,
+    "workload": 67,
+    "practical": 49,
+    "difficulty": 45,
+    "satisfaction": 84
+   }
+  },
+  {
+   "course_code": "UNR 121",
+   "section": "1",
+   "instructor_id": "i23",
+   "offered_term": "spring",
+   "responses": 20,
+   "profile": {
+    "clarity": 79,
+    "pace": 69,
+    "workload": 55,
+    "practical": 61,
+    "difficulty": 41,
+    "satisfaction": 79
+   }
+  },
+  {
+   "course_code": "UNR 261",
+   "section": "1",
+   "instructor_id": "i23",
+   "offered_term": "spring",
+   "responses": 12,
+   "profile": {
+    "clarity": 79,
+    "pace": 52,
+    "workload": 63,
+    "practical": 61,
+    "difficulty": 51,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "UNR 471",
+   "section": "1",
+   "instructor_id": "i22",
+   "offered_term": "fall",
+   "responses": 15,
+   "profile": {
+    "clarity": 83,
+    "pace": 80,
+    "workload": 75,
+    "practical": 75,
+    "difficulty": 88,
+    "satisfaction": 69
+   }
+  },
+  {
+   "course_code": "BAS 011",
+   "section": "1",
+   "instructor_id": "i20",
+   "offered_term": "fall",
+   "responses": 10,
+   "profile": {
+    "clarity": 69,
+    "pace": 87,
+    "workload": 93,
+    "practical": 86,
+    "difficulty": 76,
+    "satisfaction": 68
+   }
+  },
+  {
+   "course_code": "BAS 011",
+   "section": "2",
+   "instructor_id": "i18",
+   "offered_term": "fall",
+   "responses": 104,
+   "profile": {
+    "clarity": 71,
+    "pace": 70,
+    "workload": 64,
+    "practical": 95,
+    "difficulty": 72,
+    "satisfaction": 70
+   }
+  },
+  {
+   "course_code": "BAS 021",
+   "section": "1",
+   "instructor_id": "i21",
+   "offered_term": "fall",
+   "responses": 63,
+   "profile": {
+    "clarity": 84,
+    "pace": 48,
+    "workload": 51,
+    "practical": 58,
+    "difficulty": 55,
+    "satisfaction": 72
+   }
+  },
+  {
+   "course_code": "BAS 021",
+   "section": "2",
+   "instructor_id": "i18",
+   "offered_term": "fall",
+   "responses": 79,
+   "profile": {
+    "clarity": 70,
+    "pace": 65,
+    "workload": 74,
+    "practical": 87,
+    "difficulty": 60,
+    "satisfaction": 75
+   }
+  },
+  {
+   "course_code": "BAS 012",
+   "section": "1",
+   "instructor_id": "i21",
+   "offered_term": "spring",
+   "responses": 64,
+   "profile": {
+    "clarity": 89,
+    "pace": 48,
+    "workload": 52,
+    "practical": 46,
+    "difficulty": 65,
+    "satisfaction": 72
+   }
+  },
+  {
+   "course_code": "BAS 012",
+   "section": "2",
+   "instructor_id": "i19",
+   "offered_term": "spring",
+   "responses": 5,
+   "profile": {
+    "clarity": 80,
+    "pace": 68,
+    "workload": 74,
+    "practical": 76,
+    "difficulty": 87,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "BAS 022",
+   "section": "1",
+   "instructor_id": "i21",
+   "offered_term": "spring",
+   "responses": 28,
+   "profile": {
+    "clarity": 84,
+    "pace": 50,
+    "workload": 42,
+    "practical": 45,
+    "difficulty": 61,
+    "satisfaction": 63
+   }
+  },
+  {
+   "course_code": "BAS 022",
+   "section": "2",
+   "instructor_id": "i18",
+   "offered_term": "spring",
+   "responses": 54,
+   "profile": {
+    "clarity": 70,
+    "pace": 75,
+    "workload": 66,
+    "practical": 87,
+    "difficulty": 65,
+    "satisfaction": 75
+   }
+  },
+  {
+   "course_code": "BAS 031",
+   "section": "1",
+   "instructor_id": "i17",
+   "offered_term": "fall",
+   "responses": 4,
+   "profile": {
+    "clarity": 80,
+    "pace": 57,
+    "workload": 60,
+    "practical": 91,
+    "difficulty": 68,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "BAS 031",
+   "section": "2",
+   "instructor_id": "i20",
+   "offered_term": "fall",
+   "responses": 4,
+   "profile": {
+    "clarity": 66,
+    "pace": 76,
+    "workload": 76,
+    "practical": 87,
+    "difficulty": 92,
+    "satisfaction": 67
+   }
+  },
+  {
+   "course_code": "BAS 031",
+   "section": "3",
+   "instructor_id": "i21",
+   "offered_term": "fall",
+   "responses": 47,
+   "profile": {
+    "clarity": 92,
+    "pace": 47,
+    "workload": 48,
+    "practical": 48,
+    "difficulty": 58,
+    "satisfaction": 71
+   }
+  },
+  {
+   "course_code": "BAS 032",
+   "section": "1",
+   "instructor_id": "i18",
+   "offered_term": "spring",
+   "responses": 62,
+   "profile": {
+    "clarity": 67,
+    "pace": 66,
+    "workload": 77,
+    "practical": 85,
+    "difficulty": 56,
+    "satisfaction": 72
+   }
+  },
+  {
+   "course_code": "BAS 032",
+   "section": "2",
+   "instructor_id": "i17",
+   "offered_term": "spring",
+   "responses": 5,
+   "profile": {
+    "clarity": 67,
+    "pace": 62,
+    "workload": 69,
+    "practical": 81,
+    "difficulty": 56,
+    "satisfaction": 80
+   }
+  },
+  {
+   "course_code": "BAS 041",
+   "section": "1",
+   "instructor_id": "i21",
+   "offered_term": "fall",
+   "responses": 31,
+   "profile": {
+    "clarity": 82,
+    "pace": 55,
+    "workload": 38,
+    "practical": 49,
+    "difficulty": 55,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "BAS 041",
+   "section": "2",
+   "instructor_id": "i17",
+   "offered_term": "fall",
+   "responses": 3,
+   "profile": {
+    "clarity": 78,
+    "pace": 71,
+    "workload": 59,
+    "practical": 94,
+    "difficulty": 62,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "BAS 041",
+   "section": "3",
+   "instructor_id": "i18",
+   "offered_term": "fall",
+   "responses": 74,
+   "profile": {
+    "clarity": 73,
+    "pace": 63,
+    "workload": 62,
+    "practical": 86,
+    "difficulty": 55,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "PDE 051",
+   "section": "1",
+   "instructor_id": "i24",
+   "offered_term": "spring",
+   "responses": 32,
+   "profile": {
+    "clarity": 70,
+    "pace": 74,
+    "workload": 84,
+    "practical": 75,
+    "difficulty": 80,
+    "satisfaction": 57
+   }
+  },
+  {
+   "course_code": "PDE 051",
+   "section": "2",
+   "instructor_id": "i25",
+   "offered_term": "spring",
+   "responses": 3,
+   "profile": {
+    "clarity": 81,
+    "pace": 48,
+    "workload": 51,
+    "practical": 33,
+    "difficulty": 69,
+    "satisfaction": 73
+   }
+  },
+  {
+   "course_code": "PDE 052",
+   "section": "1",
+   "instructor_id": "i24",
+   "offered_term": "fall",
+   "responses": 31,
+   "profile": {
+    "clarity": 71,
+    "pace": 82,
+    "workload": 88,
+    "practical": 88,
+    "difficulty": 75,
+    "satisfaction": 58
+   }
+  },
+  {
+   "course_code": "PDE 052",
+   "section": "2",
+   "instructor_id": "i25",
+   "offered_term": "fall",
+   "responses": 6,
+   "profile": {
+    "clarity": 84,
+    "pace": 49,
+    "workload": 69,
+    "practical": 30,
+    "difficulty": 57,
+    "satisfaction": 64
+   }
+  },
+  {
+   "course_code": "ENG 111",
+   "section": "1",
+   "instructor_id": "i24",
+   "offered_term": "fall",
+   "responses": 25,
+   "profile": {
+    "clarity": 67,
+    "pace": 82,
+    "workload": 85,
+    "practical": 75,
+    "difficulty": 80,
+    "satisfaction": 61
+   }
+  },
+  {
+   "course_code": "ENG 111",
+   "section": "2",
+   "instructor_id": "i25",
+   "offered_term": "fall",
+   "responses": 3,
+   "profile": {
+    "clarity": 84,
+    "pace": 64,
+    "workload": 62,
+    "practical": 29,
+    "difficulty": 77,
+    "satisfaction": 69
+   }
+  },
+  {
+   "course_code": "BAS 115",
+   "section": "1",
+   "instructor_id": "i18",
+   "offered_term": "fall",
+   "responses": 56,
+   "profile": {
+    "clarity": 68,
+    "pace": 60,
+    "workload": 75,
+    "practical": 93,
+    "difficulty": 53,
+    "satisfaction": 71
+   }
+  },
+  {
+   "course_code": "BAS 115",
+   "section": "2",
+   "instructor_id": "i20",
+   "offered_term": "fall",
+   "responses": 12,
+   "profile": {
+    "clarity": 84,
+    "pace": 81,
+    "workload": 90,
+    "practical": 80,
+    "difficulty": 83,
+    "satisfaction": 70
+   }
+  },
+  {
+   "course_code": "BAS 116",
+   "section": "1",
+   "instructor_id": "i20",
+   "offered_term": "spring",
+   "responses": 6,
+   "profile": {
+    "clarity": 61,
+    "pace": 80,
+    "workload": 80,
+    "practical": 82,
+    "difficulty": 80,
+    "satisfaction": 71
+   }
+  },
+  {
+   "course_code": "BAS 116",
+   "section": "2",
+   "instructor_id": "i21",
+   "offered_term": "spring",
+   "responses": 49,
+   "profile": {
+    "clarity": 81,
+    "pace": 58,
+    "workload": 52,
+    "practical": 58,
+    "difficulty": 52,
+    "satisfaction": 83
+   }
+  },
+  {
+   "course_code": "BAS 216",
+   "section": "1",
+   "instructor_id": "i20",
+   "offered_term": "fall",
+   "responses": 11,
+   "profile": {
+    "clarity": 65,
+    "pace": 83,
+    "workload": 82,
+    "practical": 73,
+    "difficulty": 77,
+    "satisfaction": 65
+   }
+  },
+  {
+   "course_code": "BAS 216",
+   "section": "2",
+   "instructor_id": "i19",
+   "offered_term": "fall",
+   "responses": 9,
+   "profile": {
+    "clarity": 77,
+    "pace": 71,
+    "workload": 76,
+    "practical": 78,
+    "difficulty": 93,
+    "satisfaction": 62
+   }
+  },
+  {
+   "course_code": "ELE 151",
+   "section": "1",
+   "instructor_id": "i3",
+   "offered_term": "spring",
+   "responses": 3,
+   "profile": {
+    "clarity": 90,
+    "pace": 37,
+    "workload": 34,
+    "practical": 51,
+    "difficulty": 42,
+    "satisfaction": 74
+   }
+  },
+  {
+   "course_code": "ELE 151",
+   "section": "2",
+   "instructor_id": "i2",
+   "offered_term": "spring",
+   "responses": 79,
+   "profile": {
+    "clarity": 60,
+    "pace": 78,
+    "workload": 86,
+    "practical": 65,
+    "difficulty": 89,
+    "satisfaction": 70
+   }
+  },
+  {
+   "course_code": "BAS 217",
+   "section": "1",
+   "instructor_id": "i20",
+   "offered_term": "spring",
+   "responses": 11,
+   "profile": {
+    "clarity": 61,
+    "pace": 68,
+    "workload": 84,
+    "practical": 78,
+    "difficulty": 87,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "BAS 217",
+   "section": "2",
+   "instructor_id": "i21",
+   "offered_term": "spring",
+   "responses": 60,
+   "profile": {
+    "clarity": 84,
+    "pace": 52,
+    "workload": 54,
+    "practical": 45,
+    "difficulty": 59,
+    "satisfaction": 71
+   }
+  },
+  {
+   "course_code": "ENG 312",
+   "section": "1",
+   "instructor_id": "i25",
+   "offered_term": "spring",
+   "responses": 5,
+   "profile": {
+    "clarity": 84,
+    "pace": 51,
+    "workload": 55,
+    "practical": 23,
+    "difficulty": 62,
+    "satisfaction": 67
+   }
+  },
+  {
+   "course_code": "ENG 312",
+   "section": "2",
+   "instructor_id": "i24",
+   "offered_term": "spring",
+   "responses": 31,
+   "profile": {
+    "clarity": 71,
+    "pace": 70,
+    "workload": 90,
+    "practical": 90,
+    "difficulty": 86,
+    "satisfaction": 58
+   }
+  },
+  {
+   "course_code": "CSE 151",
+   "section": "1",
+   "instructor_id": "i9",
+   "offered_term": "fall",
+   "responses": 60,
+   "profile": {
+    "clarity": 70,
+    "pace": 68,
+    "workload": 60,
+    "practical": 100,
+    "difficulty": 70,
+    "satisfaction": 83
+   }
+  },
+  {
+   "course_code": "CSE 151",
+   "section": "2",
+   "instructor_id": "i12",
+   "offered_term": "fall",
+   "responses": 5,
+   "profile": {
+    "clarity": 84,
+    "pace": 56,
+    "workload": 46,
+    "practical": 25,
+    "difficulty": 57,
+    "satisfaction": 63
+   }
+  },
+  {
+   "course_code": "ECE 121",
+   "section": "1",
+   "instructor_id": "i14",
+   "offered_term": "fall",
+   "responses": 42,
+   "profile": {
+    "clarity": 96,
+    "pace": 53,
+    "workload": 57,
+    "practical": 35,
+    "difficulty": 65,
+    "satisfaction": 60
+   }
+  },
+  {
+   "course_code": "ECE 121",
+   "section": "2",
+   "instructor_id": "i1",
+   "offered_term": "fall",
+   "responses": 72,
+   "profile": {
+    "clarity": 77,
+    "pace": 52,
+    "workload": 54,
+    "practical": 76,
+    "difficulty": 53,
+    "satisfaction": 84
+   }
+  },
+  {
+   "course_code": "ECE 122",
+   "section": "1",
+   "instructor_id": "i15",
+   "offered_term": "spring",
+   "responses": 90,
+   "profile": {
+    "clarity": 73,
+    "pace": 52,
+    "workload": 48,
+    "practical": 51,
+    "difficulty": 59,
+    "satisfaction": 70
+   }
+  },
+  {
+   "course_code": "ECE 122",
+   "section": "2",
+   "instructor_id": "i3",
+   "offered_term": "spring",
+   "responses": 5,
+   "profile": {
+    "clarity": 87,
+    "pace": 55,
+    "workload": 44,
+    "practical": 66,
+    "difficulty": 45,
+    "satisfaction": 88
+   }
+  },
+  {
+   "course_code": "ECE 122",
+   "section": "3",
+   "instructor_id": "i1",
+   "offered_term": "spring",
+   "responses": 60,
+   "profile": {
+    "clarity": 83,
+    "pace": 50,
+    "workload": 57,
+    "practical": 63,
+    "difficulty": 49,
+    "satisfaction": 85
+   }
+  },
+  {
+   "course_code": "CSE 141",
+   "section": "1",
+   "instructor_id": "i7",
+   "offered_term": "fall",
+   "responses": 5,
+   "profile": {
+    "clarity": 70,
+    "pace": 59,
+    "workload": 60,
+    "practical": 48,
+    "difficulty": 39,
+    "satisfaction": 75
+   }
+  },
+  {
+   "course_code": "CSE 141",
+   "section": "2",
+   "instructor_id": "i4",
+   "offered_term": "fall",
+   "responses": 27,
+   "profile": {
+    "clarity": 79,
+    "pace": 69,
+    "workload": 60,
+    "practical": 92,
+    "difficulty": 59,
+    "satisfaction": 74
+   }
+  },
+  {
+   "course_code": "BAS 218",
+   "section": "1",
+   "instructor_id": "i20",
+   "offered_term": "spring",
+   "responses": 11,
+   "profile": {
+    "clarity": 58,
+    "pace": 83,
+    "workload": 89,
+    "practical": 77,
+    "difficulty": 84,
+    "satisfaction": 69
+   }
+  },
+  {
+   "course_code": "BAS 218",
+   "section": "2",
+   "instructor_id": "i19",
+   "offered_term": "spring",
+   "responses": 6,
+   "profile": {
+    "clarity": 75,
+    "pace": 76,
+    "workload": 83,
+    "practical": 72,
+    "difficulty": 75,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "CSE 221",
+   "section": "1",
+   "instructor_id": "i12",
+   "offered_term": "fall",
+   "responses": 4,
+   "profile": {
+    "clarity": 70,
+    "pace": 67,
+    "workload": 53,
+    "practical": 36,
+    "difficulty": 61,
+    "satisfaction": 75
+   }
+  },
+  {
+   "course_code": "CSE 221",
+   "section": "2",
+   "instructor_id": "i6",
+   "offered_term": "fall",
+   "responses": 38,
+   "profile": {
+    "clarity": 81,
+    "pace": 50,
+    "workload": 37,
+    "practical": 40,
+    "difficulty": 54,
+    "satisfaction": 60
+   }
+  },
+  {
+   "course_code": "ECE 223",
+   "section": "1",
+   "instructor_id": "i3",
+   "offered_term": "fall",
+   "responses": 4,
+   "profile": {
+    "clarity": 73,
+    "pace": 51,
+    "workload": 43,
+    "practical": 44,
+    "difficulty": 55,
+    "satisfaction": 75
+   }
+  },
+  {
+   "course_code": "ECE 223",
+   "section": "2",
+   "instructor_id": "i2",
+   "offered_term": "fall",
+   "responses": 75,
+   "profile": {
+    "clarity": 72,
+    "pace": 83,
+    "workload": 79,
+    "practical": 79,
+    "difficulty": 90,
+    "satisfaction": 79
+   }
+  },
+  {
+   "course_code": "ECE 234",
+   "section": "1",
+   "instructor_id": "i15",
+   "offered_term": "fall",
+   "responses": 58,
+   "profile": {
+    "clarity": 76,
+    "pace": 58,
+    "workload": 43,
+    "practical": 55,
+    "difficulty": 51,
+    "satisfaction": 70
+   }
+  },
+  {
+   "course_code": "ECE 234",
+   "section": "2",
+   "instructor_id": "i16",
+   "offered_term": "fall",
+   "responses": 91,
+   "profile": {
+    "clarity": 86,
+    "pace": 72,
+    "workload": 62,
+    "practical": 30,
+    "difficulty": 83,
+    "satisfaction": 59
+   }
+  },
+  {
+   "course_code": "ECE 332",
+   "section": "1",
+   "instructor_id": "i2",
+   "offered_term": "fall",
+   "responses": 70,
+   "profile": {
+    "clarity": 69,
+    "pace": 70,
+    "workload": 83,
+    "practical": 83,
+    "difficulty": 86,
+    "satisfaction": 71
+   }
+  },
+  {
+   "course_code": "ECE 332",
+   "section": "2",
+   "instructor_id": "i1",
+   "offered_term": "fall",
+   "responses": 63,
+   "profile": {
+    "clarity": 84,
+    "pace": 46,
+    "workload": 51,
+    "practical": 82,
+    "difficulty": 54,
+    "satisfaction": 86
+   }
+  },
+  {
+   "course_code": "ECE 332",
+   "section": "3",
+   "instructor_id": "i3",
+   "offered_term": "fall",
+   "responses": 5,
+   "profile": {
+    "clarity": 82,
+    "pace": 54,
+    "workload": 45,
+    "practical": 59,
+    "difficulty": 40,
+    "satisfaction": 84
+   }
+  },
+  {
+   "course_code": "CSE 112",
+   "section": "1",
+   "instructor_id": "i13",
+   "offered_term": "spring",
+   "responses": 53,
+   "profile": {
+    "clarity": 82,
+    "pace": 64,
+    "workload": 48,
+    "practical": 58,
+    "difficulty": 52,
+    "satisfaction": 86
+   }
+  },
+  {
+   "course_code": "CSE 112",
+   "section": "2",
+   "instructor_id": "i7",
+   "offered_term": "spring",
+   "responses": 8,
+   "profile": {
+    "clarity": 75,
+    "pace": 38,
+    "workload": 48,
+    "practical": 48,
+    "difficulty": 53,
+    "satisfaction": 71
+   }
+  },
+  {
+   "course_code": "CSE 112",
+   "section": "3",
+   "instructor_id": "i8",
+   "offered_term": "spring",
+   "responses": 85,
+   "profile": {
+    "clarity": 76,
+    "pace": 40,
+    "workload": 46,
+    "practical": 52,
+    "difficulty": 34,
+    "satisfaction": 85
+   }
+  },
+  {
+   "course_code": "ECE 333",
+   "section": "1",
+   "instructor_id": "i3",
+   "offered_term": "fall",
+   "responses": 3,
+   "profile": {
+    "clarity": 82,
+    "pace": 44,
+    "workload": 44,
+    "practical": 54,
+    "difficulty": 55,
+    "satisfaction": 82
+   }
+  },
+  {
+   "course_code": "ECE 333",
+   "section": "2",
+   "instructor_id": "i15",
+   "offered_term": "fall",
+   "responses": 74,
+   "profile": {
+    "clarity": 67,
+    "pace": 66,
+    "workload": 46,
+    "practical": 70,
+    "difficulty": 61,
+    "satisfaction": 71
+   }
+  },
+  {
+   "course_code": "ECE 333",
+   "section": "3",
+   "instructor_id": "i2",
+   "offered_term": "fall",
+   "responses": 85,
+   "profile": {
+    "clarity": 69,
+    "pace": 79,
+    "workload": 77,
+    "practical": 83,
+    "difficulty": 74,
+    "satisfaction": 82
+   }
+  },
+  {
+   "course_code": "CSE 251",
+   "section": "1",
+   "instructor_id": "i8",
+   "offered_term": "fall",
+   "responses": 45,
+   "profile": {
+    "clarity": 72,
+    "pace": 47,
+    "workload": 52,
+    "practical": 55,
+    "difficulty": 56,
+    "satisfaction": 77
+   }
+  },
+  {
+   "course_code": "CSE 251",
+   "section": "2",
+   "instructor_id": "i5",
+   "offered_term": "fall",
+   "responses": 56,
+   "profile": {
+    "clarity": 81,
+    "pace": 34,
+    "workload": 44,
+    "practical": 54,
+    "difficulty": 54,
+    "satisfaction": 84
+   }
+  },
+  {
+   "course_code": "CSE 042",
+   "section": "1",
+   "instructor_id": "i6",
+   "offered_term": "spring",
+   "responses": 74,
+   "profile": {
+    "clarity": 78,
+    "pace": 46,
+    "workload": 38,
+    "practical": 59,
+    "difficulty": 53,
+    "satisfaction": 72
+   }
+  },
+  {
+   "course_code": "CSE 042",
+   "section": "2",
+   "instructor_id": "i5",
+   "offered_term": "spring",
+   "responses": 42,
+   "profile": {
+    "clarity": 81,
+    "pace": 38,
+    "workload": 48,
+    "practical": 43,
+    "difficulty": 51,
+    "satisfaction": 88
+   }
+  },
+  {
+   "course_code": "CSE 423",
+   "section": "1",
+   "instructor_id": "i4",
+   "offered_term": "fall",
+   "responses": 25,
+   "profile": {
+    "clarity": 82,
+    "pace": 61,
+    "workload": 59,
+    "practical": 83,
+    "difficulty": 57,
+    "satisfaction": 74
+   }
+  },
+  {
+   "course_code": "CSE 423",
+   "section": "2",
+   "instructor_id": "i9",
+   "offered_term": "fall",
+   "responses": 26,
+   "profile": {
+    "clarity": 70,
+    "pace": 82,
+    "workload": 49,
+    "practical": 99,
+    "difficulty": 56,
+    "satisfaction": 65
+   }
+  },
+  {
+   "course_code": "CSE 423",
+   "section": "3",
+   "instructor_id": "i6",
+   "offered_term": "fall",
+   "responses": 86,
+   "profile": {
+    "clarity": 91,
+    "pace": 56,
+    "workload": 47,
+    "practical": 46,
+    "difficulty": 50,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "CSE 351",
+   "section": "1",
+   "instructor_id": "i5",
+   "offered_term": "spring",
+   "responses": 94,
+   "profile": {
+    "clarity": 87,
+    "pace": 38,
+    "workload": 46,
+    "practical": 46,
+    "difficulty": 47,
+    "satisfaction": 81
+   }
+  },
+  {
+   "course_code": "CSE 351",
+   "section": "2",
+   "instructor_id": "i12",
+   "offered_term": "spring",
+   "responses": 3,
+   "profile": {
+    "clarity": 89,
+    "pace": 58,
+    "workload": 44,
+    "practical": 28,
+    "difficulty": 52,
+    "satisfaction": 81
+   }
+  },
+  {
+   "course_code": "CSE 351",
+   "section": "3",
+   "instructor_id": "i9",
+   "offered_term": "spring",
+   "responses": 55,
+   "profile": {
+    "clarity": 66,
+    "pace": 71,
+    "workload": 63,
+    "practical": 92,
+    "difficulty": 70,
+    "satisfaction": 61
+   }
+  },
+  {
+   "course_code": "CSE 313",
+   "section": "1",
+   "instructor_id": "i13",
+   "offered_term": "fall",
+   "responses": 93,
+   "profile": {
+    "clarity": 63,
+    "pace": 45,
+    "workload": 62,
+    "practical": 69,
+    "difficulty": 56,
+    "satisfaction": 75
+   }
+  },
+  {
+   "course_code": "CSE 313",
+   "section": "2",
+   "instructor_id": "i5",
+   "offered_term": "fall",
+   "responses": 104,
+   "profile": {
+    "clarity": 88,
+    "pace": 46,
+    "workload": 52,
+    "practical": 55,
+    "difficulty": 50,
+    "satisfaction": 78
+   }
+  },
+  {
+   "course_code": "CSE 111",
+   "section": "1",
+   "instructor_id": "i9",
+   "offered_term": "spring",
+   "responses": 73,
+   "profile": {
+    "clarity": 73,
+    "pace": 69,
+    "workload": 63,
+    "practical": 89,
+    "difficulty": 57,
+    "satisfaction": 70
+   }
+  },
+  {
+   "course_code": "CSE 111",
+   "section": "2",
+   "instructor_id": "i6",
+   "offered_term": "spring",
+   "responses": 41,
+   "profile": {
+    "clarity": 90,
+    "pace": 52,
+    "workload": 45,
+    "practical": 45,
+    "difficulty": 49,
+    "satisfaction": 71
+   }
+  },
+  {
+   "course_code": "CSE 315",
+   "section": "1",
+   "instructor_id": "i4",
+   "offered_term": "spring",
+   "responses": 64,
+   "profile": {
+    "clarity": 76,
+    "pace": 60,
+    "workload": 65,
+    "practical": 85,
+    "difficulty": 60,
+    "satisfaction": 77
+   }
+  },
+  {
+   "course_code": "CSE 315",
+   "section": "2",
+   "instructor_id": "i5",
+   "offered_term": "spring",
+   "responses": 120,
+   "profile": {
+    "clarity": 85,
+    "pace": 40,
+    "workload": 45,
+    "practical": 50,
+    "difficulty": 50,
+    "satisfaction": 82
+   }
+  },
+  {
+   "course_code": "CSE 212",
+   "section": "1",
+   "instructor_id": "i8",
+   "offered_term": "spring",
+   "responses": 62,
+   "profile": {
+    "clarity": 87,
+    "pace": 49,
+    "workload": 57,
+    "practical": 45,
+    "difficulty": 51,
+    "satisfaction": 80
+   }
+  },
+  {
+   "course_code": "CSE 212",
+   "section": "2",
+   "instructor_id": "i5",
+   "offered_term": "spring",
+   "responses": 94,
+   "profile": {
+    "clarity": 90,
+    "pace": 38,
+    "workload": 37,
+    "practical": 53,
+    "difficulty": 38,
+    "satisfaction": 84
+   }
+  },
+  {
+   "course_code": "ECE 235",
+   "section": "1",
+   "instructor_id": "i14",
+   "offered_term": "spring",
+   "responses": 53,
+   "profile": {
+    "clarity": 89,
+    "pace": 66,
+    "workload": 64,
+    "practical": 45,
+    "difficulty": 58,
+    "satisfaction": 78
+   }
+  },
+  {
+   "course_code": "ECE 235",
+   "section": "2",
+   "instructor_id": "i3",
+   "offered_term": "spring",
+   "responses": 4,
+   "profile": {
+    "clarity": 81,
+    "pace": 59,
+    "workload": 35,
+    "practical": 65,
+    "difficulty": 45,
+    "satisfaction": 82
+   }
+  },
+  {
+   "course_code": "ECE 224",
+   "section": "1",
+   "instructor_id": "i1",
+   "offered_term": "spring",
+   "responses": 65,
+   "profile": {
+    "clarity": 84,
+    "pace": 44,
+    "workload": 37,
+    "practical": 66,
+    "difficulty": 49,
+    "satisfaction": 83
+   }
+  },
+  {
+   "course_code": "ECE 224",
+   "section": "2",
+   "instructor_id": "i16",
+   "offered_term": "spring",
+   "responses": 72,
+   "profile": {
+    "clarity": 84,
+    "pace": 57,
+    "workload": 62,
+    "practical": 35,
+    "difficulty": 72,
+    "satisfaction": 50
+   }
+  },
+  {
+   "course_code": "CSE 451",
+   "section": "1",
+   "instructor_id": "i7",
+   "offered_term": "spring",
+   "responses": 9,
+   "profile": {
+    "clarity": 79,
+    "pace": 43,
+    "workload": 65,
+    "practical": 63,
+    "difficulty": 45,
+    "satisfaction": 67
+   }
+  },
+  {
+   "course_code": "CSE 451",
+   "section": "2",
+   "instructor_id": "i4",
+   "offered_term": "spring",
+   "responses": 45,
+   "profile": {
+    "clarity": 75,
+    "pace": 49,
+    "workload": 57,
+    "practical": 84,
+    "difficulty": 62,
+    "satisfaction": 73
+   }
+  },
+  {
+   "course_code": "CSE 317",
+   "section": "1",
+   "instructor_id": "i5",
+   "offered_term": "fall",
+   "responses": 80,
+   "profile": {
+    "clarity": 94,
+    "pace": 32,
+    "workload": 52,
+    "practical": 48,
+    "difficulty": 54,
+    "satisfaction": 71
+   }
+  },
+  {
+   "course_code": "CSE 317",
+   "section": "2",
+   "instructor_id": "i13",
+   "offered_term": "fall",
+   "responses": 58,
+   "profile": {
+    "clarity": 69,
+    "pace": 69,
+    "workload": 58,
+    "practical": 53,
+    "difficulty": 62,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "CSE 452",
+   "section": "1",
+   "instructor_id": "i12",
+   "offered_term": "spring",
+   "responses": 5,
+   "profile": {
+    "clarity": 85,
+    "pace": 49,
+    "workload": 54,
+    "practical": 32,
+    "difficulty": 55,
+    "satisfaction": 66
+   }
+  },
+  {
+   "course_code": "CSE 452",
+   "section": "2",
+   "instructor_id": "i9",
+   "offered_term": "spring",
+   "responses": 33,
+   "profile": {
+    "clarity": 69,
+    "pace": 70,
+    "workload": 65,
+    "practical": 96,
+    "difficulty": 44,
+    "satisfaction": 84
+   }
+  },
+  {
+   "course_code": "CSE 452",
+   "section": "3",
+   "instructor_id": "i13",
+   "offered_term": "spring",
+   "responses": 63,
+   "profile": {
+    "clarity": 74,
+    "pace": 54,
+    "workload": 42,
+    "practical": 55,
+    "difficulty": 59,
+    "satisfaction": 79
+   }
+  },
+  {
+   "course_code": "CSE 311",
+   "section": "1",
+   "instructor_id": "i13",
+   "offered_term": "fall",
+   "responses": 33,
+   "profile": {
+    "clarity": 76,
+    "pace": 60,
+    "workload": 60,
+    "practical": 58,
+    "difficulty": 55,
+    "satisfaction": 80
+   }
+  },
+  {
+   "course_code": "CSE 311",
+   "section": "2",
+   "instructor_id": "i4",
+   "offered_term": "fall",
+   "responses": 50,
+   "profile": {
+    "clarity": 84,
+    "pace": 54,
+    "workload": 61,
+    "practical": 79,
+    "difficulty": 53,
+    "satisfaction": 81
+   }
+  },
+  {
+   "course_code": "ECE 321",
+   "section": "1",
+   "instructor_id": "i1",
+   "offered_term": "spring",
+   "responses": 142,
+   "profile": {
+    "clarity": 88,
+    "pace": 45,
+    "workload": 50,
+    "practical": 70,
+    "difficulty": 55,
+    "satisfaction": 84
+   }
+  },
+  {
+   "course_code": "ECE 321",
+   "section": "2",
+   "instructor_id": "i2",
+   "offered_term": "spring",
+   "responses": 97,
+   "profile": {
+    "clarity": 70,
+    "pace": 82,
+    "workload": 85,
+    "practical": 80,
+    "difficulty": 82,
+    "satisfaction": 72
+   }
+  },
+  {
+   "course_code": "ECE 321",
+   "section": "3",
+   "instructor_id": "i3",
+   "offered_term": "spring",
+   "responses": 9,
+   "profile": {
+    "clarity": 80,
+    "pace": 50,
+    "workload": 40,
+    "practical": 55,
+    "difficulty": 45,
+    "satisfaction": 79
+   }
+  },
+  {
+   "course_code": "CSE 316",
+   "section": "1",
+   "instructor_id": "i9",
+   "offered_term": "both",
+   "responses": 37,
+   "profile": {
+    "clarity": 71,
+    "pace": 82,
+    "workload": 66,
+    "practical": 85,
+    "difficulty": 61,
+    "satisfaction": 73
+   }
+  },
+  {
+   "course_code": "CSE 316",
+   "section": "2",
+   "instructor_id": "i7",
+   "offered_term": "both",
+   "responses": 10,
+   "profile": {
+    "clarity": 60,
+    "pace": 55,
+    "workload": 65,
+    "practical": 44,
+    "difficulty": 35,
+    "satisfaction": 69
+   }
+  },
+  {
+   "course_code": "ECE 334",
+   "section": "1",
+   "instructor_id": "i14",
+   "offered_term": "both",
+   "responses": 34,
+   "profile": {
+    "clarity": 84,
+    "pace": 62,
+    "workload": 47,
+    "practical": 31,
+    "difficulty": 70,
+    "satisfaction": 65
+   }
+  },
+  {
+   "course_code": "ECE 334",
+   "section": "2",
+   "instructor_id": "i16",
+   "offered_term": "both",
+   "responses": 94,
+   "profile": {
+    "clarity": 78,
+    "pace": 64,
+    "workload": 64,
+    "practical": 31,
+    "difficulty": 70,
+    "satisfaction": 57
+   }
+  },
+  {
+   "course_code": "ECE 334",
+   "section": "3",
+   "instructor_id": "i1",
+   "offered_term": "both",
+   "responses": 68,
+   "profile": {
+    "clarity": 88,
+    "pace": 48,
+    "workload": 51,
+    "practical": 70,
+    "difficulty": 60,
+    "satisfaction": 90
+   }
+  },
+  {
+   "course_code": "BAS 315",
+   "section": "1",
+   "instructor_id": "i19",
+   "offered_term": "both",
+   "responses": 11,
+   "profile": {
+    "clarity": 79,
+    "pace": 74,
+    "workload": 86,
+    "practical": 81,
+    "difficulty": 84,
+    "satisfaction": 74
+   }
+  },
+  {
+   "course_code": "BAS 315",
+   "section": "2",
+   "instructor_id": "i21",
+   "offered_term": "both",
+   "responses": 37,
+   "profile": {
+    "clarity": 90,
+    "pace": 54,
+    "workload": 46,
+    "practical": 59,
+    "difficulty": 54,
+    "satisfaction": 69
+   }
+  },
+  {
+   "course_code": "BAS 315",
+   "section": "3",
+   "instructor_id": "i18",
+   "offered_term": "both",
+   "responses": 86,
+   "profile": {
+    "clarity": 75,
+    "pace": 61,
+    "workload": 65,
+    "practical": 89,
+    "difficulty": 57,
+    "satisfaction": 70
+   }
+  },
+  {
+   "course_code": "CSE 319",
+   "section": "1",
+   "instructor_id": "i9",
+   "offered_term": "both",
+   "responses": 33,
+   "profile": {
+    "clarity": 57,
+    "pace": 78,
+    "workload": 62,
+    "practical": 98,
+    "difficulty": 61,
+    "satisfaction": 63
+   }
+  },
+  {
+   "course_code": "CSE 319",
+   "section": "2",
+   "instructor_id": "i4",
+   "offered_term": "both",
+   "responses": 26,
+   "profile": {
+    "clarity": 78,
+    "pace": 55,
+    "workload": 65,
+    "practical": 88,
+    "difficulty": 60,
+    "satisfaction": 77
+   }
+  },
+  {
+   "course_code": "CSE 318",
+   "section": "1",
+   "instructor_id": "i10",
+   "offered_term": "both",
+   "responses": 5,
+   "profile": {
+    "clarity": 75,
+    "pace": 36,
+    "workload": 35,
+    "practical": 42,
+    "difficulty": 51,
+    "satisfaction": 81
+   }
+  },
+  {
+   "course_code": "CSE 318",
+   "section": "2",
+   "instructor_id": "i4",
+   "offered_term": "both",
+   "responses": 48,
+   "profile": {
+    "clarity": 70,
+    "pace": 55,
+    "workload": 58,
+    "practical": 70,
+    "difficulty": 73,
+    "satisfaction": 63
+   }
+  },
+  {
+   "course_code": "CSE 318",
+   "section": "3",
+   "instructor_id": "i8",
+   "offered_term": "both",
+   "responses": 85,
+   "profile": {
+    "clarity": 81,
+    "pace": 46,
+    "workload": 52,
+    "practical": 57,
+    "difficulty": 39,
+    "satisfaction": 90
+   }
+  },
+  {
+   "course_code": "BAS 311",
+   "section": "1",
+   "instructor_id": "i19",
+   "offered_term": "both",
+   "responses": 8,
+   "profile": {
+    "clarity": 78,
+    "pace": 79,
+    "workload": 81,
+    "practical": 79,
+    "difficulty": 91,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "BAS 311",
+   "section": "2",
+   "instructor_id": "i21",
+   "offered_term": "both",
+   "responses": 74,
+   "profile": {
+    "clarity": 79,
+    "pace": 48,
+    "workload": 48,
+    "practical": 47,
+    "difficulty": 50,
+    "satisfaction": 83
+   }
+  },
+  {
+   "course_code": "BAS 311",
+   "section": "3",
+   "instructor_id": "i20",
+   "offered_term": "both",
+   "responses": 11,
+   "profile": {
+    "clarity": 70,
+    "pace": 82,
+    "workload": 87,
+    "practical": 80,
+    "difficulty": 92,
+    "satisfaction": 72
+   }
+  },
+  {
+   "course_code": "CSE 335",
+   "section": "1",
+   "instructor_id": "i8",
+   "offered_term": "both",
+   "responses": 41,
+   "profile": {
+    "clarity": 81,
+    "pace": 40,
+    "workload": 50,
+    "practical": 49,
+    "difficulty": 44,
+    "satisfaction": 81
+   }
+  },
+  {
+   "course_code": "CSE 335",
+   "section": "2",
+   "instructor_id": "i10",
+   "offered_term": "both",
+   "responses": 7,
+   "profile": {
+    "clarity": 86,
+    "pace": 38,
+    "workload": 36,
+    "practical": 55,
+    "difficulty": 55,
+    "satisfaction": 84
+   }
+  },
+  {
+   "course_code": "CSE 352",
+   "section": "1",
+   "instructor_id": "i13",
+   "offered_term": "both",
+   "responses": 82,
+   "profile": {
+    "clarity": 87,
+    "pace": 47,
+    "workload": 64,
+    "practical": 61,
+    "difficulty": 60,
+    "satisfaction": 67
+   }
+  },
+  {
+   "course_code": "CSE 352",
+   "section": "2",
+   "instructor_id": "i4",
+   "offered_term": "both",
+   "responses": 21,
+   "profile": {
+    "clarity": 80,
+    "pace": 55,
+    "workload": 59,
+    "practical": 92,
+    "difficulty": 61,
+    "satisfaction": 73
+   }
+  },
+  {
+   "course_code": "ECE 432",
+   "section": "1",
+   "instructor_id": "i3",
+   "offered_term": "both",
+   "responses": 3,
+   "profile": {
+    "clarity": 78,
+    "pace": 54,
+    "workload": 47,
+    "practical": 52,
+    "difficulty": 38,
+    "satisfaction": 73
+   }
+  },
+  {
+   "course_code": "ECE 432",
+   "section": "2",
+   "instructor_id": "i2",
+   "offered_term": "both",
+   "responses": 74,
+   "profile": {
+    "clarity": 76,
+    "pace": 81,
+    "workload": 77,
+    "practical": 81,
+    "difficulty": 82,
+    "satisfaction": 72
+   }
+  },
+  {
+   "course_code": "ECE 432",
+   "section": "3",
+   "instructor_id": "i1",
+   "offered_term": "both",
+   "responses": 60,
+   "profile": {
+    "clarity": 91,
+    "pace": 47,
+    "workload": 56,
+    "practical": 84,
+    "difficulty": 47,
+    "satisfaction": 86
+   }
+  },
+  {
+   "course_code": "CSE 454",
+   "section": "1",
+   "instructor_id": "i5",
+   "offered_term": "both",
+   "responses": 61,
+   "profile": {
+    "clarity": 91,
+    "pace": 49,
+    "workload": 41,
+    "practical": 62,
+    "difficulty": 52,
+    "satisfaction": 88
+   }
+  },
+  {
+   "course_code": "CSE 454",
+   "section": "2",
+   "instructor_id": "i6",
+   "offered_term": "both",
+   "responses": 45,
+   "profile": {
+    "clarity": 94,
+    "pace": 49,
+    "workload": 47,
+    "practical": 47,
+    "difficulty": 60,
+    "satisfaction": 80
+   }
+  },
+  {
+   "course_code": "CSE 454",
+   "section": "3",
+   "instructor_id": "i13",
+   "offered_term": "both",
+   "responses": 69,
+   "profile": {
+    "clarity": 80,
+    "pace": 59,
+    "workload": 48,
+    "practical": 56,
+    "difficulty": 59,
+    "satisfaction": 77
+   }
+  },
+  {
+   "course_code": "CSE 455",
+   "section": "1",
+   "instructor_id": "i4",
+   "offered_term": "both",
+   "responses": 28,
+   "profile": {
+    "clarity": 79,
+    "pace": 48,
+    "workload": 67,
+    "practical": 88,
+    "difficulty": 60,
+    "satisfaction": 80
+   }
+  },
+  {
+   "course_code": "CSE 455",
+   "section": "2",
+   "instructor_id": "i6",
+   "offered_term": "both",
+   "responses": 75,
+   "profile": {
+    "clarity": 79,
+    "pace": 46,
+    "workload": 40,
+    "practical": 50,
+    "difficulty": 53,
+    "satisfaction": 78
+   }
+  },
+  {
+   "course_code": "ECE 435",
+   "section": "1",
+   "instructor_id": "i3",
+   "offered_term": "both",
+   "responses": 7,
+   "profile": {
+    "clarity": 92,
+    "pace": 64,
+    "workload": 43,
+    "practical": 45,
+    "difficulty": 52,
+    "satisfaction": 81
+   }
+  },
+  {
+   "course_code": "ECE 435",
+   "section": "2",
+   "instructor_id": "i15",
+   "offered_term": "both",
+   "responses": 58,
+   "profile": {
+    "clarity": 69,
+    "pace": 65,
+    "workload": 45,
+    "practical": 55,
+    "difficulty": 50,
+    "satisfaction": 73
+   }
+  },
+  {
+   "course_code": "ECE 435",
+   "section": "3",
+   "instructor_id": "i16",
+   "offered_term": "both",
+   "responses": 82,
+   "profile": {
+    "clarity": 84,
+    "pace": 46,
+    "workload": 64,
+    "practical": 33,
+    "difficulty": 73,
+    "satisfaction": 70
+   }
+  },
+  {
+   "course_code": "CSE 412",
+   "section": "1",
+   "instructor_id": "i10",
+   "offered_term": "both",
+   "responses": 3,
+   "profile": {
+    "clarity": 78,
+    "pace": 42,
+    "workload": 47,
+    "practical": 67,
+    "difficulty": 49,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "CSE 412",
+   "section": "2",
+   "instructor_id": "i6",
+   "offered_term": "both",
+   "responses": 53,
+   "profile": {
+    "clarity": 82,
+    "pace": 48,
+    "workload": 40,
+    "practical": 51,
+    "difficulty": 53,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "CSE 413",
+   "section": "1",
+   "instructor_id": "i10",
+   "offered_term": "both",
+   "responses": 4,
+   "profile": {
+    "clarity": 94,
+    "pace": 43,
+    "workload": 43,
+    "practical": 61,
+    "difficulty": 41,
+    "satisfaction": 76
+   }
+  },
+  {
+   "course_code": "CSE 413",
+   "section": "2",
+   "instructor_id": "i13",
+   "offered_term": "both",
+   "responses": 65,
+   "profile": {
+    "clarity": 80,
+    "pace": 50,
+    "workload": 52,
+    "practical": 67,
+    "difficulty": 52,
+    "satisfaction": 61
+   }
+  },
+  {
+   "course_code": "CSE 456",
+   "section": "1",
+   "instructor_id": "i7",
+   "offered_term": "both",
+   "responses": 9,
+   "profile": {
+    "clarity": 66,
+    "pace": 54,
+    "workload": 50,
+    "practical": 56,
+    "difficulty": 47,
+    "satisfaction": 73
+   }
+  },
+  {
+   "course_code": "CSE 456",
+   "section": "2",
+   "instructor_id": "i10",
+   "offered_term": "both",
+   "responses": 3,
+   "profile": {
+    "clarity": 80,
+    "pace": 46,
+    "workload": 39,
+    "practical": 55,
+    "difficulty": 41,
+    "satisfaction": 69
+   }
+  },
+  {
+   "course_code": "CSE 457",
+   "section": "1",
+   "instructor_id": "i7",
+   "offered_term": "both",
+   "responses": 7,
+   "profile": {
+    "clarity": 65,
+    "pace": 52,
+    "workload": 52,
+    "practical": 50,
+    "difficulty": 56,
+    "satisfaction": 81
+   }
+  },
+  {
+   "course_code": "CSE 457",
+   "section": "2",
+   "instructor_id": "i6",
+   "offered_term": "both",
+   "responses": 75,
+   "profile": {
+    "clarity": 80,
+    "pace": 43,
+    "workload": 37,
+    "practical": 49,
+    "difficulty": 59,
+    "satisfaction": 80
+   }
+  },
+  {
+   "course_code": "CSE 457",
+   "section": "3",
+   "instructor_id": "i12",
+   "offered_term": "both",
+   "responses": 4,
+   "profile": {
+    "clarity": 80,
+    "pace": 57,
+    "workload": 51,
+    "practical": 34,
+    "difficulty": 75,
+    "satisfaction": 73
+   }
+  },
+  {
+   "course_code": "CSE 414",
+   "section": "1",
+   "instructor_id": "i4",
+   "offered_term": "both",
+   "responses": 26,
+   "profile": {
+    "clarity": 82,
+    "pace": 71,
+    "workload": 68,
+    "practical": 84,
+    "difficulty": 63,
+    "satisfaction": 85
+   }
+  },
+  {
+   "course_code": "CSE 414",
+   "section": "2",
+   "instructor_id": "i12",
+   "offered_term": "both",
+   "responses": 6,
+   "profile": {
+    "clarity": 81,
+    "pace": 48,
+    "workload": 53,
+    "practical": 27,
+    "difficulty": 62,
+    "satisfaction": 75
+   }
+  },
+  {
+   "course_code": "CSE 414",
+   "section": "3",
+   "instructor_id": "i10",
+   "offered_term": "both",
+   "responses": 6,
+   "profile": {
+    "clarity": 89,
+    "pace": 35,
+    "workload": 36,
+    "practical": 49,
+    "difficulty": 45,
+    "satisfaction": 70
+   }
+  },
+  {
+   "course_code": "CSE 458",
+   "section": "1",
+   "instructor_id": "i6",
+   "offered_term": "both",
+   "responses": 89,
+   "profile": {
+    "clarity": 86,
+    "pace": 50,
+    "workload": 46,
+    "practical": 41,
+    "difficulty": 56,
+    "satisfaction": 69
+   }
+  },
+  {
+   "course_code": "CSE 458",
+   "section": "2",
+   "instructor_id": "i7",
+   "offered_term": "both",
+   "responses": 9,
+   "profile": {
+    "clarity": 74,
+    "pace": 46,
+    "workload": 49,
+    "practical": 52,
+    "difficulty": 53,
+    "satisfaction": 60
+   }
+  },
+  {
+   "course_code": "CSE 459",
+   "section": "1",
+   "instructor_id": "i4",
+   "offered_term": "both",
+   "responses": 45,
+   "profile": {
+    "clarity": 70,
+    "pace": 61,
+    "workload": 76,
+    "practical": 81,
+    "difficulty": 58,
+    "satisfaction": 66
+   }
+  },
+  {
+   "course_code": "CSE 459",
+   "section": "2",
+   "instructor_id": "i8",
+   "offered_term": "both",
+   "responses": 58,
+   "profile": {
+    "clarity": 83,
+    "pace": 40,
+    "workload": 58,
+    "practical": 52,
+    "difficulty": 44,
+    "satisfaction": 80
+   }
+  }
+ ]
+}

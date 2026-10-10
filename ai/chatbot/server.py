@@ -45,14 +45,17 @@ class Message(BaseModel):
 class ChatRequest(BaseModel):
     question: str
     history: list[Message] = []
+    student_id: str | None = None  # the selected student; without it the student-data tools are not offered
 
 
 @app.post("/api/chat")
 def chat(req: ChatRequest):
     if not req.question.strip():
         raise HTTPException(400, "Empty question")
+    if req.student_id and not students.get_student(req.student_id):
+        raise HTTPException(404, "Student not found")
     try:
-        return bot.answer(req.question.strip(), [m.model_dump() for m in req.history])
+        return bot.answer(req.question.strip(), [m.model_dump() for m in req.history], req.student_id)
     except errors.APIError as e:
         raise HTTPException(502, f"Gemini error {e.code}: {e.message}")
 

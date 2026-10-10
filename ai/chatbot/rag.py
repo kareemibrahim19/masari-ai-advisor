@@ -17,6 +17,9 @@ from google import genai
 from google.genai import errors, types
 from rank_bm25 import BM25Okapi
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tools import call_tool, gemini_tool  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 # Relative to this file, so it also works when only ai/ is deployed (e.g. on Vercel).
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -30,6 +33,7 @@ MODEL_TIMEOUT_MS = 25_000
 EMBED_MODEL = os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001")
 TOP_K = 8
 RETRY_DELAYS = [3, 8, 20]
+MAX_TOOL_ROUNDS = 3  # how many times the model may call tools before it must answer
 
 SYSTEM_PROMPT = """أنت "مساري"، المرشد الأكاديمي الذكي لبرنامج هندسة الذكاء الاصطناعي (AIE) بكلية الهندسة جامعة المنصورة.
 
@@ -41,6 +45,9 @@ SYSTEM_PROMPT = """أنت "مساري"، المرشد الأكاديمي الذ�
 5. "القواعد الرسمية" (JSON) هي المرجع الأعلى في الأرقام: حد الساعات، الصيفي، الإنذار، الفصل، التخرج.
 6. رد بنفس لغة الطالب: لو كتب عامية مصرية رد بعامية مصرية واضحة، لو فصحى ففصحى، لو إنجليزي فإنجليزي، لو فرانكو رد بالعامية المصرية بالحروف العربية.
 7. خلي الرد منظم ومختصر: نقط قصيرة لما يكون فيه أكتر من معلومة.
+8. عندك أدوات (tools). لو السؤال عن أرقام الطالب نفسه أو قرار محسوب (حد الساعات، الإنذار، المعدل، الإعادة والتحسين، أهلية تسجيل مادة، المستوى، الاختياري، الغياب، الحذف والانسحاب، الدكاترة) نادِ الأداة المناسبة، ومتحسبهاش بنفسك. ونتيجة الأداة هي المرجع، اشرحها للطالب بس وبنفس لغته.
+9. لو الأداة رجّعت found=false أو error، قول للطالب إيه الناقص (كود مادة غلط مثلًا) بدل ما تخمّن.
+10. في ترشيح الدكاترة اذكر مصدر الترشيح (basis_ar) والسبب، ولو الثقة منخفضة (عدد التقييمات قليل) قولها صراحة. ولو الطالب قال تفضيلاته (سرعة/عبء/عملي) مرّرها للأداة.
 """
 
 REWRITE_PROMPT = """حوّل سؤال الطالب الأخير لسؤال بحث واحد واضح بالعربية الفصحى، يكون مستقل بذاته (استخدم المحادثة السابقة لفهم الإشارات زي "طب والصيفي؟").
@@ -223,30 +230,16 @@ class Masari:
                 scores[self.chunks.index(self.by_id[cid])] += 1
         return [self.chunks[i] for i in np.argsort(-scores)[:k]]
 
-    def answer(self, question: str, history: list[dict]) -> dict:
-        search_q = self.rewrite(question, history)
-        hits = self.search(list(dict.fromkeys([search_q, question])))
-
-        context = "\n\n".join(f"[{h['title']}]\n{h['text']}" for h in hits)
-        contents = [types.Content(role="user" if m["role"] == "user" else "model",
-                                  parts=[types.Part(text=m["content"])]) for m in history[-10:]]
-        contents.append(types.Content(role="user", parts=[types.Part(text=(
-            f"القواعد الرسمية (JSON):\n{self.rules_json}\n\n"
-            f"المعلومات المرجعية:\n{context}\n\n"
-            f"سؤال الطالب: {question}"))]))
-
-        config = types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT, temperature=0.2,
-            http_options=types.HttpOptions(timeout=MODEL_TIMEOUT_MS))
-        # If a model is busy, out of quota or too slow, fall back to the next one.
-        # Models that hit their quota are skipped for a few minutes.
+    def _generate(self, contents: list, config) -> tuple:
+        """One Gemini call with model fallback. If a model is busy, out of quota or too slow, try the
+        next one; models that hit their quota are skipped for a few minutes."""
         models = [m for m in dict.fromkeys([CHAT_MODEL, *FALLBACK_MODELS])
                   if self.cooldown.get(m, 0) < time.time()] or FALLBACK_MODELS[-1:]
         for i, model in enumerate(models):
             try:
                 r = _with_retry(lambda: self.client.models.generate_content(
                     model=model, contents=contents, config=config), delays=[2], wait_on_429=False)
-                break
+                return r, model
             except (errors.APIError, httpx.TimeoutException) as e:
                 code = getattr(e, "code", "timeout")
                 print(f"{model} failed ({code}), trying next model", file=sys.stderr)
@@ -255,11 +248,48 @@ class Masari:
                 # 500/503/504 = Gemini-side trouble, 429 = quota, 404 = model retired: all worth trying the next model.
                 if code not in (404, 429, 500, 503, 504, "timeout") or i == len(models) - 1:
                     raise
+
+    def answer(self, question: str, history: list[dict], student_id: str | None = None) -> dict:
+        search_q = self.rewrite(question, history)
+        hits = self.search(list(dict.fromkeys([search_q, question])))
+
+        context = "\n\n".join(f"[{h['title']}]\n{h['text']}" for h in hits)
+        who = (f"الطالب الحالي: رقمه {student_id} (الأدوات هتستخدمه تلقائيًا)." if student_id else
+               "مفيش طالب محدد في المحادثة دي، فمتنادِش أدوات بيانات الطالب؛ لو السؤال عن أرقامه اطلب منه يختار طالب.")
+        contents = [types.Content(role="user" if m["role"] == "user" else "model",
+                                  parts=[types.Part(text=m["content"])]) for m in history[-10:]]
+        contents.append(types.Content(role="user", parts=[types.Part(text=(
+            f"القواعد الرسمية (JSON):\n{self.rules_json}\n\n"
+            f"المعلومات المرجعية:\n{context}\n\n"
+            f"{who}\n\n"
+            f"سؤال الطالب: {question}"))]))
+
+        config = types.GenerateContentConfig(
+            system_instruction=SYSTEM_PROMPT, temperature=0.2,
+            tools=[gemini_tool(with_student=bool(student_id))],
+            # We run the tools ourselves so the student's id is always the session's, never the model's guess.
+            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+            http_options=types.HttpOptions(timeout=MODEL_TIMEOUT_MS))
+
+        tools_used = []
+        for _ in range(MAX_TOOL_ROUNDS + 1):
+            r, model = self._generate(contents, config)
+            calls = r.function_calls or []
+            if not calls or len(tools_used) >= MAX_TOOL_ROUNDS * 3:
+                break
+            contents.append(r.candidates[0].content)  # keep the model's own turn (thought signatures included)
+            parts = []
+            for fc in calls:
+                result = call_tool(fc.name, dict(fc.args or {}), student_id)
+                tools_used.append({"name": fc.name, "args": dict(fc.args or {}), "result": result})
+                parts.append(types.Part.from_function_response(name=fc.name, response={"result": result}))
+            contents.append(types.Content(role="user", parts=parts))
         return {
-            "answer": r.text,
+            "answer": r.text or "",
             "model": model,
             "search_query": search_q,
             "sources": [{"id": h["id"], "title": h["title"], "source": h["source"]} for h in hits],
+            "tools_used": tools_used,
         }
 
 
@@ -268,7 +298,9 @@ if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
     bot = Masari()
     q = sys.argv[1] if len(sys.argv) > 1 else "اقدر اسجل كام ساعة لو معدلي 2.5؟"
-    res = bot.answer(q, [])
+    sid = sys.argv[2] if len(sys.argv) > 2 else None  # optional: a student id from ai/data/students.json
+    res = bot.answer(q, [], sid)
+    print("أدوات:", [(c["name"], c["args"]) for c in res["tools_used"]])
     print("بحث:", res["search_query"])
     print("مصادر:", [s["title"] for s in res["sources"]])
     print(res["answer"])

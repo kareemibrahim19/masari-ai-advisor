@@ -13,7 +13,7 @@ This repository contains the **website** and the **AI service** (a RAG chatbot o
 | [`frontend/`](frontend/) | Next.js 16 + Tailwind v4 + shadcn/ui (Base UI) app. Arabic RTL by default, with English, light and dark themes. See [`frontend/README.md`](frontend/README.md). |
 | [`prototype/masari-prototype.html`](prototype/masari-prototype.html) | A single-file, offline-viewable version of the same UI. Open it in any browser. |
 | [`ai/chatbot/`](ai/chatbot/) | Masari AI service: FastAPI + Gemini RAG chatbot (`/api/chat`) and Whisper speech-to-text for the microphone (`/api/transcribe`). See [`ai/chatbot/README.md`](ai/chatbot/README.md). |
-| [`ai/data/`](ai/data/) | AI data: course list (`courses.json`) and chunked regulations for RAG (`regulations_chunks.json`). |
+| [`ai/data/`](ai/data/) | AI data: course list (`courses.json`), chunked regulations for RAG (`regulations_chunks.json`), mock students, and mock instructors with survey profiles (`instructors.json`). |
 | [`frontend/public/brand/`](frontend/public/brand/) | Brand files: logo SVG/PNG set and the color palette (`masari-colors.css` / `.json`). |
 
 ## Project structure
