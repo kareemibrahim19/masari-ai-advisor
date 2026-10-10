@@ -23,7 +23,8 @@ const nav: { href: string; key: DictKey; short: DictKey; icon: React.ComponentTy
 const isActive = (href: string, pathname: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href))
 
 type Theme = "system" | "light" | "dark"
-const useStoredTheme = createStoredValue<Theme>("masari.theme", "system", (v): v is Theme => ["system", "light", "dark"].includes(v))
+// Light by default; "system" is still honoured if it was saved before.
+const useStoredTheme = createStoredValue<Theme>("masari.theme", "light", (v): v is Theme => ["system", "light", "dark"].includes(v))
 
 /** Light/dark theme saved as masari.theme. Also used by the login page, which has no app shell. */
 export function useTheme() {

@@ -9,7 +9,7 @@ import "./globals.css"
 // Runs while the HTML is parsed, before the first paint, so the saved theme never flashes.
 // The page is prerendered in Arabic; for English it is hidden until React swaps the text (max 1.5 s).
 // Same keys as app-shell.tsx (masari.theme) and i18n.tsx (masari.lang).
-const prePaintScript = `(function(){try{var d=document.documentElement;var t=localStorage.getItem("masari.theme")||"system";if(t==="dark"||(t==="system"&&matchMedia("(prefers-color-scheme: dark)").matches))d.classList.add("dark");if(localStorage.getItem("masari.lang")==="en"){d.lang="en";d.dir="ltr";d.setAttribute("data-lang-pending","");setTimeout(function(){d.removeAttribute("data-lang-pending")},1500)}}catch(e){}})()`
+const prePaintScript = `(function(){try{var d=document.documentElement;var t=localStorage.getItem("masari.theme")||"light";if(t==="dark"||(t==="system"&&matchMedia("(prefers-color-scheme: dark)").matches))d.classList.add("dark");if(localStorage.getItem("masari.lang")==="en"){d.lang="en";d.dir="ltr";d.setAttribute("data-lang-pending","");setTimeout(function(){d.removeAttribute("data-lang-pending")},1500)}}catch(e){}})()`
 
 // Brand type (masari-colors.json): Sora for Latin, Readex Pro for Arabic, JetBrains Mono for codes.
 // Sora has no Arabic glyphs, so Arabic text falls through to Readex Pro character by character.
@@ -24,10 +24,8 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8f8f7" },
-    { media: "(prefers-color-scheme: dark)", color: "#12141b" },
-  ],
+  // The site opens in light mode whatever the device's setting, so the browser bar matches it.
+  themeColor: "#f8f8f7",
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
