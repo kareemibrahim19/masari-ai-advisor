@@ -24,13 +24,16 @@ import students  # noqa: E402
 app = FastAPI(title="Masari AI Advisor")
 # Let the Next.js frontend (another origin) call /api/chat from the browser.
 # Comma-separated list, e.g. "http://localhost:3000,https://masari.example.com".
+# The live website addresses are always allowed, on top of whatever the variable lists.
+LIVE_SITES = ["https://masari-ai-advisor.vercel.app", "https://masari-web-sigma.vercel.app"]
 app.add_middleware(
     CORSMiddleware,
     # strip() drops spaces and a stray BOM that some shells add when the value is piped in.
     allow_origins=[
         o.strip().lstrip(chr(0xFEFF))
         for o in os.getenv("MASARI_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
-    ],
+    ]
+    + LIVE_SITES,
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
 )
