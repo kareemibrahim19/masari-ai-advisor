@@ -197,6 +197,7 @@ const dict = {
     en: "Summer courses open on student demand, so summer courses in the plan are not guaranteed.",
   },
   possible: { ar: "ممكن", en: "Possible" },
+  whyShort: { ar: "ليه؟", en: "Why?" },
   notPossible: { ar: "مش ممكن", en: "Not possible" },
   earliestShort: { ar: "أقرب تخرج", en: "Earliest" },
   ifIFail: { ar: "لو سقطت في", en: "If I fail" },

@@ -21,6 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Bar, Code, PageHeader } from "@/components/masari/bits"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import { courseNames } from "@/lib/demo-content"
@@ -142,7 +143,7 @@ export default function PlanPage() {
             {TARGETS.map(({ years, key }) => {
               const opt = data?.options.find((o) => o.target_years === years)
               const cell = opt && (allowSummer ? opt.with_summer : opt.without_summer)
-              return (
+              const button = (
                 <button
                   key={years}
                   type="button"
@@ -153,7 +154,10 @@ export default function PlanPage() {
                     "min-h-16 space-y-1 rounded-xl border px-3 py-2.5 text-start transition-colors focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none",
                     target === years ? "border-primary bg-primary/8" : "hover:bg-muted"
                   )}
-                >
+                />
+              )
+              const body = (
+                <>
                   <span className="block text-sm font-semibold">{t(key)}</span>
                   {years === 5 && <span className="block text-[11px] text-muted-foreground">{t("regulationPlan")}</span>}
                   {cell && (
@@ -167,11 +171,26 @@ export default function PlanPage() {
                       <span>
                         {cell.feasible ? t("possible") : t("notPossible")}
                         {cell.feasible && cell.summer_courses > 0 && ` · ${num(cell.summer_courses)} ${t("summerCoursesCount")}`}
+                        {!cell.feasible && cell.why && (
+                          <span className="ms-1 inline-flex items-center gap-0.5 underline decoration-dotted underline-offset-2">
+                            <Info className="size-3" aria-hidden />
+                            {t("whyShort")}
+                          </span>
+                        )}
                       </span>
                     </span>
                   )}
-                </button>
+                </>
               )
+              // Not possible: hovering (or focusing) the target shows why. Picking it shows the reason below too.
+              if (cell && !cell.feasible && cell.why)
+                return (
+                  <Tooltip key={years}>
+                    <TooltipTrigger render={button}>{body}</TooltipTrigger>
+                    <TooltipContent className="max-w-xs text-start leading-relaxed">{tr(cell.why)}</TooltipContent>
+                  </Tooltip>
+                )
+              return React.cloneElement(button, {}, body)
             })}
           </div>
           <label className="flex items-start gap-3 rounded-xl border p-3">
@@ -408,16 +427,8 @@ function PlanSummary({ plan }: { plan: GraduationPlan }) {
   let text: string
   if (plan.feasible) {
     text = lang === "ar" ? `تقدر تتخرج في ${grad} (هدف ${target}).` : `You can graduate in ${grad} (${target} target).`
-  } else if (plan.reason_code === "past") {
-    text =
-      lang === "ar"
-        ? `هدف ${target} عدّى: انت في الترم الأساسي رقم ${plan.current_main_semester}. أقرب تخرج: ${grad}.`
-        : `The ${target} target has passed: you are in main semester ${plan.current_main_semester}. Earliest graduation: ${grad}.`
   } else {
-    text =
-      lang === "ar"
-        ? `هدف ${target} مش ممكن بالقواعد (المتطلبات، ترم كل مادة، حد الساعات${plan.allow_summer ? "، والصيفي" : ""}). أقرب تخرج: ${grad}.`
-        : `The ${target} target is not possible under the rules (prerequisites, course semesters, credit limits${plan.allow_summer ? ", summer" : ""}). Earliest graduation: ${grad}.`
+    text = lang === "ar" ? `مش هتقدر تتخرج في ${target}. أقرب تخرج ليك: ${grad}.` : `You can't graduate in ${target}. Your earliest graduation: ${grad}.`
   }
 
   return (
@@ -433,7 +444,14 @@ function PlanSummary({ plan }: { plan: GraduationPlan }) {
         ) : (
           <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
         )}
-        <span>{text}</span>
+        <span className="space-y-1.5">
+          <span className="block">{text}</span>
+          {!plan.feasible && plan.why && (
+            <span className="block font-normal text-foreground/85">
+              <b className="font-semibold">{t("whyShort")}</b> {tr(plan.why)}
+            </span>
+          )}
+        </span>
       </p>
       <div className="flex shrink-0 flex-wrap gap-2 text-xs">
         <span className="rounded-full bg-background px-2.5 py-1">

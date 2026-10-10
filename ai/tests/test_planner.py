@@ -91,7 +91,23 @@ check("new student 4y possible with summer", p["feasible"] and p["summer_courses
 
 # Near graduation: past the 4-year mark, finishes this spring.
 p = build_graduation_plan(NEAR, 4)
-check("near graduation 4y is past", not p["feasible"] and "الترم الأساسي" in p["reason"], p.get("reason"))
+check("near graduation 4y is past", not p["feasible"] and p["why"]["code"] == "past", p.get("why"))
+
+# Why a target is not possible: a plain reason in both languages.
+p = build_graduation_plan(EXC, 4.5)
+check("4.5y blocked by the ARI 481 hour threshold", p["why"]["code"] == "course" and p["why"]["root"] == "ARI 481"
+      and "116" in p["why"]["ar"] and "112" in p["why"]["ar"] and "116" in p["why"]["en"], p.get("why"))
+p = build_graduation_plan(EXC, 5, failed_courses=["BAS 216"])
+check("what-if failure named in the reason", "BAS 216" in p["why"]["ar"] and "سقطت" in p["why"]["ar"], p.get("why"))
+p = build_graduation_plan(PROB, 5)
+check("retake this term named in the reason", "BAS 115" in p["why"]["ar"] and "بتعيدها" in p["why"]["ar"], p.get("why"))
+for name, sid in BY.items():
+    for years in (4, 4.5, 5):
+        for summer in (True, False):
+            p = build_graduation_plan(sid, years, summer)
+            check(f"reason given when not possible ({name} {years}y summer={summer})",
+                  p["feasible"] or (p.get("why") and p["why"]["ar"] and p["why"]["en"]), p.get("why"))
+            check(f"no reason when possible ({name} {years}y summer={summer})", not p["feasible"] or not p.get("why"))
 check("near graduation 5y spring 2026-2027", build_graduation_plan(NEAR, 5)["graduation_term"]["en"] == "Spring 2026-2027")
 
 # What-if: failing a prerequisite chain course delays graduation.

@@ -291,6 +291,152 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
 
 # ---------------------------------------------------------------- the tool
 
+# ---------------------------------------------------------------- why a target is not possible
+
+SUMMER_HOURS = 9  # 3 summer courses of 3 credit hours: the most a summer can add
+_TERM_WORD = {"fall": ("خريف", "Fall"), "spring": ("ربيع", "Spring"), "summer": ("صيفي", "Summer")}
+
+
+def _short(t: dict) -> dict:
+    """'خريف 2027' / 'Fall 2027': the calendar year the semester falls in."""
+    start = int(t["academic_year"].split("-")[0])
+    year = start if t["term"] == "fall" else start + 1
+    ar, en = _TERM_WORD[t["term"]]
+    return {"ar": f"{ar} {year}", "en": f"{en} {year}"}
+
+
+def _name(code: str) -> dict:
+    c = d.courses()[code]
+    return {"ar": f"{c['name_ar']} ({code})", "en": f"{c.get('name_en') or code} ({code})"}
+
+
+def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int, allow_summer: bool,
+             failed_codes: set[str], target_years, retaking: set[str] = frozenset()) -> dict:
+    """A short, plain reason the target is not reachable, in Arabic and English.
+
+    It finds the earliest term every remaining course could possibly be taken in (prerequisites, each
+    course's term, summer, and the most hours the student could have earned by then), ignoring how full
+    each term is. A course whose earliest term is after the target is the reason, traced back to what
+    holds it (a failed course, a long chain, an hour threshold). If every course fits on its own, the
+    reason is the number of hours left against the hour cap.
+    """
+    target = {"ar": {4: "4 سنين", 4.5: "4 سنين ونص", 5: "5 سنين"}[target_years],
+              "en": {4: "4-year", 4.5: "4.5-year", 5: "5-year"}[target_years]}
+    allc = d.courses()
+    passed = proj["passed"]
+    terms = _terms_after(current, main_now + 1, 2 * d.rules()["max_study_years"])
+    deadline = max(i for i, t in enumerate(terms) if t["main"] is not None and t["main"] <= last_main)
+
+    # The most hours the student can have earned before term i.
+    before, total = [], proj["earned"]
+    for t in terms:
+        before.append(total)
+        total += (SUMMER_HOURS if allow_summer else 0) if t["term"] == "summer" else cap
+
+    required, pools = _to_place(passed)
+    memo: dict[str, tuple] = {}
+
+    def earliest(code: str):
+        """(term index or None, cause) where cause explains what decided it."""
+        if code in memo:
+            return memo[code]
+        memo[code] = (None, ("cycle",))
+        c = allc[code]
+        lower, held_by = 0, None
+        for p in c["prerequisites"]:
+            if p in passed:
+                continue
+            pi, _ = earliest(p)
+            if pi is None:
+                memo[code] = (None, ("prereq", p))
+                return memo[code]
+            if pi + 1 > lower:
+                lower, held_by = pi + 1, p
+        need = c.get("min_credits_required") or 0
+        planned = c["planned_semester"] or 7
+        short_of = None  # (term index, hours) of the last term it ran in but the hours were not enough
+        for i in range(lower, len(terms)):
+            if not _options(c, terms[i], planned, last_main, allow_summer):
+                continue
+            if before[i] < need:
+                short_of = (i, before[i])
+                continue
+            cause = ("credits", need, *short_of) if short_of else ("prereq", held_by) if held_by else ("term",)
+            memo[code] = (i, cause)
+            return memo[code]
+        memo[code] = (None, ("credits", need, *short_of) if short_of else ("term",))
+        return memo[code]
+
+    late = [(earliest(c["code"])[0], c["code"]) for c in required]
+    for p in pools:  # electives: the pool is late if its need-th earliest course is late
+        ranked = sorted(((earliest(c["code"])[0], c["code"]) for c in p["candidates"]), key=lambda x: (x[0] is None, x[0] or 0))
+        late.append(ranked[p["need"] - 1])
+    late = [(i, code) for i, code in late if i is None or i > deadline]
+
+    if late:
+        # The latest course explains the most; trace what holds it back to the root.
+        i, code = max(late, key=lambda x: (x[0] is None, x[0] or 0))
+        chain = [code]
+        while True:
+            cause = earliest(chain[-1])[1]
+            if cause[0] == "prereq" and cause[1] and cause[1] not in chain:
+                chain.append(cause[1])
+            else:
+                break
+        root = chain[-1]
+        ri, rcause = earliest(root)
+        when = lambda k: _short(terms[k]) if k is not None else {"ar": "بعد الحد الأقصى للدراسة", "en": "after the study limit"}
+        ar, en = [], []
+        for p in allc[root]["prerequisites"]:
+            if p in retaking:
+                ar.append(f"إنت سقطت في {_name(p)['ar']} قبل كده وبتعيدها الترم ده، فاللي بعدها اتأخر.")
+                en.append(f"You failed {_name(p)['en']} before and are retaking it this semester, so what follows it is delayed.")
+        if root in failed_codes:
+            ar.append(f"إنت سقطت في {_name(root)['ar']} ولازم تعيدها.")
+            en.append(f"You failed {_name(root)['en']} and must retake it.")
+        if rcause[0] == "credits":
+            _, need, k, have = rcause
+            ar.append(f"{_name(root)['ar']} محتاج {need} ساعة ناجحة قبل ما تسجله، وأقصى اللي هتوصله قبل "
+                      f"{_short(terms[k])['ar']} هو {have} ساعة، فأول فرصة ليه {when(ri)['ar']}.")
+            en.append(f"{_name(root)['en']} needs {need} passed credit hours, and the most you can have before "
+                      f"{_short(terms[k])['en']} is {have}, so the earliest you can take it is {when(ri)['en']}.")
+        else:
+            only = "الخريف" if (allc[root]["planned_semester"] or 1) % 2 == 1 else "الربيع"
+            only_en = "Fall" if only == "الخريف" else "Spring"
+            if allow_summer and allc[root]["type"] != "project":
+                ar.append(f"{_name(root)['ar']} بيتدرّس في {only} (أو الصيفي لو اتفتح)، فأول فرصة ليه {when(ri)['ar']}.")
+                en.append(f"{_name(root)['en']} runs in {only_en} (or summer, if opened), so the earliest you can take it is {when(ri)['en']}.")
+            else:
+                ar.append(f"{_name(root)['ar']} بيتدرّس في {only} بس، فأول فرصة ليه {when(ri)['ar']}.")
+                en.append(f"{_name(root)['en']} runs in {only_en} only, so the earliest you can take it is {when(ri)['en']}.")
+        if len(chain) > 1:
+            links_ar = " ← ".join(reversed(chain))
+            ar.append(f"وكل مادة في السلسلة دي لازم تيجي بعد اللي قبلها: {links_ar}، فـ {_name(code)['ar']} مش هتلحق قبل {when(i)['ar']}.")
+            en.append(f"Each course in this chain must follow the one before it ({' → '.join(reversed(chain))}), "
+                      f"so {_name(code)['en']} cannot come before {when(i)['en']}.")
+        ar.append(f"وده بعد آخر ترم في هدف {target['ar']} ({_short(terms[deadline])['ar']}).")
+        en.append(f"That is after the last semester of the {target['en']} target ({_short(terms[deadline])['en']}).")
+        return {"code": "course", "course": code, "root": root, "chain": list(reversed(chain)),
+                "ar": " ".join(ar), "en": " ".join(en)}
+
+    # Every course fits on its own, so it is the hours: what is left against what can be registered.
+    left = sum(c["credits"] for c in required) + sum(3 * p["need"] for p in pools)
+    room = before[deadline + 1] - proj["earned"] if deadline + 1 < len(before) else total - proj["earned"]
+    summer_ar = " مع الصيفي" if allow_summer else " من غير صيفي"
+    summer_en = " with summers" if allow_summer else " without summers"
+    if left > room:
+        return {"code": "hours", "left": left, "room": room,
+                "ar": f"فاضلك {left} ساعة، وأقصى اللي تقدر تسجله لحد {_short(terms[deadline])['ar']} هو {room} ساعة "
+                      f"(حد {cap} ساعة في الترم{summer_ar}).",
+                "en": f"You have {left} credit hours left, and the most you can register by {_short(terms[deadline])['en']} "
+                      f"is {room} ({cap} per semester{summer_en})."}
+    return {"code": "fit",
+            "ar": f"المواد الفاضلة مش هتتوزع على الترمات لحد {_short(terms[deadline])['ar']}: كل مادة ليها ترمها "
+                  f"ومتطلباتها، وحد الساعات {cap} ساعة في الترم{summer_ar}.",
+            "en": f"The remaining courses do not fit into the semesters up to {_short(terms[deadline])['en']}: each course has "
+                  f"its own semester and prerequisites, and the limit is {cap} hours per semester{summer_en}."}
+
+
 def _count(n: int, one: str, two: str, few: str, many: str) -> str:
     return one if n == 1 else two if n == 2 else f"{n} {few}" if n <= 10 else f"{n} {many}"
 
@@ -377,19 +523,29 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
         return {**out, "feasible": True, "graduation_term": _term_label(current), "terms": [],
                 "explanation": "لو نجحت في مواد الترم ده هتتخرج في آخره."}
 
-    if last_main < main_now:
+    if last_main <= main_now:  # courses are left after this semester, so a target ending by now is out of reach
         feasible, terms, placed, reason_code = False, None, None, "past"
-        reason = f"انت دلوقتي في الترم الأساسي رقم {main_now}، والهدف ده آخره الترم {last_main}."
+        why = {"code": "past",
+               "ar": f"إنت دلوقتي في الترم رقم {main_now}، وهدف {target_years} سنين آخره الترم رقم {last_main}"
+                     + ("، ولسه فاضلك مواد بعد الترم ده." if last_main == main_now else "."),
+               "en": f"You are in semester {main_now} now, and the {target_years}-year target ends with semester {last_main}"
+                     + (", but you still have courses left after this semester." if last_main == main_now else ".")}
     else:
         terms, placed = _plan_for(proj, cap, current, main_now, last_main, allow_summer)
         feasible = placed is not None
         reason_code = None if feasible else "constraints"
-        reason = None if feasible else "القيود (المتطلبات، ترم كل مادة، حد الساعات، والصيفي) مش هتسمح بالهدف ده."
+        why = None
+        if not feasible:
+            best = d.best_attempts(s)
+            failed_codes = {c for c, a in best.items() if a["grade"] in ("F", "FP")} | set(failed)
+            retaking = {c for c in cur_codes if c not in failed and best.get(c, {}).get("grade") in ("F", "FP")}
+            why = _why_not(proj, cap, current, main_now, last_main, allow_summer, failed_codes, target_years, retaking)
+    reason = why["ar"] if why else None
 
     if not feasible:
         last, terms, placed = _earliest(proj, cap, current, main_now, allow_summer, last_main + 1)
         out["feasible"] = False
-        out["reason"], out["reason_code"] = reason, reason_code
+        out["reason"], out["reason_code"], out["why"] = reason, reason_code, why
         if last is None:
             return {**out, "terms": [], "graduation_term": None,
                     "explanation": f"{reason} ومفيش خطة تخرج خلال الحد الأقصى للدراسة."}
@@ -448,7 +604,7 @@ def plan_options(student_id: str, failed_courses: list[str] | None = None,
             if not p.get("found"):
                 return p
             cells["with_summer" if summer else "without_summer"] = {
-                "feasible": p["feasible"], "graduation_term": p["graduation_term"],
+                "feasible": p["feasible"], "graduation_term": p["graduation_term"], "why": p.get("why"),
                 "summer_courses": len(p.get("summer_courses", [])), "college_requests": len(p.get("college_requests", []))}
         rows.append({"target_years": years, **cells})
     return {"found": True, "student_id": student_id, "options": rows}

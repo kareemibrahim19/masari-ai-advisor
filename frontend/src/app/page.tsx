@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { AlertTriangle, ArrowLeft, Armchair, CalendarRange, Info, MessageSquareText } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Bar, CategoryTag, Code, Ring, SlotTag } from "@/components/masari/bits"
 import { JourneyRail } from "@/components/masari/journey"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
@@ -80,17 +81,26 @@ export default function DashboardPage() {
             <h2 className="text-base font-semibold">{t("pathTitle")}</h2>
             <div className="flex flex-wrap items-center gap-2">
               {plan && (
-                <Link
-                  href="/plan"
-                  className={cn(
-                    "inline-flex min-h-7 items-center gap-1 rounded-full px-2.5 text-xs font-medium transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none",
-                    plan.feasible ? "bg-muted" : "bg-warning-soft text-warning"
-                  )}
-                  title={t("pathChangeTarget")}
-                >
-                  {t("pathTarget")}: {t(targetKey)}
-                  {!plan.feasible && ` · ${t("pathTargetNotPossible")}`}
-                </Link>
+                // Hovering the chip shows why the target is not possible; clicking it opens the plan page.
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Link
+                        href="/plan"
+                        className={cn(
+                          "inline-flex min-h-7 items-center gap-1 rounded-full px-2.5 text-xs font-medium transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none",
+                          plan.feasible ? "bg-muted" : "bg-warning-soft text-warning"
+                        )}
+                      />
+                    }
+                  >
+                    {t("pathTarget")}: {t(targetKey)}
+                    {!plan.feasible && ` · ${t("pathTargetNotPossible")}`}
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs text-start leading-relaxed">
+                    {!plan.feasible && plan.why ? tr(plan.why) : t("pathChangeTarget")}
+                  </TooltipContent>
+                </Tooltip>
               )}
               <VerifiedBadge />
             </div>

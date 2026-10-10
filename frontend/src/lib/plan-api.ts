@@ -33,12 +33,24 @@ export type PlanTerm = {
 
 export type TermLabel = { ar: string; en: string }
 
+/** Why a target is not possible, in plain words (worked out by the planner). */
+export type WhyNot = {
+  code: "past" | "course" | "hours" | "fit"
+  ar: string
+  en: string
+  /** "course": the course that cannot make it, the course holding it back, and the chain between them. */
+  course?: string
+  root?: string
+  chain?: string[]
+}
+
 export type GraduationPlan = {
   target_years: TargetYears
   allow_summer: boolean
   feasible: boolean
   /** "past": the target's last term is already behind the student; "constraints": the rules don't allow it. */
   reason_code?: "past" | "constraints"
+  why?: WhyNot | null
   current_term: TermLabel
   current_main_semester: number
   after_this_term: { cumulative_gpa: number | null; term_gpa: number | null; earned_hours: number; max_credits: number }
@@ -48,7 +60,13 @@ export type GraduationPlan = {
   college_requests?: string[]
 }
 
-type OptionCell = { feasible: boolean; graduation_term: TermLabel | null; summer_courses: number; college_requests: number }
+type OptionCell = {
+  feasible: boolean
+  graduation_term: TermLabel | null
+  summer_courses: number
+  college_requests: number
+  why?: WhyNot | null
+}
 export type PlanOption = { target_years: TargetYears; with_summer: OptionCell; without_summer: OptionCell }
 
 export type PlanResponse = { plan: GraduationPlan; baseline: GraduationPlan | null; options: PlanOption[] }
