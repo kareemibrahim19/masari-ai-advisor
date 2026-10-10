@@ -22,6 +22,9 @@ export type ChatAction =
   | { type: "avoid_instructor"; key: string; instructor_id: string; name_ar: string; name_en: string; course_code: string | null }
   | { type: "restore_instructor"; key: string; instructor_id: string }
   | { type: "set_preferences"; preferences: Partial<StudentPrefs> }
+  | { type: "select_course"; course_code: string }
+  | { type: "unselect_course"; course_code: string }
+  | { type: "set_selection"; courses: string[] }
 
 /** A document the RAG service searched to write its answer. */
 export type RagSource = { id: string; title: string; source: string }
@@ -127,15 +130,24 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   /** Applies what the chat asked the pages to change. */
-  const applyActions = React.useCallback((actions: ChatAction[]) => {
+  const applyActions = React.useCallback(
+    (actions: ChatAction[]) => {
+    const offered = new Set(view.recommendedCourses.map((c) => c.code))
     for (const a of actions) {
       if (a.type === "avoid_instructor") setExcluded((list) => (list.includes(a.key) ? list : [...list, a.key]))
       else if (a.type === "restore_instructor")
         // "i4" also clears the per-course entries of that instructor
         setExcluded((list) => list.filter((k) => k !== a.key && k.split(":")[0] !== a.instructor_id))
       else if (a.type === "set_preferences") setPrefs((p) => ({ ...p, ...a.preferences }))
+      // Courses: only ones this page offers (the service checked them against the same list).
+      else if (a.type === "select_course" && offered.has(a.course_code))
+        setSelected((s) => (s.includes(a.course_code) ? s : [...s, a.course_code]))
+      else if (a.type === "unselect_course") setSelected((s) => s.filter((c) => c !== a.course_code))
+      else if (a.type === "set_selection") setSelected(a.courses.filter((c) => offered.has(c)))
     }
-  }, [])
+    },
+    [view.recommendedCourses]
+  )
 
   const sendMessage = React.useCallback(
     (text: string) => {
@@ -165,6 +177,10 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
           student_id: view.student.id,
           excluded_instructors: excluded,
           preferences: prefsTouched ? prefs : null,
+          // the courses tab: what is chosen, what may be chosen (by priority) and the load limit
+          selected_courses: selected,
+          eligible_courses: view.recommendedCourses.map((c) => ({ code: c.code, credits: c.credits })),
+          max_load: view.student.maxLoad,
         }),
         signal: controller.signal,
       })
@@ -180,7 +196,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
         })
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [messages, thinking, view.student.id, excluded, prefs, applyActions]
+    [messages, thinking, view.student.id, view.student.maxLoad, view.recommendedCourses, excluded, prefs, selected, applyActions]
   )
 
   const newChat = React.useCallback(() => {
