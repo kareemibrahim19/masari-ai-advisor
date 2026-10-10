@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from rag import Masari  # noqa: E402  (also loads .env)
 import stt  # noqa: E402
 import students  # noqa: E402
+from tools.planner import build_graduation_plan, plan_options  # noqa: E402
 
 app = FastAPI(title="Masari AI Advisor")
 # Let the Next.js frontend (another origin) call /api/chat from the browser.
@@ -63,7 +64,32 @@ def chat(req: ChatRequest):
         raise HTTPException(502, f"Gemini error {e.code}: {e.message}")
 
 
-MAX_AUDIO_BYTES = 10 * 1024 * 1024  # ~10 minutes of compressed speech
+class PlanRequest(BaseModel):
+    student_id: str
+    target_years: float = 5  # 4, 4.5 or 5
+    allow_summer: bool = True
+    # What-if: current-term courses the student fails, and the term GPA they expect.
+    failed_courses: list[str] = []
+    expected_term_gpa: float | None = None
+
+
+@app.post("/api/plan")
+def plan(req: PlanRequest):
+    """Graduation plan for the plan page: the plan, the plan without the what-if (to compare), and which
+    targets are reachable with / without summer."""
+    result = build_graduation_plan(req.student_id, req.target_years, req.allow_summer,
+                                   req.failed_courses, req.expected_term_gpa)
+    if not result.get("found"):
+        raise HTTPException(404 if "الطالب" in result.get("error", "") else 400, result.get("error"))
+    what_if = bool(req.failed_courses) or req.expected_term_gpa is not None
+    return {
+        "plan": result,
+        "baseline": build_graduation_plan(req.student_id, req.target_years, req.allow_summer) if what_if else None,
+        "options": plan_options(req.student_id, req.failed_courses, req.expected_term_gpa)["options"],
+    }
+
+
+MAX_AUDIO_BYTES =10 * 1024 * 1024  # ~10 minutes of compressed speech
 
 
 @app.post("/api/transcribe")
