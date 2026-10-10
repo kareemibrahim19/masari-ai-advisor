@@ -93,6 +93,18 @@ def academic_standing(student_id: str) -> dict:
                               f"(الإنذار بيبدأ بعده)، فمفيش إنذار دلوقتي.")
     else:
         out["explanation"] = f"معدله {cgpa} فوق 2.00 فهو منتظم ومفيش إنذار."
+    # Article 25 item 5: a student facing dismissal may get one last chance (decided by the Faculty Council).
+    if warned and streak >= limit - 1:
+        need = math.ceil(d.program()["program"]["total_credits"] * 0.8)
+        have = st["earned_hours"]
+        out["last_chance"] = {
+            "council_decides": True, "required_earned_hours": need, "earned_hours": have,
+            "meets_hours_condition": have >= need, "terms": 2, "article": ARTICLES["warning"]}
+        out["explanation"] += (
+            f" ممكن مجلس الكلية يدّيه فرصة أخيرة واحدة لفصلين رئيسيين يرفع فيهم المعدل لـ 2.00، بشرط يكون نجح في "
+            f"80% من ساعات التخرج ({need} ساعة)، وهو ناجح في {have} ساعة"
+            + (" وده محقق الشرط." if have >= need else " وده لسه مش محقق الشرط.")
+            + " والقرار للمجلس ومش مضمون.")
     out["max_study_years"] = r["max_study_years"]
     return out
 

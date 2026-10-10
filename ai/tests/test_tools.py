@@ -32,6 +32,11 @@ check("limit summer=3 courses", call_tool("credit_limit", {"term_type": "summer"
 # standing
 r = call_tool("academic_standing", {}, PROB)
 check("probation on warning", r["on_warning"] and r["terms_left_before_dismissal"] >= 1, r)
+r = call_tool("academic_standing", {}, PROB)
+lc = r.get("last_chance")
+check("last chance shown for a student near dismissal", bool(lc) and lc["required_earned_hours"] == 128
+      and lc["meets_hours_condition"] is False, r)
+check("no last chance for a regular student", "last_chance" not in call_tool("academic_standing", {}, EXC))
 check("excellent regular", not call_tool("academic_standing", {}, EXC)["on_warning"])
 check("new student no warning", not call_tool("academic_standing", {}, NEW)["on_warning"])
 
