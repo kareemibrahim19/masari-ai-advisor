@@ -51,7 +51,7 @@ function seedMessages(view: StudentView): ChatMessage[] {
       role: "user",
       text: {
         ar: "أسجل إيه الترم ده، ومين الدكاترة المناسبين ليا؟",
-        en: "What should I register for this term, and which instructors suit me?",
+        en: "What should I register for this semester, and which instructors suit me?",
       },
     },
     { id: "m2", role: "assistant", kind: "recommendation" },

@@ -4,8 +4,8 @@
  * "Your path": the student's degree drawn in the language of the Masari symbol.
  * Every connector is the logo's own segment shape (masari-symbol: "C24 58 50 66 50 50"): it leaves a node
  * going straight up and arrives at the next node from below, so the route reads as the logo, repeated.
- *   ◎ charcoal ring  completed semester     ○ grey ring     planned term
- *   ◌ dashed ring    term with no courses   ● orange dot    graduation (the logo's destination dot)
+ *   ◎ charcoal ring  completed semester     ○ grey ring     planned semester
+ *   ◌ dashed ring    semester with no courses (should not happen)   ● orange dot    graduation (the logo's destination dot)
  * Mirrored in Arabic so the path reads right-to-left.
  *
  * Desktop: the drawing scales to the card. Phones: drawn at 1:1 so labels stay readable,
@@ -43,7 +43,6 @@ export function JourneyRail() {
         <span className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
           <Legend swatch="size-3 rounded-full border-[3px] border-brand-ink" label={t("pathLegendDone")} />
           <Legend swatch="size-3 rounded-full border-[3px] border-muted-foreground/45" label={t("pathLegendPlanned")} />
-          <Legend swatch="size-3 rounded-full border-2 border-dashed border-warning" label={t("pathLegendEmpty")} />
           <Legend swatch="size-2.5 rounded-full bg-warning" label={t("pathHasFail")} />
         </span>
       </figcaption>

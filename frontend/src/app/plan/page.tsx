@@ -436,7 +436,7 @@ function PlanSummary({ plan }: { plan: GraduationPlan }) {
     text =
       lang === "ar"
         ? `هدف ${target} مش ممكن بالقواعد (المتطلبات، ترم كل مادة، حد الساعات${plan.allow_summer ? "، والصيفي" : ""}). أقرب تخرج: ${grad}.`
-        : `The ${target} target is not possible under the rules (prerequisites, course terms, credit limits${plan.allow_summer ? ", summer" : ""}). Earliest graduation: ${grad}.`
+        : `The ${target} target is not possible under the rules (prerequisites, course semesters, credit limits${plan.allow_summer ? ", summer" : ""}). Earliest graduation: ${grad}.`
   }
 
   return (

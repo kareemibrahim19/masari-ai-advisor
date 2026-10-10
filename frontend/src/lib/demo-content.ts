@@ -186,7 +186,7 @@ export const defaultPrefsSummary: L = { ar: "شرح واضح وعبء دراسي
 /** Assumption shown in the plan UI. */
 export const planAssumption: L = {
   ar: "افتراض: كل مقرر بيتدرّس في فصل الخطة بتاعه بس (الفردي خريف والزوجي ربيع)، ومن غير ترم صيفي.",
-  en: "Assumption: each course is offered only in its plan term (odd = Fall, even = Spring), with no summer term.",
+  en: "Assumption: each course is offered only in its plan semester (odd = Fall, even = Spring), with no summer semester.",
 }
 
 // ---------------------------------------------------------------- Chat seed

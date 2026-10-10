@@ -60,8 +60,8 @@ export const ruleSections: RuleSection[] = [
     id: "load",
     title: { ar: "العبء الدراسي", en: "Academic load" },
     items: [
-      { ar: "الحد الأدنى 12 ساعة في الخريف والربيع، إلا في ترم التخرج أو بموافقة المجلس.", en: "Minimum 12 credits in Fall and Spring, except in the graduation term or with council approval." },
-      { ar: "الترم الصيفي: 3 مقررات بحد أقصى، ومشروعات التخرج مش بتتسجل فيه.", en: "Summer term: at most 3 courses, and graduation projects cannot be registered." },
+      { ar: "الحد الأدنى 12 ساعة في الخريف والربيع، إلا في ترم التخرج أو بموافقة المجلس.", en: "Minimum 12 credits in Fall and Spring, except in the graduation semester or with council approval." },
+      { ar: "الترم الصيفي: 3 مقررات بحد أقصى، ومشروعات التخرج مش بتتسجل فيه.", en: "Summer semester: at most 3 courses, and graduation projects cannot be registered." },
     ],
     note: {
       ar: "تعارض في المصدر: جدول العبء بيقول 14 ساعة لمعدل أقل من 2.00، لكن قسم الإنذار بيقول 12 ساعة للطالب تحت الملاحظة. محتاج تأكيد من اللائحة الرسمية.",

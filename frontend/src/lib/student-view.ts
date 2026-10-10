@@ -113,7 +113,7 @@ function termNames(start: { term: Term; academicYear: number }): L[] {
 
 function loadRule(r: StudentRecord, limit: number): L {
   if (r.gpa === null)
-    return { ar: `أول ترم (لسه مفيش معدل) ← حد أقصى ${FIRST_TERM_MAX_LOAD} ساعة`, en: `First term (no GPA yet) → up to ${FIRST_TERM_MAX_LOAD} credit hours` }
+    return { ar: `أول ترم (لسه مفيش معدل) ← حد أقصى ${FIRST_TERM_MAX_LOAD} ساعة`, en: `First semester (no GPA yet) → up to ${FIRST_TERM_MAX_LOAD} credit hours` }
   if (r.onProbation) return { ar: `إنذار أكاديمي ← حد أقصى ${limit} ساعة`, en: `Academic warning → up to ${limit} credit hours` }
   const b = LOAD_BANDS.find((x) => x.max_credits === limit)!
   if (b.gpa_min === 0) return { ar: `معدل أقل من ${fmt(b.gpa_max)} ← حد أقصى ${limit} ساعة`, en: `GPA < ${fmt(b.gpa_max)} → up to ${limit} credit hours` }
@@ -284,7 +284,7 @@ export function buildStudentView(s: StudentFileEntry) {
     const retake = gradName(nextIndexOf(item.term))
     const name = nameEn(code)
     const when: L = student.registeredNow.includes(code)
-      ? { ar: `وإنت مسجّله تاني الترم ده (${semesterNames[0].ar}).`, en: `You are retaking it this term (${semesterNames[0].en}).` }
+      ? { ar: `وإنت مسجّله تاني الترم ده (${semesterNames[0].ar}).`, en: `You are retaking it this semester (${semesterNames[0].en}).` }
       : {
           ar: `بيتدرّس في ${termWord[item.term].ar} بس حسب الخطة، فأقرب إعادة ${retake.ar}.`,
           en: `It is a ${termWord[item.term].en} course in the plan, so the earliest retake is ${retake.en}.`,
@@ -437,7 +437,7 @@ export function buildStudentView(s: StudentFileEntry) {
         graduation: { ar: "غير ممكن بالقواعد الحالية", en: "Not possible under current rules" },
         summary: {
           ar: `لأ. حتى بأقصى حمل (${topLoad} ساعة)، أقرب تخرج ${semesterNames[baselineGraduationIndex].ar}، لأن كل مقرر في السلسلة دي بيتدرّس في ترم واحد بس في السنة.`,
-          en: `No. Even at the maximum load (${topLoad} credit hours), the earliest graduation is ${semesterNames[baselineGraduationIndex].en}, because each course in this chain runs in only one term a year.`,
+          en: `No. Even at the maximum load (${topLoad} credit hours), the earliest graduation is ${semesterNames[baselineGraduationIndex].en}, because each course in this chain runs in only one semester a year.`,
         },
         ruleNote: {
           ar: chain.map((c) => withTerm(c, "ar")).join(" ← "),
