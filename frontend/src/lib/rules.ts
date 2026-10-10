@@ -17,7 +17,10 @@ import {
 } from "@/lib/aie-program"
 
 export type StudentRecord = {
-  gpa: number
+  /** Cumulative GPA; null before the first term has results. */
+  gpa: number | null
+  /** On academic warning (probation): the load limit drops to the probation maximum. */
+  onProbation?: boolean
   /** Passed course codes (including pool courses taken as electives). */
   passed: string[]
   /** Courses taken and failed, not yet passed. */
@@ -26,15 +29,25 @@ export type StudentRecord = {
   electiveChoices: Record<string, string>
 }
 
-/**
- * Max registration load from "Academic Load per Semester".
- * Note: the source's table says GPA < 2.00 → 14 cr, but its Academic Warning section says a student on
- * probation may not exceed 12 cr. Kept as the table value here; needs confirmation from the official bylaws.
- */
-export function maxLoad(gpa: number) {
-  if (gpa < 2) return 14
-  if (gpa < 3) return 18
-  return 21
+/** Max registration load by GPA, from "Academic Load per Semester" (same figures as ai/data/courses.json → rules). */
+export const LOAD_BANDS = [
+  { gpa_min: 0, gpa_max: 2, max_credits: 14 },
+  { gpa_min: 2, gpa_max: 3, max_credits: 18 },
+  { gpa_min: 3, gpa_max: 4.01, max_credits: 21 },
+]
+/** A first-term student has no GPA yet; the faculty allows 18 credit hours in that term. */
+export const FIRST_TERM_MAX_LOAD = 18
+/** A student on academic warning may not exceed 12 credit hours (Academic Warning section of the bylaws). */
+export const PROBATION_MAX_LOAD = 12
+/** Highest grade on a re-registered (retaken) course. */
+export const RETAKE_MAX_GRADE = "B+"
+
+/** Max registration load: 18 in the first term, 12 on academic warning, otherwise the GPA band in LOAD_BANDS. */
+export function maxLoad(gpa: number | null, onProbation = false) {
+  if (gpa === null) return FIRST_TERM_MAX_LOAD
+  if (onProbation) return PROBATION_MAX_LOAD
+  const band = LOAD_BANDS.find((b) => gpa >= b.gpa_min && gpa < b.gpa_max)
+  return band?.max_credits ?? LOAD_BANDS.at(-1)!.max_credits
 }
 export const MIN_LOAD = 12
 

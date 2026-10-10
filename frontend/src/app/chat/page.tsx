@@ -7,21 +7,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { AppIcon } from "@/components/masari/brand"
 import { CategoryTag, Code, SlotTag } from "@/components/masari/bits"
 import { AiExplanation, ConfidenceMeter, RagSourceChip, SourceChip, VerifiedBadge } from "@/components/masari/trust"
-import {
-  chatSuggestions,
-  confidenceFromResponses,
-  courseNames,
-  defaultPrefs,
-  demoCompatibility,
-  ineligibleCourses,
-  instructors,
-  proposedNow,
-  recommendedCourses,
-  sources,
-  student,
-} from "@/lib/mock-data"
-import { useDemoState, type ChatMessage, type RagSource } from "@/lib/demo-state"
+import { findCourse, termOf } from "@/lib/aie-program"
+import { chatSuggestions, confidenceFromResponses, courseNames, defaultPrefs, demoCompatibility, instructors, sources } from "@/lib/demo-content"
+import { RETAKE_MAX_GRADE } from "@/lib/rules"
+import { lockedExample, useDemoState, type ChatMessage, type RagSource } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
+import { useStudentView } from "@/lib/student-context"
 import { useVoiceInput } from "@/lib/use-voice-input"
 import { cn } from "@/lib/utils"
 
@@ -255,15 +246,37 @@ function SimpleMarkdown({ text }: { text: string }) {
 
 function RecommendationReply() {
   const { t, tr, num, lang } = useI18n()
+  const { recommendedCourses, proposedNow, ineligibleCourses, student } = useStudentView()
   // The planner's proposal for this term: already checked for prerequisites, credit thresholds and the load limit.
   const picks = recommendedCourses.filter((c) => proposedNow.includes(c.code))
   const credits = picks.reduce((s, c) => s + c.credits, 0)
-  const course = "ECE 321"
-  const best = instructors
-    .filter((i) => i.courseCode === course)
-    .map((i) => ({ ...i, score: demoCompatibility(i.profile, defaultPrefs) }))
-    .filter((i) => confidenceFromResponses(i.responses) !== "low")
-    .sort((a, b) => b.score - a.score)[0]
+  // Instructor suggestion for the first proposed course that has (simulated) instructor data.
+  const course = picks.find((c) => instructors.some((i) => i.courseCode === c.code))?.code
+  const best = course
+    ? instructors
+        .filter((i) => i.courseCode === course)
+        .map((i) => ({ ...i, score: demoCompatibility(i.profile, defaultPrefs) }))
+        .filter((i) => confidenceFromResponses(i.responses) !== "low")
+        .sort((a, b) => b.score - a.score)[0]
+    : undefined
+  const top = picks[0]
+  const locked = ineligibleCourses.find((c) => c.missing.length > 0)
+
+  // Wording assembled from the verified facts above (placeholder until the AI service writes it).
+  const explanation =
+    lang === "ar"
+      ? [
+          `رشحتلك ${num(picks.length)} مقررات بمجموع ${num(credits)} ساعة، وده في حدود المسموح ليك (${num(student.maxLoad)}).`,
+          top && `بدأت بـ ${tr(top.name)} لأنه الأعلى أولوية${top.unlocks.length ? `، وهو متطلب سابق لـ ${num(top.unlocks.length)} مقررات` : ""}.`,
+          locked && `${tr(locked.name)} مش في القايمة لأن متطلبه السابق ${locked.missing.join("، ")} لسه متعداش.`,
+          best && course && `بالنسبة لـ ${tr(courseNames[course])}، ${tr(best.name)} الأقرب لتفضيلك بناءً على ${num(best.responses)} تقييم سابق.`,
+        ]
+      : [
+          `I suggest ${picks.length} courses totalling ${credits} credit hours, within your limit of ${student.maxLoad}.`,
+          top && `${tr(top.name)} comes first because it has the highest priority${top.unlocks.length ? ` and is a prerequisite for ${top.unlocks.length} courses` : ""}.`,
+          locked && `${tr(locked.name)} is not on the list because its prerequisite ${locked.missing.join(", ")} is not passed yet.`,
+          best && course && `For ${tr(courseNames[course])}, ${tr(best.name)} is closest to your preferences, based on ${best.responses} past evaluations.`,
+        ]
 
   return (
     <AssistantShell>
@@ -291,42 +304,42 @@ function RecommendationReply() {
             </li>
           ))}
         </ol>
-        <div className="flex flex-wrap items-center gap-2 border-t pt-3 text-xs">
-          <XCircle className="size-3.5 text-destructive" aria-hidden />
-          <span className="text-muted-foreground">{t("notEligible")}:</span>
-          {ineligibleCourses.map((c) => (
-            <span key={c.code} className="rounded-md bg-destructive/8 px-1.5 py-0.5 text-destructive">
-              <Code>{c.code}</Code>
-            </span>
-          ))}
-        </div>
+        {ineligibleCourses.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 border-t pt-3 text-xs">
+            <XCircle className="size-3.5 text-destructive" aria-hidden />
+            <span className="text-muted-foreground">{t("notEligible")}:</span>
+            {ineligibleCourses.map((c) => (
+              <span key={c.code} className="rounded-md bg-destructive/8 px-1.5 py-0.5 text-destructive">
+                <Code>{c.code}</Code>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Instructor suggestion */}
-      <div className="space-y-2 rounded-xl border bg-card p-4">
-        <p className="text-xs text-muted-foreground">
-          {t("forCourse")}: <span className="font-medium text-foreground">{tr(courseNames[course])}</span> <Code>{course}</Code>
-        </p>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="font-semibold">{tr(best.name)}</p>
-            <p className="text-xs text-muted-foreground">
-              {t("section")} {num(Number(best.section))}
-            </p>
+      {best && course && (
+        <div className="space-y-2 rounded-xl border bg-card p-4">
+          <p className="text-xs text-muted-foreground">
+            {t("forCourse")}: <span className="font-medium text-foreground">{tr(courseNames[course])}</span> <Code>{course}</Code>
+          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="font-semibold">{tr(best.name)}</p>
+              <p className="text-xs text-muted-foreground">
+                {t("section")} {num(Number(best.section))}
+              </p>
+            </div>
+            <div className="text-end">
+              <p className="text-2xl font-bold text-primary tabular-nums">{num(best.score)}%</p>
+              <p className="text-xs text-muted-foreground">{t("compatibility")}</p>
+            </div>
           </div>
-          <div className="text-end">
-            <p className="text-2xl font-bold text-primary tabular-nums">{num(best.score)}%</p>
-            <p className="text-xs text-muted-foreground">{t("compatibility")}</p>
-          </div>
+          <ConfidenceMeter level={confidenceFromResponses(best.responses)} responses={best.responses} />
         </div>
-        <ConfidenceMeter level={confidenceFromResponses(best.responses)} responses={best.responses} />
-      </div>
+      )}
 
-      <AiExplanation>
-        {lang === "ar"
-          ? `رشحتلك ${num(picks.length)} مقررات بمجموع ${num(credits)} ساعة، وده تحت الحد المسموح ليك (${num(student.maxLoad)}). بدأت بـ Communication Networks لأنه المتطلب الوحيد لاختياري IoT، وبعده مشروع التخرج (1) لأنه بيتسجل في الربيع بس. Deep Learning مش في القايمة لأنك محتاج تعدّي Neural Networks الأول. بالنسبة لـ Communication Networks، ${tr(best.name)} الأقرب لتفضيلك بناءً على ${num(best.responses)} تقييم سابق.`
-          : `I suggest ${picks.length} courses totalling ${credits} credit hours, under your limit of ${student.maxLoad}. Communication Networks comes first because it is the only prerequisite for the IoT elective, then Project (1) because it runs in Spring only. Deep Learning is not on the list because you need to pass Neural Networks first. For Communication Networks, ${tr(best.name)} is closest to your preferences, based on ${best.responses} past evaluations.`}
-      </AiExplanation>
+      <AiExplanation>{explanation.filter(Boolean).join(" ")}</AiExplanation>
 
       <div className="flex flex-wrap gap-2">
         <SourceChip sourceId="catalog" />
@@ -339,10 +352,40 @@ function RecommendationReply() {
 
 function PrereqReply() {
   const { t, tr, lang } = useI18n()
+  const view = useStudentView()
+  const locked = lockedExample(view)
+  if (!locked) return null
+  const { record, student, semesterNames, startTerm } = view
+  const passed = (code: string) => record.passed.includes(code)
+  const semOf = (code: string) => (findCourse(code) as { semester?: number } | undefined)?.semester
+  const termNote = (code: string) => {
+    const sem = semOf(code)
+    if (!sem) return undefined
+    if (lang === "ar") return termOf(sem) === "fall" ? "بيتدرّس خريف فقط" : "بيتدرّس ربيع فقط"
+    return termOf(sem) === "fall" ? "Fall only" : "Spring only"
+  }
   const rows: { code: string; requires: string; ok: boolean; note?: string }[] = [
-    { code: "CSE 351", requires: "ECE 332", ok: false },
-    { code: "ECE 332", requires: "BAS 218", ok: true, note: lang === "ar" ? "بيتدرّس خريف فقط" : "Fall only" },
+    { code: locked.code, requires: locked.missing.join(", "), ok: false },
+    ...locked.missing.map((p) => {
+      const pre = findCourse(p)?.prereqs ?? []
+      return { code: p, requires: pre.join(", ") || "—", ok: pre.every(passed), note: termNote(p) }
+    }),
   ]
+
+  // When can the first missing prerequisite be taken? Already this term, or the next term it is offered in.
+  const p = locked.missing[0]
+  const pSem = semOf(p)
+  const offset = startTerm === "spring" ? 1 : 0
+  const nextIdx = pSem ? semesterNames.findIndex((_, i) => (i + offset) % 2 === (termOf(pSem) === "fall" ? 0 : 1)) : -1
+  const failedBefore = record.failed.includes(p)
+  const pName = tr(courseNames[p])
+  let when = ""
+  if (student.registeredNow.includes(p)) when = lang === "ar" ? `وإنت مسجّل ${pName} الترم ده.` : `You are registered for ${pName} this term.`
+  else if (nextIdx >= 0) {
+    const cap = failedBefore ? (lang === "ar" ? ` (وأعلى تقدير هيبقى ${RETAKE_MAX_GRADE})` : ` (capped at ${RETAKE_MAX_GRADE})`) : ""
+    when = lang === "ar" ? `أقرب فرصة تاخد ${pName} ${tr(semesterNames[nextIdx])}${cap}.` : `The earliest chance to take ${pName} is ${tr(semesterNames[nextIdx])}${cap}.`
+  }
+
   return (
     <AssistantShell>
       <div className="space-y-3 rounded-xl border bg-card p-4">
@@ -372,8 +415,8 @@ function PrereqReply() {
       </div>
       <AiExplanation>
         {lang === "ar"
-          ? "مش هتقدر تسجل Deep Learning (CSE 351) لأن متطلبه السابق Neural Networks (ECE 332) وإنت سقطت فيه. Neural Networks بيتدرّس في الخريف بس، فأقرب فرصة تعيده خريف 2027 (وأعلى تقدير هيبقى B+)، وبعدها تسجل Deep Learning في ربيع 2028."
-          : "You can't register for Deep Learning (CSE 351) because its prerequisite, Neural Networks (ECE 332), is not passed yet. Neural Networks runs in Fall only, so the earliest retake is Fall 2027 (capped at B+), and then you can take Deep Learning in Spring 2028."}
+          ? `مش هتقدر تسجل ${tr(locked.name)} (${locked.code}) لأن متطلبه السابق ${pName} (${p}) لسه متعداش${failedBefore ? " وإنت سقطت فيه" : ""}. ${when}`
+          : `You can't register for ${tr(locked.name)} (${locked.code}) because its prerequisite, ${pName} (${p}), is not passed yet. ${when}`}
       </AiExplanation>
       <div className="flex flex-wrap gap-2">
         <SourceChip sourceId="catalog" />
@@ -407,8 +450,9 @@ function Typing() {
 function ContextPanel() {
   const { t, tr, num } = useI18n()
   const { newChat } = useDemoState()
+  const { student } = useStudentView()
   const rows: [string, string][] = [
-    [t("gpa"), num(student.gpa, { minimumFractionDigits: 1 })],
+    [t("gpa"), student.gpa === null ? "—" : num(student.gpa, { minimumFractionDigits: 1 })],
     [t("earned"), `${num(student.earned)} / ${num(student.total)}`],
     [t("maxLoad"), `${num(student.maxLoad)} ${t("creditsShort")}`],
     [t("level"), tr(student.level)],

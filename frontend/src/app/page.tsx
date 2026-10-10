@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Bar, CategoryTag, Code, Ring, SlotTag } from "@/components/masari/bits"
 import { JourneyRail } from "@/components/masari/journey"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
-import { alerts, electiveCategories, proposedNow, recommendedCourses, requirementGroups, student } from "@/lib/mock-data"
 import { useI18n } from "@/lib/i18n"
+import { useStudentView } from "@/lib/student-context"
 import { cn } from "@/lib/utils"
 
 const alertStyle = {
@@ -18,6 +18,7 @@ const alertStyle = {
 
 export default function DashboardPage() {
   const { t, tr, num, lang } = useI18n()
+  const { alerts, electiveCategories, proposedNow, recommendedCourses, requirementGroups, student } = useStudentView()
   const remaining = student.total - student.earned
   // What the rules-engine planner would register this term (prerequisites, credit thresholds and load limit checked).
   const proposal = recommendedCourses.filter((c) => proposedNow.includes(c.code))
@@ -74,10 +75,10 @@ export default function DashboardPage() {
       <section aria-label={t("standing")} className="grid grid-cols-2 gap-y-6 border-y py-6 md:grid-cols-4 md:divide-x md:divide-border rtl:md:divide-x-reverse">
         <Stat label={t("gpa")}>
           <span className="flex items-center gap-3">
-            <Ring value={student.gpa} max={4} size={44}>
-              <span className="sr-only">{num(student.gpa)}</span>
+            <Ring value={student.gpa ?? 0} max={4} size={44}>
+              <span className="sr-only">{student.gpa === null ? "—" : num(student.gpa)}</span>
             </Ring>
-            <span className="text-3xl font-semibold tabular">{num(student.gpa, { minimumFractionDigits: 1 })}</span>
+            <span className="text-3xl font-semibold tabular">{student.gpa === null ? "—" : num(student.gpa, { minimumFractionDigits: 1 })}</span>
             <span className="self-end pb-1 text-sm text-muted-foreground">/ {num(4, { minimumFractionDigits: 1 })}</span>
           </span>
         </Stat>
@@ -141,6 +142,7 @@ export default function DashboardPage() {
           <h2 id="alerts-title" className="text-xl font-semibold">
             {t("alerts")}
           </h2>
+          {alerts.length === 0 && <p className="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">{t("noAlerts")}</p>}
           <ul className="space-y-3">
             {alerts.map((a) => {
               const s = alertStyle[a.kind]

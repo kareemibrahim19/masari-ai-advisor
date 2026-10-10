@@ -96,7 +96,7 @@ export const courses: Course[] = [
   // Level 3
   elective(1, 7, "L300"),
   c("ECE 332", "Neural Networks", "ECE", 7, 3, ["BAS 218"]),
-  c("CSE 331", "Programming (2)", "CSE", 7, 3, ["CSE 111"]),
+  c("CSE 311", "Programming (2)", "CSE", 7, 3, ["CSE 111"]),
   c("CSE 313", "Data Management", "CSE", 7, 3, ["CSE 212"]),
   c("CSE 317", "Computer Architecture", "CSE", 7, 3, ["CSE 141"]),
   c("ECE 333", "Digital Image Processing", "ECE", 7, 3, ["ECE 235"]),
@@ -127,7 +127,7 @@ export const electivePools: Record<ElectiveGroup, PoolCourse[]> = {
     { code: "CSE 319", name: "Bioinformatics", category: "CSE", credits: 3, prereqs: ["BAS 216"], description: "DNA/protein databases, sequence alignment, phylogenetic trees, microarray analysis, protein structure prediction, comparative genomics." },
     { code: "CSE 318", name: "Human-Computer Interaction", category: "CSE", credits: 3, prereqs: ["CSE 251"], description: "HCI introduction, cognitive psychology, design methods, human psychology simulation, design sensitivity, evaluation methods, error recovery." },
     { code: "BAS 311", name: "Statistical Learning", category: "BAS", credits: 3, prereqs: ["BAS 216"], description: "Linear/logistic/polynomial regression, linear models, LDA, classification trees, random forests, SVM, PCA, cluster analysis." },
-    { code: "CSE 335", name: "Data Visualization & Analysis", category: "CSE", credits: 3, prereqs: ["CSE 331", "BAS 218"], description: "Data analysis & visualization intro, Python/R programming, data description methods, high-dimensional data, statistical analysis, hypothesis testing, dashboard design." },
+    { code: "CSE 335", name: "Data Visualization & Analysis", category: "CSE", credits: 3, prereqs: ["CSE 311", "BAS 218"], description: "Data analysis & visualization intro, Python/R programming, data description methods, high-dimensional data, statistical analysis, hypothesis testing, dashboard design." },
     { code: "CSE 352", name: "Cognitive Psychology", category: "CSE", credits: 3, prereqs: [], description: "Human information processing & AI, perception, human memory, visual cognition, language and thought." },
   ],
   L400: [

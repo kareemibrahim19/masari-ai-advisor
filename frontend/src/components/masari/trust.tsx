@@ -11,7 +11,7 @@
  */
 import { BookOpenText, FlaskConical, ShieldCheck, Sparkles } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { sources } from "@/lib/mock-data"
+import { sources } from "@/lib/demo-content"
 import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
