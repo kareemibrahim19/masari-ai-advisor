@@ -7,6 +7,7 @@ import { Bar, CategoryTag, Code, Ring, SlotTag } from "@/components/masari/bits"
 import { JourneyRail } from "@/components/masari/journey"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import { useI18n } from "@/lib/i18n"
+import { semesterLabel, useGraduationPlan, usePlanChoice } from "@/lib/plan-api"
 import { useStudentView } from "@/lib/student-context"
 import { cn } from "@/lib/utils"
 
@@ -23,7 +24,19 @@ export default function DashboardPage() {
   // What the rules-engine planner would register this term (prerequisites, credit thresholds and load limit checked).
   const proposal = recommendedCourses.filter((c) => proposedNow.includes(c.code))
   const proposalCredits = proposal.reduce((s, c) => s + c.credits, 0)
-  const grad = tr(student.estGraduation)
+  // The path and the estimate follow the target the student picked on the plan page (no what-if here).
+  const [choice] = usePlanChoice(student.id)
+  const { data, error, loading } = useGraduationPlan({
+    studentId: student.id,
+    targetYears: choice.target,
+    allowSummer: choice.summer,
+    failedCourses: [],
+    expectedTermGpa: null,
+  })
+  const plan = error ? null : (data?.plan ?? null)
+  const last = plan?.terms[plan.terms.length - 1]
+  const grad = plan ? (last ? semesterLabel(last.term, last.academic_year, lang) : tr(plan.current_term)) : tr(student.estGraduation)
+  const targetKey = ({ 4: "years4", 4.5: "years45", 5: "years5" } as const)[choice.target]
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-10 px-4 py-6 md:px-6 md:py-10">
@@ -65,9 +78,24 @@ export default function DashboardPage() {
         <div className="rounded-2xl border bg-card px-4 pt-5 pb-4 md:px-6">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-base font-semibold">{t("pathTitle")}</h2>
-            <VerifiedBadge />
+            <div className="flex flex-wrap items-center gap-2">
+              {plan && (
+                <Link
+                  href="/plan"
+                  className={cn(
+                    "inline-flex min-h-7 items-center gap-1 rounded-full px-2.5 text-xs font-medium transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none",
+                    plan.feasible ? "bg-muted" : "bg-warning-soft text-warning"
+                  )}
+                  title={t("pathChangeTarget")}
+                >
+                  {t("pathTarget")}: {t(targetKey)}
+                  {!plan.feasible && ` · ${t("pathTargetNotPossible")}`}
+                </Link>
+              )}
+              <VerifiedBadge />
+            </div>
           </div>
-          <JourneyRail />
+          <JourneyRail plan={plan} loading={loading} />
         </div>
       </section>
 

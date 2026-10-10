@@ -26,12 +26,12 @@ import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import { courseNames } from "@/lib/demo-content"
 import { useI18n } from "@/lib/i18n"
 import {
-  fetchPlan,
   PlanError,
+  usePlanChoice,
+  useGraduationPlan,
   type GraduationPlan,
   type PlanCourse,
   type PlanFlag,
-  type PlanResponse,
   type PlanTerm,
   type TargetYears,
 } from "@/lib/plan-api"
@@ -67,17 +67,13 @@ export default function PlanPage() {
   const { t, tr, num } = useI18n()
   const { student } = useStudentView()
 
-  const [target, setTarget] = React.useState<TargetYears>(5)
-  const [allowSummer, setAllowSummer] = React.useState(true)
+  const [choice, setChoice] = usePlanChoice(student.id)
+  const { target, summer: allowSummer } = choice
+  const setTarget = (years: TargetYears) => setChoice({ ...choice, target: years })
+  const setAllowSummer = (on: boolean) => setChoice({ ...choice, summer: on })
   const [failed, setFailed] = React.useState<string[]>([])
   const [gpaText, setGpaText] = React.useState("")
   const [gpa, setGpa] = React.useState<number | null>(null)
-
-  const [data, setData] = React.useState<PlanResponse | null>(null)
-  // The request the shown result (or error) belongs to; while it differs from the current one we are loading.
-  const [settledKey, setSettledKey] = React.useState("")
-  const [error, setError] = React.useState<PlanError | Error | null>(null)
-  const [attempt, setAttempt] = React.useState(0)
 
   // Wait for the student to stop typing before asking for a new plan.
   React.useEffect(() => {
@@ -85,28 +81,13 @@ export default function PlanPage() {
     return () => clearTimeout(id)
   }, [gpaText])
 
-  const query = React.useMemo(
-    () => ({ studentId: student.id, targetYears: target, allowSummer, failedCourses: failed, expectedTermGpa: gpa }),
-    [student.id, target, allowSummer, failed, gpa]
-  )
-  const key = `${JSON.stringify(query)}#${attempt}`
-  const loading = settledKey !== key
-
-  React.useEffect(() => {
-    const controller = new AbortController()
-    fetchPlan(query, controller.signal)
-      .then((d) => {
-        setData(d)
-        setError(null)
-        setSettledKey(key)
-      })
-      .catch((e: Error) => {
-        if (e.name === "AbortError") return
-        setError(e)
-        setSettledKey(key)
-      })
-    return () => controller.abort()
-  }, [query, key])
+  const { data, error, loading, retry } = useGraduationPlan({
+    studentId: student.id,
+    targetYears: target,
+    allowSummer,
+    failedCourses: failed,
+    expectedTermGpa: gpa,
+  })
 
   const plan = data?.plan
   const baseline = data?.baseline ?? null
@@ -252,7 +233,7 @@ export default function PlanPage() {
               <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden />
               {t("planServiceDown")}
             </p>
-            <Button variant="outline" className="h-11 gap-1.5" onClick={() => setAttempt((n) => n + 1)}>
+            <Button variant="outline" className="h-11 gap-1.5" onClick={retry}>
               <RotateCw className="size-4" />
               {t("retry")}
             </Button>

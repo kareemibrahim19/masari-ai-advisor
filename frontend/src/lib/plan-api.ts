@@ -2,6 +2,7 @@
  * Graduation plan from the Masari AI service (POST /api/plan, ai/chatbot/tools/planner.py).
  * The plan is solved in Python against the regulations; the page only shows it.
  */
+import * as React from "react"
 import { MASARI_API_URL } from "@/lib/demo-state"
 
 export type TargetYears = 4 | 4.5 | 5
@@ -83,4 +84,91 @@ export class PlanError extends Error {
   constructor(message: string, readonly status: number) {
     super(message)
   }
+}
+
+// ---------------------------------------------------------------- shared by the plan page and the dashboard
+
+/** The target and summer choice the student made on the plan page, saved per student in this browser. */
+export type PlanChoice = { target: TargetYears; summer: boolean }
+
+const DEFAULT_CHOICE = "5:1"
+const choiceKey = (studentId: string) => `masari.plan.${studentId}`
+const choiceListeners = new Set<() => void>()
+
+function readChoice(studentId: string) {
+  try {
+    return localStorage.getItem(choiceKey(studentId)) ?? DEFAULT_CHOICE
+  } catch {
+    return DEFAULT_CHOICE
+  }
+}
+
+function subscribeChoice(cb: () => void) {
+  choiceListeners.add(cb)
+  const onStorage = (e: StorageEvent) => e.key?.startsWith("masari.plan.") && cb()
+  window.addEventListener("storage", onStorage)
+  return () => {
+    choiceListeners.delete(cb)
+    window.removeEventListener("storage", onStorage)
+  }
+}
+
+function parseChoice(raw: string): PlanChoice {
+  const [t, s] = raw.split(":")
+  return { target: t === "4" ? 4 : t === "4.5" ? 4.5 : 5, summer: s !== "0" }
+}
+
+export function usePlanChoice(studentId: string): [PlanChoice, (c: PlanChoice) => void] {
+  const raw = React.useSyncExternalStore(subscribeChoice, () => readChoice(studentId), () => DEFAULT_CHOICE)
+  const choice = React.useMemo(() => parseChoice(raw), [raw])
+  const set = React.useCallback(
+    (c: PlanChoice) => {
+      try {
+        localStorage.setItem(choiceKey(studentId), `${c.target}:${c.summer ? 1 : 0}`)
+      } catch {}
+      choiceListeners.forEach((l) => l())
+    },
+    [studentId]
+  )
+  return [choice, set]
+}
+
+/**
+ * Fetches the plan for a query. `loading` is true while the shown result belongs to an older query,
+ * so callers can dim stale data instead of presenting it as current.
+ */
+export function useGraduationPlan(query: PlanQuery) {
+  const [data, setData] = React.useState<PlanResponse | null>(null)
+  const [error, setError] = React.useState<PlanError | Error | null>(null)
+  // The request the shown result (or error) belongs to.
+  const [settledKey, setSettledKey] = React.useState("")
+  const [attempt, setAttempt] = React.useState(0)
+  const key = `${JSON.stringify(query)}#${attempt}`
+
+  React.useEffect(() => {
+    const controller = new AbortController()
+    fetchPlan(JSON.parse(key.slice(0, key.lastIndexOf("#"))) as PlanQuery, controller.signal)
+      .then((d) => {
+        setData(d)
+        setError(null)
+        setSettledKey(key)
+      })
+      .catch((e: Error) => {
+        if (e.name === "AbortError") return
+        setError(e)
+        setSettledKey(key)
+      })
+    return () => controller.abort()
+  }, [key])
+
+  const retry = React.useCallback(() => setAttempt((n) => n + 1), [])
+  return { data, error, loading: settledKey !== key, retry }
+}
+
+/** "Fall 2026", "Spring 2027", "Summer 2027": the calendar year the semester falls in (academic year 2026-2027). */
+export function semesterLabel(term: "fall" | "spring" | "summer", academicYear: string, lang: "ar" | "en") {
+  const start = parseInt(academicYear, 10)
+  const year = term === "fall" ? start : start + 1
+  const word = { fall: { ar: "خريف", en: "Fall" }, spring: { ar: "ربيع", en: "Spring" }, summer: { ar: "صيفي", en: "Summer" } }[term]
+  return `${word[lang]} ${year}`
 }
