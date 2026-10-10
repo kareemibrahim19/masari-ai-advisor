@@ -10,7 +10,7 @@ import { CategoryTag, Code, PageHeader } from "@/components/masari/bits"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import {
   categoryLabels,
-  courseName,
+  courseNameIn,
   courses,
   dependentsOf,
   electivePools,
@@ -115,7 +115,7 @@ function TermBadge({ semester }: { semester: number }) {
 }
 
 function CodeLinks({ codes, onPick }: { codes: string[]; onPick: (code: string) => void }) {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const { record } = useStudentView()
   if (!codes.length) return <span className="text-muted-foreground">{t("none")}</span>
   return (
@@ -127,7 +127,7 @@ function CodeLinks({ codes, onPick }: { codes: string[]; onPick: (code: string) 
             key={c}
             type="button"
             onClick={() => onPick(c)}
-            title={courseName(c)}
+            title={courseNameIn(c, lang)}
             className={cn(
               "inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-xs transition-colors focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none",
               passed ? "bg-verified-soft text-verified hover:bg-verified-soft/70" : "bg-muted hover:bg-accent"
@@ -199,7 +199,8 @@ function CoursesCatalog() {
   const rows = courses.filter((c) => {
     if (q) {
       const pool = c.electiveGroup ? electivePools[c.electiveGroup] : []
-      const hit = (x: { code: string; name: string }) => x.code.toLowerCase().includes(q) || x.name.toLowerCase().includes(q)
+      const hit = (x: { code: string; name: string }) =>
+        x.code.toLowerCase().includes(q) || x.name.toLowerCase().includes(q) || courseNameIn(x.code, "ar").includes(q)
       if (!hit(c) && !pool.some(hit)) return false
     }
     if (f.level !== "all" && levelOf(c.semester) !== Number(f.level)) return false
@@ -332,7 +333,7 @@ function CourseRow({
   onToggle: () => void
   onPick: (code: string) => void
 }) {
-  const { t, tr, num } = useI18n()
+  const { t, tr, num, lang } = useI18n()
   const { record } = useStudentView()
   const isSlot = c.type === "elective"
   const deps = dependentsOf(c.code)
@@ -358,7 +359,7 @@ function CourseRow({
             <Code className="text-xs text-muted-foreground">{isSlot ? c.code.replace("ELEC ", "") : c.code}</Code>
             <CategoryTag category={c.category} />
           </span>
-          <span className="block font-medium">{isSlot ? `${c.name} · ${c.electiveGroup}` : c.name}</span>
+          <span className="block font-medium">{isSlot ? `${courseNameIn(c.code, lang)} · ${c.electiveGroup}` : courseNameIn(c.code, lang)}</span>
           <span className="text-xs text-muted-foreground">
             {tr(typeLabels[c.type])}
             {chosen && (
@@ -438,7 +439,7 @@ function CourseRow({
 }
 
 function ElectiveOptions({ group, chosen, onPick }: { group: "L300" | "L400"; chosen?: string; onPick: (code: string) => void }) {
-  const { t, num } = useI18n()
+  const { t, num, lang } = useI18n()
   const { record } = useStudentView()
   return (
     <div className="space-y-2">
@@ -451,7 +452,7 @@ function ElectiveOptions({ group, chosen, onPick }: { group: "L300" | "L400"; ch
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="flex flex-wrap items-center gap-2 font-medium">
-                  {p.name}
+                  {courseNameIn(p.code, lang)}
                   {chosen === p.code && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-highlight-soft px-2 py-0.5 text-[11px] font-medium text-highlight-ink">
                       <Star className="size-3" aria-hidden />

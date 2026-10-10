@@ -15,7 +15,7 @@ const dict = {
   navDashboard: { ar: "الرئيسية", en: "Dashboard" },
   navChat: { ar: "اسأل مساري", en: "Ask Masari" },
   navCourses: { ar: "التوصيات", en: "Recommendations" },
-  navPlan: { ar: "الخطة الدراسية", en: "Study plan" },
+  navPlan: { ar: "خطة التخرج", en: "Graduation plan" },
   demoData: { ar: "بيانات تجريبية", en: "Demo data" },
   demoDataHint: {
     ar: "المقررات واللائحة من دليل برنامج AIE، لكن الطالب والدكاترة والمقاعد بيانات تجريبية. مش مربوط بنظام الجامعة.",
@@ -154,7 +154,7 @@ const dict = {
   section: { ar: "سكشن", en: "Section" },
 
   // Plan
-  planTitle: { ar: "الخطة الدراسية", en: "Study plan" },
+  planTitle: { ar: "خطة التخرج", en: "Graduation plan" },
   planSubtitle: {
     ar: "خطة مقترحة للفصول الجاية، متحققة من المتطلبات السابقة وحدود الساعات.",
     en: "A proposed multi-semester plan, checked against prerequisites and credit limits.",

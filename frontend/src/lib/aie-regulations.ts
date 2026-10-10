@@ -113,7 +113,7 @@ export const ruleSections: RuleSection[] = [
       { ar: "ARI 171: تدريب عملي داخل الجامعة، أسبوعين / 60 ساعة على الأقل.", en: "ARI 171: practical training at the university, at least 2 weeks / 60 hours." },
       { ar: "ARI 271 و ARI 371: تدريب ميداني خارجي، 4 أسابيع / 120 ساعة على الأقل، بشهادة رسمية.", en: "ARI 271 and ARI 371: external field training, at least 4 weeks / 120 hours, with an official certificate." },
       { ar: "التدريب نجاح/رسوب ومش بيتحسب في المعدل.", en: "Training is graded Pass/Fail and does not count in the GPA." },
-      { ar: "مشروعات التخرج (ARI 381 و481 و482) في مجموعات من 2–3 طلاب.", en: "Graduation projects (ARI 381, 481, 482) are done in groups of 2–3 students." },
+      { ar: "مشروعات التخرج (ARI 381 و481 و482) في مجموعات من 5–8 طلاب.", en: "Graduation projects (ARI 381, 481, 482) are done in groups of 5–8 students." },
     ],
   },
 ]

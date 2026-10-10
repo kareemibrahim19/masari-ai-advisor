@@ -42,7 +42,8 @@ export default function ChatPage() {
         <h1 id="chat-title" className="sr-only">
           {t("chatTitle")}
         </h1>
-        <div className="flex-1 overflow-y-auto">
+        {/* relative: keeps the absolutely positioned sr-only labels inside the scroll area, not stretching the page. */}
+        <div className="relative flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6 md:px-6" role="log" aria-live="polite">
             {messages.map((m) =>
               m.role === "user" ? (
@@ -458,7 +459,7 @@ function ContextPanel() {
     [t("level"), tr(student.level)],
   ]
   return (
-    <aside className="hidden h-[calc(100dvh-4rem)] space-y-6 overflow-y-auto border-s bg-card p-5 lg:block">
+    <aside className="relative hidden h-[calc(100dvh-4rem)] space-y-6 overflow-y-auto border-s bg-card p-5 lg:block">
       <Button variant="outline" className="h-10 w-full gap-2" onClick={newChat}>
         <Plus className="size-4" />
         {t("newChat")}
