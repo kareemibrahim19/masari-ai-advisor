@@ -22,6 +22,9 @@ MIN_HISTORY = 3        # graded courses with known instructors before performanc
 FULL_HISTORY = 10      # graded courses at which the performance signal has full weight
 DIM_AR = {"clarity": "وضوح الشرح", "pace": "سرعة الشرح", "workload": "العبء الدراسي",
           "practical": "الجانب العملي", "difficulty": "صعوبة التقييم", "satisfaction": "رضا الطلاب"}
+BASIS_EN = {"surveys_only": "Based on past student evaluations",
+            "surveys_and_preferences": "Based on student evaluations and your preferences",
+            "surveys_and_performance": "Based on student evaluations and your past performance"}
 BASIS_AR = {"surveys_only": "مبني على تقييمات الطلبة السابقين",
             "surveys_and_preferences": "مبني على تقييمات الطلبة وتفضيلاتك",
             "surveys_and_performance": "مبني على تقييمات الطلبة وأدائك السابق"}
@@ -191,21 +194,27 @@ def _score(offering: dict, taste: dict, basis: str, n_hist: int, cgpa: float | N
             "adjusted_profile": {k: round(v) for k, v in p.items()}}
 
 
-def _reasons(offering: dict, taste: dict, adj: dict) -> list[str]:
+def _reasons(offering: dict, taste: dict, adj: dict) -> list[tuple[str, str]]:
+    """Why an instructor fits, as (Arabic, English) pairs so the UI can show either language."""
     out = []
-    for k, word_hi, word_lo in (("pace", "أسرع", "أبطأ"), ("workload", "أتقل", "أخف"), ("practical", "أكتر عملي", "أكتر نظري")):
+    dims = (("pace", "أسرع", "أبطأ", "faster", "slower"), ("workload", "أتقل", "أخف", "heavier", "lighter"),
+            ("practical", "أكتر عملي", "أكتر نظري", "more hands-on", "more theoretical"))
+    en_name = {"pace": "Teaching pace", "workload": "Workload", "practical": "Practical side"}
+    for k, ar_hi, ar_lo, en_hi, en_lo in dims:
         if k in taste:
             diff = adj[k] - taste[k]
             if abs(diff) <= 15:
-                out.append(f"{DIM_AR[k]} قريب من تفضيلك")
+                out.append((f"{DIM_AR[k]} قريب من تفضيلك", f"{en_name[k]} is close to your preference"))
             elif k != "workload" or diff > 0:
-                out.append(f"{DIM_AR[k]}: {word_hi if diff > 0 else word_lo} من تفضيلك")
+                out.append((f"{DIM_AR[k]}: {ar_hi if diff > 0 else ar_lo} من تفضيلك",
+                            f"{en_name[k]}: {en_hi if diff > 0 else en_lo} than you prefer"))
     if adj["clarity"] >= 80:
-        out.append("شرحه واضح حسب تقييم الطلبة")
+        out.append(("شرحه واضح حسب تقييم الطلبة", "Clear explanations according to students"))
     if adj["satisfaction"] >= 80:
-        out.append("رضا الطلبة عنه عالي")
+        out.append(("رضا الطلبة عنه عالي", "High student satisfaction"))
     if offering["responses"] < 20:
-        out.append(f"عدد التقييمات قليل ({offering['responses']}) فالنتيجة أقل ثقة")
+        n = offering["responses"]
+        out.append((f"عدد التقييمات قليل ({n}) فالنتيجة أقل ثقة", f"Only {n} evaluations, so this score is less certain"))
     return out
 
 
@@ -230,13 +239,14 @@ def recommend_instructor(student_id: str, course_code: str, pace: float | None =
     ranking = []
     for o in offs:
         sc = _score(o, taste, basis, n_hist, cgpa)
-        ranking.append({**_view(o), **sc, "reasons": _reasons(o, taste, sc["adjusted_profile"])})
+        pairs = _reasons(o, taste, sc["adjusted_profile"])
+        ranking.append({**_view(o), **sc, "reasons": [a for a, _ in pairs], "reasons_en": [e for _, e in pairs]})
     ranking.sort(key=lambda r: r["score"], reverse=True)
     for i, r in enumerate(ranking, start=1):
         r["rank"] = i
     top = ranking[0]
     return {"found": True, "student_id": s["student_id"], "course": d.course_label(c["code"]),
-            "basis": basis, "basis_ar": BASIS_AR[basis], "preferences_used": taste,
+            "basis": basis, "basis_ar": BASIS_AR[basis], "basis_en": BASIS_EN[basis], "preferences_used": taste,
             "graded_courses_used": n_hist, "cumulative_gpa": cgpa, "ranking": ranking,
             "explanation": f"أنسب دكتور ليك في {c['name_ar']} هو {top['name_ar']} ({BASIS_AR[basis]}).",
             "note": "الأرقام من استبيانات محاكاة لحد ما الاستبيانات الحقيقية تتحمل."}
@@ -274,3 +284,13 @@ def compare_instructors(course_code: str, instructor_a: str, instructor_b: str,
         better = a if a["profile"]["satisfaction"] >= b["profile"]["satisfaction"] else b
         out["explanation"] = "المقارنة على التقييمات بس. قولّي تفضيلاتك (سرعة، عبء، عملي) أو اختار طالب عشان أحدد الأنسب ليك."
     return out
+
+
+def courses_with_instructors() -> dict:
+    """Course codes that have instructor survey data, with how many sections each has (for the course picker)."""
+    count: dict[str, int] = {}
+    for o in _offerings():
+        count[o["course_code"]] = count.get(o["course_code"], 0) + 1
+    return {"found": True, "courses": [
+        {"code": c, "name_ar": d.courses()[c]["name_ar"], "name_en": d.courses()[c].get("name_en"), "sections": n}
+        for c, n in sorted(count.items())]}

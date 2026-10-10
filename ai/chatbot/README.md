@@ -87,6 +87,19 @@ Response:
 only). Instructor recommendations carry `basis` / `basis_ar` (surveys only, surveys + preferences, surveys +
 performance), `confidence` and `reasons` in their `result`, which the recommendations screen can show directly.
 
+### Endpoints for the pages (no chat needed)
+
+The recommendations page and the chat card show the same results as the chat tools:
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/instructors/courses` | courses that have instructor survey data (`code`, names, `sections`) |
+| `GET /api/instructors/recommend?course_code=ECE 321&student_id=...` | instructors of the course ranked for the student: `basis` (`surveys_only` / `surveys_and_preferences` / `surveys_and_performance`), `basis_ar`, `basis_en`, and per instructor `score`, `confidence`, `profile`, `reasons` / `reasons_en` |
+| `POST /api/tools/{name}` with `{ "args": {...}, "student_id": "..." }` | runs any tool from `tools/` directly (404 for an unknown tool or student) |
+
+Add `pace`, `workload`, `practical` (0-100) to `recommend` only when the student set them; without them the
+ranking uses the student's own grades (or the surveys alone for a first-year student).
+
 `POST /api/transcribe` (multipart form): `audio` = the recording (webm / mp4 / ogg / mp3 / wav, up to 10 MB),
 optional `language` = `ar` or `en` (auto-detected otherwise). Response: `{ "text": "..." }`.
 
@@ -127,6 +140,6 @@ The current term (Fall 2026-2027) is `in_progress`: courses are registered and h
 | `GROQ_API_KEY` | none; needed for the microphone with the `groq` backend |
 | `STT_BACKEND` | `groq`; `local` runs Whisper on this machine (`pip install faster-whisper`, downloads ~1.6 GB on first use, not for Vercel) |
 | `GROQ_STT_MODEL` / `LOCAL_STT_MODEL` | `whisper-large-v3-turbo` / `large-v3-turbo` |
-| `MASARI_CORS_ORIGINS` | `http://localhost:3000,http://127.0.0.1:3000` (comma-separated origins allowed to call the API) |
+| `MASARI_CORS_ORIGINS` | none. The site domains (`masari-ai-advisor.vercel.app`, `masari-web-sigma.vercel.app`, localhost:3000) are always allowed; list extra origins here, comma-separated |
 
 The frontend reads the service URL from `NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000`).

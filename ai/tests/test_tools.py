@@ -26,7 +26,7 @@ def check(name, cond, got=None):
 check("limit excellent=21", call_tool("credit_limit", {}, EXC)["max_credits"] == 21)
 r = call_tool("credit_limit", {}, PROB)
 check("limit probation=12", r["max_credits"] == 12 and r["on_warning"], r)
-check("limit new student=21", call_tool("credit_limit", {}, NEW)["max_credits"] == 21)
+check("limit new student=18 (first term, same as the website)", call_tool("credit_limit", {}, NEW)["max_credits"] == 18)
 check("limit summer=3 courses", call_tool("credit_limit", {"term_type": "summer"}, EXC)["max_courses"] == 3)
 
 # standing

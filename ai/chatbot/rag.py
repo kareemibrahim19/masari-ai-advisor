@@ -29,7 +29,7 @@ load_dotenv(REPO_ROOT / ".env")
 CHAT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 REWRITE_MODEL = os.getenv("GEMINI_REWRITE_MODEL", "gemini-3.5-flash-lite")
 FALLBACK_MODELS = ["gemini-3.5-flash", "gemini-flash-latest", "gemini-3.5-flash-lite"]
-MODEL_TIMEOUT_MS = 25_000
+MODEL_TIMEOUT_MS = 20_000
 EMBED_MODEL = os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001")
 TOP_K = 8
 RETRY_DELAYS = [3, 8, 20]
@@ -232,20 +232,31 @@ class Masari:
 
     def _generate(self, contents: list, config) -> tuple:
         """One Gemini call with model fallback. If a model is busy, out of quota or too slow, try the
-        next one; models that hit their quota are skipped for a few minutes."""
+        next one; a model that just failed is skipped for a while so the next questions don't wait on it again.
+
+        Thinking is kept short (LOW): the answers come from tool results and retrieved text, and long
+        thinking took ~20 s instead of ~5 s. A model that doesn't accept the setting is called without it.
+        """
         models = [m for m in dict.fromkeys([CHAT_MODEL, *FALLBACK_MODELS])
                   if self.cooldown.get(m, 0) < time.time()] or FALLBACK_MODELS[-1:]
         for i, model in enumerate(models):
             try:
-                r = _with_retry(lambda: self.client.models.generate_content(
-                    model=model, contents=contents, config=config), delays=[2], wait_on_429=False)
+                try:
+                    cfg = config.model_copy(update={"thinking_config": types.ThinkingConfig(thinking_level="LOW")})
+                    r = _with_retry(lambda: self.client.models.generate_content(
+                        model=model, contents=contents, config=cfg), delays=[2], wait_on_429=False)
+                except errors.ClientError as e:
+                    if e.code != 400:
+                        raise
+                    r = _with_retry(lambda: self.client.models.generate_content(
+                        model=model, contents=contents, config=config), delays=[2], wait_on_429=False)
                 return r, model
             except (errors.APIError, httpx.TimeoutException) as e:
                 code = getattr(e, "code", "timeout")
                 print(f"{model} failed ({code}), trying next model", file=sys.stderr)
-                if code == 429:
-                    self.cooldown[model] = time.time() + 300
-                # 500/503/504 = Gemini-side trouble, 429 = quota, 404 = model retired: all worth trying the next model.
+                # 429 = quota (wait longer); 500/503/504/timeout = the model is struggling right now.
+                self.cooldown[model] = time.time() + (300 if code == 429 else 90)
+                # 404 = model retired: also worth trying the next model.
                 if code not in (404, 429, 500, 503, 504, "timeout") or i == len(models) - 1:
                     raise
 

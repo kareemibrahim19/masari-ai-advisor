@@ -14,6 +14,11 @@ ARTICLES = {"load": "مادة 13", "drop": "مادة 15", "retake": "مادة 15
             "improve": "مادة 30", "project": "مادة 16"}
 
 
+# The regulations give limits by GPA only; a student with no GPA yet (first term) gets 18, the same value the
+# website's rules engine (frontend/src/lib/rules.ts) uses, so the chat and the pages never disagree.
+FIRST_TERM_MAX_LOAD = 18
+
+
 def _student(student_id: str):
     s = d.get_student(student_id)
     return (s, None) if s else (None, d.not_found("الطالب", student_id))
@@ -51,7 +56,7 @@ def credit_limit(student_id: str, term_type: str = "main") -> dict:
 
     warned = _on_warning(cgpa, main_done)
     if cgpa is None:
-        limit, why = 21, "أول فصل دراسي ومفيش معدل تراكمي لسه، فالحد الأقصى 21 ساعة."
+        limit, why = FIRST_TERM_MAX_LOAD, f"أول فصل دراسي ومفيش معدل تراكمي لسه، فالحد الأقصى {FIRST_TERM_MAX_LOAD} ساعة."
     elif warned:
         limit = r["probation_max_credits"]
         why = f"الطالب تحت الإنذار الأكاديمي (معدله {cgpa} أقل من 2.00)، فالحد الأقصى {limit} ساعة."
