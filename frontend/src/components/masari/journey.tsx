@@ -28,7 +28,7 @@ const BEND = 0.24
 
 type Node =
   | { kind: "done"; label: string; failed: boolean }
-  | { kind: "term"; label: string; credits: number; empty: boolean; grad: boolean }
+  | { kind: "term"; label: string; sem: number; credits: number; empty: boolean; grad: boolean }
 
 export function JourneyRail() {
   const { t } = useI18n()
@@ -79,6 +79,8 @@ function Rail() {
     ...(baselineGraduationIndex >= 0 ? baselinePlan.slice(0, baselineGraduationIndex + 1) : baselinePlan).map((term, i) => ({
       kind: "term" as const,
       label: tr(semesterNames[i]),
+      // Main semester number from enrollment (the plan has no summer terms, so it counts up by one).
+      sem: completed + 1 + i,
       credits: term.reduce((s, c) => s + c.credits, 0),
       empty: term.length === 0,
       grad: i === baselineGraduationIndex,
@@ -96,12 +98,8 @@ function Rail() {
   const seg = (a: { x: number; y: number }, p: { x: number; y: number }) => `C${a.x} ${a.y - k} ${p.x} ${p.y + k} ${p.x} ${p.y}`
   const pathTo = (n: number) => pts.slice(0, n).map((p, i) => (i ? seg(pts[i - 1], p) : `M${p.x} ${p.y}`)).join(" ")
   const doneCount = completed
-  // "You are here" sits between the last finished semester and the next term; a first-term student is before the first node.
-  const half = (dir === "rtl" ? -STEP : STEP) / 2
-  const a = pts[doneCount - 1] ?? { x: pts[doneCount].x - half, y: pts[doneCount].y }
-  const b = pts[doneCount] ?? { x: a.x + half * 2, y: a.y }
-  const hx = (a.x + b.x) / 2
-  const hy = (a.y + b.y) / 2
+  // "You are here" is the current term: the first planned node, right after the finished semesters.
+  const current = doneCount < nodes.length ? doneCount : -1
 
   // Phones: open on "you are here" instead of semester 1. The scroller carries its own dir (below), so its
   // scroll direction is already right here even before the provider updates <html dir>.
@@ -149,7 +147,7 @@ function Rail() {
           }
           if (n.grad) {
             return (
-              <g key={i}>
+              <g key={i} ref={i === current ? here : undefined}>
                 <circle cx={p.x} cy={p.y} r="15" className="fill-brand-accent" />
                 <text x={p.x} y={p.y - 32} textAnchor="middle" className="fill-foreground text-[14px] font-semibold">
                   {t("graduation")}
@@ -157,16 +155,22 @@ function Rail() {
                 <text x={p.x} y={p.y + 42} textAnchor="middle" className="fill-foreground text-[13px] font-medium">
                   {n.label}
                 </text>
+                <SemNumber x={p.x} y={p.y + 57} sem={n.sem} />
+                {i === current && <HereMark x={p.x} y={p.y + 74} />}
               </g>
             )
           }
+          const isHere = i === current
           return (
-            <g key={i}>
+            <g key={i} ref={isHere ? here : undefined}>
+              {isHere && <circle cx={p.x} cy={p.y} r="16" className="fill-brand-accent/15" />}
               <circle
                 cx={p.x}
                 cy={p.y}
                 r="8.5"
-                className={n.empty ? "fill-card stroke-warning" : "fill-card stroke-muted-foreground/60"}
+                className={
+                  n.empty ? "fill-card stroke-warning" : isHere ? "fill-card stroke-brand-accent" : "fill-card stroke-muted-foreground/60"
+                }
                 strokeWidth={n.empty ? 3 : 6.5}
                 strokeDasharray={n.empty ? "4 3.5" : undefined}
               />
@@ -178,21 +182,34 @@ function Rail() {
               >
                 {n.empty ? t("pathEmpty") : `${num(n.credits)} ${t("creditsShort")}`}
               </text>
-              <text x={p.x} y={p.y + 40} textAnchor="middle" className="fill-foreground text-[13px]">
+              <text x={p.x} y={p.y + 40} textAnchor="middle" className={isHere ? "fill-foreground text-[13px] font-semibold" : "fill-foreground text-[13px]"}>
                 {n.label}
               </text>
+              <SemNumber x={p.x} y={p.y + 55} sem={n.sem} />
+              {isHere && <HereMark x={p.x} y={p.y + 72} />}
             </g>
           )
         })}
-
-        {/* "you are here": between the last completed semester and the next term */}
-        <g ref={here}>
-          <line x1={hx} x2={hx} y1={hy - 34} y2={hy + 44} className="stroke-brand-accent" strokeWidth="2" strokeDasharray="3 4" />
-          <text x={hx} y={hy + 62} textAnchor="middle" className="fill-highlight-ink text-[12px] font-semibold">
-            {t("youAreHere")}
-          </text>
-        </g>
       </svg>
     </div>
+  )
+}
+
+/** Plan semester number: small and quiet, for reference only. */
+function SemNumber({ x, y, sem }: { x: number; y: number; sem: number }) {
+  const { t, num } = useI18n()
+  return (
+    <text x={x} y={y} textAnchor="middle" className="fill-muted-foreground/70 text-[10.5px]">
+      {t("semShort")} {num(sem)}
+    </text>
+  )
+}
+
+function HereMark({ x, y }: { x: number; y: number }) {
+  const { t } = useI18n()
+  return (
+    <text x={x} y={y} textAnchor="middle" className="fill-highlight-ink text-[11.5px] font-semibold">
+      {t("youAreHere")}
+    </text>
   )
 }
