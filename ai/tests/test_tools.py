@@ -125,6 +125,27 @@ check("compare lists several shared courses", r["found"] is False and len(r["com
 r = call_tool("compare_instructors", {"instructor_a": "سارة", "instructor_b": "هاني"}, EXC)
 check("compare: no shared course", r["found"] is False, r)
 
+# actions the chat applies to the pages
+r = call_tool("avoid_instructor", {"instructor": "سارة"})
+check("avoid_instructor returns an action", r["found"] and r["action"]["type"] == "avoid_instructor"
+      and r["action"]["instructor_id"] == "i1" and r["action"]["key"] == "i1", r)
+r = call_tool("avoid_instructor", {"instructor": "سارة", "course_code": "ECE 321"})
+check("avoid in one course keys by course", r["action"]["key"] == "i1:ECE 321", r)
+check("avoid unknown instructor", call_tool("avoid_instructor", {"instructor": "مجهول"})["found"] is False)
+check("restore_instructor returns an action", call_tool("restore_instructor", {"instructor": "سارة"})["action"]["type"] == "restore_instructor")
+r = call_tool("set_instructor_preferences", {"pace": 20, "practical": 150})
+check("preferences are clamped to 0-100", r["action"]["preferences"] == {"pace": 20, "practical": 100}, r)
+check("preferences need a value", call_tool("set_instructor_preferences", {})["found"] is False)
+r = call_tool("recommend_instructor", {"course_code": "ECE 321"}, NEW, {"excluded": ["i1"]})
+check("excluded instructor leaves the ranking", all(x["instructor_id"] != "i1" for x in r["ranking"])
+      and [x["instructor_id"] for x in r["excluded"]] == ["i1"], r)
+r = call_tool("recommend_instructor", {"course_code": "CSE 315"}, NEW, {"excluded": ["i1:ECE 321"]})
+check("a per-course exclusion does not touch other courses", len(r["ranking"]) == 2, r)
+r = call_tool("recommend_instructor", {"course_code": "ECE 321"}, NEW, {"excluded": ["i1", "i2", "i3"]})
+check("everyone excluded -> empty ranking with a message", r["ranking"] == [] and len(r["excluded"]) == 3, r)
+r = call_tool("recommend_instructor", {"course_code": "ECE 321"}, NEW, {"preferences": {"pace": 85, "workload": 85, "practical": 85}})
+check("session preferences are used by the chat tool", r["basis"] == "surveys_and_preferences" and r["ranking"][0]["instructor_id"] == "i2", r)
+
 # registry: every tool callable, session student overrides the model's
 check("tool names unique", len({t["name"] for t in TOOLS}) == len(TOOLS))
 check("student id injected", call_tool("academic_level", {"student_id": "wrong"}, EXC)["found"])

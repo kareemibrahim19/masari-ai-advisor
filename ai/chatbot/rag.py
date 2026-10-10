@@ -49,7 +49,8 @@ SYSTEM_PROMPT = """أنت "مساري"، المرشد الأكاديمي الذ�
 9. لو الأداة رجّعت found=false أو error، قول للطالب إيه الناقص (كود مادة غلط مثلًا) بدل ما تخمّن.
 10. في ترشيح الدكاترة اذكر مصدر الترشيح (basis_ar) والسبب، ولو الثقة منخفضة (عدد التقييمات قليل) قولها صراحة. ولو الطالب قال تفضيلاته (سرعة/عبء/عملي) مرّرها للأداة.
 11. لو السؤال عن مادة معينة (كودها، ساعاتها، متطلباتها) نادِ course_info، ولو الطالب ذكر اسم مادة من غير كود أو الاسم مش واضح نادِ find_courses الأول. ولو سأل "اعيد انهي مادة" أو "احسن معدلي" نادِ improvement_candidates.
-12. ابدأ الرد بالإجابة المباشرة في أول سطر (نعم/لا/الرقم)، وبعدها السبب ورقم المادة. من غير مقدمات زي "بناءً على" ومن غير تكرار السؤال.
+12. لو الطالب قال إنه مش عايز دكتور معين نادِ avoid_instructor (وده بيشيله من صفحة الترشيحات)، ولو غيّر رأيه نادِ restore_instructor. ولو وصف أسلوب الشرح اللي بيحبه (بطيء/سريع، خفيف/تقيل، عملي/نظري) نادِ set_instructor_preferences بأرقام من 0 لـ 100 (بطيء=20، سريع=80، خفيف=20، تقيل=80، نظري=20، عملي=80). وبعدها قوله بوضوح إن الصفحة اتحدّثت.
+13. ابدأ الرد بالإجابة المباشرة في أول سطر (نعم/لا/الرقم)، وبعدها السبب ورقم المادة. من غير مقدمات زي "بناءً على" ومن غير تكرار السؤال.
 """
 
 REWRITE_PROMPT = """حوّل سؤال الطالب الأخير لسؤال بحث واحد واضح بالعربية الفصحى، يكون مستقل بذاته (استخدم المحادثة السابقة لفهم الإشارات زي "طب والصيفي؟").
@@ -270,13 +271,19 @@ class Masari:
                 if code not in (404, 429, 500, 503, 504, "timeout") or i == len(models) - 1:
                     raise
 
-    def answer(self, question: str, history: list[dict], student_id: str | None = None) -> dict:
+    def answer(self, question: str, history: list[dict], student_id: str | None = None,
+               session: dict | None = None) -> dict:
         search_q = self.rewrite(question, history)
         hits = self.search(list(dict.fromkeys([search_q, question])))
 
         context = "\n\n".join(f"[{h['title']}]\n{h['text']}" for h in hits)
         who = (f"الطالب الحالي: رقمه {student_id} (الأدوات هتستخدمه تلقائيًا)." if student_id else
                "مفيش طالب محدد في المحادثة دي، فمتنادِش أدوات بيانات الطالب؛ لو السؤال عن أرقامه اطلب منه يختار طالب.")
+        session = session or {}
+        if session.get("excluded"):
+            who += f"\nالدكاترة اللي الطالب طلب يستبعدهم (متقترحهمش): {', '.join(session['excluded'])}."
+        if session.get("preferences"):
+            who += f"\nتفضيلات الطالب الحالية في الصفحة (0-100): {session['preferences']}."
         contents = [types.Content(role="user" if m["role"] == "user" else "model",
                                   parts=[types.Part(text=m["content"])]) for m in history[-10:]]
         contents.append(types.Content(role="user", parts=[types.Part(text=(
@@ -301,7 +308,7 @@ class Masari:
             contents.append(r.candidates[0].content)  # keep the model's own turn (thought signatures included)
             parts = []
             for fc in calls:
-                result = call_tool(fc.name, dict(fc.args or {}), student_id)
+                result = call_tool(fc.name, dict(fc.args or {}), student_id, session)
                 tools_used.append({"name": fc.name, "args": dict(fc.args or {}), "result": result})
                 parts.append(types.Part.from_function_response(name=fc.name, response={"result": result}))
             contents.append(types.Content(role="user", parts=parts))
@@ -311,6 +318,9 @@ class Masari:
             "search_query": search_q,
             "sources": [{"id": h["id"], "title": h["title"], "source": h["source"]} for h in hits],
             "tools_used": tools_used,
+            # Changes the website should apply to its pages (remove an instructor, move a preference slider...).
+            "actions": [t["result"]["action"] for t in tools_used
+                        if isinstance(t["result"], dict) and t["result"].get("action")],
         }
 
 

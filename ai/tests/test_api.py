@@ -37,6 +37,10 @@ check("stated preferences change the basis and the winner", r["basis"] == "surve
 r = c.get("/api/instructors/recommend", params={"course_code": "ECE 321", "student_id": EXC}).json()
 check("student with grades -> performance", r["basis"] == "surveys_and_performance", r.get("basis"))
 
+r = c.get("/api/instructors/recommend", params={"course_code": "ECE 321", "student_id": NEW, "exclude": ["i1", "i2"]}).json()
+check("exclude query leaves those instructors out", [x["instructor_id"] for x in r["ranking"]] == ["i3"]
+      and len(r["excluded"]) == 2, r.get("ranking"))
+
 check("unknown student 404", c.get("/api/instructors/recommend", params={"course_code": "ECE 321", "student_id": "x"}).status_code == 404)
 check("unknown course 404", c.get("/api/instructors/recommend", params={"course_code": "XXX 999", "student_id": NEW}).status_code == 404)
 

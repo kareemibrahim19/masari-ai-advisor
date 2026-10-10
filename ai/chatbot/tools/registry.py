@@ -74,6 +74,20 @@ TOOLS = [
        ["student_id", "course_code"], ins.recommend_instructor, True),
 ]
 
+TOOLS += [
+    # ---- actions: the answer also tells the website to change what the page shows
+    _t("avoid_instructor", "الطالب مش عايز يدرس مع دكتور معين: بيشيله من صفحة الترشيحات. استخدمها لما يقول 'مش عايز د. فلان' أو 'شيل د. فلان'.",
+       {"instructor": {"type": "string", "description": "اسم الدكتور أو رقمه."},
+        "course_code": {"type": "string", "description": "كود المادة لو الاستبعاد في مادة معينة بس. سيبه فاضي لكل المواد."}},
+       ["instructor"], ins.avoid_instructor),
+    _t("restore_instructor", "الطالب غيّر رأيه وعايز دكتور اتشال يرجع للترشيحات.",
+       {"instructor": {"type": "string", "description": "اسم الدكتور أو رقمه."},
+        "course_code": {"type": "string", "description": "كود المادة لو كان استبعاد في مادة واحدة."}},
+       ["instructor"], ins.restore_instructor),
+    _t("set_instructor_preferences", "الطالب وصف الأسلوب اللي بيفضله (شرح بطيء/سريع، عبء خفيف/تقيل، عملي/نظري): بتحرّك السلايدرز في صفحة الترشيحات.",
+       {**_PREFS}, [], ins.set_instructor_preferences),
+]
+
 _BY_NAME = {t["name"]: t for t in TOOLS}
 
 
@@ -81,12 +95,23 @@ def tool_names() -> list[str]:
     return list(_BY_NAME)
 
 
-def call_tool(name: str, args: dict | None = None, student_id: str | None = None) -> dict:
-    """Run a tool by name. Unknown tools or bad arguments return an error dict instead of raising."""
+def call_tool(name: str, args: dict | None = None, student_id: str | None = None,
+              session: dict | None = None) -> dict:
+    """Run a tool by name. Unknown tools or bad arguments return an error dict instead of raising.
+
+    `session` is what the website already holds for this student (instructors they asked to avoid, the
+    preferences they set), so the chat's recommendations match what the recommendations page shows.
+    """
     tool = _BY_NAME.get(name)
     if not tool:
         return {"found": False, "error": f"أداة غير معروفة: {name}"}
     args = {k: v for k, v in (args or {}).items() if v is not None}
+    session = session or {}
+    if name == "recommend_instructor":
+        if session.get("excluded") and "exclude" not in args:
+            args["exclude"] = list(session["excluded"])
+        for k, v in (session.get("preferences") or {}).items():
+            args.setdefault(k, v)
     if tool["needs_student"] and student_id and "student_id" in tool["parameters"]["properties"]:
         args["student_id"] = student_id  # the session's student always wins over what the model typed
     try:

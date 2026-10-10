@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 import uvicorn
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from google.genai import errors
@@ -52,6 +52,9 @@ class ChatRequest(BaseModel):
     question: str
     history: list[Message] = []
     student_id: str | None = None  # the selected student; without it the student-data tools are not offered
+    # What the website currently holds for this student, so the chat agrees with the recommendations page:
+    excluded_instructors: list[str] = []  # instructors the student asked to avoid ("i4" or "i4:CSE 315")
+    preferences: dict[str, float] | None = None  # pace / workload / practical (0-100), only if the student set them
 
 
 @app.post("/api/chat")
@@ -61,7 +64,8 @@ def chat(req: ChatRequest):
     if req.student_id and not students.get_student(req.student_id):
         raise HTTPException(404, "Student not found")
     try:
-        return bot.answer(req.question.strip(), [m.model_dump() for m in req.history], req.student_id)
+        session = {"excluded": req.excluded_instructors, "preferences": req.preferences}
+        return bot.answer(req.question.strip(), [m.model_dump() for m in req.history], req.student_id, session)
     except errors.APIError as e:
         if e.code == 429:  # the model quota is used up for now
             raise HTTPException(503, "مساري مشغول دلوقتي بسبب كتر الطلبات، جرّب تاني بعد دقيقة.")
@@ -106,15 +110,17 @@ def instructor_courses():
 
 @app.get("/api/instructors/recommend")
 def recommend_instructors(course_code: str, student_id: str, pace: float | None = None,
-                          workload: float | None = None, practical: float | None = None):
+                          workload: float | None = None, practical: float | None = None,
+                          exclude: list[str] = Query(default=[])):
     """Instructors of a course ranked for one student, with the basis and reasons (same result the chat tool gives).
 
     pace / workload / practical (0-100) are the student's stated preferences; leave them out to rank by the
-    student's own history (or by the surveys alone for a first-year student).
+    student's own history (or by the surveys alone for a first-year student). `exclude` (repeatable) lists
+    instructors to leave out: "i4" everywhere, or "i4:CSE 315" in that course only.
     """
     if not students.get_student(student_id):
         raise HTTPException(404, "Student not found")
-    result = instructor_tools.recommend_instructor(student_id, course_code, pace, workload, practical)
+    result = instructor_tools.recommend_instructor(student_id, course_code, pace, workload, practical, exclude=exclude)
     if not result.get("found"):
         raise HTTPException(404, result.get("error", "Not found"))
     return result

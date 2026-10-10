@@ -218,10 +218,23 @@ def _reasons(offering: dict, taste: dict, adj: dict) -> list[tuple[str, str]]:
     return out
 
 
+def _parse_exclusions(exclude: list[str] | None) -> list[tuple[str, str | None]]:
+    """["i4", "i7:CSE 315"] -> [("i4", None), ("i7", "CSE 315")]: an instructor to skip everywhere or in one course."""
+    out = []
+    for item in exclude or []:
+        iid, _, course = str(item).partition(":")
+        out.append((iid.strip(), course.strip() or None))
+    return out
+
+
 def recommend_instructor(student_id: str, course_code: str, pace: float | None = None,
                          workload: float | None = None, practical: float | None = None,
-                         term: str | None = None) -> dict:
-    """Rank the instructors of a course for one student and explain why."""
+                         term: str | None = None, exclude: list[str] | None = None) -> dict:
+    """Rank the instructors of a course for one student and explain why.
+
+    `exclude` lists instructors the student asked to avoid ("i4" = everywhere, "i4:CSE 315" = in that course only);
+    they are left out of the ranking and listed in `excluded`.
+    """
     s = d.get_student(student_id)
     if not s:
         return d.not_found("الطالب", student_id)
@@ -233,6 +246,14 @@ def recommend_instructor(student_id: str, course_code: str, pace: float | None =
     if not offs:
         return {"found": True, "course": d.course_label(c["code"]), "ranking": [],
                 "explanation": "مفيش دكاترة مسجلين للمادة دي."}
+    skip = _parse_exclusions(exclude)
+    avoided = [o for o in offs if any(i == o["instructor_id"] and c in (None, o["course_code"]) for i, c in skip)]
+    offs = [o for o in offs if o not in avoided]
+    excluded = [{"instructor_id": o["instructor_id"], "name_ar": _instructors()[o["instructor_id"]]["name_ar"],
+                 "name_en": _instructors()[o["instructor_id"]]["name_en"], "section": o["section"]} for o in avoided]
+    if not offs:
+        return {"found": True, "course": d.course_label(c["code"]), "ranking": [], "excluded": excluded,
+                "explanation": "كل دكاترة المادة دي مستبعدين حسب طلبك. ممكن ترجّع واحد منهم."}
     prefs = student_preferences(student_id, pace, workload, practical)
     basis, taste, n_hist = prefs["basis"], prefs["effective"], prefs["graded_courses_with_instructor"]
     cgpa = s["academic_status"]["cumulative_gpa"]
@@ -247,7 +268,7 @@ def recommend_instructor(student_id: str, course_code: str, pace: float | None =
     top = ranking[0]
     return {"found": True, "student_id": s["student_id"], "course": d.course_label(c["code"]),
             "basis": basis, "basis_ar": BASIS_AR[basis], "basis_en": BASIS_EN[basis], "preferences_used": taste,
-            "graded_courses_used": n_hist, "cumulative_gpa": cgpa, "ranking": ranking,
+            "graded_courses_used": n_hist, "cumulative_gpa": cgpa, "ranking": ranking, "excluded": excluded,
             "explanation": f"أنسب دكتور ليك في {c['name_ar']} هو {top['name_ar']} ({BASIS_AR[basis]}).",
             "note": "الأرقام من استبيانات محاكاة لحد ما الاستبيانات الحقيقية تتحمل."}
 
@@ -309,3 +330,48 @@ def courses_with_instructors() -> dict:
     return {"found": True, "courses": [
         {"code": c, "name_ar": d.courses()[c]["name_ar"], "name_en": d.courses()[c].get("name_en"), "sections": n}
         for c, n in sorted(count.items())]}
+
+
+# ---------------------------------------------------------------- actions the chat can apply to the pages
+# These tools change nothing on the server: they return an `action` that the website applies to its own state
+# (the recommendations tab), so what the student says in the chat shows up on the page.
+
+def avoid_instructor(instructor: str, course_code: str | None = None) -> dict:
+    """The student does not want an instructor: remove them from the recommendations (everywhere or in one course)."""
+    ins = _find_instructor(instructor)
+    if not ins:
+        return d.not_found("الدكتور", instructor)
+    course = d.find_course(course_code) if course_code else None
+    if course_code and not course:
+        return d.not_found("المادة", course_code)
+    key = ins["id"] + (f":{course['code']}" if course else "")
+    where = f" في {d.course_label(course['code'])}" if course else ""
+    return {"found": True, "action": {"type": "avoid_instructor", "instructor_id": ins["id"], "key": key,
+                                      "name_ar": ins["name_ar"], "name_en": ins["name_en"],
+                                      "course_code": course["code"] if course else None},
+            "explanation": f"تمام، شيلت {ins['name_ar']}{where} من الترشيحات."}
+
+
+def restore_instructor(instructor: str, course_code: str | None = None) -> dict:
+    """Undo avoid_instructor: bring the instructor back into the recommendations."""
+    ins = _find_instructor(instructor)
+    if not ins:
+        return d.not_found("الدكتور", instructor)
+    course = d.find_course(course_code) if course_code else None
+    key = ins["id"] + (f":{course['code']}" if course else "")
+    return {"found": True, "action": {"type": "restore_instructor", "instructor_id": ins["id"], "key": key,
+                                      "name_ar": ins["name_ar"], "name_en": ins["name_en"],
+                                      "course_code": course["code"] if course else None},
+            "explanation": f"رجّعت {ins['name_ar']} للترشيحات."}
+
+
+def set_instructor_preferences(pace: float | None = None, workload: float | None = None,
+                               practical: float | None = None) -> dict:
+    """The student describes how they like to be taught: move the preference sliders on the recommendations page."""
+    values = {k: max(0, min(100, round(v))) for k, v in (("pace", pace), ("workload", workload), ("practical", practical))
+              if v is not None}
+    if not values:
+        return {"found": False, "error": "محتاج واحد على الأقل: سرعة الشرح أو العبء أو العملي (0 لـ 100)."}
+    return {"found": True, "action": {"type": "set_preferences", "preferences": values},
+            "explanation": "حدّثت تفضيلاتك في صفحة الترشيحات: " + "، ".join(
+                f"{DIM_AR[k]} {v}" for k, v in values.items())}

@@ -68,6 +68,10 @@ Environment variable: `NEXT_PUBLIC_MASARI_API_URL` = the AI service URL (it is b
 { "question": "اقدر اسجل كام ساعة؟", "history": [{ "role": "user", "content": "..." }, { "role": "assistant", "content": "..." }], "student_id": "897948891" }
 ```
 
+`excluded_instructors` (optional list, `"i4"` = everywhere, `"i4:CSE 315"` = in that course) and `preferences`
+(optional `{pace, workload, practical}`, 0-100) tell the service what the recommendations page currently shows,
+so the chat agrees with it.
+
 `student_id` is optional: the id of the student chosen on the login / picker screen (from `GET /api/students`).
 With it, the model can call the student-data tools (credit limit, warning, GPA, eligibility, instructor
 recommendation...) and they run on that student's record. Without it only regulation and course questions
@@ -83,6 +87,12 @@ Response:
 }
 ```
 
+`actions` lists changes the website should apply to its pages because of what the student said, e.g.
+`{ "type": "avoid_instructor", "key": "i4", "instructor_id": "i4", "name_ar": "...", "course_code": null }`,
+`{ "type": "restore_instructor", "key": "i4", "instructor_id": "i4" }` or
+`{ "type": "set_preferences", "preferences": { "pace": 20, "practical": 80 } }`. The service keeps no state: the
+website stores the result and sends it back with the next question (see `excluded_instructors` above).
+
 `tools_used` lists the tools the model called in this answer (empty when it answered from the regulations
 only). Instructor recommendations carry `basis` / `basis_ar` (surveys only, surveys + preferences, surveys +
 performance), `confidence` and `reasons` in their `result`, which the recommendations screen can show directly.
@@ -97,6 +107,7 @@ The recommendations page and the chat card show the same results as the chat too
 | `GET /api/instructors/recommend?course_code=ECE 321&student_id=...` | instructors of the course ranked for the student: `basis` (`surveys_only` / `surveys_and_preferences` / `surveys_and_performance`), `basis_ar`, `basis_en`, and per instructor `score`, `confidence`, `profile`, `reasons` / `reasons_en` |
 | `POST /api/tools/{name}` with `{ "args": {...}, "student_id": "..." }` | runs any tool from `tools/` directly (404 for an unknown tool or student) |
 
+Add `exclude` (repeatable, `i4` or `i4:CSE 315`) to leave instructors out; they come back in the `excluded` list.
 Add `pace`, `workload`, `practical` (0-100) to `recommend` only when the student set them; without them the
 ranking uses the student's own grades (or the surveys alone for a first-year student).
 

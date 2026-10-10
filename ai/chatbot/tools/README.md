@@ -44,6 +44,9 @@
 | `instructor_profile` | بروفايل دكتور من الاستبيانات: وضوح، سرعة، عبء، عملي، صعوبة، رضا، ومميزاته | `instructor` (اسم أو id)، `course_code` اختياري |
 | `student_preferences` | تفضيلات الطالب: اللي قاله، واللي بتقوله درجاته مع دكاترة قبل كده | `student_id`، `pace`، `workload`، `practical` (0–100) |
 | `compare_instructors` | دكتورين لنفس المادة جنب بعض، ومين أنسب للطالب. المادة اختيارية لو ليهم مادة مشتركة واحدة | `instructor_a`، `instructor_b`، `course_code` اختياري، `student_id` اختياري |
+| `avoid_instructor` | الطالب مش عايز دكتور: بيشيله من صفحة الترشيحات (كل المواد أو مادة واحدة). بترجّع `action` الفرونت بيطبّقه | `instructor`، `course_code` اختياري |
+| `restore_instructor` | يرجّع دكتور اتشال | `instructor`، `course_code` اختياري |
+| `set_instructor_preferences` | الطالب وصف أسلوب الشرح اللي بيحبه: بيحرّك السلايدرز في الصفحة | `pace`، `workload`، `practical` (0–100) |
 | `recommend_instructor` | ترتيب دكاترة المادة للطالب مع الأسباب | `student_id`، `course_code`، التفضيلات اختياري |
 
 ### الترشيح بيتغير مع الطالب (`basis`)
