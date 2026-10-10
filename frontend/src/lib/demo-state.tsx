@@ -6,8 +6,10 @@
  * Nothing is saved to a server; a full page refresh resets it. New chat questions go to the Masari AI service.
  */
 import * as React from "react"
+import { MASARI_API_URL } from "@/lib/api-url"
 import { defaultPrefs, instructors, type StudentPrefs } from "@/lib/demo-content"
 import type { L } from "@/lib/i18n"
+import { usePlanChoice } from "@/lib/plan-api"
 import { useStudentView } from "@/lib/student-context"
 import type { StudentView } from "@/lib/student-view"
 
@@ -33,13 +35,7 @@ export type ChatMessage =
   | { id: string; role: "assistant"; kind: "ai"; text: string; sources: RagSource[] }
   | { id: string; role: "assistant"; kind: "error"; detail: string }
 
-/**
- * Masari AI service (ai/chatbot/server.py). Override with NEXT_PUBLIC_MASARI_API_URL.
- * Without it, production builds use the hosted service so every Vercel copy of the site has a working chat.
- */
-export const MASARI_API_URL =
-  process.env.NEXT_PUBLIC_MASARI_API_URL ??
-  (process.env.NODE_ENV === "production" ? "https://masari-ai-pink.vercel.app" : "http://localhost:8000")
+export { MASARI_API_URL }
 
 /** Turns the visible conversation into the history the AI service expects (real turns only, not the seeded demo). */
 function toHistory(messages: ChatMessage[]) {
@@ -86,6 +82,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
   const [scenarioId, setScenarioId] = React.useState<string | null>(null)
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
   const [thinking, setThinking] = React.useState(false)
+  const [planChoice] = usePlanChoice(view.student.id)
   const pending = React.useRef<AbortController>(undefined)
 
   const toggleCourse = React.useCallback((code: string) => {
@@ -151,6 +148,9 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
           selected_courses: selected,
           eligible_courses: view.recommendedCourses.map((c) => ({ code: c.code, credits: c.credits })),
           max_load: view.student.maxLoad,
+          // the graduation plan page's target, so "can I graduate in 4 years?" gets the page's answer
+          plan_target: planChoice.target,
+          plan_summer: planChoice.summer,
         }),
         signal: controller.signal,
       })
@@ -166,7 +166,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
         })
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [messages, thinking, view.student.id, view.student.maxLoad, view.recommendedCourses, excluded, prefs, selected, applyActions]
+    [messages, thinking, view.student.id, view.student.maxLoad, view.recommendedCourses, excluded, prefs, selected, applyActions, planChoice]
   )
 
   const newChat = React.useCallback(() => {

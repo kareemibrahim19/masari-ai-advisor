@@ -6,7 +6,7 @@
  * (POST /api/transcribe, Whisper large-v3-turbo) and hands the text back through `onText`.
  */
 import * as React from "react"
-import { MASARI_API_URL } from "@/lib/demo-state"
+import { MASARI_API_URL } from "@/lib/api-url"
 
 export type VoiceState = "idle" | "recording" | "transcribing"
 

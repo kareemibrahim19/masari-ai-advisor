@@ -5,6 +5,7 @@ filled in automatically, so the model never has to guess it.
 """
 
 from . import instructors as ins
+from . import planner
 from . import rules
 
 _STUDENT = {"student_id": {"type": "string", "description": "رقم الطالب (بيتملّى تلقائيًا من الجلسة)."}}
@@ -95,6 +96,13 @@ TOOLS += [
        {"course_code": _COURSE}, ["course_code"], rules.remove_course_from_schedule),
     _t("build_schedule", "الطالب عايز جدول بعدد ساعات معين (مثلًا 15 ساعة): بتختار أعلى المواد أولوية ليه في الحد ده وتحطها في الصفحة.",
        {"hours": {"type": "number", "description": "عدد الساعات المطلوب للجدول."}}, ["hours"], rules.build_schedule),
+    # ---- graduation plan (the same planner as the website's plan page)
+    _t("graduation_plan", "خطة تخرج الطالب: يقدر يتخرج في 4 أو 4.5 أو 5 سنين ولا لأ، وإمتى أقرب تخرج، ولو مش ممكن ليه، "
+       "وهل محتاج ترمات صيفي. نادِها في أي سؤال عن ميعاد التخرج أو التخرج بدري أو مدة الدراسة الفاضلة.",
+       {**_STUDENT,
+        "target_years": {"type": "number", "enum": [4, 4.5, 5], "description": "الهدف بالسنين لو الطالب ذكره. اختياري."},
+        "allow_summer": {"type": "boolean", "description": "الطالب يقدر يحضر صيفي؟ اختياري (الافتراضي: اختياره في صفحة الخطة)."}},
+       ["student_id"], planner.graduation_plan, True),
 ]
 
 _BY_NAME = {t["name"]: t for t in TOOLS}
@@ -121,6 +129,12 @@ def call_tool(name: str, args: dict | None = None, student_id: str | None = None
         args["max_load"] = session.get("max_load")
         if name != "build_schedule":
             args["selected"] = session.get("selected_courses") or []
+    if name == "graduation_plan":
+        # Default to what the student picked on the plan page, so the chat and the page agree.
+        if session.get("plan_target") is not None:
+            args.setdefault("target_years", session["plan_target"])
+        if session.get("plan_summer") is not None:
+            args.setdefault("allow_summer", session["plan_summer"])
     if name == "recommend_instructor":
         if session.get("excluded") and "exclude" not in args:
             args["exclude"] = list(session["excluded"])

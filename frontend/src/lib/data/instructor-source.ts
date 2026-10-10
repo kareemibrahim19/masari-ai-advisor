@@ -10,7 +10,7 @@
  * demo never shows an empty screen (`source` tells which one is on screen).
  */
 import * as React from "react"
-import { MASARI_API_URL } from "@/lib/demo-state"
+import { MASARI_API_URL } from "@/lib/api-url"
 import {
   confidenceFromResponses,
   defaultPrefs,

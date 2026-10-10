@@ -173,6 +173,18 @@ check("build 11 hours: 3+3+3+2", r["built"] and r["hours"] == 11 and "UNR 061" i
 check("build over the limit refused", call_tool("build_schedule", {"hours": 30}, NEW, PAGE)["built"] is False)
 check("no page open -> clear error", call_tool("add_course_to_schedule", {"course_code": "CSE 151"}, NEW)["found"] is False)
 
+# graduation plan: the chat gets the same answer as the plan page
+from tools.planner import build_graduation_plan  # noqa: E402
+r = call_tool("graduation_plan", {"target_years": 4.5}, EXC)
+page = build_graduation_plan(EXC, 4.5, True)
+check("chat plan = page plan (feasible, graduation)", r["possible"] == page["feasible"]
+      and r["graduation"] == page["graduation_term"]["ar"], (r.get("possible"), r.get("graduation")))
+check("chat plan says why not", not r["possible"] and "116" in r["why_not"], r.get("why_not"))
+r = call_tool("graduation_plan", {}, EXC, {"plan_target": 5, "plan_summer": False})
+check("chat plan defaults to the page's choice", r["target_years"] == 5 and r["allow_summer"] is False and r["possible"], r)
+r = call_tool("graduation_plan", {}, NEW)
+check("chat plan table has the three targets", [o["target_years"] for o in r["all_targets"]] == [4, 4.5, 5], r)
+
 # registry: every tool callable, session student overrides the model's
 check("tool names unique", len({t["name"] for t in TOOLS}) == len(TOOLS))
 check("student id injected", call_tool("academic_level", {"student_id": "wrong"}, EXC)["found"])

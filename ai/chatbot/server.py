@@ -60,6 +60,9 @@ class ChatRequest(BaseModel):
     selected_courses: list[str] = []
     eligible_courses: list[dict] = []  # [{"code": "CSE 151", "credits": 3}, ...]
     max_load: float | None = None
+    # The graduation plan page's choice, so the chat answers for the same target.
+    plan_target: float | None = None
+    plan_summer: bool | None = None
 
 
 @app.post("/api/chat")
@@ -71,7 +74,7 @@ def chat(req: ChatRequest):
     try:
         session = {"excluded": req.excluded_instructors, "preferences": req.preferences,
                    "selected_courses": req.selected_courses, "eligible_courses": req.eligible_courses,
-                   "max_load": req.max_load}
+                   "max_load": req.max_load, "plan_target": req.plan_target, "plan_summer": req.plan_summer}
         return bot.answer(req.question.strip(), [m.model_dump() for m in req.history], req.student_id, session)
     except errors.APIError as e:
         if e.code == 429:  # the model quota is used up for now

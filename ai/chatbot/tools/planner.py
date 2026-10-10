@@ -608,3 +608,37 @@ def plan_options(student_id: str, failed_courses: list[str] | None = None,
                 "summer_courses": len(p.get("summer_courses", [])), "college_requests": len(p.get("college_requests", []))}
         rows.append({"target_years": years, **cells})
     return {"found": True, "student_id": student_id, "options": rows}
+
+
+def graduation_plan(student_id: str, target_years: float | None = None, allow_summer: bool | None = None) -> dict:
+    """The chat's view of the graduation plan: the same planner and the same result as the plan page, kept short.
+
+    Without `target_years` it answers for the target the student picked on the plan page (passed in by the
+    website), else 5 years. It always includes the table of all three targets, so "can I graduate in 4 years?"
+    and "when will I graduate?" get the page's answer.
+    """
+    years = target_years if target_years in TARGETS else 5
+    summer = True if allow_summer is None else bool(allow_summer)
+    p = build_graduation_plan(student_id, years, summer)
+    if not p.get("found"):
+        return p
+    opts = plan_options(student_id)["options"]
+
+    def cell(c):
+        return {"possible": c["feasible"], "graduation": (c["graduation_term"] or {}).get("ar"),
+                "why_not": (c.get("why") or {}).get("ar")}
+
+    out = {
+        "found": True, "target_years": years, "allow_summer": summer, "possible": p["feasible"],
+        "graduation": (p["graduation_term"] or {}).get("ar"),
+        "summer_courses": p.get("summer_courses", []), "college_requests": p.get("college_requests", []),
+        "credit_cap_per_semester": p["after_this_term"]["max_credits"],
+        "all_targets": [{"target_years": o["target_years"], "with_summer": cell(o["with_summer"]),
+                         "without_summer": cell(o["without_summer"])} for o in opts],
+        "source": "نفس حسبة صفحة خطة التخرج في الموقع",
+    }
+    if not p["feasible"]:
+        out["why_not"] = (p.get("why") or {}).get("ar")
+        out["earliest_graduation"] = out["graduation"]
+    out["explanation"] = p["explanation"]
+    return out

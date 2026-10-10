@@ -3,7 +3,7 @@
  * The plan is solved in Python against the regulations; the page only shows it.
  */
 import * as React from "react"
-import { MASARI_API_URL } from "@/lib/demo-state"
+import { MASARI_API_URL } from "@/lib/api-url"
 
 export type TargetYears = 4 | 4.5 | 5
 
