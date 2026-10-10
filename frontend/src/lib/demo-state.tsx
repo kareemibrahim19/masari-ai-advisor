@@ -23,8 +23,13 @@ export type ChatMessage =
   | { id: string; role: "assistant"; kind: "ai"; text: string; sources: RagSource[] }
   | { id: string; role: "assistant"; kind: "error"; detail: string }
 
-/** Masari AI service (ai/chatbot/server.py). Override with NEXT_PUBLIC_MASARI_API_URL. */
-export const MASARI_API_URL = process.env.NEXT_PUBLIC_MASARI_API_URL ?? "http://localhost:8000"
+/**
+ * Masari AI service (ai/chatbot/server.py). Override with NEXT_PUBLIC_MASARI_API_URL.
+ * Without it, production builds use the hosted service so every Vercel copy of the site has a working chat.
+ */
+export const MASARI_API_URL =
+  process.env.NEXT_PUBLIC_MASARI_API_URL ??
+  (process.env.NODE_ENV === "production" ? "https://masari-ai-pink.vercel.app" : "http://localhost:8000")
 
 /** Turns the visible conversation into the history the AI service expects (real turns only, not the seeded demo). */
 function toHistory(messages: ChatMessage[]) {

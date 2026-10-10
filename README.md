@@ -49,7 +49,7 @@ masari-ai-advisor/
    ```
    Then open http://localhost:3000.
 
-The website reads the AI service URL from `NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000`). Both parts deploy to Vercel; see [`ai/chatbot/README.md`](ai/chatbot/README.md#deploy-vercel-hobby-free-no-card).
+The website reads the AI service URL from `NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000` in development, `https://masari-ai-pink.vercel.app` in production builds). Both parts deploy to Vercel; see [`ai/chatbot/README.md`](ai/chatbot/README.md#deploy-vercel-hobby-free-no-card).
 
 ## Screens
 

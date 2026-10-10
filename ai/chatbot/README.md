@@ -127,6 +127,6 @@ The current term (Fall 2026-2027) is `in_progress`: courses are registered and h
 | `GROQ_API_KEY` | none; needed for the microphone with the `groq` backend |
 | `STT_BACKEND` | `groq`; `local` runs Whisper on this machine (`pip install faster-whisper`, downloads ~1.6 GB on first use, not for Vercel) |
 | `GROQ_STT_MODEL` / `LOCAL_STT_MODEL` | `whisper-large-v3-turbo` / `large-v3-turbo` |
-| `MASARI_CORS_ORIGINS` | `http://localhost:3000,http://127.0.0.1:3000` (comma-separated origins allowed to call the API) |
+| `MASARI_CORS_ORIGINS` | `http://localhost:3000,http://127.0.0.1:3000` (comma-separated origins allowed to call the API; the live site URLs are always allowed) |
 
-The frontend reads the service URL from `NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000`).
+The frontend reads the service URL from `NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000` in development, `https://masari-ai-pink.vercel.app` in production builds).
