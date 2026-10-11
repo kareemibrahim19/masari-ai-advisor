@@ -228,6 +228,15 @@ r = call_tool("contact_advisor", {"case": "other_department_course", "course_cod
 check("other department email asks about an equivalent course", "قسم آخر" in r["email"]["body"]
       and "CSE 351" in r["email"]["body"], r.get("email"))
 
+# advisor signal: spotting advisor cases in the student's words (helps the weaker fallback models)
+from tools.advisor import advisor_signal  # noqa: E402
+for q in ["اكتبلي الإيميل للمرشد", "عايز اكلم المرشد", "مين مرشدي؟", "ايميل المرشد بتاعي ايه", "send an email to my advisor"]:
+    check(f"explicit advisor request: {q}", advisor_signal(q) == "explicit", advisor_signal(q))
+for q in ["مادة CSE 351 العدد قفل", "نسيت اسجل المواد", "عايز ازود حد الساعات", "المادة مفتوحة في قسم تاني؟"]:
+    check(f"likely advisor case: {q}", advisor_signal(q) == "likely", advisor_signal(q))
+for q in ["اقدر اسجل كام ساعة؟", "معدلي كام؟", "مين بيدرس CSE 351؟", "السيستم معلق ومش عارف اسجل"]:
+    check(f"not an advisor case: {q}", advisor_signal(q) is None, advisor_signal(q))
+
 # registry: every tool callable, session student overrides the model's
 check("tool names unique", len({t["name"] for t in TOOLS}) == len(TOOLS))
 check("student id injected", call_tool("academic_level", {"student_id": "wrong"}, EXC)["found"])

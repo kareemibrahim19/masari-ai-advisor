@@ -7,6 +7,8 @@ advisor and writes the email for them. The case list and the email are fixed her
 every student gets the same correct wording; the model only picks the case and passes the details.
 """
 
+import re
+
 from . import _data as d
 from . import rules
 
@@ -368,6 +370,39 @@ def my_advisor(student_id: str) -> dict:
     if not a:
         return {"found": False, "error": "مفيش مرشد أكاديمي مسجل للطالب ده؛ يسأل شئون الطلاب."}
     return {"found": True, "advisor": _advisor_card(a)}
+
+
+# ---------------------------------------------------------------- spotting advisor cases in the question
+# The model decides when to call contact_advisor, but the weaker fallback models sometimes skip it. These
+# patterns spot the clear cases in the student's own words, so the chat can remind (or make) the model call it.
+
+def _norm(text: str) -> str:
+    text = re.sub(r"[ًٌٍَُِّْـ]", "", (text or "").lower())
+    return re.sub(r"[إأآ]", "ا", text).replace("ة", "ه").replace("ى", "ي")
+
+
+# The student asks for the advisor or for an email to them: the tool must be called.
+_EXPLICIT = re.compile(r"(ايميل|اميل|ميل|رساله|email|e-mail|mail).{0,25}(مرشد|advisor|morshed)"
+                       r"|(مرشد|advisor|morshed).{0,25}(ايميل|اميل|ميل|email|mail)"
+                       r"|(اكلم|اتواصل مع|ابعت ل|اكتب ل|كلم|تواصل مع).{0,6}(ال)?مرشد"
+                       r"|(مين|ايه)\s+(هو\s+)?(ال)?مرشد|مرشدي")
+# Words of one of the cases: the model is reminded to consider contact_advisor.
+_LIKELY = re.compile(r"العدد\s*(قفل|اتقفل|كمل|اكتمل|خلص)|(اكتملت|مكتمل|كامل)\s*العدد|مفيش\s*(اماكن|مكان)"
+                     r"|نسيت\s*(ا|اني\s*)?سجل|فات\s*(ميعاد\s*)?التسجيل|التسجيل\s*(قفل|خلص)|السيستم\s*قفل"
+                     r"|المشروع\s*(متسجلش|مش\s*متسجل)|مسجلتش\s*المشروع"
+                     r"|(ازود|ازيد|زياده|اقلل|اقل)\s*.{0,10}(حد\s*)?(الساعات|ساعات)"
+                     r"|قسم\s*تاني|بالتشابه|تشابه|معادل|تحويل\s*من"
+                     r"|تعارض|متعارض|تظلم|عذر|ايقاف\s*قيد|ظروف|درجتي\s*غلط|السجل\s*غلط|مش\s*ظاهر")
+
+
+def advisor_signal(question: str) -> str | None:
+    """'explicit' (asks for the advisor / an email), 'likely' (words of an advisor case) or None."""
+    q = _norm(question)
+    if _EXPLICIT.search(q):
+        return "explicit"
+    if _LIKELY.search(q):
+        return "likely"
+    return None
 
 
 def escalation_cases() -> list[dict]:

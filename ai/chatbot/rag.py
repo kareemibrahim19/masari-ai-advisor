@@ -20,6 +20,7 @@ from rank_bm25 import BM25Okapi
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lang import language_order  # noqa: E402
 from tools import call_tool, gemini_tool  # noqa: E402
+from tools.advisor import advisor_signal  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 # Relative to this file, so it also works when only ai/ is deployed (e.g. on Vercel).
@@ -296,6 +297,14 @@ class Masari:
                     f"(الحد الأقصى {session.get('max_load')} ساعة).")
         if session.get("preferences"):
             who += f"\nتفضيلات الطالب الحالية في الصفحة (0-100): {session['preferences']}."
+        # Advisor cases are spotted in code too: the weaker fallback models sometimes skip contact_advisor.
+        signal = advisor_signal(question)
+        if signal == "explicit":
+            who += ("\nتنبيه: الطالب بيطلب المرشد الأكاديمي أو إيميل ليه. نادِ contact_advisor (أو my_advisor لو بيسأل "
+                    "مين مرشده بس). ولو طلب الإيميل صراحة وقال تفاصيل مشكلته، ابعت confirmed=true.")
+        elif signal == "likely":
+            who += ("\nتنبيه: كلام الطالب شبه حالة من حالات المرشد الأكاديمي (قاعدة 17). لو أدواتك مش هتحلها "
+                    "نادِ contact_advisor بالحالة المناسبة.")
         # Reply language from the question itself (see lang.py), not left to the model's guess.
         order = language_order(question)
         contents = [types.Content(role="user" if m["role"] == "user" else "model",
@@ -314,9 +323,16 @@ class Masari:
             automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
             http_options=types.HttpOptions(timeout=MODEL_TIMEOUT_MS))
 
+        # When the student asks for the advisor outright, the first step must be an advisor tool call.
+        forced = config.model_copy(update={"tool_config": types.ToolConfig(
+            function_calling_config=types.FunctionCallingConfig(
+                mode="ANY",  # my_advisor needs a student, so it is offered (and allowed) only with one
+                allowed_function_names=["contact_advisor", "my_advisor"] if student_id else ["contact_advisor"]))}) \
+            if signal == "explicit" else config
+
         tools_used = []
-        for _ in range(MAX_TOOL_ROUNDS + 1):
-            r, model = self._generate(contents, config)
+        for step in range(MAX_TOOL_ROUNDS + 1):
+            r, model = self._generate(contents, forced if step == 0 else config)
             calls = r.function_calls or []
             if not calls or len(tools_used) >= MAX_TOOL_ROUNDS * 3:
                 break
