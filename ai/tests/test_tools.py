@@ -191,6 +191,43 @@ check("chat plan defaults to the page's choice", r["target_years"] == 5 and r["a
 r = call_tool("graduation_plan", {}, NEW)
 check("chat plan table has the three targets", [o["target_years"] for o in r["all_targets"]] == [4, 4.5, 5], r)
 
+# contact advisor: escalation email for cases the chatbot cannot settle
+r = call_tool("contact_advisor", {"case": "course_full", "course_code": "ari 381", "details": "اكتمل العدد.", "confirmed": True}, EXC)
+s = d.get_student(EXC)
+check("advisor email has the student's name, id and course",
+      s["personal"]["name_ar"] in r["email"]["body"] and EXC in r["email"]["subject"]
+      and "ARI 381" in r["email"]["body"] and "اكتمل العدد." in r["email"]["body"], r["email"])
+check("advisor email goes to the student's advisor", r["advisor_known"] and r["email"]["to"] == d.advisor_of(EXC)["email"]
+      and d.advisor_of(EXC)["name_ar"] in r["email"]["body"], r)
+check("advisor email is an action for the website", r["action"]["type"] == "advisor_email", r)
+check("every mock student has an advisor", all(d.advisor_of(sid) for sid in d.students()))
+r = call_tool("my_advisor", {}, PROB)
+check("my advisor: name, email, office hours", r["found"] and r["advisor"]["email"].endswith(".example")
+      and r["advisor"]["office_hours_ar"], r)
+r = call_tool("contact_advisor", {"case": "registration_missed", "language": "en", "confirmed": True}, None)
+check("advisor email without a student uses placeholders, English",
+      "[Your name]" in r["email"]["body"] and r["email"]["subject"].startswith("Request for late"), r["email"])
+check("unknown advisor case falls back to other", call_tool("contact_advisor", {"case": "xyz"})["case"] == "other")
+
+r = call_tool("contact_advisor", {"case": "course_full", "course_code": "CSE 351"}, EXC)
+check("first call offers help and asks details, no email", r.get("try_first") and r["ask_ar"] and "email" not in r, r)
+check("system_error case removed (a stuck system is normal at registration)",
+      call_tool("contact_advisor", {"case": "system_error", "confirmed": True}, EXC)["case"] == "other")
+
+# load exception: asks why and how many hours before writing the email
+r = call_tool("contact_advisor", {"case": "load_exception"}, NEAR)
+check("load exception asks the reason and hours first", r.get("needs_info") and "email" not in r
+      and set(r["missing"]) == {"reason", "requested_hours"}, r)
+r = call_tool("contact_advisor", {"case": "load_exception", "reason": "graduation", "requested_hours": 24, "confirmed": True}, NEAR)
+check("load exception email has hours, limit, reason and hours left",
+      "الساعات المطلوبة: 24" in r["email"]["body"] and "إلى 21" in r["email"]["body"]
+      and "الساعات المتبقية للتخرج: 26" in r["email"]["body"], r.get("email"))
+r = call_tool("contact_advisor", {"case": "other_department_course"}, EXC)
+check("other department case asks for the course", r.get("missing") == ["course_code"], r)
+r = call_tool("contact_advisor", {"case": "other_department_course", "course_code": "CSE 351", "confirmed": True}, EXC)
+check("other department email asks about an equivalent course", "قسم آخر" in r["email"]["body"]
+      and "CSE 351" in r["email"]["body"], r.get("email"))
+
 # registry: every tool callable, session student overrides the model's
 check("tool names unique", len({t["name"] for t in TOOLS}) == len(TOOLS))
 check("student id injected", call_tool("academic_level", {"student_id": "wrong"}, EXC)["found"])

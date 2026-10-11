@@ -1,0 +1,35 @@
+{
+  "_note": "Fictional academic advisors for development and demos only. The emails use the reserved .example domain so a test email never reaches a real person. Each student id in `students` comes from students.json.",
+  "advisors": [
+    {
+      "advisor_id": "adv1",
+      "name_ar": "د. أحمد صلاح الدين",
+      "name_en": "Dr. Ahmed Salah Eldin",
+      "title_ar": "مدرس بقسم هندسة الذكاء الاصطناعي",
+      "email": "ahmed.salah@aie-advisors.example",
+      "office_ar": "مبنى البرامج المميزة، الدور الثالث، مكتب 305",
+      "office_hours_ar": "الأحد والثلاثاء من 11 لـ 1 الظهر",
+      "students": ["883941655", "839263318"]
+    },
+    {
+      "advisor_id": "adv2",
+      "name_ar": "د. منى عبد الرحمن",
+      "name_en": "Dr. Mona Abdelrahman",
+      "title_ar": "أستاذ مساعد بقسم هندسة الحاسبات",
+      "email": "mona.abdelrahman@aie-advisors.example",
+      "office_ar": "مبنى البرامج المميزة، الدور الثاني، مكتب 210",
+      "office_hours_ar": "الاثنين والأربعاء من 10 لـ 12 الظهر",
+      "students": ["897948891", "824548805"]
+    },
+    {
+      "advisor_id": "adv3",
+      "name_ar": "د. كريم يوسف عطية",
+      "name_en": "Dr. Karim Youssef Attia",
+      "title_ar": "مدرس بقسم هندسة الذكاء الاصطناعي",
+      "email": "karim.attia@aie-advisors.example",
+      "office_ar": "مبنى البرامج المميزة، الدور الثالث، مكتب 312",
+      "office_hours_ar": "الأحد والخميس من 12 لـ 2 الظهر",
+      "students": ["877567042", "833603614"]
+    }
+  ]
+}

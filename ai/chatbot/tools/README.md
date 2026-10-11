@@ -102,3 +102,22 @@
 - أي أداة محتاجة تتأكد من أهلية مادة تنادي `registration_eligibility` بدل ما تكتب القواعد تاني.
 - لازم تتحط الأداة الجديدة في `TOOLS` في `registry.py` بوصف عربي واضح، لأن وصفها هو اللي الموديل بيقرر بيه ينادي عليها ولا لأ.
 - مفيش اختبارات من غير تجربة على الطلاب الستة (`ai/tests/test_tools.py` فيه الشكل).
+
+---
+
+## رابعًا: المرشد الأكاديمي (`advisor.py`) — جاهزة (على داتا وهمية)
+
+لما مشكلة الطالب ملهاش حل من الأدوات أو اللائحة، أو محتاجة قرار أو موافقة من إنسان، مساري بيقول للطالب يتواصل مع مرشده الأكاديمي، ويكتبله إيميل جاهز. المرشدين في `ai/data/advisors.json` (3 مرشدين وهميين، كل واحد له طالبين، والإيميلات `.example` عشان متوصلش لحد حقيقي).
+
+| الأداة | بتعمل إيه | أهم المدخلات |
+|---|---|---|
+| `contact_advisor` | سبب التحويل للمرشد، بيانات المرشد (اسم، إيميل، مكتب، ساعات مكتبية)، المطلوب إرفاقه، وإيميل جاهز (إلى، موضوع، نص) ببيانات الطالب. بترجّع `action` نوعه `advisor_email` عشان الموقع يعمل زرار "ابعت الإيميل". لو ناقص معلومة بترجّع `needs_info` والأسئلة (`ask_ar`) من غير إيميل | `case`، `details`، `course_code`، `reason` و`requested_hours` (لـ `load_exception`)، `language` (ar/en) |
+| `my_advisor` | مين مرشد الطالب وإزاي يوصله | `student_id` |
+
+الحالات (`case`): `registration_missed` (فات التسجيل)، `course_full` (المادة اكتملت)، `project_registration` (مشروع التخرج متسجلش)، `load_exception` (ساعات أكتر أو أقل من الحد، مادة 13)، `prerequisite_exception` (مادة 19)، `drop_withdraw` (مادة 15)، `schedule_conflict`، `course_not_offered`، `other_department_course` (المادة مش مفتوحة في البرنامج: هل مفتوحة في قسم تاني يسجلها بالتشابه)، `graduation_plan` (الهدف مش ممكن)، `academic_warning` (مادة 25)، `attendance_excuse` (مادة 12)، `exam_excuse`، `grade_issue`، `record_error`، `transfer_equivalency`، `leave_of_absence`، `training` (مادة 17)، `other`.
+
+قبل أي إيميل: أول نداء (من غير `confirmed`) بيرجّع `try_first` وأسئلة عن المشكلة (`CASE_QUESTIONS`)، فمساري يعرض يساعد الطالب ويطلب تفاصيل أكتر. الإيميل بيتكتب بس لما الشات ينادي تاني بـ `confirmed=true`. والسيستم المعلّق وقت التسجيل مش حالة: مساري بيقول للطالب يجرب تاني.
+
+حالات محتاجة معلومة معينة كمان:
+- `load_exception`: لازم السبب (`graduation`، `behind_plan`، `retake_improve`، `reduce_load`، `other`) وعدد الساعات. الإيميل بيكتب الحد المسموح للطالب (من `credit_limit`)، ولو السبب التخرج الساعات الفاضلة (من `academic_level`).
+- `other_department_course`: لازم كود المادة.
