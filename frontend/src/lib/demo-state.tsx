@@ -27,13 +27,18 @@ export type ChatAction =
   | { type: "select_course"; course_code: string }
   | { type: "unselect_course"; course_code: string }
   | { type: "set_selection"; courses: string[] }
+  // A case only a real academic advisor can settle: the email the student can send them (shown as a button).
+  | { type: "advisor_email"; to: string; subject: string; body: string }
 
 /** A document the RAG service searched to write its answer. */
 export type RagSource = { id: string; title: string; source: string }
 
+/** The ready email to the student's academic advisor, attached to the answer that wrote it. */
+export type AdvisorEmail = { to: string; subject: string; body: string }
+
 export type ChatMessage =
   | { id: string; role: "user"; text: string | L }
-  | { id: string; role: "assistant"; kind: "ai"; text: string; sources: RagSource[] }
+  | { id: string; role: "assistant"; kind: "ai"; text: string; sources: RagSource[]; advisorEmail?: AdvisorEmail }
   | { id: string; role: "assistant"; kind: "error"; detail: string }
 
 export { MASARI_API_URL }
@@ -188,7 +193,18 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
           const data = await res.json().catch(() => ({}))
           if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`)
           if (!controller.signal.aborted && Array.isArray(data.actions)) applyActions(data.actions as ChatAction[])
-          reply({ id: crypto.randomUUID(), role: "assistant", kind: "ai", text: data.answer ?? "", sources: data.sources ?? [] })
+          // The email comes from the tool's result, not the model's text, so the button always has all of it.
+          const email = Array.isArray(data.actions)
+            ? (data.actions as ChatAction[]).find((a) => a.type === "advisor_email")
+            : undefined
+          reply({
+            id: crypto.randomUUID(),
+            role: "assistant",
+            kind: "ai",
+            text: data.answer ?? "",
+            sources: data.sources ?? [],
+            ...(email ? { advisorEmail: { to: email.to, subject: email.subject, body: email.body } } : {}),
+          })
         })
         .catch((e: Error) => {
           if (e.name === "AbortError") return

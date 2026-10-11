@@ -1,14 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { History, Loader2, Mic, Plus, SendHorizontal, Square, Trash2 } from "lucide-react"
+import { Check, Copy, History, Loader2, Mail, Mic, Plus, SendHorizontal, Square, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 import { AppIcon } from "@/components/masari/brand"
 import { AiBadge, RagSourceChip } from "@/components/masari/trust"
 import { chatSuggestions } from "@/lib/demo-content"
-import { useDemoState, type ChatMessage, type RagSource } from "@/lib/demo-state"
+import { useDemoState, type AdvisorEmail, type ChatMessage, type RagSource } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
 import { useStudentView } from "@/lib/student-context"
 import { useVoiceInput } from "@/lib/use-voice-input"
@@ -163,17 +163,18 @@ function AssistantShell({ children }: { children: React.ReactNode }) {
 
 function AssistantMessage({ message }: { message: Extract<ChatMessage, { role: "assistant" }> }) {
   if (message.kind === "error") return <ErrorReply detail={message.detail} />
-  return <AiReply text={message.text} sources={message.sources} />
+  return <AiReply text={message.text} sources={message.sources} advisorEmail={message.advisorEmail} />
 }
 
 /** An answer from the Masari AI service (RAG over the regulations + the rule tools + Gemini). */
-function AiReply({ text, sources }: { text: string; sources: RagSource[] }) {
+function AiReply({ text, sources, advisorEmail }: { text: string; sources: RagSource[]; advisorEmail?: AdvisorEmail }) {
   const { t } = useI18n()
   return (
     <AssistantShell>
       <div className="max-w-[70ch] text-[15px] leading-7 text-foreground/90 text-pretty">
         <SimpleMarkdown text={text} />
       </div>
+      {advisorEmail && <AdvisorEmailActions email={advisorEmail} />}
       {sources.length > 0 && (
         <details className="group text-xs text-muted-foreground">
           <summary className="cursor-pointer select-none hover:text-foreground">{t("ragSources")}</summary>
@@ -185,6 +186,52 @@ function AiReply({ text, sources }: { text: string; sources: RagSource[] }) {
         </details>
       )}
     </AssistantShell>
+  )
+}
+
+/** Under an answer that wrote an advisor email: open it ready in the student's email app, or copy it.
+ *  The student reviews and sends it themselves; nothing is sent from here. */
+function AdvisorEmailActions({ email }: { email: AdvisorEmail }) {
+  const { t } = useI18n()
+  const [copied, setCopied] = React.useState(false)
+  const href = `mailto:${email.to.includes("@") ? email.to : ""}?subject=${encodeURIComponent(email.subject)}&body=${encodeURIComponent(email.body)}`
+
+  const copy = () => {
+    const text = `${email.to}\n${email.subject}\n\n${email.body}`
+    const done = () => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+    // Some browsers block the Clipboard API (permissions, embedded views); fall back to a hidden textarea.
+    const fallback = () => {
+      const area = document.createElement("textarea")
+      area.value = text
+      area.style.position = "fixed"
+      area.style.opacity = "0"
+      document.body.appendChild(area)
+      area.select()
+      const ok = document.execCommand("copy")
+      area.remove()
+      if (ok) done()
+    }
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, fallback)
+    else fallback()
+  }
+
+  return (
+    <div className="flex max-w-[70ch] flex-col gap-2">
+      <div className="flex flex-wrap gap-2">
+        <Button nativeButton={false} render={<a href={href} />} size="sm" className="h-9 gap-1.5">
+          <Mail className="size-4" aria-hidden />
+          {t("advisorEmailSend")}
+        </Button>
+        <Button type="button" variant="outline" size="sm" className="h-9 gap-1.5" onClick={copy}>
+          {copied ? <Check className="size-4" aria-hidden /> : <Copy className="size-4" aria-hidden />}
+          {copied ? t("advisorEmailCopied") : t("advisorEmailCopy")}
+        </Button>
+      </div>
+      <p className="text-xs text-muted-foreground">{t("advisorEmailHint")}</p>
+    </div>
   )
 }
 

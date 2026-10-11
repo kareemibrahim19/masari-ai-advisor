@@ -102,6 +102,13 @@ const dict = {
   noRecentChats: { ar: "لسه مفيش محادثات. أي محادثة تبدأها هتتحفظ هنا.", en: "No chats yet. Every chat you start is saved here." },
   deleteChat: { ar: "امسح المحادثة", en: "Delete chat" },
   ragSources: { ar: "المصادر اللي اتبحث فيها", en: "Sources searched" },
+  advisorEmailSend: { ar: "ابعت الإيميل لمرشدك", en: "Email your advisor" },
+  advisorEmailCopy: { ar: "انسخ الإيميل", en: "Copy the email" },
+  advisorEmailCopied: { ar: "اتنسخ", en: "Copied" },
+  advisorEmailHint: {
+    ar: "هيفتح برنامج الإيميل والرسالة جاهزة. راجعها وارفق المطلوب وبعدين ابعتها.",
+    en: "Opens your email app with the message ready. Review it, attach what is needed, then send.",
+  },
   chatError: {
     ar: "مساري مش قادر يرد دلوقتي. اتأكد إن خدمة الـ AI شغالة وجرب تاني كمان شوية.",
     en: "Masari can't answer right now. Make sure the AI service is running and try again shortly.",
