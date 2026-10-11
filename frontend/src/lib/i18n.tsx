@@ -103,11 +103,12 @@ const dict = {
   deleteChat: { ar: "امسح المحادثة", en: "Delete chat" },
   ragSources: { ar: "المصادر اللي اتبحث فيها", en: "Sources searched" },
   advisorEmailSend: { ar: "ابعت الإيميل لمرشدك", en: "Email your advisor" },
+  advisorEmailGmail: { ar: "افتح في Gmail", en: "Open in Gmail" },
   advisorEmailCopy: { ar: "انسخ الإيميل", en: "Copy the email" },
   advisorEmailCopied: { ar: "اتنسخ", en: "Copied" },
   advisorEmailHint: {
-    ar: "هيفتح برنامج الإيميل والرسالة جاهزة. راجعها وارفق المطلوب وبعدين ابعتها.",
-    en: "Opens your email app with the message ready. Review it, attach what is needed, then send.",
+    ar: "هيفتح برنامج الإيميل أو Gmail والرسالة جاهزة. راجعها وارفق المطلوب وبعدين ابعتها.",
+    en: "Opens your email app or Gmail with the message ready. Review it, attach what is needed, then send.",
   },
   chatError: {
     ar: "مساري مش قادر يرد دلوقتي. اتأكد إن خدمة الـ AI شغالة وجرب تاني كمان شوية.",

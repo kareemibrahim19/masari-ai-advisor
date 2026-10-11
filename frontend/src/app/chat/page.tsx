@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, Copy, History, Loader2, Mail, Mic, Plus, SendHorizontal, Square, Trash2 } from "lucide-react"
+import { Check, Copy, ExternalLink, History, Loader2, Mail, Mic, Plus, SendHorizontal, Square, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
@@ -194,7 +194,10 @@ function AiReply({ text, sources, advisorEmail }: { text: string; sources: RagSo
 function AdvisorEmailActions({ email }: { email: AdvisorEmail }) {
   const { t } = useI18n()
   const [copied, setCopied] = React.useState(false)
-  const href = `mailto:${email.to.includes("@") ? email.to : ""}?subject=${encodeURIComponent(email.subject)}&body=${encodeURIComponent(email.body)}`
+  const to = email.to.includes("@") ? email.to : "" // a "[advisor email]" placeholder is left for the student
+  const href = `mailto:${to}?subject=${encodeURIComponent(email.subject)}&body=${encodeURIComponent(email.body)}`
+  // Gmail's compose page, for students who use Gmail in the browser and have no email app set up.
+  const gmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(email.subject)}&body=${encodeURIComponent(email.body)}`
 
   const copy = () => {
     const text = `${email.to}\n${email.subject}\n\n${email.body}`
@@ -224,6 +227,16 @@ function AdvisorEmailActions({ email }: { email: AdvisorEmail }) {
         <Button nativeButton={false} render={<a href={href} />} size="sm" className="h-9 gap-1.5">
           <Mail className="size-4" aria-hidden />
           {t("advisorEmailSend")}
+        </Button>
+        <Button
+          nativeButton={false}
+          render={<a href={gmail} target="_blank" rel="noopener noreferrer" />}
+          variant="outline"
+          size="sm"
+          className="h-9 gap-1.5"
+        >
+          <ExternalLink className="size-4" aria-hidden />
+          {t("advisorEmailGmail")}
         </Button>
         <Button type="button" variant="outline" size="sm" className="h-9 gap-1.5" onClick={copy}>
           {copied ? <Check className="size-4" aria-hidden /> : <Copy className="size-4" aria-hidden />}
