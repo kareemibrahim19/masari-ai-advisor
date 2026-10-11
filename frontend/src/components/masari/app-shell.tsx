@@ -116,7 +116,7 @@ function BottomNav() {
 }
 
 function StudentChip() {
-  const { tr, num, t, lang } = useI18n()
+  const { tr, t } = useI18n()
   const { student } = useStudentView()
   const full = tr(student.fullName)
   // The header shows the first two names; the full name is in the tooltip and on the dashboard.
@@ -128,9 +128,7 @@ function StudentChip() {
       </span>
       <span className="hidden leading-tight whitespace-nowrap sm:block">
         <span className="block text-sm font-medium">{short}</span>
-        <span className="block text-xs text-muted-foreground tabular">
-          {tr(student.level)}{lang === "ar" ? "، " : ", "}GPA {student.gpa === null ? "—" : num(student.gpa, { minimumFractionDigits: 1 })}
-        </span>
+        <span className="block text-xs text-muted-foreground tabular">{tr(student.level)}</span>
       </span>
     </div>
   )
