@@ -313,6 +313,12 @@ def course_unlocks(course_code: str) -> dict:
 LEVEL_NAMES = {0: "Freshman", 100: "Sophomore", 200: "Junior", 300: "Junior", 400: "Senior"}
 
 
+def study_level(st: dict) -> int:
+    """Level by study year from the current semester: year 1 = 0, year 2 = 100 ... year 5 and later = 400."""
+    year = (st["main_semesters_completed"] + 2) // 2
+    return min(4, year - 1) * 100
+
+
 def academic_level(student_id: str) -> dict:
     """The student's level by study year: year 1 (two semesters) = 0, then 100 ... year 5 = 400.
 
@@ -324,10 +330,10 @@ def academic_level(student_id: str) -> dict:
     st = s["academic_status"]
     semester = st["main_semesters_completed"] + 1
     year = (semester + 1) // 2
-    level = min(4, year - 1) * 100
+    level = study_level(st)
     name = LEVEL_NAMES[level]
     earned, required = st["earned_hours"], d.program()["program"]["total_credits"]
-    out = {"found": True, "study_level": str(level), "level_name": name, "level": year, "study_year": year,
+    out = {"found": True, "study_level": str(level), "level_name": name, "study_year": year,
            "current_semester": semester, "earned_hours": earned, "required_hours": required,
            "hours_to_graduation": max(0, required - earned)}
     text = f"إنت في المستوى {level} ({name})، السنة رقم {year}، الترم رقم {semester}."
@@ -489,8 +495,8 @@ def registration_eligibility(student_id: str, course_code: str, term_type: str =
 
     need_level = c.get("min_level_required")
     if need_level:
-        ok = st["level"] * 100 >= need_level
-        add("min_level", ok, f"محتاج مستوى {need_level // 100} وهو في مستوى {st['level']}.")
+        have = study_level(st)
+        add("min_level", have >= need_level, f"محتاج المستوى {need_level} وهو في المستوى {have}.")
     need_hours = c.get("min_credits_required")
     if need_hours:
         add("min_credits", st["earned_hours"] >= need_hours,

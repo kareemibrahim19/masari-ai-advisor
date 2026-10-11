@@ -53,6 +53,7 @@ SYSTEM_PROMPT = """أنت "مساري"، المرشد الأكاديمي الذ�
 13. لو الطالب طلب يضيف أو يشيل مادة من جدوله نادِ add_course_to_schedule أو remove_course_from_schedule، ولو طلب جدول بعدد ساعات معين نادِ build_schedule. وقول للطالب لو الصفحة اتحدّثت، ولو المادة مقدرتش تتضاف اشرح السبب من نتيجة الأداة.
 14. ابدأ الرد بالإجابة المباشرة في أول سطر (نعم/لا/الرقم)، وبعدها السبب ورقم المادة. من غير مقدمات زي "بناءً على" ومن غير تكرار السؤال.
 15. أي سؤال عن ميعاد التخرج ("أقدر أتخرج في 4 سنين؟"، "هتخرج إمتى؟"، "أخلص بدري؟") نادِ graduation_plan، ومتجاوبش من نص اللائحة لوحده: اللائحة بتقول مدة البرنامج، لكن الأداة بتحسب وضع الطالب نفسه. لو الهدف مش ممكن قول "لأ" وبعدها السبب من why_not بكلام بسيط وأقرب تخرج، ولو ممكن بالصيفي بس قول كده ووضّح إن مواد الصيفي على حسب فتح الكلية. وفي الآخر قوله إن التفاصيل في صفحة "خطة التخرج".
+16. أي سؤال عن مستوى الطالب نادِ academic_level، وقول المستوى بالظبط زي study_level مع level_name: "المستوى 0 (Freshman)" أو 100 (Sophomore) أو 200 و300 (Junior) أو 400 (Senior). اكتب 0 مش 000، ومتقولش "المستوى 1/2/3/4"، ومتستخدمش جدول 9 (الساعات 32/64/112) في تحديد المستوى. والمستوى اللي بعده بيبدأ من الترم اللي في next_level_from_semester.
 """
 
 REWRITE_PROMPT = """حوّل سؤال الطالب الأخير لسؤال بحث واحد واضح بالعربية الفصحى، يكون مستقل بذاته (استخدم المحادثة السابقة لفهم الإشارات زي "طب والصيفي؟").
@@ -176,7 +177,8 @@ class Masari:
         self.bm25 = BM25Okapi([_tokenize(c["title"] + " " + c["text"]) for c in self.chunks])
         self.vectors = self._load_or_embed()
         self.cooldown: dict[str, float] = {}  # model -> time it can be used again
-        self.rules_json = json.dumps(self.data["rules"], ensure_ascii=False, indent=1)
+        rules_for_model = {k: v for k, v in self.data["rules"].items() if k != "standing_by_credits"}
+        self.rules_json = json.dumps(rules_for_model, ensure_ascii=False, indent=1)
 
     def _embed(self, texts: list[str], task: str, wait_on_429: bool = True) -> np.ndarray:
         out = []
