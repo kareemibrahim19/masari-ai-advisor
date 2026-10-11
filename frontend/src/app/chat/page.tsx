@@ -3,6 +3,7 @@
 import * as React from "react"
 import { History, Loader2, Mic, Plus, SendHorizontal, Square, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 import { AppIcon } from "@/components/masari/brand"
 import { AiBadge, RagSourceChip } from "@/components/masari/trust"
@@ -39,6 +40,7 @@ export default function ChatPage() {
         <h1 id="chat-title" className="sr-only">
           {t("chatTitle")}
         </h1>
+        <MobilePanelButton />
         {/* relative: keeps the absolutely positioned sr-only labels inside the scroll area, not stretching the page. */}
         <div className="relative flex-1 overflow-y-auto">
           {messages.length === 0 && !thinking && <Welcome onPick={send} />}
@@ -307,6 +309,38 @@ function Typing() {
 }
 
 function ContextPanel() {
+  return (
+    <aside className="relative hidden h-[calc(100dvh-4rem)] overflow-y-auto border-s bg-card p-5 lg:block">
+      <PanelContent />
+    </aside>
+  )
+}
+
+/** Phones: the side panel does not fit, so a button above the chat opens it in a sheet. */
+function MobilePanelButton() {
+  const { t, dir } = useI18n()
+  const { chats } = useDemoState()
+  const [open, setOpen] = React.useState(false)
+  return (
+    <div className="flex justify-start border-b bg-background/90 px-4 py-2 backdrop-blur lg:hidden">
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger render={<Button variant="outline" size="sm" className="h-9 gap-1.5" />}>
+          <History className="size-4" aria-hidden />
+          {t("recentChats")}
+          {chats.length > 0 && <span className="rounded-full bg-muted px-1.5 text-xs tabular-nums">{chats.length}</span>}
+        </SheetTrigger>
+        {/* Opens from the reading start: right in Arabic, left in English. */}
+        <SheetContent side={dir === "rtl" ? "right" : "left"} className="overflow-y-auto p-5 pt-12">
+          <SheetTitle className="sr-only">{t("recentChats")}</SheetTitle>
+          <PanelContent onDone={() => setOpen(false)} />
+        </SheetContent>
+      </Sheet>
+    </div>
+  )
+}
+
+/** New chat, recent chats and what Masari knows about the student. `onDone` closes the mobile sheet. */
+function PanelContent({ onDone }: { onDone?: () => void }) {
   const { t, tr, num, lang } = useI18n()
   const { newChat, chats, chatId, openChat, deleteChat } = useDemoState()
   const { student } = useStudentView()
@@ -318,8 +352,15 @@ function ContextPanel() {
   ]
   const day = new Intl.DateTimeFormat(lang === "ar" ? "ar-EG-u-nu-latn" : "en-US", { day: "numeric", month: "short" })
   return (
-    <aside className="relative hidden h-[calc(100dvh-4rem)] space-y-6 overflow-y-auto border-s bg-card p-5 lg:block">
-      <Button variant="outline" className="h-10 w-full gap-2" onClick={newChat}>
+    <div className="space-y-6">
+      <Button
+        variant="outline"
+        className="h-10 w-full gap-2"
+        onClick={() => {
+          newChat()
+          onDone?.()
+        }}
+      >
         <Plus className="size-4" />
         {t("newChat")}
       </Button>
@@ -338,7 +379,10 @@ function ContextPanel() {
               <li key={c.id} className="group relative">
                 <button
                   type="button"
-                  onClick={() => openChat(c.id)}
+                  onClick={() => {
+                    openChat(c.id)
+                    onDone?.()
+                  }}
                   aria-current={c.id === chatId ? "true" : undefined}
                   className={cn(
                     "flex min-h-10 w-full flex-col gap-0.5 rounded-md px-2.5 py-2 pe-9 text-start text-sm transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
@@ -353,7 +397,7 @@ function ContextPanel() {
                   onClick={() => deleteChat(c.id)}
                   aria-label={`${t("deleteChat")}: ${c.title}`}
                   title={t("deleteChat")}
-                  className="absolute end-1 top-1.5 grid size-7 place-items-center rounded-md text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                  className="absolute end-1 top-1.5 grid size-7 place-items-center rounded-md text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100 hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
                 >
                   <Trash2 className="size-3.5" aria-hidden />
                 </button>
@@ -378,6 +422,6 @@ function ContextPanel() {
           <p className="font-medium">{tr(student.preferences.summary)}</p>
         </div>
       </section>
-    </aside>
+    </div>
   )
 }
