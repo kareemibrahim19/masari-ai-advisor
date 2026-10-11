@@ -6,6 +6,7 @@ import * as React from "react"
 import { CalendarRange, Languages, LayoutDashboard, Library, LogOut, MessageSquareText, Moon, Sparkles, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CalendarButton } from "@/components/masari/calendar-sheet"
+import { DeadlinePopup } from "@/components/masari/deadline-popup"
 import { Lockup } from "@/components/masari/brand"
 import { DemoStateProvider } from "@/lib/demo-state"
 import { type DictKey, useI18n } from "@/lib/i18n"
@@ -221,6 +222,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       </main>
 
       <BottomNav />
+      <DeadlinePopup />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { AlertTriangle, ArrowLeft, Armchair, CalendarRange, Info, MessageSquareText } from "lucide-react"
+import { AlertTriangle, ArrowLeft, Armchair, BellRing, CalendarDays, CalendarRange, Info, MessageSquareText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Bar, CategoryTag, Code, Ring, SlotTag } from "@/components/masari/bits"
@@ -9,6 +9,7 @@ import { JourneyRail } from "@/components/masari/journey"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import { useI18n } from "@/lib/i18n"
 import { semesterLabel, useGraduationPlan, usePlanChoice } from "@/lib/plan-api"
+import { formatLongDate, upcomingReminders, useToday } from "@/lib/reminders"
 import { useStudentView } from "@/lib/student-context"
 import { cn } from "@/lib/utils"
 
@@ -38,6 +39,9 @@ export default function DashboardPage() {
   const last = plan?.terms[plan.terms.length - 1]
   const grad = plan ? (last ? semesterLabel(last.term, last.academic_year, lang) : tr(plan.current_term)) : tr(student.estGraduation)
   const targetKey = ({ 4: "years4", 4.5: "years45", 5: "years5" } as const)[choice.target]
+  // Today's date next to the greeting, and calendar dates in the next 5 days as alerts.
+  const today = useToday()
+  const reminders = today ? upcomingReminders(today) : []
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-10 px-4 py-6 md:px-6 md:py-10">
@@ -45,11 +49,19 @@ export default function DashboardPage() {
       <section aria-labelledby="hero-title" className="space-y-6">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
-            <h1 id="hero-title" className="text-3xl leading-tight font-semibold tracking-tight text-balance md:text-4xl">
-              {t("greeting")}
-              {lang === "ar" ? "، " : ", "}
-              {tr(student.name)}
-            </h1>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <h1 id="hero-title" className="text-3xl leading-tight font-semibold tracking-tight text-balance md:text-4xl">
+                {t("greeting")}
+                {lang === "ar" ? "، " : ", "}
+                {tr(student.name)}
+              </h1>
+              {today && (
+                <p className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-sm font-medium text-muted-foreground">
+                  <CalendarDays className="size-4 text-primary" aria-hidden />
+                  <time dateTime={today}>{formatLongDate(today, lang)}</time>
+                </p>
+              )}
+            </div>
             <p className="max-w-[52ch] text-base leading-relaxed text-muted-foreground text-pretty md:text-lg">
               {lang === "ar" ? (
                 <>
@@ -180,8 +192,35 @@ export default function DashboardPage() {
           <h2 id="alerts-title" className="text-xl font-semibold">
             {t("alerts")}
           </h2>
-          {alerts.length === 0 && <p className="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">{t("noAlerts")}</p>}
+          {alerts.length === 0 && reminders.length === 0 && (
+            <p className="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">{t("noAlerts")}</p>
+          )}
           <ul className="space-y-3">
+            {/* Calendar dates in the next 5 days, soonest first; redder as the day nears. */}
+            {reminders.map((r) => (
+              <li
+                key={r.event.id}
+                className={cn(
+                  "flex gap-3 rounded-2xl border p-4",
+                  r.urgency === 3 ? "border-destructive bg-destructive/10" : r.urgency === 2 ? "border-warning bg-warning-soft" : "border-warning/40 bg-warning-soft/40"
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid size-9 shrink-0 place-items-center rounded-[10px]",
+                    r.urgency === 3 ? "bg-destructive text-white" : "bg-warning-soft text-warning"
+                  )}
+                >
+                  <BellRing className="size-[18px]" aria-hidden />
+                </span>
+                <div className="min-w-0 space-y-1">
+                  <p className={cn("font-semibold", r.urgency === 3 ? "text-destructive" : "text-foreground")}>
+                    {tr(r.event.title)} · {tr(r.when)}
+                  </p>
+                  <p className="text-sm leading-relaxed text-foreground/80">{tr(r.body)}</p>
+                </div>
+              </li>
+            ))}
             {alerts.map((a) => {
               const s = alertStyle[a.kind]
               const Icon = s.icon

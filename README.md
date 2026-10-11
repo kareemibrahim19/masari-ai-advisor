@@ -61,7 +61,9 @@ The website reads the AI service URL from `NEXT_PUBLIC_MASARI_API_URL` (default 
 - **Course catalog**: every AI Engineering course with prerequisites (Arabic names in Arabic), plus the program regulations.
 - **Academic calendar**: the calendar icon in the header shows the faculty's calendar for the current semester.
 
-Each semester, replace the calendar image in `frontend/public/calendar/` and update `frontend/src/lib/academic-calendar.ts`.
+- **Date reminders**: today's date is shown next to the greeting. From 5 days before a date in the academic calendar, it appears in the dashboard's academic alerts (redder as the day nears); from 3 days before, a popup shows when the student opens the site and closes only with its button (once per day).
+
+Each semester, replace the calendar image in `frontend/public/calendar/` and update `frontend/src/lib/academic-calendar.ts` (the image, the semester and the list of dates). To preview the reminders on another day, set `localStorage["masari.today"] = "2026-10-14"` in the browser console.
 
 ## Data
 
