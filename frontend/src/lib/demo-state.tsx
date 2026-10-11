@@ -10,6 +10,7 @@ import { MASARI_API_URL } from "@/lib/api-url"
 import { defaultPrefs, instructors, type StudentPrefs } from "@/lib/demo-content"
 import type { L } from "@/lib/i18n"
 import { usePlanChoice } from "@/lib/plan-api"
+import { chatTitle, loadChats, saveChats, upsertChat, type SavedChat } from "@/lib/chat-history"
 import { useStudentView } from "@/lib/student-context"
 import type { StudentView } from "@/lib/student-view"
 
@@ -67,6 +68,12 @@ type DemoState = {
   thinking: boolean
   sendMessage: (text: string) => void
   newChat: () => void
+  /** Recent chats of this student (newest first), saved in this browser. */
+  chats: SavedChat[]
+  /** The open chat's id, or null for a new chat that has no message yet. */
+  chatId: string | null
+  openChat: (id: string) => void
+  deleteChat: (id: string) => void
 }
 
 const DemoStateContext = React.createContext<DemoState | null>(null)
@@ -81,6 +88,29 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
   const [excluded, setExcluded] = React.useState<string[]>([])
   const [scenarioId, setScenarioId] = React.useState<string | null>(null)
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
+  const studentId = view.student.id
+  const [chats, setChats] = React.useState<SavedChat[]>(() => loadChats(studentId))
+  const [chatId, setChatId] = React.useState<string | null>(null)
+  // Refs so a reply that arrives later is added to the chat it belongs to.
+  const messagesRef = React.useRef<ChatMessage[]>([])
+  const chatIdRef = React.useRef<string | null>(null)
+
+  /** Shows `next` and saves it as the open chat (a new chat gets its id with its first message). */
+  const commit = React.useCallback(
+    (next: ChatMessage[]) => {
+      messagesRef.current = next
+      setMessages(next)
+      if (!next.length) return
+      const id = chatIdRef.current ?? (chatIdRef.current = crypto.randomUUID())
+      setChatId(id)
+      setChats((list) => {
+        const out = upsertChat(list, { id, title: chatTitle(next), updatedAt: Date.now(), messages: next })
+        saveChats(studentId, out)
+        return out
+      })
+    },
+    [studentId]
+  )
   const [thinking, setThinking] = React.useState(false)
   const [planChoice] = usePlanChoice(view.student.id)
   const pending = React.useRef<AbortController>(undefined)
@@ -120,15 +150,15 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
     (text: string) => {
       const value = text.trim()
       if (!value || thinking) return
-      const history = toHistory(messages)
-      setMessages((m) => [...m, { id: crypto.randomUUID(), role: "user", text: value }])
+      const history = toHistory(messagesRef.current)
+      commit([...messagesRef.current, { id: crypto.randomUUID(), role: "user", text: value }])
       setThinking(true)
 
       const controller = new AbortController()
       pending.current = controller
       const reply = (msg: ChatMessage) => {
-        if (controller.signal.aborted) return // "New chat" was pressed while waiting
-        setMessages((m) => [...m, msg])
+        if (controller.signal.aborted) return // another chat was opened while waiting
+        commit([...messagesRef.current, msg])
         setThinking(false)
       }
 
@@ -166,14 +196,43 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
         })
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [messages, thinking, view.student.id, view.student.maxLoad, view.recommendedCourses, excluded, prefs, selected, applyActions, planChoice]
+    [thinking, commit, view.student.id, view.student.maxLoad, view.recommendedCourses, excluded, prefs, selected, applyActions, planChoice]
   )
 
   const newChat = React.useCallback(() => {
     pending.current?.abort()
+    chatIdRef.current = null
+    setChatId(null)
+    messagesRef.current = []
     setMessages([])
     setThinking(false)
   }, [])
+
+  const openChat = React.useCallback(
+    (id: string) => {
+      const chat = chats.find((c) => c.id === id)
+      if (!chat) return
+      pending.current?.abort()
+      chatIdRef.current = id
+      setChatId(id)
+      messagesRef.current = chat.messages
+      setMessages(chat.messages)
+      setThinking(false)
+    },
+    [chats]
+  )
+
+  const deleteChat = React.useCallback(
+    (id: string) => {
+      setChats((list) => {
+        const out = list.filter((c) => c.id !== id)
+        saveChats(studentId, out)
+        return out
+      })
+      if (chatIdRef.current === id) newChat()
+    },
+    [studentId, newChat]
+  )
 
   const value = React.useMemo<DemoState>(
     () => ({
@@ -193,8 +252,12 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       thinking,
       sendMessage,
       newChat,
+      chats,
+      chatId,
+      openChat,
+      deleteChat,
     }),
-    [selected, toggleCourse, recTab, insCourse, prefs, excluded, restoreInstructor, scenarioId, messages, thinking, sendMessage, newChat]
+    [selected, toggleCourse, recTab, insCourse, prefs, excluded, restoreInstructor, scenarioId, messages, thinking, sendMessage, newChat, chats, chatId, openChat, deleteChat]
   )
 
   return <DemoStateContext.Provider value={value}>{children}</DemoStateContext.Provider>

@@ -98,6 +98,9 @@ const dict = {
     en: "I'm Masari, your academic advisor. Ask me about the regulations, your credit hours, or your graduation plan.",
   },
   newChat: { ar: "محادثة جديدة", en: "New chat" },
+  recentChats: { ar: "المحادثات الأخيرة", en: "Recent chats" },
+  noRecentChats: { ar: "لسه مفيش محادثات. أي محادثة تبدأها هتتحفظ هنا.", en: "No chats yet. Every chat you start is saved here." },
+  deleteChat: { ar: "امسح المحادثة", en: "Delete chat" },
   ragSources: { ar: "المصادر اللي اتبحث فيها", en: "Sources searched" },
   chatError: {
     ar: "مساري مش قادر يرد دلوقتي. اتأكد إن خدمة الـ AI شغالة وجرب تاني كمان شوية.",

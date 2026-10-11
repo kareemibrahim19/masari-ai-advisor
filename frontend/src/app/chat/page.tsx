@@ -1,12 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { BookOpenText, Loader2, Mic, Plus, SendHorizontal, Square } from "lucide-react"
+import { History, Loader2, Mic, Plus, SendHorizontal, Square, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { AppIcon } from "@/components/masari/brand"
 import { AiBadge, RagSourceChip } from "@/components/masari/trust"
-import { chatSuggestions, sources } from "@/lib/demo-content"
+import { chatSuggestions } from "@/lib/demo-content"
 import { useDemoState, type ChatMessage, type RagSource } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
 import { useStudentView } from "@/lib/student-context"
@@ -307,8 +307,8 @@ function Typing() {
 }
 
 function ContextPanel() {
-  const { t, tr, num } = useI18n()
-  const { newChat } = useDemoState()
+  const { t, tr, num, lang } = useI18n()
+  const { newChat, chats, chatId, openChat, deleteChat } = useDemoState()
   const { student } = useStudentView()
   const rows: [string, string][] = [
     [t("gpa"), student.gpa === null ? "—" : num(student.gpa, { minimumFractionDigits: 1 })],
@@ -316,12 +316,53 @@ function ContextPanel() {
     [t("maxLoad"), `${num(student.maxLoad)} ${t("creditsShort")}`],
     [t("level"), tr(student.level)],
   ]
+  const day = new Intl.DateTimeFormat(lang === "ar" ? "ar-EG-u-nu-latn" : "en-US", { day: "numeric", month: "short" })
   return (
     <aside className="relative hidden h-[calc(100dvh-4rem)] space-y-6 overflow-y-auto border-s bg-card p-5 lg:block">
       <Button variant="outline" className="h-10 w-full gap-2" onClick={newChat}>
         <Plus className="size-4" />
         {t("newChat")}
       </Button>
+
+      {/* Recent chats, saved per student in this browser */}
+      <section className="space-y-3">
+        <h3 className="flex items-center gap-2 text-sm font-semibold">
+          <History className="size-4 text-muted-foreground" aria-hidden />
+          {t("recentChats")}
+        </h3>
+        {chats.length === 0 ? (
+          <p className="rounded-lg border border-dashed p-3 text-xs text-muted-foreground">{t("noRecentChats")}</p>
+        ) : (
+          <ul className="max-h-72 space-y-1 overflow-y-auto rounded-lg border p-1">
+            {chats.map((c) => (
+              <li key={c.id} className="group relative">
+                <button
+                  type="button"
+                  onClick={() => openChat(c.id)}
+                  aria-current={c.id === chatId ? "true" : undefined}
+                  className={cn(
+                    "flex min-h-10 w-full flex-col gap-0.5 rounded-md px-2.5 py-2 pe-9 text-start text-sm transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+                    c.id === chatId && "bg-primary/8 font-medium"
+                  )}
+                >
+                  <span className="line-clamp-2 leading-snug">{c.title || t("newChat")}</span>
+                  <span className="text-[11px] text-muted-foreground">{day.format(c.updatedAt)}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deleteChat(c.id)}
+                  aria-label={`${t("deleteChat")}: ${c.title}`}
+                  title={t("deleteChat")}
+                  className="absolute end-1 top-1.5 grid size-7 place-items-center rounded-md text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+                >
+                  <Trash2 className="size-3.5" aria-hidden />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       <section className="space-y-3">
         <h3 className="text-sm font-semibold">{t("contextPanel")}</h3>
         <dl className="divide-y rounded-lg border bg-card text-sm">
@@ -336,20 +377,6 @@ function ContextPanel() {
           <p className="mb-1 text-xs text-muted-foreground">{t("yourPreferences")}</p>
           <p className="font-medium">{tr(student.preferences.summary)}</p>
         </div>
-      </section>
-      <section className="space-y-3">
-        <h3 className="flex items-center gap-2 text-sm font-semibold">
-          <BookOpenText className="size-4 text-source" aria-hidden />
-          {t("sourcesUsed")}
-        </h3>
-        <ul className="space-y-2">
-          {Object.values(sources).map((s) => (
-            <li key={s.id} className="rounded-lg border bg-card p-3">
-              <p className="text-sm font-medium">{tr(s.title)}</p>
-              <p className="text-xs text-muted-foreground">{tr(s.locator)}</p>
-            </li>
-          ))}
-        </ul>
       </section>
     </aside>
   )
