@@ -18,6 +18,7 @@ from google.genai import errors, types
 from rank_bm25 import BM25Okapi
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from lang import language_order  # noqa: E402
 from tools import call_tool, gemini_tool  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -292,16 +293,19 @@ class Masari:
                     f"(الحد الأقصى {session.get('max_load')} ساعة).")
         if session.get("preferences"):
             who += f"\nتفضيلات الطالب الحالية في الصفحة (0-100): {session['preferences']}."
+        # Reply language from the question itself (see lang.py), not left to the model's guess.
+        order = language_order(question)
         contents = [types.Content(role="user" if m["role"] == "user" else "model",
                                   parts=[types.Part(text=m["content"])]) for m in history[-10:]]
         contents.append(types.Content(role="user", parts=[types.Part(text=(
             f"القواعد الرسمية (JSON):\n{self.rules_json}\n\n"
             f"المعلومات المرجعية:\n{context}\n\n"
             f"{who}\n\n"
-            f"سؤال الطالب: {question}"))]))
+            f"سؤال الطالب: {question}\n\n"
+            f"{order}"))]))
 
         config = types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT, temperature=0.2,
+            system_instruction=SYSTEM_PROMPT + "\n\n" + order, temperature=0.2,
             tools=[gemini_tool(with_student=bool(student_id))],
             # We run the tools ourselves so the student's id is always the session's, never the model's guess.
             automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
