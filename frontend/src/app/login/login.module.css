@@ -66,13 +66,6 @@
 .spin { animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.demoRow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; margin: 14px 0 0; font-size: 13px; color: var(--muted-foreground); }
-.demoCode {
-  display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border: 1px dashed var(--input); border-radius: 8px;
-  background: transparent; color: var(--foreground); font-family: var(--font-jetbrains), ui-monospace, monospace; font-size: 13px; font-weight: 500;
-  direction: ltr; unicode-bidi: isolate; cursor: pointer;
-}
-.demoCode:hover { border-color: var(--brand-accent); background: color-mix(in srgb, var(--brand-accent) 12%, transparent); }
 
 .divider { height: 1px; margin: 24px 0 18px; background: var(--border); }
 .notes { display: grid; gap: 10px; font-size: 13px; color: var(--muted-foreground); }
@@ -90,8 +83,6 @@
 @keyframes fill { to { width: 100%; } }
 
 .foot { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; padding: 16px; font-size: 12px; color: var(--muted-foreground); }
-.demoPill { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: var(--warning-soft); color: var(--warning); font-size: 12px; font-weight: 500; white-space: nowrap; }
-.pillIcon { width: 15px; height: 15px; }
 
 @media (max-width: 639px) {
   .bar { padding: 10px 12px; }

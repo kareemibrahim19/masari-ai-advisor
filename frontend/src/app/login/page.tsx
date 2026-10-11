@@ -7,10 +7,9 @@
  */
 import { useRouter } from "next/navigation"
 import * as React from "react"
-import { AlertCircle, ArrowRight, Check, FlaskConical, Languages, Loader2, Lock, Moon, Sun } from "lucide-react"
+import { AlertCircle, ArrowRight, Check, Languages, Loader2, Lock, Moon, Sun } from "lucide-react"
 import { AppIcon, Lockup } from "@/components/masari/brand"
 import { useTheme } from "@/components/masari/app-shell"
-import { demoAccessCode } from "@/lib/data/student-source"
 import { type DictKey, useI18n } from "@/lib/i18n"
 import { useStudent } from "@/lib/student-context"
 import s from "./login.module.css"
@@ -161,20 +160,6 @@ export default function LoginPage() {
                     </>
                   )}
                 </button>
-                <p className={s.demoRow}>
-                  <span>{t("loginDemoHint")}</span>
-                  <button
-                    type="button"
-                    className={s.demoCode}
-                    aria-label={`${t("loginDemoFill")}: ${demoAccessCode}`}
-                    onClick={() => {
-                      onChange(demoAccessCode)
-                      input.current?.focus()
-                    }}
-                  >
-                    {demoAccessCode}
-                  </button>
-                </p>
               </form>
 
               <div className={s.divider} />
@@ -190,10 +175,6 @@ export default function LoginPage() {
       </main>
 
       <footer className={s.foot}>
-        <span className={s.demoPill}>
-          <FlaskConical className={s.pillIcon} aria-hidden />
-          {t("demoData")}
-        </span>
         <span>{t("loginFooter")}</span>
       </footer>
     </div>

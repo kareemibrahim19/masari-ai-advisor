@@ -62,7 +62,7 @@ type StatusKind = Status["kind"]
 const statusKey: Record<StatusKind, DictKey> = { passed: "stPassed", failed: "stFailed", eligible: "stEligible", locked: "stLocked" }
 
 function StatusPill({ status, className }: { status: Status; className?: string }) {
-  const { t, num } = useI18n()
+  const { t, num, lang } = useI18n()
   const styles: Record<StatusKind, string> = {
     passed: "bg-verified-soft text-verified",
     failed: "bg-destructive/10 text-destructive",
@@ -82,8 +82,8 @@ function StatusPill({ status, className }: { status: Status; className?: string 
         <span className="text-[11px] text-muted-foreground">
           {t("short")}: {missing.map((m, i) => (
             <React.Fragment key={m}>
-              {i > 0 && "، "}
-              <Code>{m}</Code>
+              {i > 0 && (lang === "ar" ? "، " : ", ")}
+              <span title={m}>{courseNameIn(m, lang)}</span>
             </React.Fragment>
           ))}
         </span>
@@ -108,7 +108,7 @@ function TermBadge({ semester }: { semester: number }) {
         {t("semesterLabel")} {num(semester)}
       </span>
       <span className="text-[11px] text-muted-foreground">
-        {fall ? t("fall") : t("spring")} · {t("levelLabel")} {num(levelOf(semester))}
+        {fall ? t("fall") : t("spring")} · {t("levelLabel")} {String(levelOf(semester) * 100).padStart(3, "0")}
       </span>
     </span>
   )
@@ -127,14 +127,15 @@ function CodeLinks({ codes, onPick }: { codes: string[]; onPick: (code: string) 
             key={c}
             type="button"
             onClick={() => onPick(c)}
-            title={courseNameIn(c, lang)}
+            title={c}
             className={cn(
-              "inline-flex h-6 items-center gap-1 rounded-md px-1.5 text-xs transition-colors focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none",
+              "inline-flex min-h-6 items-center gap-1 rounded-md px-1.5 py-0.5 text-start text-xs transition-colors focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none",
               passed ? "bg-verified-soft text-verified hover:bg-verified-soft/70" : "bg-muted hover:bg-accent"
             )}
           >
             {passed && <Check className="size-3" aria-hidden />}
-            <Code>{c}</Code>
+            {/* The course name, not its code (the code is in the tooltip). */}
+            {courseNameIn(c, lang)}
           </button>
         )
       })}
@@ -266,7 +267,7 @@ function CoursesCatalog() {
                 />
               </div>
             </div>
-            <FilterSelect label={t("levelLabel")} value={f.level} onChange={set("level")} options={[0, 1, 2, 3, 4].map((l) => ({ value: String(l), label: `${t("levelLabel")} ${num(l)}` }))} />
+            <FilterSelect label={t("levelLabel")} value={f.level} onChange={set("level")} options={[0, 1, 2, 3, 4].map((l) => ({ value: String(l), label: `${t("levelLabel")} ${String(l * 100).padStart(3, "0")}` }))} />
             <FilterSelect label={t("semesterLabel")} value={f.semester} onChange={set("semester")} options={semOptions} />
             <FilterSelect
               label={t("departmentLabel")}
@@ -388,8 +389,8 @@ function CourseRow({
           ) : c.prereqs.length ? (
             <span className="flex flex-wrap gap-1">
               {c.prereqs.map((p) => (
-                <span key={p} className="rounded-md bg-muted px-1.5 py-0.5">
-                  <Code>{p}</Code>
+                <span key={p} className="rounded-md bg-muted px-1.5 py-0.5" title={p}>
+                  {courseNameIn(p, lang)}
                 </span>
               ))}
             </span>

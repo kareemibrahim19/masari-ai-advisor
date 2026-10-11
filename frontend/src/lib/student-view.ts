@@ -93,6 +93,12 @@ const nameEn = (code: string) => courseNameL(code).en
 const firstWord = (s: string) => s.trim().split(/\s+/)[0] ?? s
 const beyond: L = { ar: "بعد أكتر من 6 سنين", en: "Beyond 6 years" }
 
+/**
+ * Study level by year, as the faculty names it: year 1 (its two semesters) is level 000, year 2 is 100,
+ * up to year 5 = 400. Students past ten semesters stay at 400.
+ */
+export const studyLevel = (semester: number) => String(Math.min(4, Math.ceil(semester / 2) - 1) * 100).padStart(3, "0")
+
 const standingEn: Record<string, string> = { "منتظم": "Good standing", "إنذار أكاديمي": "Academic warning" }
 
 /** The term the student is in now: their in-progress term, else the term the data was generated for. */
@@ -152,7 +158,7 @@ export function buildStudentView(s: StudentFileEntry) {
     name: { ar: firstWord(s.personal.name_ar), en: firstWord(s.personal.name_en) },
     fullName: { ar: s.personal.name_ar, en: s.personal.name_en },
     program: { ar: s.enrollment.program, en: "Artificial Intelligence Engineering (AIE)" },
-    level: { ar: `المستوى ${st.level}`, en: `Level ${st.level}` },
+    level: { ar: `المستوى ${studyLevel(currentSemester)}`, en: `Level ${studyLevel(currentSemester)}` },
     standing: { ar: st.academic_standing, en: standingEn[st.academic_standing] ?? st.academic_standing },
     gpa: st.cumulative_gpa,
     earned: st.earned_hours,
@@ -190,7 +196,7 @@ export function buildStudentView(s: StudentFileEntry) {
     const slots = courses.filter((c) => c.electiveGroup === g)
     return {
       id: g,
-      name: { ar: `اختياري المستوى ${g === "L300" ? 3 : 4} (${g})`, en: `Level ${g === "L300" ? 3 : 4} electives (${g})` },
+      name: { ar: `اختياري المستوى ${g === "L300" ? 300 : 400}`, en: `Level ${g === "L300" ? 300 : 400} electives` },
       required: slots.length,
       done: slots.filter((x) => record.passed.includes(record.electiveChoices[x.code] ?? "")).length,
     }

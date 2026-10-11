@@ -294,9 +294,7 @@ const dict = {
   loginWelcome: { ar: "أهلاً يا", en: "Welcome," },
   loginOkSub: { ar: "الكود صحيح. بنفتحلك مسارك…", en: "Code accepted. Opening your path…" },
   loginPersonal: { ar: "الكود شخصي، متشاركهوش مع حد.", en: "Your code is personal. Don't share it." },
-  loginDemoHint: { ar: "للتجربة:", en: "For the demo:" },
-  loginDemoFill: { ar: "اضغط على الكود عشان يتكتب", en: "Click the code to fill it in" },
-  loginFooter: { ar: "مساري · نموذج تجريبي ببيانات محاكاة", en: "Masari · prototype with simulated data" },
+  loginFooter: { ar: "مساري · المرشد الأكاديمي لبرنامج هندسة الذكاء الاصطناعي", en: "Masari · academic advisor for the AI Engineering program" },
   skipToContent: { ar: "تخطي للمحتوى", en: "Skip to content" },
   switchLangLabel: { ar: "التبديل للإنجليزية", en: "Switch to Arabic" },
   catalogTitle: { ar: "دليل مقررات هندسة الذكاء الاصطناعي", en: "AI Engineering course catalog" },
@@ -343,8 +341,8 @@ const dict = {
   colCode: { ar: "الكود", en: "Code" },
   colName: { ar: "المقرر", en: "Course" },
   statusHint: {
-    ar: "حالتك محسوبة بمحرك القواعد من سجلك (طالب تجريبي).",
-    en: "Your status is computed by the rules engine from your record (demo student).",
+    ar: "حالتك محسوبة بمحرك القواعد من سجلك.",
+    en: "Your status is computed by the rules engine from your record.",
   },
   catalogSource: {
     ar: "المصدر: دليل برنامج AIE، وهو ملخص غير رسمي للائحة. راجع اللائحة الرسمية قبل الاعتماد عليه.",

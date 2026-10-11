@@ -27,6 +27,3 @@ export async function findStudentByAccessCode(code: string): Promise<StudentFile
 export async function getStudent(studentId: string): Promise<StudentFileEntry | null> {
   return data.students.find((s) => s.student_id === studentId) ?? null
 }
-
-/** A code shown on the login page so the demo can be tried (the first student in the file). */
-export const demoAccessCode = data.students[0]?.student_id ?? ""

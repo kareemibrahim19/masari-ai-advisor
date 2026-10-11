@@ -62,6 +62,9 @@ check("unknown course", call_tool("course_info", {"query": "XYZ 999"})["found"] 
 # level
 check("level junior", call_tool("academic_level", {}, EXC)["level_name"] == "Junior")
 check("level freshman", call_tool("academic_level", {}, NEW)["level"] == 1)
+check("study level by year: first year = 000", call_tool("academic_level", {}, NEW)["study_level"] == "000")
+check("study level by year: semester 5 = 200", call_tool("academic_level", {}, EXC)["study_level"] == "200")
+check("study level by year: semester 9 = 400", call_tool("academic_level", {}, NEAR)["study_level"] == "400")
 
 # electives: counts add up
 r = call_tool("elective_status", {}, NEAR)

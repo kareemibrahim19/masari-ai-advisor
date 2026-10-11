@@ -318,15 +318,21 @@ def academic_level(student_id: str) -> dict:
     earned = s["academic_status"]["earned_hours"]
     cur = next(b for b in reversed(bands) if earned >= b["min"])
     nxt = next((b for b in bands if b["level"] == cur["level"] + 1), None)
-    out = {"found": True, "earned_hours": earned, "level": cur["level"], "level_name": cur["name"],
+    # The level the faculty and the website use is by study year: year 1 (two semesters) = 000 ... year 5 = 400.
+    semester = s["academic_status"]["main_semesters_completed"] + 1
+    year = (semester + 1) // 2
+    study_level = f"{min(4, year - 1) * 100:03d}"
+    out = {"found": True, "study_level": study_level, "study_year": year, "current_semester": semester,
+           "earned_hours": earned, "level": cur["level"], "level_name": cur["name"],
            "course_level": cur["level"] * 100, "required_hours": d.program()["program"]["total_credits"]}
+    lead = f"إنت في المستوى {study_level} (السنة رقم {year}، الترم رقم {semester}). "
     if nxt:
         out["hours_to_next_level"] = nxt["min"] - earned
         out["next_level_name"] = nxt["name"]
-        out["explanation"] = (f"مستواه {cur['level']} ({cur['name']}) بـ {earned} ساعة معتمدة، "
-                              f"وفاضله {nxt['min'] - earned} ساعة للمستوى {nxt['level']} ({nxt['name']}).")
+        out["explanation"] = lead + (f"وبالساعات (جدول 9): {cur['name']} بـ {earned} ساعة معتمدة، "
+                                     f"وفاضلك {nxt['min'] - earned} ساعة لـ {nxt['name']}.")
     else:
-        out["explanation"] = f"مستواه {cur['level']} ({cur['name']}) وهو أعلى مستوى، وفاضله {out['required_hours'] - earned} ساعة للتخرج."
+        out["explanation"] = lead + f"وبالساعات (جدول 9): {cur['name']}، وفاضلك {out['required_hours'] - earned} ساعة للتخرج."
     return out
 
 
