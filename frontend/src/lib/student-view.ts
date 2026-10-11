@@ -94,10 +94,10 @@ const firstWord = (s: string) => s.trim().split(/\s+/)[0] ?? s
 const beyond: L = { ar: "بعد أكتر من 6 سنين", en: "Beyond 6 years" }
 
 /**
- * Study level by year, as the faculty names it: year 1 (its two semesters) is level 000, year 2 is 100,
+ * Study level by year, as the faculty names it: year 1 (its two semesters) is level 0, year 2 is 100,
  * up to year 5 = 400. Students past ten semesters stay at 400.
  */
-export const studyLevel = (semester: number) => String(Math.min(4, Math.ceil(semester / 2) - 1) * 100).padStart(3, "0")
+export const studyLevel = (semester: number) => String(Math.min(4, Math.ceil(semester / 2) - 1) * 100)
 
 const standingEn: Record<string, string> = { "منتظم": "Good standing", "إنذار أكاديمي": "Academic warning" }
 

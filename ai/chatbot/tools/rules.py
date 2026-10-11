@@ -318,10 +318,10 @@ def academic_level(student_id: str) -> dict:
     earned = s["academic_status"]["earned_hours"]
     cur = next(b for b in reversed(bands) if earned >= b["min"])
     nxt = next((b for b in bands if b["level"] == cur["level"] + 1), None)
-    # The level the faculty and the website use is by study year: year 1 (two semesters) = 000 ... year 5 = 400.
+    # The level the faculty and the website use is by study year: year 1 (two semesters) = 0, then 100 ... year 5 = 400.
     semester = s["academic_status"]["main_semesters_completed"] + 1
     year = (semester + 1) // 2
-    study_level = f"{min(4, year - 1) * 100:03d}"
+    study_level = str(min(4, year - 1) * 100)
     out = {"found": True, "study_level": study_level, "study_year": year, "current_semester": semester,
            "earned_hours": earned, "level": cur["level"], "level_name": cur["name"],
            "course_level": cur["level"] * 100, "required_hours": d.program()["program"]["total_credits"]}

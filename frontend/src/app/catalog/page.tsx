@@ -108,7 +108,7 @@ function TermBadge({ semester }: { semester: number }) {
         {t("semesterLabel")} {num(semester)}
       </span>
       <span className="text-[11px] text-muted-foreground">
-        {fall ? t("fall") : t("spring")} · {t("levelLabel")} {String(levelOf(semester) * 100).padStart(3, "0")}
+        {fall ? t("fall") : t("spring")} · {t("levelLabel")} {levelOf(semester) * 100}
       </span>
     </span>
   )
@@ -267,7 +267,7 @@ function CoursesCatalog() {
                 />
               </div>
             </div>
-            <FilterSelect label={t("levelLabel")} value={f.level} onChange={set("level")} options={[0, 1, 2, 3, 4].map((l) => ({ value: String(l), label: `${t("levelLabel")} ${String(l * 100).padStart(3, "0")}` }))} />
+            <FilterSelect label={t("levelLabel")} value={f.level} onChange={set("level")} options={[0, 1, 2, 3, 4].map((l) => ({ value: String(l), label: `${t("levelLabel")} ${l * 100}` }))} />
             <FilterSelect label={t("semesterLabel")} value={f.semester} onChange={set("semester")} options={semOptions} />
             <FilterSelect
               label={t("departmentLabel")}

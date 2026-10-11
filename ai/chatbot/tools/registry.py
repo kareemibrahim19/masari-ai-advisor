@@ -41,7 +41,7 @@ TOOLS = [
        _STUDENT, ["student_id"], rules.improvement_candidates, True),
     _t("course_unlocks", "المواد اللي المادة دي بتفتحها (بتكون متطلب سابق ليها) مباشرة وبعدها.",
        {"course_code": _COURSE}, ["course_code"], rules.course_unlocks),
-    _t("academic_level", "المستوى الدراسي للطالب: 000 أو 100 أو 200 أو 300 أو 400 حسب سنته الدراسية (study_level، وده اللي يتقال للطالب)، "
+    _t("academic_level", "المستوى الدراسي للطالب: 0 أو 100 أو 200 أو 300 أو 400 حسب سنته الدراسية (study_level، وده اللي يتقال للطالب)، "
        "ومعاه موقعه بالساعات حسب جدول 9 (Freshman..Senior) وكام فاضل للي بعده.",
        _STUDENT, ["student_id"], rules.academic_level, True),
     _t("elective_status", "المواد الاختيارية: اللي خلّصها وسجلها وكام لسه محتاج والمتاح له.",
