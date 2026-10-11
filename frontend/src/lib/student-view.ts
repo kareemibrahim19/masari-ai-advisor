@@ -99,6 +99,10 @@ const beyond: L = { ar: "بعد أكتر من 6 سنين", en: "Beyond 6 years" 
  */
 export const studyLevel = (semester: number) => String(Math.min(4, Math.ceil(semester / 2) - 1) * 100)
 
+/** Level names as the faculty uses them: 0 Freshman, 100 Sophomore, 200 and 300 Junior, 400 Senior. */
+export const levelName = (level: string) =>
+  ({ "0": "Freshman", "100": "Sophomore", "200": "Junior", "300": "Junior", "400": "Senior" })[level] ?? ""
+
 const standingEn: Record<string, string> = { "منتظم": "Good standing", "إنذار أكاديمي": "Academic warning" }
 
 /** The term the student is in now: their in-progress term, else the term the data was generated for. */
@@ -158,7 +162,10 @@ export function buildStudentView(s: StudentFileEntry) {
     name: { ar: firstWord(s.personal.name_ar), en: firstWord(s.personal.name_en) },
     fullName: { ar: s.personal.name_ar, en: s.personal.name_en },
     program: { ar: s.enrollment.program, en: "Artificial Intelligence Engineering (AIE)" },
-    level: { ar: `المستوى ${studyLevel(currentSemester)}`, en: `Level ${studyLevel(currentSemester)}` },
+    level: {
+      ar: `المستوى ${studyLevel(currentSemester)} · ${levelName(studyLevel(currentSemester))}`,
+      en: `Level ${studyLevel(currentSemester)} · ${levelName(studyLevel(currentSemester))}`,
+    },
     standing: { ar: st.academic_standing, en: standingEn[st.academic_standing] ?? st.academic_standing },
     gpa: st.cumulative_gpa,
     earned: st.earned_hours,

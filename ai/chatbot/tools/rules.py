@@ -309,30 +309,33 @@ def course_unlocks(course_code: str) -> dict:
 
 # ---------------------------------------------------------------- 7. academic level
 
+# Level names by study level, as the faculty uses them.
+LEVEL_NAMES = {0: "Freshman", 100: "Sophomore", 200: "Junior", 300: "Junior", 400: "Senior"}
+
+
 def academic_level(student_id: str) -> dict:
-    """Standing by earned hours (Freshman..Senior) and the hours left to the next level."""
+    """The student's level by study year: year 1 (two semesters) = 0, then 100 ... year 5 = 400.
+
+    Names: 0 Freshman, 100 Sophomore, 200 and 300 Junior, 400 Senior.
+    """
     s, err = _student(student_id)
     if err:
         return err
-    bands = d.rules()["standing_by_credits"]
-    earned = s["academic_status"]["earned_hours"]
-    cur = next(b for b in reversed(bands) if earned >= b["min"])
-    nxt = next((b for b in bands if b["level"] == cur["level"] + 1), None)
-    # The level the faculty and the website use is by study year: year 1 (two semesters) = 0, then 100 ... year 5 = 400.
-    semester = s["academic_status"]["main_semesters_completed"] + 1
+    st = s["academic_status"]
+    semester = st["main_semesters_completed"] + 1
     year = (semester + 1) // 2
-    study_level = str(min(4, year - 1) * 100)
-    out = {"found": True, "study_level": study_level, "study_year": year, "current_semester": semester,
-           "earned_hours": earned, "level": cur["level"], "level_name": cur["name"],
-           "course_level": cur["level"] * 100, "required_hours": d.program()["program"]["total_credits"]}
-    lead = f"إنت في المستوى {study_level} (السنة رقم {year}، الترم رقم {semester}). "
-    if nxt:
-        out["hours_to_next_level"] = nxt["min"] - earned
-        out["next_level_name"] = nxt["name"]
-        out["explanation"] = lead + (f"وبالساعات (جدول 9): {cur['name']} بـ {earned} ساعة معتمدة، "
-                                     f"وفاضلك {nxt['min'] - earned} ساعة لـ {nxt['name']}.")
-    else:
-        out["explanation"] = lead + f"وبالساعات (جدول 9): {cur['name']}، وفاضلك {out['required_hours'] - earned} ساعة للتخرج."
+    level = min(4, year - 1) * 100
+    name = LEVEL_NAMES[level]
+    earned, required = st["earned_hours"], d.program()["program"]["total_credits"]
+    out = {"found": True, "study_level": str(level), "level_name": name, "level": year, "study_year": year,
+           "current_semester": semester, "earned_hours": earned, "required_hours": required,
+           "hours_to_graduation": max(0, required - earned)}
+    text = f"إنت في المستوى {level} ({name})، السنة رقم {year}، الترم رقم {semester}."
+    if level < 400:
+        out["next_level"] = str(level + 100)
+        out["next_level_from_semester"] = 2 * year + 1
+        text += f" المستوى {level + 100} بيبدأ من الترم رقم {2 * year + 1}."
+    out["explanation"] = text + f" معاك {earned} ساعة من {required}، وفاضلك {out['hours_to_graduation']} للتخرج."
     return out
 
 

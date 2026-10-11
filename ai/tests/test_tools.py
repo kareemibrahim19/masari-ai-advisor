@@ -65,6 +65,9 @@ check("level freshman", call_tool("academic_level", {}, NEW)["level"] == 1)
 check("study level by year: first year = 0", call_tool("academic_level", {}, NEW)["study_level"] == "0")
 check("study level by year: semester 5 = 200", call_tool("academic_level", {}, EXC)["study_level"] == "200")
 check("study level by year: semester 9 = 400", call_tool("academic_level", {}, NEAR)["study_level"] == "400")
+check("level names: 0 Freshman, 400 Senior", call_tool("academic_level", {}, NEW)["level_name"] == "Freshman"
+      and call_tool("academic_level", {}, NEAR)["level_name"] == "Senior")
+check("level name: 300 is Junior", call_tool("academic_level", {}, RETAKE)["level_name"] == "Junior")
 
 # electives: counts add up
 r = call_tool("elective_status", {}, NEAR)
