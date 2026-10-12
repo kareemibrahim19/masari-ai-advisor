@@ -505,6 +505,7 @@ function Regulations() {
                     <td className="px-3 py-2.5">
                       <bdi>{tr(row.range)}</bdi>
                       {mine && <span className="ms-2 rounded-full bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground">{t("yourLimit")}</span>}
+                      {row.note && <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{tr(row.note)}</span>}
                     </td>
                     <td className="px-3 py-2.5 text-end font-semibold tabular-nums">
                       {num(row.max)} {t("creditsShort")}
@@ -519,7 +520,6 @@ function Regulations() {
               <li key={i.en}>{tr(i)}</li>
             ))}
           </ul>
-          {ruleSections[0].note && <p className="rounded-lg bg-warning-soft p-3 text-xs leading-relaxed text-warning">{tr(ruleSections[0].note)}</p>}
           <SourceChip sourceId="load" />
         </CardContent>
       </Card>

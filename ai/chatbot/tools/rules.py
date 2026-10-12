@@ -499,8 +499,10 @@ def registration_eligibility(student_id: str, course_code: str, term_type: str =
         add("min_level", have >= need_level, f"محتاج المستوى {need_level} وهو في المستوى {have}.")
     need_hours = c.get("min_credits_required")
     if need_hours:
-        add("min_credits", st["earned_hours"] >= need_hours,
-            f"محتاج {need_hours} ساعة ناجح فيها، وعنده {st['earned_hours']}.")
+        short = need_hours - st["earned_hours"]
+        add("min_credits", short <= 0, f"محتاج {need_hours} ساعة ناجح فيها، وعنده {st['earned_hours']}."
+            + (f" بس ده مشروع وناقصه {short} بس، فممكن يتسجل ورقي بسماحية المشاريع ({PROJECT_ALLOWANCE[code]} ساعات)."
+               if 0 < short <= PROJECT_ALLOWANCE.get(code, 0) else ""))
 
     # Credit-limit headroom (only meaningful for the current main term).
     if check_load and term != "summer" and cur and term == cur["term"] and code not in now_codes:
@@ -513,6 +515,105 @@ def registration_eligibility(student_id: str, course_code: str, term_type: str =
             "eligible": not failing, "checks": checks,
             "blockers": [k["detail"] for k in failing],
             "explanation": ("يقدر يسجل المادة." if not failing else "مينفعش يسجل المادة لأن: " + " | ".join(k["detail"] for k in failing))}
+
+
+# ---------------------------------------------------------------- 12. paper registration
+
+# GPA below 2.00 (not on warning): the system stops at 14 credits; 15 is reached on paper only with five
+# 3-credit courses. A student on warning stays at 12 with no paper option.
+PAPER_MAX_LOW_GPA = 15
+PAPER_COURSES, PAPER_COURSE_CREDITS = 5, 3
+# Project allowance: a project may be registered on paper with up to this many hours fewer than it requires.
+PROJECT_ALLOWANCE = {"ARI 381": 4, "ARI 481": 4, "ARI 482": 6}
+
+
+def _project_allowance(student: dict, code: str) -> dict:
+    """Can this project be registered on the system, on paper (within the allowance), or not yet."""
+    c, st = d.courses()[code], student["academic_status"]
+    need, earned, allow = c.get("min_credits_required") or 0, st["earned_hours"], PROJECT_ALLOWANCE[code]
+    best = d.best_attempts(student)
+    if d.passed(best.get(code)) or code in {x["code"] for x in d.current_courses(student)}:
+        status, text = "done", f"{d.course_label(code)}: ناجح فيه أو مسجله الترم ده."
+    elif earned >= need:
+        status, text = "system", f"{d.course_label(code)}: محتاج {need} ساعة ومعاك {earned}، فبتسجله على السيستم عادي."
+    elif need - earned <= allow:
+        status, text = "paper", (f"{d.course_label(code)}: محتاج {need} ساعة ومعاك {earned} (ناقصك {need - earned}). "
+                                 f"بسماحية المشاريع ممكن تسجله ورقي لحد {allow} ساعات أقل، يعني من {need - allow} ساعة.")
+    else:
+        status, text = "not_yet", (f"{d.course_label(code)}: محتاج {need} ساعة ومعاك {earned} (ناقصك {need - earned})، "
+                                   f"أكتر من سماحية المشاريع ({allow} ساعات)، فلسه مينفعش ولا ورقي.")
+    return {"course": code, "required_hours": need, "earned_hours": earned, "allowance": allow,
+            "status": status, "explanation": text}
+
+
+def paper_registration(student_id: str, reason: str | None = None, requested_hours: float | None = None,
+                       course_code: str | None = None) -> dict:
+    """When the student registers on paper instead of the system: (1) GPA below 2.00 and wants 15 credits,
+    (2) the registration system has closed, (3) fewer than 12 credits because it is the last term before
+    graduation, (4) a graduation project with fewer hours than it requires, within the project allowance
+    (projects 1 and 2: 4 hours, project 3: 6 hours). `reason` picks one case (more_hours / system_closed /
+    below_minimum / project_allowance); without it every case is checked for this student."""
+    s, err = _student(student_id)
+    if err:
+        return err
+    r, st = d.rules(), s["academic_status"]
+    cgpa = st["cumulative_gpa"]
+    limit = credit_limit(student_id)
+    hours_left = st["required_hours"] - st["earned_hours"]
+    min_credits = r["min_credits_main_semester"]
+    cases = []
+
+    if reason in (None, "more_hours"):
+        if cgpa is None or cgpa >= r["warning_gpa_threshold"]:
+            ok, text = False, (f"التسجيل الورقي لزيادة الساعات للي معدله أقل من 2.00 بس. حدك {limit['max_credits']} ساعة "
+                               "وبتسجلهم على السيستم عادي.")
+        elif limit["on_warning"]:
+            ok, text = False, (f"إنت تحت الإنذار الأكاديمي، فحدك {limit['max_credits']} ساعة بس، "
+                               "ومينفعش تزود عليهم ولا بالتسجيل الورقي.")
+        else:
+            ok = True
+            text = (f"معدلك {cgpa} أقل من 2.00: على السيستم حدك {limit['max_credits']} ساعة. ولو عايز {PAPER_MAX_LOW_GPA} ساعة "
+                    f"بتسجلهم ورقي، بشرط يكونوا {PAPER_COURSES} مواد كل مادة {PAPER_COURSE_CREDITS} ساعات.")
+            if requested_hours is not None:
+                if requested_hours <= limit["max_credits"]:
+                    ok, text = False, f"{requested_hours:g} ساعة جوه حدك ({limit['max_credits']})، فبتسجلهم على السيستم عادي من غير ورقي."
+                elif requested_hours > PAPER_MAX_LOW_GPA:
+                    ok, text = False, (f"مينفعش تسجل {requested_hours:g} ساعة: أقصى حاجة {PAPER_MAX_LOW_GPA} ساعة بالتسجيل الورقي "
+                                       f"({PAPER_COURSES} مواد كل مادة {PAPER_COURSE_CREDITS} ساعات).")
+        cases.append({"case": "more_hours", "applies": ok, "explanation": text})
+
+    if reason in (None, "system_closed"):
+        cases.append({"case": "system_closed", "applies": True,
+                      "explanation": "لو التسجيل قفل على السيستم قبل ما تسجل، بتسجل ورقي. "
+                                     "اسأل مرشدك الأكاديمي أو شئون الطلاب عن استمارة التسجيل الورقي وميعادها."})
+
+    if reason in (None, "below_minimum"):
+        last_term = hours_left < min_credits
+        cases.append({"case": "below_minimum", "applies": last_term,
+                      "explanation": (f"فاضلك {hours_left} ساعة بس للتخرج، أقل من الحد الأدنى {min_credits}، والسيستم مش بيقبل أقل من "
+                                      f"{min_credits}. فبتسجلهم ورقي لأنه آخر ترم ليك." if last_term else
+                                      f"الحد الأدنى {min_credits} ساعة، والتسجيل الورقي بأقل منه في آخر ترم للتخرج بس "
+                                      f"(فاضلك {hours_left} ساعة). غير كده محتاج موافقة المجلس، فكلّم مرشدك.")})
+
+    if reason in (None, "project_allowance"):
+        code = d.normalize_code(course_code or "") or (d.find_course(course_code)["code"] if course_code and d.find_course(course_code) else None)
+        if course_code and code not in PROJECT_ALLOWANCE:
+            projects = [{"course": course_code, "status": "not_project",
+                         "explanation": "سماحية التسجيل الورقي للمشاريع بس: مشروع (1) ARI 381 ومشروع (2) ARI 481 ومشروع (3) ARI 482."}]
+        else:
+            projects = [_project_allowance(s, k) for k in ([code] if code else PROJECT_ALLOWANCE)]
+            if not code:  # without a course, only the projects that still matter
+                projects = [p for p in projects if p["status"] != "done"] or projects
+        cases.append({"case": "project_allowance", "applies": any(p["status"] == "paper" for p in projects),
+                      "projects": projects, "explanation": " ".join(p["explanation"] for p in projects)})
+
+    if not cases:
+        return {"found": False, "error": f"سبب غير معروف: {reason}"}
+    return {"found": True, "cumulative_gpa": cgpa, "on_warning": limit["on_warning"],
+            "system_max_credits": limit["max_credits"], "min_credits": min_credits, "hours_to_graduation": hours_left,
+            "cases": cases, "paper_needed": any(c["applies"] for c in cases if c["case"] != "system_closed") or reason == "system_closed",
+            "article": ARTICLES["load"],
+            "explanation": " ".join(c["explanation"] for c in cases)}
 
 
 # ---------------------------------------------------------------- the schedule on the recommendations page
