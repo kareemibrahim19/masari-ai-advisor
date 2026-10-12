@@ -578,6 +578,7 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
                 c["paper_registration"] = True
                 c["paper_note_ar"] = f"{PAPER_AR} (معاك {earned_before} من {need} ساعة)."
                 c["hours_before"] = earned_before
+                c["hours_needed"] = need
         earned_before += r["credits"]
     last_i = max((i for i, r in enumerate(rows) if r["courses"]), default=-1)
     rows = rows[:last_i + 1]

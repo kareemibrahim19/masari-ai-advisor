@@ -19,8 +19,9 @@ export type PlanCourse = {
   flag: PlanFlag
   /** A project registered a few hours short of its requirement (within the tolerance): paper registration. */
   paper_registration?: boolean
-  /** Hours earned before this semester (set with paper_registration). */
+  /** Hours earned before this semester, and the hours the project asks for (set with paper_registration). */
   hours_before?: number
+  hours_needed?: number
 }
 
 export type PlanTerm = {

@@ -267,6 +267,7 @@ export default function PlanPage() {
                 <TermCard
                   key={`${term.academic_year}-${term.term}`}
                   term={term}
+                  hoursBefore={plan.after_this_term.earned_hours + plan.terms.slice(0, i).reduce((s, x) => s + x.credits, 0)}
                   isGraduation={i === plan.terms.length - 1}
                   movedFrom={whatIfActive ? baseOrder : null}
                 />
@@ -454,7 +455,18 @@ function PlanSummary({ plan }: { plan: GraduationPlan }) {
   )
 }
 
-function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduation: boolean; movedFrom: Map<string, number> | null }) {
+function TermCard({
+  term,
+  hoursBefore,
+  isGraduation,
+  movedFrom,
+}: {
+  term: PlanTerm
+  /** Passed hours the student will have when this semester starts (if the plan is followed). */
+  hoursBefore: number
+  isGraduation: boolean
+  movedFrom: Map<string, number> | null
+}) {
   const { t, tr, num } = useI18n()
   const summer = term.term === "summer"
   const order = termOrder(term)
@@ -470,6 +482,9 @@ function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduat
           </span>
           {isGraduation && <GraduationCap className="size-4 text-primary" aria-label={t("estGraduation")} />}
         </CardTitle>
+        <p className="text-xs text-muted-foreground tabular-nums">
+          {t("hoursBefore")}: <span className="font-medium text-foreground">{num(hoursBefore)}</span> {t("creditsShort")}
+        </p>
         {summer ? (
           <p className="text-xs text-muted-foreground">{t("summerTerm")}</p>
         ) : (
@@ -535,7 +550,12 @@ function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined;
           · {num(c.credits)} {t("creditsShort")}
         </span>
         {flag && <span className={cn("rounded px-1.5 py-px font-medium", flag.cls)}>{t(flag.key)}</span>}
-        {c.paper_registration && <span className={cn("rounded px-1.5 py-px font-medium", paperStyle)}>{t("paperRegistration")}</span>}
+        {c.paper_registration && (
+          <span className={cn("rounded px-1.5 py-px font-medium tabular-nums", paperStyle)}>
+            {t("paperRegistration")}
+            {c.hours_before !== undefined && c.hours_needed !== undefined && ` · ${num(c.hours_before)}/${num(c.hours_needed)}`}
+          </span>
+        )}
       </div>
     </li>
   )
