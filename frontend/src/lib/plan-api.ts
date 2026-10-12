@@ -17,6 +17,10 @@ export type PlanCourse = {
   type: "mandatory" | "elective" | "project" | "training"
   planned_semester: number | null
   flag: PlanFlag
+  /** A project registered a few hours short of its requirement (within the tolerance): paper registration. */
+  paper_registration?: boolean
+  /** Hours earned before this semester (set with paper_registration). */
+  hours_before?: number
 }
 
 export type PlanTerm = {

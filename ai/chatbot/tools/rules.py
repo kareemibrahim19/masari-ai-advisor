@@ -50,9 +50,9 @@ def credit_limit(student_id: str, term_type: str = "main") -> dict:
     registered = _registered_hours(s)
 
     if term_type == "summer":
-        return {"found": True, "term_type": "summer", "max_courses": r["summer"]["max_courses"],
+        return {"found": True, "term_type": "summer", "max_credits": r["summer"]["max_credits"],
                 "projects_allowed": r["summer"]["projects_allowed"], "article": ARTICLES["load"],
-                "explanation": f"في الصيفي الحد الأقصى {r['summer']['max_courses']} مواد ومينفعش تسجل مشاريع."}
+                "explanation": f"في الصيفي الحد الأقصى {r['summer']['max_credits']} ساعات ومينفعش تسجل مشاريع."}
 
     warned = _on_warning(cgpa, main_done)
     if cgpa is None:
@@ -472,7 +472,7 @@ def registration_eligibility(student_id: str, course_code: str, term_type: str =
         add("offered_this_term", term == "summer", "التدريب بيتعمل في الإجازة الصيفية." if term == "summer"
             else "التدريب بيتسجل في الصيفي بس.", ARTICLES["training"])
     elif term == "summer":
-        add("offered_this_term", True, "الصيفي متاح فيه المواد اللي الكلية بتفتحها، بحد أقصى 3 مواد.")
+        add("offered_this_term", True, "الصيفي متاح فيه المواد اللي الكلية بتفتحها، بحد أقصى 6 ساعات.")
     elif sem is not None:
         ok = (sem % 2 == 1) == (term == "fall")
         add("offered_this_term", ok, f"المادة في الترم {sem} من الخطة، وده ترم {'خريف' if sem % 2 else 'ربيع'}"
@@ -494,13 +494,21 @@ def registration_eligibility(student_id: str, course_code: str, term_type: str =
         add("prerequisites", True, "مفيش متطلبات سابقة.")
 
     need_level = c.get("min_level_required")
-    if need_level:
+    if need_level and not c.get("min_credits_required"):
         have = study_level(st)
         add("min_level", have >= need_level, f"محتاج المستوى {need_level} وهو في المستوى {have}.")
-    need_hours = c.get("min_credits_required")
+    need_hours, least = d.hours_needed(c)
     if need_hours:
-        add("min_credits", st["earned_hours"] >= need_hours,
-            f"محتاج {need_hours} ساعة ناجح فيها، وعنده {st['earned_hours']}.")
+        have = st["earned_hours"]
+        if have >= need_hours:
+            detail = f"محتاج {need_hours} ساعة ناجح فيها، وعنده {have}."
+        elif have >= least:
+            # Projects: up to 4 hours short (6 for ARI 482) is allowed, registered on paper at the faculty.
+            detail = (f"محتاج {need_hours} ساعة وعنده {have}، وده جوه السماحية ({need_hours - least} ساعات): "
+                      f"يقدر يسجّل، بس تسجيل ورقي في الكلية.")
+        else:
+            detail = f"محتاج {need_hours} ساعة ناجح فيها (أو {least} بتسجيل ورقي)، وعنده {have}."
+        add("min_credits", have >= least, detail)
 
     # Credit-limit headroom (only meaningful for the current main term).
     if check_load and term != "summer" and cur and term == cur["term"] and code not in now_codes:

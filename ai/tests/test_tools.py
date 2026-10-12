@@ -27,7 +27,10 @@ check("limit excellent=21", call_tool("credit_limit", {}, EXC)["max_credits"] ==
 r = call_tool("credit_limit", {}, PROB)
 check("limit probation=12", r["max_credits"] == 12 and r["on_warning"], r)
 check("limit new student=18 (first term, same as the website)", call_tool("credit_limit", {}, NEW)["max_credits"] == 18)
-check("limit summer=3 courses", call_tool("credit_limit", {"term_type": "summer"}, EXC)["max_courses"] == 3)
+check("limit summer=6 hours", call_tool("credit_limit", {"term_type": "summer"}, EXC)["max_credits"] == 6)
+r = call_tool("registration_eligibility", {"course_code": "ARI 381", "term_type": "spring"}, RETAKE)
+check("ARI 381 within the 4-hour tolerance is paper registration (93 of 96)",
+      next(c for c in r["checks"] if c["check"] == "min_credits")["ok"] and "ورقي" in r["explanation"] + str(r["checks"]), r["checks"])
 
 # standing
 r = call_tool("academic_standing", {}, PROB)

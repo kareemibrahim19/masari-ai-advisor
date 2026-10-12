@@ -99,5 +99,12 @@ def current_courses(student: dict) -> list[dict]:
     return []
 
 
+def hours_needed(course: dict) -> tuple[int, int]:
+    """(hours the course asks for, the fewest it can be registered with). Projects can be registered a few
+    hours short (4 for ARI 381 / 481, 6 for ARI 482) by paper registration at the faculty."""
+    need = course.get("min_credits_required") or 0
+    return need, need - (course.get("min_credits_tolerance") or 0)
+
+
 def not_found(what: str, value: str) -> dict:
     return {"error": f"{what} '{value}' مش موجود", "found": False}

@@ -38,8 +38,11 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
             for p in course["prerequisites"]:
                 if p not in seen:
                     out.append(f"{c['code']} before its prerequisite {p} ({t['en']})")
-            if earned < (course.get("min_credits_required") or 0):
-                out.append(f"{c['code']} needs {course['min_credits_required']} hours, has {earned}")
+            need, least = d.hours_needed(course)
+            if earned < least:
+                out.append(f"{c['code']} needs {least} hours (with tolerance), has {earned}")
+            if (earned < need) != bool(c.get("paper_registration")):
+                out.append(f"{c['code']} paper registration flag wrong at {earned}/{need}")
             if summer and course["type"] == "project":
                 out.append(f"project {c['code']} in summer")
             if not summer and course["type"] in ("mandatory", "project"):
@@ -50,8 +53,8 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
                     out.append(f"graduation request {c['code']} not in the last term")
             if c["code"] in seen:
                 out.append(f"{c['code']} twice")
-        if summer and sum(1 for c in t["courses"] if c["type"] != "training") > r["summer"]["max_courses"]:
-            out.append(f"more than 3 courses in {t['en']}")
+        if summer and t["credits"] > r["summer"]["max_credits"]:
+            out.append(f"more than {r['summer']['max_credits']} hours in {t['en']}")
         if not summer and t["credits"] > t["max_credits"]:
             out.append(f"{t['credits']} hours over the cap in {t['en']}")
         seen |= set(codes)
@@ -95,8 +98,12 @@ check("near graduation 4y is past", not p["feasible"] and p["why"]["code"] == "p
 
 # Why a target is not possible: a plain reason in both languages.
 p = build_graduation_plan(EXC, 4.5)
-check("4.5y blocked by the ARI 481 hour threshold", p["why"]["code"] == "course" and p["why"]["root"] == "ARI 481"
-      and "116" in p["why"]["ar"] and "112" in p["why"]["ar"] and "116" in p["why"]["en"], p.get("why"))
+check("4.5y blocked by ARI 481: 109 hours, below even the 112 of paper registration", p["why"]["code"] == "course"
+      and p["why"]["root"] == "ARI 481" and "116" in p["why"]["ar"] and "112" in p["why"]["ar"] and "109" in p["why"]["ar"]
+      and "116" in p["why"]["en"], p.get("why"))
+p = build_graduation_plan(NEW, 4.5)
+paper = [c["code"] for t in p["terms"] for c in t["courses"] if c.get("paper_registration")]
+check("new student 4.5y uses the project tolerance (paper registration)", p["feasible"] and paper, paper)
 p = build_graduation_plan(EXC, 5, failed_courses=["BAS 216"])
 check("what-if failure named in the reason", "BAS 216" in p["why"]["ar"] and "سقطت" in p["why"]["ar"], p.get("why"))
 p = build_graduation_plan(PROB, 5)

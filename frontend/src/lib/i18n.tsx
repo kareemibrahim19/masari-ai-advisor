@@ -236,8 +236,8 @@ const dict = {
   flagCollegeRequest: { ar: "بموافقة الكلية", en: "College approval" },
   flagGraduationRequest: { ar: "طلب تخرج للكلية", en: "Graduation request" },
   flagSummerHint: {
-    ar: "الكلية بتفتح مواد الصيفي لو عدد كفاية من الطلاب طلبها (بحد أقصى 3 مواد للطالب).",
-    en: "The college opens summer courses when enough students request them (up to 3 courses per student).",
+    ar: "الكلية بتفتح مواد الصيفي لو عدد كفاية من الطلاب طلبها (بحد أقصى 6 ساعات للطالب).",
+    en: "The college opens summer courses when enough students request them (up to 6 credit hours per student).",
   },
   flagCollegeRequestHint: {
     ar: "التدريب مكانه الصيفي، والكلية ممكن تسمح بتسجيله في ترم أساسي.",
@@ -246,6 +246,11 @@ const dict = {
   flagGraduationRequestHint: {
     ar: "المادة مش في ترمها، بس الكلية بتفتحها لطالب محتاجها عشان يتخرج الترم ده.",
     en: "Not this course's semester, but the college opens it for a student who needs it to graduate this semester.",
+  },
+  paperRegistration: { ar: "تسجيل ورقي", en: "Paper registration" },
+  paperRegistrationHint: {
+    ar: "مشروع ساعاتك فيه أقل من المطلوب بس جوه السماحية (4 ساعات لمشروع 1 و2، و6 لمشروع 3)، فبيتسجّل ورقي في الكلية.",
+    en: "A project you are a few hours short for, within the tolerance (4 hours for projects 1 and 2, 6 for project 3): it is registered on paper at the faculty.",
   },
   planLegend: { ar: "معاني العلامات", en: "What the tags mean" },
   planLoading: { ar: "بنحسب خطتك…", en: "Building your plan…" },

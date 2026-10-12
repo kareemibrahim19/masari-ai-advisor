@@ -51,6 +51,7 @@ FLAG_AR = {
     "college_request": "التدريب في ترم أساسي: بموافقة الكلية",
     "graduation_request": "مادة في غير ترمها عشان التخرج: بطلب للكلية",
 }
+PAPER_AR = "تسجيل ورقي: الساعات أقل من المطلوب بس جوه السماحية"
 
 
 # ---------------------------------------------------------------- the student after the current term
@@ -248,15 +249,15 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     # Credit-hour thresholds (trainings and projects): enough hours earned before that term.
     credits = [allc[code_of[ii]]["credits"] for ii, _, _ in var]
     for k, (ii, ti, _) in enumerate(var):
-        need = allc[code_of[ii]].get("min_credits_required") or 0
+        _, need = d.hours_needed(allc[code_of[ii]])  # with the projects' tolerance
         if need <= earned:
             continue
         coefs = {k2: -credits[k2] for k2 in range(n_x) if var[k2][1] < ti and credits[k2]}
         coefs[k] = need
         add(coefs, -np.inf, earned)
 
-    # Load: main terms up to the GPA cap; summers at most 3 courses (training not counted).
-    max_summer = d.rules()["summer"]["max_courses"]
+    # Load: main terms up to the GPA cap; summers up to 6 credit hours (training has none).
+    max_summer = d.rules()["summer"]["max_credits"]
     min_load = d.rules()["min_credits_main_semester"]
     for ti, t in enumerate(terms):
         ks = [k for k in range(n_x) if var[k][1] == ti]
@@ -264,7 +265,7 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
             courses_k = [k for k in ks if var[k][2] == "summer_on_demand"]
             if courses_k:
                 si = n_x + summers.index(ti)
-                add({**{k: 1 for k in courses_k}, si: -max_summer}, -np.inf, 0)
+                add({**{k: credits[k] for k in courses_k}, si: -max_summer}, -np.inf, 0)
         elif ks:
             active = n_s + 2 * mains.index(ti)
             add({k: credits[k] for k in ks}, -np.inf, cap)
@@ -293,7 +294,8 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
 
 # ---------------------------------------------------------------- why a target is not possible
 
-SUMMER_HOURS = 9  # 3 summer courses of 3 credit hours: the most a summer can add
+def _summer_hours() -> int:
+    return d.rules()["summer"]["max_credits"]  # the most a summer can add
 _TERM_WORD = {"fall": ("خريف", "Fall"), "spring": ("ربيع", "Spring"), "summer": ("صيفي", "Summer")}
 
 
@@ -331,7 +333,7 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
     before, total = [], proj["earned"]
     for t in terms:
         before.append(total)
-        total += (SUMMER_HOURS if allow_summer else 0) if t["term"] == "summer" else cap
+        total += (_summer_hours() if allow_summer else 0) if t["term"] == "summer" else cap
 
     required, pools = _to_place(passed)
     memo: dict[str, tuple] = {}
@@ -352,7 +354,7 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
                 return memo[code]
             if pi + 1 > lower:
                 lower, held_by = pi + 1, p
-        need = c.get("min_credits_required") or 0
+        _, need = d.hours_needed(c)  # with the projects' tolerance
         planned = c["planned_semester"] or 7
         short_of = None  # (term index, hours) of the last term it ran in but the hours were not enough
         for i in range(lower, len(terms)):
@@ -395,10 +397,13 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
             ar.append(f"إنت سقطت في {_name(root)['ar']} ولازم تعيدها.")
             en.append(f"You failed {_name(root)['en']} and must retake it.")
         if rcause[0] == "credits":
-            _, need, k, have = rcause
-            ar.append(f"{_name(root)['ar']} محتاج {need} ساعة ناجحة قبل ما تسجله، وأقصى اللي هتوصله قبل "
+            _, least, k, have = rcause
+            full, _ = d.hours_needed(allc[root])
+            paper_ar = f" (أو {least} بتسجيل ورقي)" if least < full else ""
+            paper_en = f" (or {least} with paper registration)" if least < full else ""
+            ar.append(f"{_name(root)['ar']} محتاج {full} ساعة ناجحة{paper_ar} قبل ما تسجله، وأقصى اللي هتوصله قبل "
                       f"{_short(terms[k])['ar']} هو {have} ساعة، فأول فرصة ليه {when(ri)['ar']}.")
-            en.append(f"{_name(root)['en']} needs {need} passed credit hours, and the most you can have before "
+            en.append(f"{_name(root)['en']} needs {full} passed credit hours{paper_en}, and the most you can have before "
                       f"{_short(terms[k])['en']} is {have}, so the earliest you can take it is {when(ri)['en']}.")
         else:
             only = "الخريف" if (allc[root]["planned_semester"] or 1) % 2 == 1 else "الربيع"
@@ -512,7 +517,7 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
             proj["assumption"],
             "حد الساعات محسوب من معدلك بعد الترم ده، ومفترض إنه هيفضل كده لحد التخرج.",
             "كل مادة بتتدرّس في ترمها حسب الخطة، والاختياري في الترمين.",
-            "الصيفي: أي مادة غير المشاريع ممكن تتفتح لو الطلاب طلبوها، بحد أقصى 3 مواد." if allow_summer else
+            "الصيفي: أي مادة غير المشاريع ممكن تتفتح لو الطلاب طلبوها، بحد أقصى 6 ساعات." if allow_summer else
             "من غير صيفي (غير التدريب).",
         ) if a],
         "articles": [ARTICLES["load"], ARTICLES["training"], ARTICLES["project"]],
@@ -565,6 +570,15 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
         rows.append({**_term_label(t), "term": t["term"], "academic_year": t["academic_year"],
                      "main_semester": t["main"], "credits": sum(c["credits"] for c in courses),
                      "max_credits": cap if t["term"] != "summer" else None, "courses": courses})
+    earned_before = proj["earned"]
+    for r in rows:
+        for c in r["courses"]:
+            need, _ = d.hours_needed(d.courses()[c["code"]])
+            if need and earned_before < need:
+                c["paper_registration"] = True
+                c["paper_note_ar"] = f"{PAPER_AR} (معاك {earned_before} من {need} ساعة)."
+                c["hours_before"] = earned_before
+        earned_before += r["credits"]
     last_i = max((i for i, r in enumerate(rows) if r["courses"]), default=-1)
     rows = rows[:last_i + 1]
     grad = rows[-1] if rows else None

@@ -51,6 +51,9 @@ const flagStyle: Record<Exclude<PlanFlag, "regular">, { key: Parameters<ReturnTy
   graduation_request: { key: "flagGraduationRequest", cls: "bg-primary/10 text-primary" },
 }
 
+/** Projects registered within the hours tolerance must be registered on paper at the faculty. */
+const paperStyle = "bg-destructive/10 text-destructive"
+
 /** Order of terms in time: academic year, then fall < spring < summer. */
 const termOrder = (t: { academic_year: string; term: string }) =>
   parseInt(t.academic_year, 10) * 3 + ({ fall: 0, spring: 1, summer: 2 } as Record<string, number>)[t.term]
@@ -532,6 +535,7 @@ function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined;
           · {num(c.credits)} {t("creditsShort")}
         </span>
         {flag && <span className={cn("rounded px-1.5 py-px font-medium", flag.cls)}>{t(flag.key)}</span>}
+        {c.paper_registration && <span className={cn("rounded px-1.5 py-px font-medium", paperStyle)}>{t("paperRegistration")}</span>}
       </div>
     </li>
   )
@@ -550,13 +554,17 @@ function Legend() {
         <Info className="size-3.5" aria-hidden />
         {t("planLegend")}
       </p>
-      <ul className="grid grid-cols-[minmax(0,1fr)] gap-2 md:grid-cols-3">
+      <ul className="grid grid-cols-[minmax(0,1fr)] gap-2 md:grid-cols-2 xl:grid-cols-4">
         {items.map(({ flag, hint }) => (
           <li key={flag} className="space-y-1 text-xs">
             <span className={cn("inline-block rounded px-1.5 py-px font-medium", flagStyle[flag].cls)}>{t(flagStyle[flag].key)}</span>
             <p className="text-muted-foreground">{hint}</p>
           </li>
         ))}
+        <li className="space-y-1 text-xs">
+          <span className={cn("inline-block rounded px-1.5 py-px font-medium", paperStyle)}>{t("paperRegistration")}</span>
+          <p className="text-muted-foreground">{t("paperRegistrationHint")}</p>
+        </li>
       </ul>
     </div>
   )
