@@ -77,7 +77,8 @@ for name, sid in BY.items():
             p = build_graduation_plan(sid, years, summer)
             v = violations(sid, p) if p.get("terms") else []
             check(f"valid plan {name} {years}y summer={summer}", p["found"] and not v, v or p.get("error"))
-            if not summer:
+            summer_condition = any(c["kind"] == "summer" for c in p.get("conditions", []))
+            if not summer and not summer_condition:
                 bad = [c["code"] for t in p.get("terms", []) for c in t["courses"] if c["flag"] == "summer_on_demand"]
                 check(f"no summer courses when summer is off ({name} {years}y)", not bad, bad)
 
@@ -133,6 +134,26 @@ p = build_graduation_plan(EXC, 5, failed_courses=["BAS 216", "CSE 221", "CSE 251
 check("impossible term GPA rejected", not p["found"] and p["max_term_gpa"] == 0.5, p)
 check("failing a course not in this term rejected", not build_graduation_plan(EXC, 5, failed_courses=["CSE 351"])["found"])
 check("bad target rejected", not build_graduation_plan(EXC, 3)["found"])
+
+# Routes: when the target is out of reach as things stand, what would make it possible.
+p = build_graduation_plan(NEW, 4.5, False)
+kinds = sorted(c["kind"] for r in p.get("routes", []) for c in r["conditions"])
+check("new student 4.5y without summer: possible with a summer or with a 3.00 GPA", p["status"] == "conditional"
+      and kinds == ["gpa", "summer"] and not violations(NEW, p), (p.get("status"), kinds))
+check("GPA route says the semester GPA needed", p["gpa_needed"]["term_gpa"] == 3.0 if "gpa_needed" in p else
+      any("3.00" in c["ar"] for r in p["routes"] for c in r["conditions"] if c["kind"] == "gpa"), p.get("routes"))
+p = build_graduation_plan(NEW, 4, True)
+check("feasible plans carry the low-GPA risk", p["status"] == "feasible" and "2.00" in p["risk"]["ar"]
+      and p["risk"]["cap"] == 14, p.get("risk"))
+p = build_graduation_plan(PROB, 4.5, True)
+check("no route for probation (3.00 out of reach in two semesters)", p["status"] == "impossible" and not p.get("routes"),
+      p.get("status"))
+for name, sid in BY.items():
+    for years in (4, 4.5, 5):
+        for summer in (True, False):
+            p = build_graduation_plan(sid, years, summer)
+            ok = (p["status"] == "feasible") == p["feasible"] and (p["status"] != "conditional" or p["conditions"])
+            check(f"status consistent ({name} {years}y summer={summer})", ok, p.get("status"))
 
 # Options table
 o = plan_options(NEW)

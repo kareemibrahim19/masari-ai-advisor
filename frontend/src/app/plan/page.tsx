@@ -5,6 +5,7 @@ import {
   CalendarClock,
   CheckCircle2,
   ChevronDown,
+  CircleDashed,
   GraduationCap,
   History,
   Info,
@@ -166,12 +167,18 @@ export default function PlanPage() {
                     <span
                       className={cn(
                         "flex items-start gap-1 text-[11px] leading-snug font-medium",
-                        cell.feasible ? "text-verified" : "text-muted-foreground"
+                        cell.feasible ? "text-verified" : cell.status === "conditional" ? "text-warning" : "text-muted-foreground"
                       )}
                     >
-                      {cell.feasible ? <CheckCircle2 className="mt-px size-3 shrink-0" aria-hidden /> : <XCircle className="mt-px size-3 shrink-0" aria-hidden />}
+                      {cell.feasible ? (
+                        <CheckCircle2 className="mt-px size-3 shrink-0" aria-hidden />
+                      ) : cell.status === "conditional" ? (
+                        <CircleDashed className="mt-px size-3 shrink-0" aria-hidden />
+                      ) : (
+                        <XCircle className="mt-px size-3 shrink-0" aria-hidden />
+                      )}
                       <span>
-                        {cell.feasible ? t("possible") : t("notPossible")}
+                        {cell.feasible ? t("possible") : cell.status === "conditional" ? t("possibleIf") : t("notPossible")}
                         {cell.feasible && cell.summer_courses > 0 && ` · ${num(cell.summer_courses)} ${t("summerCoursesCount")}`}
                       </span>
                     </span>
@@ -267,7 +274,6 @@ export default function PlanPage() {
                 <TermCard
                   key={`${term.academic_year}-${term.term}`}
                   term={term}
-                  hoursBefore={plan.after_this_term.earned_hours + plan.terms.slice(0, i).reduce((s, x) => s + x.credits, 0)}
                   isGraduation={i === plan.terms.length - 1}
                   movedFrom={whatIfActive ? baseOrder : null}
                 />
@@ -413,60 +419,133 @@ function PlanSummary({ plan }: { plan: GraduationPlan }) {
   const grad = plan.graduation_term ? tr(plan.graduation_term) : "—"
   const summer = plan.summer_courses?.length ?? 0
   const requests = plan.college_requests?.length ?? 0
+  const status = plan.status ?? (plan.feasible ? "feasible" : "impossible")
 
-  let text: string
-  if (plan.feasible) {
-    text = lang === "ar" ? `تقدر تتخرج في ${grad} (هدف ${target}).` : `You can graduate in ${grad} (${target} target).`
-  } else {
-    text = lang === "ar" ? `مش هتقدر تتخرج في ${target}. أقرب تخرج ليك: ${grad}.` : `You can't graduate in ${target}. Your earliest graduation: ${grad}.`
-  }
+  const text =
+    status === "feasible"
+      ? lang === "ar"
+        ? `تقدر تتخرج في ${grad} (هدف ${target}).`
+        : `You can graduate in ${grad} (${target} target).`
+      : status === "conditional"
+        ? lang === "ar"
+          ? `زي ما إنت ماشي مش هتلحق ${target}، بس تقدر تتخرج في ${grad} لو عملت حاجة من دول:`
+          : `As things stand you won't make ${target}, but you can graduate in ${grad} if you do one of these:`
+        : lang === "ar"
+          ? `مش هتقدر تتخرج في ${target}. أقرب تخرج ليك: ${grad}.`
+          : `You can't graduate in ${target}. Your earliest graduation: ${grad}.`
+  const routes = plan.routes ?? []
+  const Icon = status === "feasible" ? CheckCircle2 : status === "conditional" ? CircleDashed : TriangleAlert
 
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between",
-        plan.feasible ? "border-verified/30 bg-verified-soft/50" : "border-warning/40 bg-warning-soft/50"
+        "space-y-4 rounded-xl border p-4",
+        status === "feasible" ? "border-verified/30 bg-verified-soft/50" : "border-warning/40 bg-warning-soft/50"
       )}
     >
-      <p className="flex items-start gap-2 text-sm font-medium">
-        {plan.feasible ? (
-          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-verified" aria-hidden />
-        ) : (
-          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
-        )}
-        <span className="space-y-1.5">
-          <span className="block">{text}</span>
-          {!plan.feasible && plan.why && (
-            <span className="block font-normal text-foreground/85">
-              <b className="font-semibold">{t("whyShort")}</b> {tr(plan.why)}
-            </span>
-          )}
-        </span>
-      </p>
-      <div className="flex shrink-0 flex-wrap gap-2 text-xs">
-        <span className="rounded-full bg-background px-2.5 py-1">
-          {t("summerCoursesCount")}: <span className="font-semibold tabular-nums">{num(summer)}</span>
-        </span>
-        <span className="rounded-full bg-background px-2.5 py-1">
-          {t("collegeRequestsCount")}: <span className="font-semibold tabular-nums">{num(requests)}</span>
-        </span>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-2 text-sm font-medium">
+          <Icon className={cn("mt-0.5 size-4 shrink-0", status === "feasible" ? "text-verified" : "text-warning")} aria-hidden />
+          <div className="space-y-2">
+            <p>{text}</p>
+            {status === "conditional" && (
+              <ol className="space-y-2">
+                {routes.map((r, i) => (
+                  <li key={i} className="rounded-lg border bg-background/70 p-2.5 font-normal">
+                    <p className="mb-1 text-xs font-semibold text-muted-foreground">
+                      {routes.length > 1 ? `${t("routeLabel")} ${num(i + 1)}` : t("routeOnly")}
+                      {i === 0 && routes.length > 1 && ` · ${t("routeShownBelow")}`}
+                    </p>
+                    <ul className="space-y-1">
+                      {r.conditions.map((c) => (
+                        <li key={c.kind} className="flex items-start gap-2">
+                          <span className="mt-1 size-3 shrink-0 rounded-sm border-2 border-warning" aria-hidden />
+                          <span>{tr(c)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ol>
+            )}
+            {status !== "feasible" && plan.why && (
+              <p className="font-normal text-foreground/85">
+                <b className="font-semibold">{t("whyShort")}</b> {tr(plan.why)}
+              </p>
+            )}
+            {status === "feasible" && plan.risk && (
+              <p className={cn("flex items-start gap-1.5 text-xs font-normal", plan.risk.still_possible ? "text-muted-foreground" : "text-warning")}>
+                <TriangleAlert className="mt-px size-3.5 shrink-0" aria-hidden />
+                {tr(plan.risk)}
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2 text-xs">
+          <span className="rounded-full bg-background px-2.5 py-1">
+            {t("summerCoursesCount")}: <span className="font-semibold tabular-nums">{num(summer)}</span>
+          </span>
+          <span className="rounded-full bg-background px-2.5 py-1">
+            {t("collegeRequestsCount")}: <span className="font-semibold tabular-nums">{num(requests)}</span>
+          </span>
+        </div>
       </div>
+      <GpaLadder plan={plan} />
     </div>
   )
 }
 
-function TermCard({
-  term,
-  hoursBefore,
-  isGraduation,
-  movedFrom,
-}: {
-  term: PlanTerm
-  /** Passed hours the student will have when this semester starts (if the plan is followed). */
-  hoursBefore: number
-  isGraduation: boolean
-  movedFrom: Map<string, number> | null
-}) {
+/**
+ * The three GPA bands and the hours each allows (article 13): where the student will be after this semester,
+ * and, when a route needs it, where they need to get to.
+ */
+function GpaLadder({ plan }: { plan: GraduationPlan }) {
+  const { t, num } = useI18n()
+  const gpa = plan.after_this_term.cumulative_gpa
+  const cap = plan.after_this_term.max_credits
+  const bands = [
+    { key: "low", label: "< 2.00", hours: cap === 12 ? 12 : 14 },
+    { key: "mid", label: "2.00 – 2.99", hours: 18 },
+    { key: "top", label: "3.00 +", hours: 21 },
+  ] as const
+  const here = cap >= 21 ? "top" : cap === 18 ? "mid" : "low"
+  const needsTop = plan.status === "conditional" && (plan.routes ?? []).some((r) => r.conditions.some((c) => c.kind === "gpa"))
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs font-medium text-muted-foreground">
+        {t("gpaLadder")}
+        {gpa !== null && ` · ${t("afterThisTerm")}: ${num(gpa, { minimumFractionDigits: 2 })}`}
+      </p>
+      <ol className="grid grid-cols-3 gap-1.5 text-center text-xs">
+        {bands.map((b) => {
+          const isHere = b.key === here
+          const isGoal = needsTop && b.key === "top" && !isHere
+          return (
+            <li
+              key={b.key}
+              className={cn(
+                "rounded-lg border bg-background/70 px-2 py-1.5",
+                isHere && "border-primary bg-primary/10",
+                isGoal && "border-2 border-dashed border-warning"
+              )}
+            >
+              <span className="block font-semibold tabular-nums" dir="ltr">
+                {b.label}
+              </span>
+              <span className="block text-muted-foreground tabular-nums">
+                {num(b.hours)} {t("creditsShort")}
+              </span>
+              {isHere && <span className="mt-0.5 block text-[11px] font-semibold text-primary">{t("youAreHere")}</span>}
+              {isGoal && <span className="mt-0.5 block text-[11px] font-semibold text-warning">{t("gpaGoal")}</span>}
+            </li>
+          )
+        })}
+      </ol>
+    </div>
+  )
+}
+
+function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduation: boolean; movedFrom: Map<string, number> | null }) {
   const { t, tr, num } = useI18n()
   const summer = term.term === "summer"
   const order = termOrder(term)
@@ -482,9 +561,6 @@ function TermCard({
           </span>
           {isGraduation && <GraduationCap className="size-4 text-primary" aria-label={t("estGraduation")} />}
         </CardTitle>
-        <p className="text-xs text-muted-foreground tabular-nums">
-          {t("hoursBefore")}: <span className="font-medium text-foreground">{num(hoursBefore)}</span> {t("creditsShort")}
-        </p>
         {summer ? (
           <p className="text-xs text-muted-foreground">{t("summerTerm")}</p>
         ) : (

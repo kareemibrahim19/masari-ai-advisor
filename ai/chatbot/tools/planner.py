@@ -16,6 +16,7 @@ The solver keeps the plan as close to the regulation plan as it can and uses sum
 training and graduation requests only when the target needs them.
 """
 
+import math
 import threading
 from functools import lru_cache
 
@@ -38,6 +39,7 @@ COST_SUMMER_TERM = 40
 COST_SUMMER_COURSE = 20
 COST_TRAINING_IN_MAIN = 25
 COST_GRADUATION_REQUEST = 60
+COST_PAPER_REGISTRATION = 15  # a project registered within its hours tolerance (paper registration)
 COST_UNDER_MIN_HOUR = 2  # per hour a main term with courses falls below the 12-hour minimum
 MAX_GRADUATION_REQUESTS = 1
 
@@ -159,7 +161,8 @@ def _to_place(passed: set[str]) -> tuple[list[dict], list[dict]]:
     return required, pools
 
 
-def _options(course: dict, term: dict, planned: int, last_main: int, allow_summer: bool) -> str | None:
+def _options(course: dict, term: dict, planned: int, last_main: int, allow_summer: bool,
+             request: bool = True) -> str | None:
     """How the course can be taken in this term (a flag), or None if it cannot."""
     kind = course["type"]
     if term["term"] == "summer":
@@ -177,13 +180,32 @@ def _options(course: dict, term: dict, planned: int, last_main: int, allow_summe
         return "regular"
     if kind == "project":
         return None
-    return "graduation_request" if term["main"] == last_main else None
+    return "graduation_request" if request and term["main"] == last_main else None
 
 
 # ---------------------------------------------------------------- the integer program
 
-def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main: int, allow_summer: bool):
-    """Place every remaining course in a term. Returns {code: (term index, flag)} or None if infeasible."""
+def _caps(terms: list[dict], cap: int, hi: int, hi_from: int | None) -> list[int | None]:
+    """Hour cap of each term: `cap`, or `hi` from main semester number `hi_from` (counted among these terms) on.
+    Summers get None (they have their own limit)."""
+    out, mains = [], 0
+    for t in terms:
+        if t["term"] == "summer":
+            out.append(None)
+            continue
+        out.append(hi if hi_from is not None and mains >= hi_from else cap)
+        mains += 1
+    return out
+
+
+def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main: int, allow_summer: bool,
+           paper: bool = True, request: bool = True, hi: int = 21, hi_from: int | None = None):
+    """Place every remaining course in a term. Returns {code: (term index, flag)} or None if infeasible.
+
+    Levers: `paper` lets projects use their hours tolerance (paper registration), `request` allows one course
+    outside its semester in the graduation term, and `hi_from` raises the cap to `hi` from that main semester.
+    """
+    caps = _caps(terms, cap, hi, hi_from)
     allc = d.courses()
     required, pools = _to_place(passed)
     items = [(c, c["planned_semester"], None) for c in required]
@@ -194,7 +216,7 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     cost = []
     for ii, (c, planned, _) in enumerate(items):
         for ti, t in enumerate(terms):
-            flag = _options(c, t, planned, last_main, allow_summer)
+            flag = _options(c, t, planned, last_main, allow_summer, request)
             if not flag:
                 continue
             var.append((ii, ti, flag))
@@ -204,10 +226,17 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     summers = [ti for ti, t in enumerate(terms) if t["term"] == "summer"]
     mains = [ti for ti, t in enumerate(terms) if t["term"] != "summer"]
     n_x = len(var)
-    # Extra variables: "summer used" per summer, then per main term "has courses" and "hours under 12".
+    # Placements of a project that could be short of its full hours (only with `paper`).
+    paper_ks = [k for k, (ii, _, _) in enumerate(var)
+                if paper and d.hours_needed(items[ii][0])[1] < d.hours_needed(items[ii][0])[0]
+                and d.hours_needed(items[ii][0])[0] > earned]
+    # Extra variables: "summer used" per summer, per main term "has courses" and "hours under 12", then
+    # one "paper registration" per project placement above.
     n_s = n_x + len(summers)
-    n = n_s + 2 * len(mains)
+    n_m = n_s + 2 * len(mains)
+    n = n_m + len(paper_ks)
     cost += [COST_SUMMER_TERM] * len(summers) + [0, COST_UNDER_MIN_HOUR] * len(mains)
+    cost += [COST_PAPER_REGISTRATION] * len(paper_ks)
 
     rows, cols, vals, lo, hi = [], [], [], [], []
 
@@ -249,12 +278,15 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     # Credit-hour thresholds (trainings and projects): enough hours earned before that term.
     credits = [allc[code_of[ii]]["credits"] for ii, _, _ in var]
     for k, (ii, ti, _) in enumerate(var):
-        _, need = d.hours_needed(allc[code_of[ii]])  # with the projects' tolerance
+        full, least = d.hours_needed(allc[code_of[ii]])
+        need = least if paper else full
         if need <= earned:
             continue
         coefs = {k2: -credits[k2] for k2 in range(n_x) if var[k2][1] < ti and credits[k2]}
-        coefs[k] = need
-        add(coefs, -np.inf, earned)
+        add({**coefs, k: need}, -np.inf, earned)
+        if k in paper_ks:
+            # Short of the full hours only if the paper-registration variable is on.
+            add({**coefs, k: full, n_m + paper_ks.index(k): -full}, -np.inf, earned)
 
     # Load: main terms up to the GPA cap; summers up to 6 credit hours (training has none).
     max_summer = d.rules()["summer"]["max_credits"]
@@ -268,7 +300,7 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
                 add({**{k: credits[k] for k in courses_k}, si: -max_summer}, -np.inf, 0)
         elif ks:
             active = n_s + 2 * mains.index(ti)
-            add({k: credits[k] for k in ks}, -np.inf, cap)
+            add({k: credits[k] for k in ks}, -np.inf, caps[ti])
             add({**{k: 1 for k in ks}, active: -len(ks)}, -np.inf, 0)  # any course -> active
             # Minimum load (soft): hours + shortfall >= 12 when the term has courses.
             add({**{k: credits[k] for k in ks}, active: -min_load, active + 1: 1}, 0, np.inf)
@@ -281,10 +313,11 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
         return {}
     A = coo_matrix((vals, (rows, cols)), shape=(len(lo), n)).tocsr()
     upper = np.ones(n)
-    upper[n_s + 1::2] = min_load  # the shortfall variables count hours
+    for i in range(len(mains)):
+        upper[n_s + 2 * i + 1] = min_load  # the shortfall variables count hours
     with _SOLVE_LOCK:
         res = milp(np.array(cost, dtype=float), integrality=np.ones(n), bounds=Bounds(0, upper),
-                   constraints=LinearConstraint(A, lo, hi), options={"time_limit": 10})
+                   constraints=LinearConstraint(A, lo, hi), options={"time_limit": 10, "mip_rel_gap": 0.02})
     if res.x is None or res.status not in (0, 1):
         return None
     return {code_of[ii]: (ti, flag) for k, (ii, ti, flag) in enumerate(var) if res.x[k] > 0.5}
@@ -450,18 +483,121 @@ def _term_label(t: dict) -> dict:
     return {"ar": f"{TERM_AR[t['term']]} {t['academic_year']}", "en": f"{TERM_EN[t['term']]} {t['academic_year']}"}
 
 
-def _plan_for(proj: dict, cap: int, current: dict, main_now: int, last_main: int, allow_summer: bool):
+def _plan_for(proj: dict, cap: int, current: dict, main_now: int, last_main: int, allow_summer: bool,
+              paper: bool = True, request: bool = True, hi_from: int | None = None):
     return _plan_cached(frozenset(proj["passed"]), proj["earned"], cap, current["term"], current["academic_year"],
-                        main_now, last_main, allow_summer)
+                        main_now, last_main, allow_summer, paper, request, hi_from)
 
 
-@lru_cache(maxsize=512)
+@lru_cache(maxsize=2048)
 def _plan_cached(passed: frozenset, earned: int, cap: int, term: str, year: str, main_now: int, last_main: int,
-                 allow_summer: bool):
+                 allow_summer: bool, paper: bool, request: bool, hi_from: int | None):
     """Same inputs, same plan: switching targets back and forth on the page reuses earlier solves."""
     terms = _terms_after({"term": term, "academic_year": year}, main_now + 1, last_main)
-    placed = _solve(set(passed), earned, cap, terms, last_main, allow_summer)
+    placed = _solve(set(passed), earned, cap, terms, last_main, allow_summer, paper, request, _top_cap(), hi_from)
     return terms, placed
+
+
+def _top_cap() -> int:
+    return max(b["max_credits"] for b in d.rules()["max_credits_by_gpa"])
+
+
+# ---------------------------------------------------------------- routes to a target
+
+def _gpa_points(s: dict, failed: list[str]) -> tuple[float, float, float, float]:
+    """(graded hours before this term, their points, graded hours this term, of which passed)."""
+    gp, allc = _grade_points(), d.courses()
+    best, cur = d.best_attempts(s), d.current_courses(s)
+    cur_codes = [c["code"] for c in cur]
+    old = [a for code, a in best.items() if a["grade"] in gp and code not in cur_codes]
+    graded_now = [c for c in cur if allc.get(c["code"], {}).get("graded", True) and c["credits"] > 0]
+    return (sum(a["credits"] for a in old), sum(gp[a["grade"]] * a["credits"] for a in old),
+            sum(c["credits"] for c in graded_now), sum(c["credits"] for c in graded_now if c["code"] not in failed))
+
+
+def _gpa_lever(s: dict, failed: list[str], expected_term_gpa: float | None, cap: int) -> dict | None:
+    """What it takes to reach the top GPA band (cumulative 3.00 -> 21 hours), or None if it cannot help.
+
+    From next semester if a reachable GPA this semester gets the cumulative to 3.00; otherwise from the one
+    after, assuming 4.00 this semester and a full load of graded courses next semester.
+    """
+    band = max(d.rules()["max_credits_by_gpa"], key=lambda b: b["max_credits"])
+    top, target = band["max_credits"], band["gpa_min"]
+    if cap >= top or expected_term_gpa is not None:  # already at the top, or the what-if fixed this term's GPA
+        return None
+    hours, points, now_h, pass_h = _gpa_points(s, failed)
+    up = lambda x: max(0.0, math.ceil(x * 100 - 1e-9) / 100)
+    if now_h and pass_h:
+        need = target * (hours + now_h) - points  # points needed this term
+        if need / pass_h <= 4.0 + 1e-9:
+            term_gpa = up(need / now_h)
+            return {"from": 0, "cap": top, "term_gpa": term_gpa,
+                    "ar": f"معدلك التراكمي يوصل {target:.2f} في آخر الترم ده (يعني معدل الترم ده {term_gpa:.2f} أو أكتر)، "
+                          f"فتقدر تسجّل {top} ساعة من الترم الجاي.",
+                    "en": f"Get your cumulative GPA to {target:.2f} by the end of this semester (a semester GPA of "
+                          f"{term_gpa:.2f} or more), so you can register {top} hours from next semester."}
+    # One semester later: 4.00 on what is passed now, then a full load next semester.
+    h1, p1 = hours + now_h, points + 4.0 * pass_h
+    nxt = (target * (h1 + cap) - p1) / cap if cap else 99
+    if nxt <= 4.0:
+        nxt = up(nxt)
+        return {"from": 1, "cap": top, "term_gpa": 4.0, "next_term_gpa": nxt,
+                "ar": f"مش هتلحق توصل {target:.2f} الترم ده. لو جبت 4.00 الترم ده و{nxt:.2f} أو أكتر الترم الجاي، "
+                      f"تقدر تسجّل {top} ساعة من الترم اللي بعده.",
+                "en": f"You cannot reach {target:.2f} this semester. With 4.00 this semester and {nxt:.2f} or more next "
+                      f"semester, you can register {top} hours from the semester after."}
+    return None
+
+
+SUMMER_LEVER = {"ar": "تحضر ترم صيفي (لحد 6 ساعات، لو الكلية فتحت المواد).",
+                "en": "Attend summer semesters (up to 6 hours, if the faculty opens the courses)."}
+
+
+def _route(proj, cap, current, main_now, last_main, allow_summer, gpa_lever):
+    """Ways to reach the target.
+
+    As the student is going first (paper registration and a graduation request are allowed but cost extra,
+    so they are used only when needed). If that does not reach it, each thing the student can change on its
+    own (summer if it was off, a higher GPA band), then both. Returns (status, routes) where status is
+    "feasible", "conditional" or "impossible" and each route is (terms, placed, conditions, hi_from), the
+    first being the one shown.
+    """
+    terms, placed = _plan_for(proj, cap, current, main_now, last_main, allow_summer)
+    if placed is not None:
+        return "feasible", [(terms, placed, [], None)]
+    levers = (["summer"] if not allow_summer else []) + (["gpa"] if gpa_lever else [])
+
+    def attempt(combo):
+        summer = allow_summer or "summer" in combo
+        hi_from = gpa_lever["from"] if "gpa" in combo else None
+        t, p = _plan_for(proj, cap, current, main_now, last_main, summer, True, True, hi_from)
+        if p is None:
+            return None
+        conditions = []
+        if "gpa" in combo:
+            conditions.append({"kind": "gpa", "ar": gpa_lever["ar"], "en": gpa_lever["en"]})
+        if "summer" in combo:
+            conditions.append({"kind": "summer", **SUMMER_LEVER})
+        return t, p, conditions, hi_from
+
+    routes = [r for r in (attempt([lv]) for lv in levers) if r]
+    if not routes and len(levers) == 2:
+        routes = [r for r in [attempt(levers)] if r]
+    return ("conditional", routes) if routes else ("impossible", [])
+
+
+def _risk(proj, current, main_now, last_main, allow_summer) -> dict:
+    """What happens to the target if the cumulative GPA falls below 2.00 (14 hours, or 12 on academic warning)."""
+    low, _ = _load_cap(1.99, main_now)
+    on_warning = low == d.rules()["probation_max_credits"]
+    terms, placed = _plan_for(proj, low, current, main_now, last_main, allow_summer, True, True)
+    ok = placed is not None
+    warn_ar, warn_en = (" وهتبقى تحت الإنذار", " and you would be on academic warning") if on_warning else ("", "")
+    return {"cap": low, "still_possible": ok,
+            "ar": f"لو معدلك التراكمي نزل تحت 2.00 حدك هيبقى {low} ساعة{warn_ar}، "
+                  + ("والهدف ده هيفضل ممكن." if ok else "والهدف ده مش هيلحق."),
+            "en": f"If your cumulative GPA falls below 2.00 your limit becomes {low} hours{warn_en}, "
+                  + ("and this target stays possible." if ok else "and this target would no longer be reachable.")}
 
 
 def _earliest(proj, cap, current, main_now, allow_summer, start: int):
@@ -475,7 +611,8 @@ def _earliest(proj, cap, current, main_now, allow_summer, start: int):
 
 
 def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer: bool = True,
-                          failed_courses: list[str] | None = None, expected_term_gpa: float | None = None) -> dict:
+                          failed_courses: list[str] | None = None, expected_term_gpa: float | None = None,
+                          with_risk: bool = True) -> dict:
     """A term-by-term plan to graduate within `target_years` (4, 4.5 or 5) of enrollment.
 
     What-if inputs: `failed_courses` (current-term courses the student fails) and `expected_term_gpa`.
@@ -536,8 +673,10 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
                "en": f"You are in semester {main_now} now, and the {target_years}-year target ends with semester {last_main}"
                      + (", but you still have courses left after this semester." if last_main == main_now else ".")}
     else:
-        terms, placed = _plan_for(proj, cap, current, main_now, last_main, allow_summer)
-        feasible = placed is not None
+        gpa_lever = _gpa_lever(s, failed, expected_term_gpa, cap)
+        status, routes = _route(proj, cap, current, main_now, last_main, allow_summer, gpa_lever)
+        terms, placed, conditions, hi_from = routes[0] if routes else (None, None, [], None)
+        feasible = status == "feasible"
         reason_code = None if feasible else "constraints"
         why = None
         if not feasible:
@@ -546,8 +685,20 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
             retaking = {c for c in cur_codes if c not in failed and best.get(c, {}).get("grade") in ("F", "FP")}
             why = _why_not(proj, cap, current, main_now, last_main, allow_summer, failed_codes, target_years, retaking)
     reason = why["ar"] if why else None
-
-    if not feasible:
+    if reason_code == "past":
+        status, conditions, hi_from = "impossible", [], None
+    out["status"] = status
+    if status == "conditional":
+        # Not as things stand, but reachable: the plan below is the one that meets the conditions.
+        out.update({"feasible": False, "conditions": conditions, "reason": reason, "reason_code": reason_code,
+                    "why": why,
+                    # Every way that works on its own, e.g. "a summer" or "a 3.00 GPA" (the plan shows the first).
+                    "routes": [{"conditions": r[2], "graduation_term": _term_label(
+                        max((r[0][k] for k, _ in r[1].values()), key=lambda t: (t["academic_year"], "fsu".index(t["term"][0]))))}
+                        for r in routes]})
+        if any(c["kind"] == "gpa" for c in conditions):
+            out["gpa_needed"] = {k: v for k, v in gpa_lever.items() if k in ("from", "cap", "term_gpa", "next_term_gpa")}
+    elif not feasible:
         last, terms, placed = _earliest(proj, cap, current, main_now, allow_summer, last_main + 1)
         out["feasible"] = False
         out["reason"], out["reason_code"], out["why"] = reason, reason_code, why
@@ -557,7 +708,10 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
         out["earliest_main_semester"] = last
     else:
         out["feasible"] = True
+        if with_risk:
+            out["risk"] = _risk(proj, current, main_now, last_main, allow_summer)
 
+    caps = _caps(terms, cap, _top_cap(), hi_from)
     rows = []
     for ti, t in enumerate(terms):
         cs = [code for code, (k, _) in placed.items() if k == ti]
@@ -569,7 +723,7 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
                          key=lambda c: (c["type"] == "training", c["code"]))
         rows.append({**_term_label(t), "term": t["term"], "academic_year": t["academic_year"],
                      "main_semester": t["main"], "credits": sum(c["credits"] for c in courses),
-                     "max_credits": cap if t["term"] != "summer" else None, "courses": courses})
+                     "max_credits": caps[ti] if t["term"] != "summer" else None, "courses": courses})
     earned_before = proj["earned"]
     for r in rows:
         for c in r["courses"]:
@@ -603,6 +757,10 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
     extra_txt = ("، ومحتاج " + " و".join(extra)) if extra else ""
     if out["feasible"]:
         out["explanation"] = f"تقدر تتخرج في {grad_txt} ({target_years} سنين){extra_txt}. {cap_why}"
+    elif status == "conditional":
+        conds = " و".join(c["ar"].rstrip(".") for c in conditions)
+        out["explanation"] = (f"زي ما إنت ماشي مش هتلحق هدف {target_years} سنين ({reason}) بس تقدر تتخرج في {grad_txt} "
+                              f"لو: {conds}.{(' ' + extra_txt.lstrip('، ')) if extra_txt else ''}")
     else:
         out["explanation"] = f"هدف {target_years} سنين مش ممكن: {reason} أقرب تخرج: {grad_txt}{extra_txt}. {cap_why}"
     return out
@@ -615,11 +773,12 @@ def plan_options(student_id: str, failed_courses: list[str] | None = None,
     for years in TARGETS:
         cells = {}
         for summer in (False, True):
-            p = build_graduation_plan(student_id, years, summer, failed_courses, expected_term_gpa)
+            p = build_graduation_plan(student_id, years, summer, failed_courses, expected_term_gpa, with_risk=False)
             if not p.get("found"):
                 return p
             cells["with_summer" if summer else "without_summer"] = {
-                "feasible": p["feasible"], "graduation_term": p["graduation_term"], "why": p.get("why"),
+                "feasible": p["feasible"], "status": p.get("status", "feasible" if p["feasible"] else "impossible"),
+                "conditions": p.get("conditions", []), "graduation_term": p["graduation_term"], "why": p.get("why"),
                 "summer_courses": len(p.get("summer_courses", [])), "college_requests": len(p.get("college_requests", []))}
         rows.append({"target_years": years, **cells})
     return {"found": True, "student_id": student_id, "options": rows}
@@ -640,11 +799,14 @@ def graduation_plan(student_id: str, target_years: float | None = None, allow_su
     opts = plan_options(student_id)["options"]
 
     def cell(c):
-        return {"possible": c["feasible"], "graduation": (c["graduation_term"] or {}).get("ar"),
-                "why_not": (c.get("why") or {}).get("ar")}
+        return {"possible": c["feasible"], "status": c["status"], "graduation": (c["graduation_term"] or {}).get("ar"),
+                "conditions": [x["ar"] for x in c["conditions"]], "why_not": (c.get("why") or {}).get("ar")}
 
     out = {
         "found": True, "target_years": years, "allow_summer": summer, "possible": p["feasible"],
+        # feasible = as things stand; conditional = possible if the conditions are met; impossible = no route.
+        "status": p.get("status"), "conditions": [c["ar"] for c in p.get("conditions", [])],
+        "risk_if_gpa_drops": (p.get("risk") or {}).get("ar"),
         "graduation": (p["graduation_term"] or {}).get("ar"),
         "summer_courses": p.get("summer_courses", []), "college_requests": p.get("college_requests", []),
         "credit_cap_per_semester": p["after_this_term"]["max_credits"],
@@ -654,6 +816,7 @@ def graduation_plan(student_id: str, target_years: float | None = None, allow_su
     }
     if not p["feasible"]:
         out["why_not"] = (p.get("why") or {}).get("ar")
+    if p.get("status") == "impossible":
         out["earliest_graduation"] = out["graduation"]
     out["explanation"] = p["explanation"]
     return out

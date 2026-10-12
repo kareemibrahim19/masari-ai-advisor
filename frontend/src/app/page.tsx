@@ -107,10 +107,14 @@ export default function DashboardPage() {
                     }
                   >
                     {t("pathTarget")}: {t(targetKey)}
-                    {!plan.feasible && ` · ${t("pathTargetNotPossible")}`}
+                    {!plan.feasible && ` · ${plan.status === "conditional" ? t("possibleIf") : t("pathTargetNotPossible")}`}
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs text-start leading-relaxed">
-                    {!plan.feasible && plan.why ? tr(plan.why) : t("pathChangeTarget")}
+                    {plan.status === "conditional" && plan.conditions?.length
+                      ? plan.conditions.map((c) => tr(c)).join(" ")
+                      : !plan.feasible && plan.why
+                        ? tr(plan.why)
+                        : t("pathChangeTarget")}
                   </TooltipContent>
                 </Tooltip>
               )}

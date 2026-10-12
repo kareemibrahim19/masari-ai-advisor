@@ -49,10 +49,25 @@ export type WhyNot = {
   chain?: string[]
 }
 
+/** Something the student can do to reach the target: attend a summer, or raise the cumulative GPA. */
+export type PlanCondition = { kind: "summer" | "gpa"; ar: string; en: string }
+
+/** "feasible": as things stand; "conditional": if the conditions are met; "impossible": no way within the rules. */
+export type PlanStatus = "feasible" | "conditional" | "impossible"
+
 export type GraduationPlan = {
   target_years: TargetYears
   allow_summer: boolean
   feasible: boolean
+  status?: PlanStatus
+  /** The conditions of the plan shown (status "conditional"). */
+  conditions?: PlanCondition[]
+  /** Every way that works on its own, e.g. a summer or a higher GPA. */
+  routes?: { conditions: PlanCondition[]; graduation_term: TermLabel }[]
+  /** The GPA it takes for 21 hours: from next semester ("from" 0) or the one after (1). */
+  gpa_needed?: { from: 0 | 1; cap: number; term_gpa: number; next_term_gpa?: number }
+  /** What a cumulative GPA under 2.00 would do to this target (status "feasible"). */
+  risk?: { cap: number; still_possible: boolean; ar: string; en: string }
   /** "past": the target's last term is already behind the student; "constraints": the rules don't allow it. */
   reason_code?: "past" | "constraints"
   why?: WhyNot | null
@@ -67,6 +82,8 @@ export type GraduationPlan = {
 
 type OptionCell = {
   feasible: boolean
+  status?: PlanStatus
+  conditions?: PlanCondition[]
   graduation_term: TermLabel | null
   summer_courses: number
   college_requests: number
