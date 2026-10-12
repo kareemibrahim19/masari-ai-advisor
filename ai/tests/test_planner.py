@@ -108,6 +108,12 @@ check("excellent 4y blocked by the project chain 381 -> 481 -> 482 (project 1 ne
       p["why"]["code"] == "course" and p["why"]["root"] == "ARI 381"
       and p["why"]["chain"] == ["ARI 381", "ARI 481", "ARI 482"] and "92" in p["why"]["ar"] and "96" in p["why"]["en"],
       p.get("why"))
+p = build_graduation_plan(EXC, 5, failed_courses=["BAS 216"])
+check("what-if failure named in the reason (by name)", "الإحصاء وتحليل البيانات" in p["why"]["ar"]
+      and "سقطت" in p["why"]["ar"] and "BAS" not in p["why"]["ar"], p.get("why"))
+p = build_graduation_plan(PROB, 5)
+check("retake this term named in the reason (by name)", "الجبر الخطي" in p["why"]["ar"] and "بتعيدها" in p["why"]["ar"],
+      p.get("why"))
 p = build_graduation_plan(NEW, 4.5)
 paper = [c["code"] for t in p["terms"] for c in t["courses"] if c.get("paper_registration")]
 check("new student 4.5y waits for the hours instead of paper registration", p["feasible"] and not paper, paper)

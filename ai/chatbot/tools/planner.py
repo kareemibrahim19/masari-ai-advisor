@@ -341,8 +341,9 @@ def _short(t: dict) -> dict:
 
 
 def _name(code: str) -> dict:
+    """The course's name without its code: students know courses by name."""
     c = d.courses()[code]
-    return {"ar": f"{c['name_ar']} ({code})", "en": f"{c.get('name_en') or code} ({code})"}
+    return {"ar": c["name_ar"], "en": c.get("name_en") or code}
 
 
 def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int, allow_summer: bool,
@@ -448,9 +449,11 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
                 ar.append(f"{_name(root)['ar']} بيتدرّس في {only} بس، فأول فرصة ليه {when(ri)['ar']}.")
                 en.append(f"{_name(root)['en']} runs in {only_en} only, so the earliest you can take it is {when(ri)['en']}.")
         if len(chain) > 1:
-            links_ar = " ← ".join(reversed(chain))
+            # Course names, not codes: students know the courses by name.
+            links_ar = " ← ".join(allc[c]["name_ar"] for c in reversed(chain))
+            links_en = " → ".join(allc[c].get("name_en") or c for c in reversed(chain))
             ar.append(f"وكل مادة في السلسلة دي لازم تيجي بعد اللي قبلها: {links_ar}، فـ {_name(code)['ar']} مش هتلحق قبل {when(i)['ar']}.")
-            en.append(f"Each course in this chain must follow the one before it ({' → '.join(reversed(chain))}), "
+            en.append(f"Each course in this chain must follow the one before it ({links_en}), "
                       f"so {_name(code)['en']} cannot come before {when(i)['en']}.")
         ar.append(f"وده بعد آخر ترم في هدف {target['ar']} ({_short(terms[deadline])['ar']}).")
         en.append(f"That is after the last semester of the {target['en']} target ({_short(terms[deadline])['en']}).")

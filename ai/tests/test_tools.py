@@ -188,7 +188,8 @@ r = call_tool("graduation_plan", {"target_years": 4}, EXC)
 page = build_graduation_plan(EXC, 4, True)
 check("chat plan = page plan (feasible, graduation)", r["possible"] == page["feasible"]
       and r["graduation"] == page["graduation_term"]["ar"], (r.get("possible"), r.get("graduation")))
-check("chat plan says why not", not r["possible"] and "ARI 381" in r["why_not"] and "ARI 482" in r["why_not"], r.get("why_not"))
+check("chat plan says why not, by course name", not r["possible"] and "مشروع (1)" in r["why_not"] and "مشروع (3)" in r["why_not"]
+      and "ARI" not in r["why_not"], r.get("why_not"))
 r = call_tool("registration_eligibility", {"course_code": "ARI 481", "term_type": "fall"}, RETAKE)
 check("project 2 needs project 1 first", not r["eligible"] and any("ARI 381" in b for b in r["blockers"]), r.get("blockers"))
 r = call_tool("graduation_plan", {}, EXC, {"plan_target": 5, "plan_summer": False})
