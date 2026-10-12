@@ -198,6 +198,15 @@ for name, sid in BY.items():
             ok = not bad and (not last or last["credits"] >= 12 or last.get("below_minimum_paper"))
             check(f"12-hour minimum except the graduation semester ({name} {years}y summer={summer})", ok, (bad, last and last["credits"]))
 
+p = build_graduation_plan(NEW, 5, True)
+last = [t for t in p["terms"] if t["term"] != "summer"][-1]
+check("graduation semester kept at 12 when possible (no paper registration for nothing)",
+      last["credits"] >= 12 and not last.get("below_minimum_paper"), (last["en"], last["credits"]))
+p = build_graduation_plan(FAILPRE, 5, False)
+last = [t for t in p["terms"] if t["term"] != "summer"][-1]
+check("one course left at the end: graduation semester under 12 on paper", last["credits"] < 12
+      and last.get("below_minimum_paper"), (last["en"], last["credits"]))
+
 # Options table
 o = plan_options(NEW)
 check("options table 3 targets", [r["target_years"] for r in o["options"]] == [4, 4.5, 5], o)

@@ -42,6 +42,7 @@ COST_GRADUATION_REQUEST = 60
 COST_PAPER_REGISTRATION = 15  # a project registered within its hours tolerance (paper registration)
 COST_PAPER_LOAD = 15  # 15 hours on paper with a GPA under 2.00 (five 3-credit courses)
 COST_UNDER_MIN_HOUR = 30  # per hour a semester before graduation falls below 12 (council approval, avoided)
+COST_GRAD_UNDER_MIN_HOUR = 5  # per hour the graduation semester falls below 12 (paper registration)
 MAX_GRADUATION_REQUESTS = 1
 
 # HiGHS can deadlock when several web requests solve at the same time, so solves run one at a time.
@@ -249,11 +250,13 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     n_w = n_p + len(paper_load_terms)
     # One "graduation semester" variable per main term: the last semester with courses, the only one that may
     # go below 12 hours (on paper).
-    n = n_w + len(mains)
+    n_g = n_w + len(mains)
+    # Hours the graduation semester is under 12 (allowed on paper, at a cost so 12 is kept when possible).
+    n = n_g + len(mains)
     cost += [COST_SUMMER_TERM] * len(summers) + [0, COST_UNDER_MIN_HOUR] * len(mains)
     cost += [COST_PAPER_REGISTRATION] * len(paper_ks)
     cost += [COST_PAPER_LOAD] * len(paper_load_terms)
-    cost += [0] * len(mains)
+    cost += [0] * len(mains) + [COST_GRAD_UNDER_MIN_HOUR] * len(mains)
 
     rows, cols, vals, lo, hi = [], [], [], [], []
 
@@ -333,9 +336,10 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     # available courses cannot reach 12.
     for i, ti in enumerate(mains):
         ks = [k for k in range(n_x) if var[k][1] == ti]
-        active, short, grad = n_s + 2 * i, n_s + 2 * i + 1, n_w + i
+        active, short, grad, grad_short = n_s + 2 * i, n_s + 2 * i + 1, n_w + i, n_g + i
         add({**{k: 1 for k in ks}, active: -1}, 0, np.inf)  # active only with courses
-        add({**{k: credits[k] for k in ks}, short: 1, grad: min_load, active: -min_load}, 0, np.inf)
+        add({**{k: credits[k] for k in ks}, short: 1, grad_short: 1, active: -min_load}, 0, np.inf)
+        add({grad_short: 1, grad: -min_load}, -np.inf, 0)  # only the graduation semester has this allowance
         add({grad: 1, active: -1}, -np.inf, 0)  # the graduation semester has courses
         for later in mains[i + 1:]:  # ... and nothing comes after it
             add({grad: 1, n_s + 2 * mains.index(later): 1}, -np.inf, 1)
@@ -354,6 +358,7 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     upper = np.ones(n)
     for i in range(len(mains)):
         upper[n_s + 2 * i + 1] = min_load  # the shortfall variables count hours
+        upper[n_g + i] = min_load
     with _SOLVE_LOCK:
         res = milp(np.array(cost, dtype=float), integrality=np.ones(n), bounds=Bounds(0, upper),
                    constraints=LinearConstraint(A, lo, hi), options={"time_limit": 10, "mip_rel_gap": 0.02})
