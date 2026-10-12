@@ -266,8 +266,20 @@ const dict = {
   paperLoadNote: { ar: "15 ساعة (5 مواد × 3)", en: "15 hours (5 × 3-credit courses)" },
   belowMinimumNote: { ar: "ترم تخرج أقل من 12", en: "graduation semester under 12" },
   paperRegistrationHint: {
-    ar: "مشروع ساعاتك فيه أقل من المطلوب بس جوه السماحية (4 ساعات لمشروع 1 و2، و6 لمشروع 3)، فبيتسجّل ورقي في الكلية.",
-    en: "A project you are a few hours short for, within the tolerance (4 hours for projects 1 and 2, 6 for project 3): it is registered on paper at the faculty.",
+    ar: "في حالات معينة الكلية بتطلب إن المادة أو المشروع يتسجّل ورقي مش على السيستم: بتروح لإدارة شئون الطلاب وتملا استمارة التسجيل الورقي قبل آخر ميعاد للتسجيل. الحالات دي:",
+    en: "In some cases the faculty requires a course or project to be registered on paper instead of the system: go to student affairs and fill in the paper registration form before the registration deadline. The cases:",
+  },
+  paperCaseProject: {
+    ar: "مشروع ساعاتك فيه أقل من المطلوب بس جوه السماحية (4 ساعات لمشروع 1 و2، و6 لمشروع 3).",
+    en: "A project you are a few hours short for, within the tolerance (4 hours for projects 1 and 2, 6 for project 3).",
+  },
+  paperCaseLoad15: {
+    ar: "ترم فيه 15 ساعة ومعدلك التراكمي أقل من 2.00 (السيستم بيقف عند 14)، بشرط 5 مواد كل مادة 3 ساعات.",
+    en: "A semester of 15 hours with a cumulative GPA under 2.00 (the system stops at 14), as five 3-credit courses.",
+  },
+  paperCaseGradUnder12: {
+    ar: "ترم التخرج لو أقل من 12 ساعة (الحد الأدنى لأي ترم تاني 12).",
+    en: "The graduation semester if it is under 12 hours (every other semester needs at least 12).",
   },
   planLegend: { ar: "معاني العلامات", en: "What the tags mean" },
   planLoading: { ar: "بنحسب خطتك…", en: "Building your plan…" },

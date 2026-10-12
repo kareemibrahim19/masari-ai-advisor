@@ -666,9 +666,15 @@ function Legend() {
             <p className="text-muted-foreground">{hint}</p>
           </li>
         ))}
-        <li className="space-y-1 text-xs">
+        {/* Last and full width: every case where the faculty requires paper registration. */}
+        <li className="space-y-1 border-t pt-2 text-xs md:col-span-2 xl:col-span-4">
           <span className={cn("inline-block rounded px-1.5 py-px font-medium", paperStyle)}>{t("paperRegistration")}</span>
           <p className="text-muted-foreground">{t("paperRegistrationHint")}</p>
+          <ul className="list-disc space-y-0.5 ps-5 text-muted-foreground">
+            <li>{t("paperCaseProject")}</li>
+            <li>{t("paperCaseLoad15")}</li>
+            <li>{t("paperCaseGradUnder12")}</li>
+          </ul>
         </li>
       </ul>
     </div>
