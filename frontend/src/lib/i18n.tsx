@@ -203,8 +203,8 @@ const dict = {
   noChange: { ar: "بدون تغيير", en: "No change" },
   reset: { ar: "رجوع للخطة الحالية", en: "Reset to current plan" },
   underMinLoad: {
-    ar: "أقل من الحد الأدنى (12 ساعة). مسموح بس في ترم التخرج أو بموافقة المجلس.",
-    en: "Below the 12-credit minimum. Allowed only in the graduation semester or with council approval.",
+    ar: "أقل من الحد الأدنى (12 ساعة) لأن مفيش مواد متاحة كفاية، فمحتاج موافقة المجلس.",
+    en: "Below the 12-credit minimum because not enough courses are available, so it needs council approval.",
   },
   noCoursesThisTerm: { ar: "مفيش مقررات متاحة الترم ده حسب الخطة.", en: "No courses available this semester under the plan." },
   gradTarget: { ar: "عايز تتخرج في قد إيه؟", en: "When do you want to graduate?" },
@@ -263,6 +263,8 @@ const dict = {
   },
   paperRegistration: { ar: "تسجيل ورقي", en: "Paper registration" },
   graduationProject: { ar: "مشروع تخرج", en: "Graduation project" },
+  paperLoadNote: { ar: "15 ساعة (5 مواد × 3)", en: "15 hours (5 × 3-credit courses)" },
+  belowMinimumNote: { ar: "ترم تخرج أقل من 12", en: "graduation semester under 12" },
   paperRegistrationHint: {
     ar: "مشروع ساعاتك فيه أقل من المطلوب بس جوه السماحية (4 ساعات لمشروع 1 و2، و6 لمشروع 3)، فبيتسجّل ورقي في الكلية.",
     en: "A project you are a few hours short for, within the tolerance (4 hours for projects 1 and 2, 6 for project 3): it is registered on paper at the faculty.",

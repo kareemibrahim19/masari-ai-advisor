@@ -175,6 +175,29 @@ for name, sid in BY.items():
             seq = [at[c] for c in ("ARI 381", "ARI 481", "ARI 482") if c in at]
             check(f"projects in order, one per semester ({name} {years}y summer={summer})", seq == sorted(set(seq)), at)
 
+# GPA under 2.00, not on warning: 14 hours (15 on paper, five 3-credit courses), then 12 once on warning.
+p = build_graduation_plan(NEW, 5, True, [], 1.5)
+main_caps = [t["max_credits"] for t in p["terms"] if t["term"] != "summer"]
+check("low GPA: 14 next semester, then 12 on warning", main_caps[0] == 14 and set(main_caps[1:]) == {12}, main_caps)
+check("low GPA reason explains 14 then 12", "12" in p["why"]["ar"] and "الإنذار" in p["why"]["ar"], p.get("why"))
+two_term = P._terms_after({"term": "fall", "academic_year": "2026-2027"}, 2, 2)  # one main semester: spring, semester 2
+five_threes = {c for c in d.courses()} - {"BAS 012", "BAS 022", "BAS 032", "CSE 042", "PDE 051"}
+placed = P._solve(five_threes, 145, 14, two_term, 2, False)
+check("15 hours on paper when all five are 3-credit courses", placed is not None and len(placed) == 5, placed)
+check("not 16: one more 1-credit course breaks the rule",
+      P._solve(five_threes - {"UNR 021"}, 144, 14, two_term, 2, False) is None)
+
+# 12 hours minimum in every semester; only the graduation semester may be less (on paper).
+for name, sid in BY.items():
+    for years in (4, 4.5, 5):
+        for summer in (True, False):
+            p = build_graduation_plan(sid, years, summer)
+            mains = [t for t in p.get("terms", []) if t["term"] != "summer"]
+            bad = [t["en"] for t in mains[:-1] if t["credits"] < 12 and not t.get("warning")]
+            last = mains[-1] if mains else None
+            ok = not bad and (not last or last["credits"] >= 12 or last.get("below_minimum_paper"))
+            check(f"12-hour minimum except the graduation semester ({name} {years}y summer={summer})", ok, (bad, last and last["credits"]))
+
 # Options table
 o = plan_options(NEW)
 check("options table 3 targets", [r["target_years"] for r in o["options"]] == [4, 4.5, 5], o)

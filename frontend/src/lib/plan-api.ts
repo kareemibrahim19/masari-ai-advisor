@@ -34,6 +34,10 @@ export type PlanTerm = {
   max_credits: number | null
   courses: PlanCourse[]
   warning?: string
+  /** 15 hours on paper with a GPA under 2.00 (five 3-credit courses). */
+  paper_load?: boolean
+  /** The graduation semester under 12 hours, registered on paper. */
+  below_minimum_paper?: boolean
 }
 
 export type TermLabel = { ar: string; en: string }

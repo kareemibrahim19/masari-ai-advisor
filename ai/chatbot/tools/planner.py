@@ -25,7 +25,7 @@ from scipy.optimize import Bounds, LinearConstraint, milp
 from scipy.sparse import coo_matrix
 
 from . import _data as d
-from .rules import ARTICLES, _on_warning
+from .rules import ARTICLES, PAPER_COURSE_CREDITS, PAPER_MAX_LOW_GPA, _on_warning
 
 # Target years -> the last main semester (counted from enrollment) the student may graduate in.
 TARGETS = {4: 8, 4.5: 9, 5: 10}
@@ -40,7 +40,8 @@ COST_SUMMER_COURSE = 20
 COST_TRAINING_IN_MAIN = 25
 COST_GRADUATION_REQUEST = 60
 COST_PAPER_REGISTRATION = 15  # a project registered within its hours tolerance (paper registration)
-COST_UNDER_MIN_HOUR = 2  # per hour a main term with courses falls below the 12-hour minimum
+COST_PAPER_LOAD = 15  # 15 hours on paper with a GPA under 2.00 (five 3-credit courses)
+COST_UNDER_MIN_HOUR = 30  # per hour a semester before graduation falls below 12 (council approval, avoided)
 MAX_GRADUATION_REQUESTS = 1
 
 # HiGHS can deadlock when several web requests solve at the same time, so solves run one at a time.
@@ -187,13 +188,21 @@ def _options(course: dict, term: dict, planned: int, last_main: int, allow_summe
 
 def _caps(terms: list[dict], cap: int, hi: int, hi_from: int | None) -> list[int | None]:
     """Hour cap of each term: `cap`, or `hi` from main semester number `hi_from` (counted among these terms) on.
-    Summers get None (they have their own limit)."""
+    Summers get None (they have their own limit).
+
+    The low band (GPA under 2.00, 14 hours) lasts only until academic warning starts: with the GPA unchanged,
+    from the main semester after the second one the student is on warning and the cap is 12 (article 25).
+    """
+    r = d.rules()
     out, mains = [], 0
     for t in terms:
         if t["term"] == "summer":
             out.append(None)
             continue
-        out.append(hi if hi_from is not None and mains >= hi_from else cap)
+        c = cap
+        if cap == _low_band_cap() and t["main"] - 1 >= r["warning_starts_after_main_semester"]:
+            c = r["probation_max_credits"]
+        out.append(hi if hi_from is not None and mains >= hi_from else c)
         mains += 1
     return out
 
@@ -234,9 +243,17 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     # one "paper registration" per project placement above.
     n_s = n_x + len(summers)
     n_m = n_s + 2 * len(mains)
-    n = n_m + len(paper_ks)
+    n_p = n_m + len(paper_ks)
+    low_band = _low_band_cap()
+    paper_load_terms = [ti for ti in mains if caps[ti] == low_band]
+    n_w = n_p + len(paper_load_terms)
+    # One "graduation semester" variable per main term: the last semester with courses, the only one that may
+    # go below 12 hours (on paper).
+    n = n_w + len(mains)
     cost += [COST_SUMMER_TERM] * len(summers) + [0, COST_UNDER_MIN_HOUR] * len(mains)
     cost += [COST_PAPER_REGISTRATION] * len(paper_ks)
+    cost += [COST_PAPER_LOAD] * len(paper_load_terms)
+    cost += [0] * len(mains)
 
     rows, cols, vals, lo, hi = [], [], [], [], []
 
@@ -300,10 +317,32 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
                 add({**{k: credits[k] for k in courses_k}, si: -max_summer}, -np.inf, 0)
         elif ks:
             active = n_s + 2 * mains.index(ti)
-            add({k: credits[k] for k in ks}, -np.inf, caps[ti])
+            if ti in paper_load_terms:
+                # Up to 14 on the system, or 15 on paper when every course that term is a 3-credit course.
+                w = n_p + paper_load_terms.index(ti)
+                add({**{k: credits[k] for k in ks}, w: -(PAPER_MAX_LOW_GPA - caps[ti])}, -np.inf, caps[ti])
+                for k in ks:
+                    if credits[k] not in (0, PAPER_COURSE_CREDITS):
+                        add({k: 1, w: 1}, -np.inf, 1)
+            else:
+                add({k: credits[k] for k in ks}, -np.inf, caps[ti])
             add({**{k: 1 for k in ks}, active: -len(ks)}, -np.inf, 0)  # any course -> active
-            # Minimum load (soft): hours + shortfall >= 12 when the term has courses.
-            add({**{k: credits[k] for k in ks}, active: -min_load, active + 1: 1}, 0, np.inf)
+
+    # Minimum load: every main semester with courses has 12 hours or more, except the graduation semester.
+    # A shortfall elsewhere is allowed only at a high cost (council approval), so it is used only when the
+    # available courses cannot reach 12.
+    for i, ti in enumerate(mains):
+        ks = [k for k in range(n_x) if var[k][1] == ti]
+        active, short, grad = n_s + 2 * i, n_s + 2 * i + 1, n_w + i
+        add({**{k: 1 for k in ks}, active: -1}, 0, np.inf)  # active only with courses
+        add({**{k: credits[k] for k in ks}, short: 1, grad: min_load, active: -min_load}, 0, np.inf)
+        add({grad: 1, active: -1}, -np.inf, 0)  # the graduation semester has courses
+        for later in mains[i + 1:]:  # ... and nothing comes after it
+            add({grad: 1, n_s + 2 * mains.index(later): 1}, -np.inf, 1)
+        if i + 1 < len(mains):  # no empty semester before a semester with courses
+            add({active: 1, n_s + 2 * (i + 1): -1}, 0, np.inf)
+    if mains:
+        add({n_w + i: 1 for i in range(len(mains))}, -np.inf, 1)
 
     reqs = [k for k in range(n_x) if var[k][2] == "graduation_request"]
     if reqs:
@@ -365,9 +404,10 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
 
     # The most hours the student can have earned before term i.
     before, total = [], proj["earned"]
-    for t in terms:
+    for t, c in zip(terms, _caps(terms, cap, _top_cap(), None)):
         before.append(total)
-        total += (_summer_hours() if allow_summer else 0) if t["term"] == "summer" else cap
+        total += ((_summer_hours() if allow_summer else 0) if c is None
+                  else PAPER_MAX_LOW_GPA if c == _low_band_cap() else c)
 
     required, pools = _to_place(passed)
     memo: dict[str, tuple] = {}
@@ -465,17 +505,26 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
     room = before[deadline + 1] - proj["earned"] if deadline + 1 < len(before) else total - proj["earned"]
     summer_ar = " مع الصيفي" if allow_summer else " من غير صيفي"
     summer_en = " with summers" if allow_summer else " without summers"
+    # The hour limit in words: with a GPA under 2.00 it is 14 (15 on paper) only until academic warning starts.
+    r = d.rules()
+    if cap == _low_band_cap():
+        lim_ar = (f"حد {cap} ساعة الترم الجاي (أو {PAPER_MAX_LOW_GPA} ورقي)، وبعد كده {r['probation_max_credits']} "
+                  f"لأنك هتبقى تحت الإنذار لو المعدل فضل تحت 2.00")
+        lim_en = (f"{cap} hours next semester ({PAPER_MAX_LOW_GPA} on paper), then {r['probation_max_credits']} on academic "
+                  f"warning if the GPA stays under 2.00")
+    else:
+        lim_ar, lim_en = f"حد {cap} ساعة في الترم", f"{cap} per semester"
     if left > room:
         return {"code": "hours", "left": left, "room": room,
                 "ar": f"فاضلك {left} ساعة، وأقصى اللي تقدر تسجله لحد {_short(terms[deadline])['ar']} هو {room} ساعة "
-                      f"(حد {cap} ساعة في الترم{summer_ar}).",
+                      f"({lim_ar}{summer_ar}).",
                 "en": f"You have {left} credit hours left, and the most you can register by {_short(terms[deadline])['en']} "
-                      f"is {room} ({cap} per semester{summer_en})."}
+                      f"is {room} ({lim_en}{summer_en})."}
     return {"code": "fit",
             "ar": f"المواد الفاضلة مش هتتوزع على الترمات لحد {_short(terms[deadline])['ar']}: كل مادة ليها ترمها "
-                  f"ومتطلباتها، وحد الساعات {cap} ساعة في الترم{summer_ar}.",
+                  f"ومتطلباتها، و{lim_ar}{summer_ar}.",
             "en": f"The remaining courses do not fit into the semesters up to {_short(terms[deadline])['en']}: each course has "
-                  f"its own semester and prerequisites, and the limit is {cap} hours per semester{summer_en}."}
+                  f"its own semester and prerequisites, and the limit is {lim_en}{summer_en}."}
 
 
 def _count(n: int, one: str, two: str, few: str, many: str) -> str:
@@ -499,6 +548,11 @@ def _plan_cached(passed: frozenset, earned: int, cap: int, term: str, year: str,
     terms = _terms_after({"term": term, "academic_year": year}, main_now + 1, last_main)
     placed = _solve(set(passed), earned, cap, terms, last_main, allow_summer, paper, request, _top_cap(), hi_from)
     return terms, placed
+
+
+def _low_band_cap() -> int:
+    """The hour cap of the lowest GPA band (under 2.00, not on warning): 14."""
+    return min(b["max_credits"] for b in d.rules()["max_credits_by_gpa"])
 
 
 def _top_cap() -> int:
@@ -737,13 +791,26 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
                 c["hours_before"] = earned_before
                 c["hours_needed"] = need
         earned_before += r["credits"]
+    for r in rows:
+        if r["max_credits"] is not None and r["credits"] > r["max_credits"]:
+            r["paper_load"] = True
+            r["paper_load_ar"] = (f"تسجيل ورقي: {r['credits']} ساعة ({r['credits'] // PAPER_COURSE_CREDITS} مواد كل مادة "
+                                  f"{PAPER_COURSE_CREDITS} ساعات) فوق حد السيستم {r['max_credits']}.")
     last_i = max((i for i, r in enumerate(rows) if r["courses"]), default=-1)
     rows = rows[:last_i + 1]
     grad = rows[-1] if rows else None
     min_load = d.rules()["min_credits_main_semester"]
-    for r in rows[:-1]:
-        if r["term"] != "summer" and r["credits"] < min_load:
-            r["warning"] = f"أقل من الحد الأدنى ({min_load} ساعة) لأن مفيش مواد متاحة كفاية في الترم ده."
+    last_main_row = max((i for i, r in enumerate(rows) if r["term"] != "summer"), default=-1)
+    for i, r in enumerate(rows):
+        if r["term"] == "summer" or r["credits"] >= min_load:
+            continue
+        if i == last_main_row:
+            # The graduation semester may be under 12 hours, registered on paper.
+            r["below_minimum_paper"] = True
+            r["below_minimum_ar"] = f"ترم التخرج أقل من {min_load} ساعة: بيتسجل ورقي."
+        else:
+            r["warning"] = (f"أقل من الحد الأدنى ({min_load} ساعة) لأن مفيش مواد متاحة كفاية في الترم ده، "
+                            f"فمحتاج موافقة المجلس.")
 
     summer_courses = [c["code"] for r in rows if r["term"] == "summer" for c in r["courses"]
                       if c["flag"] == "summer_on_demand"]

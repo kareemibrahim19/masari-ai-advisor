@@ -549,7 +549,8 @@ function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduat
   const { t, tr, num } = useI18n()
   const summer = term.term === "summer"
   const order = termOrder(term)
-  const over = term.max_credits !== null && term.credits > term.max_credits
+  // Over the cap only counts when it is not the 15-hour paper registration.
+  const over = term.max_credits !== null && term.credits > term.max_credits && !term.paper_load
 
   return (
     <Card className={cn(summer && "border-dashed bg-muted/30", term.courses.length === 0 && "opacity-70")}>
@@ -578,6 +579,13 @@ function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduat
               barClassName={term.warning ? "bg-warning" : undefined}
               label={t("semesterLoad")}
             />
+            {(term.paper_load || term.below_minimum_paper) && (
+              <p className="pt-1">
+                <span className={cn("inline-block rounded px-1.5 py-px text-[11px] font-medium", paperStyle)}>
+                  {t("paperRegistration")} · {term.paper_load ? t("paperLoadNote") : t("belowMinimumNote")}
+                </span>
+              </p>
+            )}
             {term.warning && (
               <p className="flex items-start gap-1 pt-1 text-[11px] text-warning">
                 <TriangleAlert className="mt-px size-3 shrink-0" aria-hidden />
