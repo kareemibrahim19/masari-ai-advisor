@@ -243,7 +243,11 @@ r = call_tool("paper_registration", {"reason": "more_hours"}, PROB)
 check("paper: on warning stays at 12, no paper option", r["cases"][0]["applies"] is False and r["system_max_credits"] == 12, r)
 r = call_tool("paper_registration", {"reason": "more_hours"}, EXC)
 check("paper: GPA above 2 does not need paper for more hours", r["cases"][0]["applies"] is False, r)
-check("paper: system closed always goes on paper", call_tool("paper_registration", {"reason": "system_closed"}, EXC)["paper_needed"])
+r = call_tool("paper_registration", {"reason": "system_closed"}, EXC)
+check("paper: system closed always goes on paper, and says to go to student affairs",
+      r["paper_needed"] and "شئون الطلاب" in r["cases"][0]["explanation"] and r["how_ar"], r)
+r = call_tool("paper_registration", {"reason": "more_hours"}, PROB)
+check("paper: no 'go to student affairs' when paper does not apply", "شئون الطلاب" not in r["explanation"] and not r["how_ar"], r)
 check("paper: 26 hours left is not the last term", not call_tool("paper_registration", {"reason": "below_minimum"}, NEAR)["cases"][0]["applies"])
 
 low = copy.deepcopy(d.students()[EXC])  # a GPA-below-2 student not yet on warning (first two terms)
@@ -259,7 +263,8 @@ check("paper: GPA 1.8 -> 14 on the system, 15 on paper with 5 courses of 3",
 check("paper: 14 requested fits the system", not call_tool("paper_registration", {"reason": "more_hours", "requested_hours": 14}, "test-low")["cases"][0]["applies"])
 check("paper: 16 requested is too many", "مينفعش" in call_tool("paper_registration", {"reason": "more_hours", "requested_hours": 16}, "test-low")["cases"][0]["explanation"])
 r = call_tool("paper_registration", {"reason": "below_minimum"}, "test-last")
-check("paper: 8 hours left in the last term -> paper below 12", r["cases"][0]["applies"] and r["paper_needed"], r)
+check("paper: 8 hours left in the last term -> paper below 12, go to student affairs",
+      r["cases"][0]["applies"] and r["paper_needed"] and "شئون الطلاب" in r["cases"][0]["explanation"], r)
 del d.students()["test-low"], d.students()["test-last"]
 
 # project allowance: projects 1 and 2 up to 4 hours short on paper, project 3 up to 6

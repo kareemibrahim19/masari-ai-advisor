@@ -523,6 +523,9 @@ def registration_eligibility(student_id: str, course_code: str, term_type: str =
 # 3-credit courses. A student on warning stays at 12 with no paper option.
 PAPER_MAX_LOW_GPA = 15
 PAPER_COURSES, PAPER_COURSE_CREDITS = 5, 3
+# What the student does in every case that goes on paper.
+PAPER_STEPS = ("فإنت محتاج تسجل ورقي: روح لإدارة شئون الطلاب في الكلية واطلب استمارة التسجيل الورقي، "
+               "واملاها وسلّمها قبل آخر ميعاد للتسجيل.")
 # Project allowance: a project may be registered on paper with up to this many hours fewer than it requires.
 PROJECT_ALLOWANCE = {"ARI 381": 4, "ARI 481": 4, "ARI 482": 6}
 
@@ -584,8 +587,7 @@ def paper_registration(student_id: str, reason: str | None = None, requested_hou
 
     if reason in (None, "system_closed"):
         cases.append({"case": "system_closed", "applies": True,
-                      "explanation": "لو التسجيل قفل على السيستم قبل ما تسجل، بتسجل ورقي. "
-                                     "اسأل مرشدك الأكاديمي أو شئون الطلاب عن استمارة التسجيل الورقي وميعادها."})
+                      "explanation": "التسجيل قفل على السيستم قبل ما تسجل."})
 
     if reason in (None, "below_minimum"):
         last_term = hours_left < min_credits
@@ -609,9 +611,13 @@ def paper_registration(student_id: str, reason: str | None = None, requested_hou
 
     if not cases:
         return {"found": False, "error": f"سبب غير معروف: {reason}"}
+    for c in cases:  # every case that goes on paper ends with what the student has to do
+        if c["applies"]:
+            c["explanation"] += " " + PAPER_STEPS
+    paper_needed = any(c["applies"] for c in cases if c["case"] != "system_closed") or reason == "system_closed"
     return {"found": True, "cumulative_gpa": cgpa, "on_warning": limit["on_warning"],
             "system_max_credits": limit["max_credits"], "min_credits": min_credits, "hours_to_graduation": hours_left,
-            "cases": cases, "paper_needed": any(c["applies"] for c in cases if c["case"] != "system_closed") or reason == "system_closed",
+            "cases": cases, "paper_needed": paper_needed, "how_ar": PAPER_STEPS if paper_needed else None,
             "article": ARTICLES["load"],
             "explanation": " ".join(c["explanation"] for c in cases)}
 
