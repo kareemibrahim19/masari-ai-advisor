@@ -184,8 +184,8 @@ check("no page open -> clear error", call_tool("add_course_to_schedule", {"cours
 
 # graduation plan: the chat gets the same answer as the plan page
 from tools.planner import build_graduation_plan  # noqa: E402
-r = call_tool("graduation_plan", {"target_years": 4.5}, EXC)
-page = build_graduation_plan(EXC, 4.5, True)
+r = call_tool("graduation_plan", {"target_years": 4}, EXC)
+page = build_graduation_plan(EXC, 4, True)
 check("chat plan = page plan (feasible, graduation)", r["possible"] == page["feasible"]
       and r["graduation"] == page["graduation_term"]["ar"], (r.get("possible"), r.get("graduation")))
 check("chat plan says why not", not r["possible"] and "ARI 381" in r["why_not"] and "ARI 482" in r["why_not"], r.get("why_not"))

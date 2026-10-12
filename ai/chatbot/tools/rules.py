@@ -473,6 +473,8 @@ def registration_eligibility(student_id: str, course_code: str, term_type: str =
             else "التدريب بيتسجل في الصيفي بس.", ARTICLES["training"])
     elif term == "summer":
         add("offered_this_term", True, "الصيفي متاح فيه المواد اللي الكلية بتفتحها، بحد أقصى 6 ساعات.")
+    elif c["type"] == "project":
+        add("offered_this_term", True, "المشاريع بتتسجل في الخريف أو الربيع، بالترتيب (مشروع 1 ثم 2 ثم 3).")
     elif sem is not None:
         ok = (sem % 2 == 1) == (term == "fall")
         add("offered_this_term", ok, f"المادة في الترم {sem} من الخطة، وده ترم {'خريف' if sem % 2 else 'ربيع'}"

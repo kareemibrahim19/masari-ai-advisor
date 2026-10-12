@@ -173,13 +173,13 @@ def _options(course: dict, term: dict, planned: int, last_main: int, allow_summe
         return "summer_on_demand"
     if kind == "training":
         return "college_request"
-    if kind == "elective":
+    if kind in ("elective", "project"):
+        # Electives run in both semesters; projects can be taken in fall or spring (in order, see
+        # rules.project_order), so a student with time can wait until the hours are complete.
         return "regular"
     in_term = (planned % 2 == 1) == (term["term"] == "fall")
     if in_term:
         return "regular"
-    if kind == "project":
-        return None
     return "graduation_request" if request and term["main"] == last_main else None
 
 

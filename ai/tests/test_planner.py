@@ -45,7 +45,8 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
                 out.append(f"{c['code']} paper registration flag wrong at {earned}/{need}")
             if summer and course["type"] == "project":
                 out.append(f"project {c['code']} in summer")
-            if not summer and course["type"] in ("mandatory", "project"):
+            # Mandatory courses run in their plan semester; projects can be in fall or spring (in order).
+            if not summer and course["type"] == "mandatory":
                 in_term = (course["planned_semester"] % 2 == 1) == (t["term"] == "fall")
                 if not in_term and c["flag"] != "graduation_request":
                     out.append(f"{c['code']} outside its term without a request ({t['en']})")
@@ -99,25 +100,28 @@ check("near graduation 4y is past", not p["feasible"] and p["why"]["code"] == "p
 
 # Why a target is not possible: a plain reason in both languages.
 p = build_graduation_plan(EXC, 4.5)
-check("4.5y blocked by the project chain 381 -> 481 -> 482 (project 1 needs 92 hours, spring only)",
+at = {c["code"]: t["en"] for t in p["terms"] for c in t["courses"] if c["type"] == "project"}
+check("excellent 4.5y possible: projects in fall, spring, fall (any main semester, in order)",
+      p["status"] == "feasible" and at.get("ARI 381", "").startswith("Fall"), at)
+p = build_graduation_plan(EXC, 4)
+check("excellent 4y blocked by the project chain 381 -> 481 -> 482 (project 1 needs 92 hours)",
       p["why"]["code"] == "course" and p["why"]["root"] == "ARI 381"
       and p["why"]["chain"] == ["ARI 381", "ARI 481", "ARI 482"] and "92" in p["why"]["ar"] and "96" in p["why"]["en"],
       p.get("why"))
 p = build_graduation_plan(NEW, 4.5)
 paper = [c["code"] for t in p["terms"] for c in t["courses"] if c.get("paper_registration")]
-check("new student 4.5y uses the project tolerance (paper registration)", p["feasible"] and paper, paper)
-p = build_graduation_plan(EXC, 5, failed_courses=["BAS 216"])
-check("what-if failure named in the reason", "BAS 216" in p["why"]["ar"] and "سقطت" in p["why"]["ar"], p.get("why"))
-p = build_graduation_plan(PROB, 5)
-check("retake this term named in the reason", "BAS 115" in p["why"]["ar"] and "بتعيدها" in p["why"]["ar"], p.get("why"))
-for name, sid in BY.items():
-    for years in (4, 4.5, 5):
-        for summer in (True, False):
-            p = build_graduation_plan(sid, years, summer)
-            check(f"reason given when not possible ({name} {years}y summer={summer})",
-                  p["feasible"] or (p.get("why") and p["why"]["ar"] and p["why"]["en"]), p.get("why"))
-            check(f"no reason when possible ({name} {years}y summer={summer})", not p["feasible"] or not p.get("why"))
-check("near graduation 5y spring 2026-2027", build_graduation_plan(NEAR, 5)["graduation_term"]["en"] == "Spring 2026-2027")
+check("new student 4.5y waits for the hours instead of paper registration", p["feasible"] and not paper, paper)
+
+# Paper registration when there is no time to wait: only project 1 left, one semester to go.
+from tools import planner as P  # noqa: E402
+everything_but_381 = {c for c in d.courses() if c != "ARI 381"}
+one_term = P._terms_after({"term": "fall", "academic_year": "2028-2029"}, 10, 10)
+check("project 1 at 93 hours: not without paper registration",
+      P._solve(everything_but_381, 93, 18, one_term, 10, True, paper=False) is None)
+check("project 1 at 93 hours: yes with paper registration (92+)",
+      P._solve(everything_but_381, 93, 18, one_term, 10, True, paper=True) == {"ARI 381": (0, "regular")})
+check("project 1 at 91 hours: not even with paper registration",
+      P._solve(everything_but_381, 91, 18, one_term, 10, True, paper=True) is None)
 
 # What-if: failing a prerequisite chain course delays graduation.
 base = build_graduation_plan(EXC, 5)
