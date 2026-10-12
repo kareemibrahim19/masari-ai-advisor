@@ -32,6 +32,16 @@ def students() -> dict[str, dict]:
 
 
 @lru_cache(maxsize=1)
+def advisors() -> dict[str, dict]:
+    """Mock academic advisors (advisors.json), keyed by the student id they advise."""
+    return {sid: a for a in _load("advisors.json")["advisors"] for sid in a["students"]}
+
+
+def advisor_of(student_id: str | None) -> dict | None:
+    return advisors().get(student_id) if student_id else None
+
+
+@lru_cache(maxsize=1)
 def instructor_data() -> dict:
     return _load("instructors.json")
 

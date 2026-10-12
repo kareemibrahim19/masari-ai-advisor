@@ -5,8 +5,16 @@
  */
 import type { L } from "@/lib/i18n"
 
-export const loadTable: { range: L; max: number; min?: number; maxGpa?: number }[] = [
-  { range: { ar: "المعدل < 2.00", en: "GPA < 2.00" }, max: 14, maxGpa: 2 },
+export const loadTable: { range: L; max: number; min?: number; maxGpa?: number; note?: L }[] = [
+  {
+    range: { ar: "المعدل < 2.00", en: "GPA < 2.00" },
+    max: 14,
+    maxGpa: 2,
+    note: {
+      ar: "ممكن يوصل 15 ساعة بالتسجيل الورقي لو هيسجل 5 مواد كل مادة 3 ساعات.",
+      en: "Up to 15 credits by paper registration when taking 5 courses of 3 credits each.",
+    },
+  },
   { range: { ar: "2.00 ≤ المعدل < 3.00", en: "2.00 ≤ GPA < 3.00" }, max: 18, min: 2, maxGpa: 3 },
   { range: { ar: "المعدل ≥ 3.00", en: "GPA ≥ 3.00" }, max: 21, min: 3 },
 ]
@@ -63,10 +71,6 @@ export const ruleSections: RuleSection[] = [
       { ar: "الحد الأدنى 12 ساعة في الخريف والربيع، إلا في ترم التخرج أو بموافقة المجلس.", en: "Minimum 12 credits in Fall and Spring, except in the graduation semester or with council approval." },
       { ar: "الترم الصيفي: 3 مقررات بحد أقصى، ومشروعات التخرج مش بتتسجل فيه.", en: "Summer semester: at most 3 courses, and graduation projects cannot be registered." },
     ],
-    note: {
-      ar: "تعارض في المصدر: جدول العبء بيقول 14 ساعة لمعدل أقل من 2.00، لكن قسم الإنذار بيقول 12 ساعة للطالب تحت الملاحظة. محتاج تأكيد من اللائحة الرسمية.",
-      en: "Conflict in the source: the load table says 14 credits for GPA < 2.00, but the warning section caps students on probation at 12. Needs confirmation from the official bylaws.",
-    },
   },
   {
     id: "passing",

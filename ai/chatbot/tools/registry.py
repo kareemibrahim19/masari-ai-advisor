@@ -4,6 +4,7 @@
 filled in automatically, so the model never has to guess it.
 """
 
+from . import advisor
 from . import instructors as ins
 from . import planner
 from . import rules
@@ -58,6 +59,17 @@ TOOLS = [
         "term_type": {"type": "string", "enum": ["current", "fall", "spring", "summer"],
                       "description": "current = الترم الحالي (الافتراضي)."}},
        ["student_id", "course_code"], rules.registration_eligibility, True),
+    _t("paper_registration", "التسجيل الورقي: إمتى الطالب بيسجل ورقي بدل السيستم. (1) معدله أقل من 2.00 ومش تحت الإنذار وعايز 15 ساعة "
+       "(5 مواد كل مادة 3 ساعات) والسيستم حده 14، (2) التسجيل قفل على السيستم، (3) هيسجل أقل من 12 ساعة لأنه آخر ترم للتخرج، "
+       "(4) سماحية المشاريع: مشروع 1 أو 2 بساعات ناقصة لحد 4، ومشروع 3 لحد 6. "
+       "نادِها لما الطالب يسأل عن التسجيل الورقي، أو يقول السيستم قفل، أو عايز يزود عن حده ومعدله أقل من 2، أو عايز أقل من 12، أو عايز يسجل مشروع وساعاته ناقصة.",
+       {**_STUDENT,
+        "reason": {"type": "string", "enum": ["more_hours", "system_closed", "below_minimum", "project_allowance"],
+                   "description": "more_hours = عايز ساعات أكتر، system_closed = التسجيل قفل، below_minimum = أقل من 12، "
+                                  "project_allowance = مشروع وساعاته ناقصة. سيبه فاضي لو مش واضح."},
+        "course_code": {"type": "string", "description": "كود المشروع لـ project_allowance (ARI 381 أو ARI 481 أو ARI 482). اختياري."},
+        "requested_hours": {"type": "number", "description": "عدد الساعات اللي الطالب عايزه لو قاله. اختياري."}},
+       ["student_id"], rules.paper_registration, True),
     # ---- instructor tools
     _t("who_teaches", "مين الدكاترة والشعب اللي بيدرّسوا مادة معينة.",
        {"course_code": _COURSE, "term": {"type": "string", "enum": ["fall", "spring"]}},
@@ -104,6 +116,28 @@ TOOLS += [
         "target_years": {"type": "number", "enum": [4, 4.5, 5], "description": "الهدف بالسنين لو الطالب ذكره. اختياري."},
         "allow_summer": {"type": "boolean", "description": "الطالب يقدر يحضر صيفي؟ اختياري (الافتراضي: اختياره في صفحة الخطة)."}},
        ["student_id"], planner.graduation_plan, True),
+]
+
+TOOLS += [
+    # ---- academic advisor: cases only a real advisor can settle, and a ready email to send them
+    _t("contact_advisor", "الحالة محتاجة مرشد أكاديمي حقيقي ومساري مش هيقدر يحلها: بترجع سبب التحويل والمطلوب إرفاقه وإيميل جاهز "
+       "يبعته الطالب لمرشده. نادِها لما: فات ميعاد التسجيل والسيستم قفل (مش مجرد إنه معلّق)، المادة العدد فيها اكتمل، "
+       "مشروع التخرج متسجلش، الطالب عايز ساعات أكتر أو أقل من الحد، استثناء من متطلب سابق، حذف أو انسحاب (محتاج موافقة المرشد)، "
+       "تعارض مواعيد، مادة محتاجها مش مفتوحة، مادة مش مفتوحة في برنامجه ويسأل لو مفتوحة في قسم تاني يسجلها بالتشابه، "
+       "خطة التخرج بالهدف ده مش ممكنة، إنذار أو خطر فصل، غياب أو امتحان بعذر، "
+       "تظلم من درجة أو خطأ في السجل، معادلة أو تحويل، إيقاف قيد أو ظروف شخصية، مشكلة في التدريب، "
+       "أو سؤال ملوش إجابة في اللائحة ولا الأدوات. أول مرة نادِها من غير confirmed: هترجع try_first وأسئلة، فاسأل الطالب واعرض عليه تساعده الأول. لو رجّعت needs_info أو try_first اسأل الطالب ask_ar ومتكتبش إيميل.",
+       {"case": {"type": "string", "enum": list(advisor.CASES), "description": "نوع الحالة. other لو مفيش نوع مناسب."},
+        "details": {"type": "string", "description": "تفاصيل مشكلة الطالب بالعربي الفصيح المختصر وبصيغة المتكلم كأن الطالب هو اللي بيكتب (زي: حاولت التسجيل...، مش: الطالب حاول). هتتحط في الإيميل كما هي."},
+        "course_code": {"type": "string", "description": "كود المادة لو الحالة عن مادة معينة. اختياري."},
+        "language": {"type": "string", "enum": ["ar", "en"], "description": "لغة الإيميل: en لو الطالب بيكتب إنجليزي، غير كده ar."},
+        "reason": {"type": "string", "enum": list(advisor.LOAD_REASONS),
+                   "description": "لـ load_exception بس: سبب تغيير الساعات زي ما الطالب قاله. متخمّنهوش؛ لو مقالوش سيبه فاضي والأداة هترجع سؤال."},
+        "requested_hours": {"type": "number", "description": "لـ load_exception بس: عدد الساعات اللي الطالب عايزه. متخمّنهوش."},
+        "confirmed": {"type": "boolean", "description": "true بس بعد ما الطالب ادّى التفاصيل ومساري ملقاش حل بأدواته، أو الطالب طلب الإيميل صراحة."},
+        **_STUDENT}, ["case"], advisor.contact_advisor, True),
+    _t("my_advisor", "مين المرشد الأكاديمي بتاع الطالب: اسمه وإيميله ومكتبه وساعاته المكتبية.",
+       _STUDENT, ["student_id"], advisor.my_advisor, True),
 ]
 
 _BY_NAME = {t["name"]: t for t in TOOLS}

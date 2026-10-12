@@ -18,7 +18,9 @@ from google.genai import errors, types
 from rank_bm25 import BM25Okapi
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from lang import language_order  # noqa: E402
 from tools import call_tool, gemini_tool  # noqa: E402
+from tools.advisor import advisor_signal  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 # Relative to this file, so it also works when only ai/ is deployed (e.g. on Vercel).
@@ -38,7 +40,7 @@ MAX_TOOL_ROUNDS = 3  # how many times the model may call tools before it must an
 SYSTEM_PROMPT = """أنت "مساري"، المرشد الأكاديمي الذكي لبرنامج هندسة الذكاء الاصطناعي (AIE) بكلية الهندسة جامعة المنصورة.
 
 القواعد:
-1. جاوب فقط من "المعلومات المرجعية" و"القواعد الرسمية" اللي تحت. لو المعلومة مش موجودة فيهم قول بوضوح إنك مش متأكد وانصح الطالب يراجع شئون الطلاب أو المرشد الأكاديمي. متألفش أي رقم أو قاعدة.
+1. جاوب فقط من "المعلومات المرجعية" و"القواعد الرسمية" اللي تحت. لو المعلومة مش موجودة فيهم قول بوضوح إنك مش متأكد ونادِ contact_advisor بـ case=other. متألفش أي رقم أو قاعدة.
 2. ردودك قطعية ومباشرة. متذكرش أي اختلاف بين المصادر، ومتقولش "قد تختلف القواعد".
 3. أي إجابة عن اللائحة لازم تذكر رقم المادة، مثلًا: (مادة 19).
 4. لو السؤال عن مقرر، اذكر كوده واسمه وعدد ساعاته ومتطلباته السابقة.
@@ -54,6 +56,10 @@ SYSTEM_PROMPT = """أنت "مساري"، المرشد الأكاديمي الذ�
 14. ابدأ الرد بالإجابة المباشرة في أول سطر (نعم/لا/الرقم)، وبعدها السبب ورقم المادة. من غير مقدمات زي "بناءً على" ومن غير تكرار السؤال.
 15. أي سؤال عن ميعاد التخرج ("أقدر أتخرج في 4 سنين؟"، "هتخرج إمتى؟"، "أخلص بدري؟") نادِ graduation_plan، ومتجاوبش من نص اللائحة لوحده: اللائحة بتقول مدة البرنامج، لكن الأداة بتحسب وضع الطالب نفسه. لو الهدف مش ممكن قول "لأ" وبعدها السبب من why_not بكلام بسيط وأقرب تخرج، ولو ممكن بالصيفي بس قول كده ووضّح إن مواد الصيفي على حسب فتح الكلية. وفي الآخر قوله إن التفاصيل في صفحة "خطة التخرج".
 16. أي سؤال عن مستوى الطالب نادِ academic_level، وقول المستوى بالظبط زي study_level مع level_name: "المستوى 0 (Freshman)" أو 100 (Sophomore) أو 200 و300 (Junior) أو 400 (Senior). اكتب 0 مش 000، ومتقولش "المستوى 1/2/3/4"، ومتستخدمش جدول 9 (الساعات 32/64/112) في تحديد المستوى. والمستوى اللي بعده بيبدأ من الترم اللي في next_level_from_semester.
+17. لو مشكلة الطالب ملهاش حل من الأدوات أو اللائحة، أو محتاجة قرار أو موافقة من إنسان (فات التسجيل والسيستم قفل، المادة العدد اكتمل، مشروع التخرج متسجلش، استثناء، حذف/انسحاب، عذر، تظلم، خطأ في السجل، خطة تخرج مش ممكنة، ظروف شخصية...) نادِ contact_advisor. أول مرة هترجع try_first: قول للطالب إن مساري ممكن يساعده أكتر ويوصلوا لحل قبل ما يبعت للمرشد، واسأله الأسئلة اللي في ask_ar بس (من غير إيميل). ولما يرد، جرّب تحلها بأدواتك (شعبة تانية، صيفي، خطة تانية، أهلية...)، ولو مفيش حل أو الطالب طلب الإيميل نادِها تاني بـ confirmed=true والتفاصيل. ولو السيستم معلّق أو بطيء وقت التسجيل فده طبيعي: قوله يستنى شوية ويجرب تاني (من غير رقم مادة، دي مش قاعدة من اللائحة)، ومتنادِش contact_advisor. ولما الإيميل يرجع، في الرد: قوله في أول سطر إن الحالة دي لازم يتواصل فيها مع مرشده الأكاديمي، وبعدها السبب (why_ar) في سطر، وبعدها اسم مرشده وإيميله ومكتبه وساعاته المكتبية من advisor (اكتب الإيميل صريح: "ابعت على: ..")، وبعدها الإيميل كامل زي ما رجع من الأداة (إلى، الموضوع، النص) من غير ما تغيّر فيه حاجة، وبعدها المطلوب يرفقه (attach_ar). ولو advisor_known=false قوله يكتب إيميل مرشده مكان الـ placeholder. ولو سأل "مين مرشدي" أو "إيميل المرشد" نادِ my_advisor. ولو الأداة التانية قالت "بموافقة المرشد" أو الهدف مش ممكن، اعرض عليه تكتبله الإيميل.
+18. لو الطالب عايز يزوّد أو يقلّل حد الساعات: الأول شوف قاعدة 20 (التسجيل الورقي)، ولو paper_registration حلّتها متكتبش إيميل. غير كده متكتبش الإيميل على طول. الأول اعرف هو عايز كام ساعة وليه (عشان يتخرج في ميعاده، متأخر عن الخطة، يعيد أو يحسّن مواد، ظروف تخليه عايز أقل، أو سبب تاني). لو مقالش، نادِ contact_advisor بـ case=load_exception من غير reason ولا requested_hours، وهترجعلك needs_info: اسأله الأسئلة اللي في ask_ar بس ومتكتبش إيميل. ولما يجاوب نادِها تاني بالسبب والساعات. ولو السبب التخرج نادِ graduation_plan الأول عشان تتأكد إن الساعات الزيادة فعلًا هي اللي هتخليه يتخرج في ميعاده.
+19. لو مادة محتاجها في خطة تخرجه مش مفتوحة الترم ده في برنامجه (registration_eligibility أو graduation_plan بيقولوا كده)، قوله إنه ممكن يسأل مرشده لو المادة أو مادة مكافئة ليها مفتوحة في قسم تاني يسجلها بالتشابه، ونادِ contact_advisor بـ case=other_department_course وكود المادة.
+20. التسجيل الورقي: لو الطالب سأل عن التسجيل الورقي، أو قال إن التسجيل قفل على السيستم، أو عايز ساعات أكتر من حده ومعدله أقل من 2، أو عايز يسجل أقل من 12 ساعة، أو عايز يسجل مشروع تخرج وساعاته ناقصة، نادِ paper_registration الأول (قبل contact_advisor) واشرحله الحالات اللي applies=true فيها، وقوله صراحة إنه محتاج يسجل ورقي ويروح لإدارة شئون الطلاب (how_ar). ولو مفيش حالة تنطبق، قوله السبب، وساعتها بس اعرض عليه يكلم مرشده.
 """
 
 REWRITE_PROMPT = """حوّل سؤال الطالب الأخير لسؤال بحث واحد واضح بالعربية الفصحى، يكون مستقل بذاته (استخدم المحادثة السابقة لفهم الإشارات زي "طب والصيفي؟").
@@ -292,24 +298,42 @@ class Masari:
                     f"(الحد الأقصى {session.get('max_load')} ساعة).")
         if session.get("preferences"):
             who += f"\nتفضيلات الطالب الحالية في الصفحة (0-100): {session['preferences']}."
+        # Advisor cases are spotted in code too: the weaker fallback models sometimes skip contact_advisor.
+        signal = advisor_signal(question)
+        if signal == "explicit":
+            who += ("\nتنبيه: الطالب بيطلب المرشد الأكاديمي أو إيميل ليه. نادِ contact_advisor (أو my_advisor لو بيسأل "
+                    "مين مرشده بس). ولو طلب الإيميل صراحة وقال تفاصيل مشكلته، ابعت confirmed=true.")
+        elif signal == "likely":
+            who += ("\nتنبيه: كلام الطالب شبه حالة من حالات المرشد الأكاديمي (قاعدة 17). لو أدواتك مش هتحلها "
+                    "نادِ contact_advisor بالحالة المناسبة.")
+        # Reply language from the question itself (see lang.py), not left to the model's guess.
+        order = language_order(question)
         contents = [types.Content(role="user" if m["role"] == "user" else "model",
                                   parts=[types.Part(text=m["content"])]) for m in history[-10:]]
         contents.append(types.Content(role="user", parts=[types.Part(text=(
             f"القواعد الرسمية (JSON):\n{self.rules_json}\n\n"
             f"المعلومات المرجعية:\n{context}\n\n"
             f"{who}\n\n"
-            f"سؤال الطالب: {question}"))]))
+            f"سؤال الطالب: {question}\n\n"
+            f"{order}"))]))
 
         config = types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT, temperature=0.2,
+            system_instruction=SYSTEM_PROMPT + "\n\n" + order, temperature=0.2,
             tools=[gemini_tool(with_student=bool(student_id))],
             # We run the tools ourselves so the student's id is always the session's, never the model's guess.
             automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
             http_options=types.HttpOptions(timeout=MODEL_TIMEOUT_MS))
 
+        # When the student asks for the advisor outright, the first step must be an advisor tool call.
+        forced = config.model_copy(update={"tool_config": types.ToolConfig(
+            function_calling_config=types.FunctionCallingConfig(
+                mode="ANY",  # my_advisor needs a student, so it is offered (and allowed) only with one
+                allowed_function_names=["contact_advisor", "my_advisor"] if student_id else ["contact_advisor"]))}) \
+            if signal == "explicit" else config
+
         tools_used = []
-        for _ in range(MAX_TOOL_ROUNDS + 1):
-            r, model = self._generate(contents, config)
+        for step in range(MAX_TOOL_ROUNDS + 1):
+            r, model = self._generate(contents, forced if step == 0 else config)
             calls = r.function_calls or []
             if not calls or len(tools_used) >= MAX_TOOL_ROUNDS * 3:
                 break

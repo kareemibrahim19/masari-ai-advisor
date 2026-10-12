@@ -197,6 +197,109 @@ check("chat plan defaults to the page's choice", r["target_years"] == 5 and r["a
 r = call_tool("graduation_plan", {}, NEW)
 check("chat plan table has the three targets", [o["target_years"] for o in r["all_targets"]] == [4, 4.5, 5], r)
 
+# contact advisor: escalation email for cases the chatbot cannot settle
+r = call_tool("contact_advisor", {"case": "course_full", "course_code": "ari 381", "details": "اكتمل العدد.", "confirmed": True}, EXC)
+s = d.get_student(EXC)
+check("advisor email has the student's name, id and course",
+      s["personal"]["name_ar"] in r["email"]["body"] and EXC in r["email"]["subject"]
+      and "ARI 381" in r["email"]["body"] and "اكتمل العدد." in r["email"]["body"], r["email"])
+check("advisor email goes to the student's advisor", r["advisor_known"] and r["email"]["to"] == d.advisor_of(EXC)["email"]
+      and d.advisor_of(EXC)["name_ar"] in r["email"]["body"], r)
+check("advisor email is an action for the website", r["action"]["type"] == "advisor_email", r)
+check("every mock student has an advisor", all(d.advisor_of(sid) for sid in d.students()))
+r = call_tool("my_advisor", {}, PROB)
+check("my advisor: name, email, office hours", r["found"] and r["advisor"]["email"].endswith(".example")
+      and r["advisor"]["office_hours_ar"], r)
+r = call_tool("contact_advisor", {"case": "registration_missed", "language": "en", "confirmed": True}, None)
+check("advisor email without a student uses placeholders, English",
+      "[Your name]" in r["email"]["body"] and r["email"]["subject"].startswith("Request for late"), r["email"])
+check("unknown advisor case falls back to other", call_tool("contact_advisor", {"case": "xyz"})["case"] == "other")
+
+r = call_tool("contact_advisor", {"case": "course_full", "course_code": "CSE 351"}, EXC)
+check("first call offers help and asks details, no email", r.get("try_first") and r["ask_ar"] and "email" not in r, r)
+check("system_error case removed (a stuck system is normal at registration)",
+      call_tool("contact_advisor", {"case": "system_error", "confirmed": True}, EXC)["case"] == "other")
+
+# load exception: asks why and how many hours before writing the email
+r = call_tool("contact_advisor", {"case": "load_exception"}, NEAR)
+check("load exception asks the reason and hours first", r.get("needs_info") and "email" not in r
+      and set(r["missing"]) == {"reason", "requested_hours"}, r)
+r = call_tool("contact_advisor", {"case": "load_exception", "reason": "graduation", "requested_hours": 24, "confirmed": True}, NEAR)
+check("load exception email has hours, limit, reason and hours left",
+      "الساعات المطلوبة: 24" in r["email"]["body"] and "إلى 21" in r["email"]["body"]
+      and "الساعات المتبقية للتخرج: 26" in r["email"]["body"], r.get("email"))
+r = call_tool("contact_advisor", {"case": "other_department_course"}, EXC)
+check("other department case asks for the course", r.get("missing") == ["course_code"], r)
+r = call_tool("contact_advisor", {"case": "other_department_course", "course_code": "CSE 351", "confirmed": True}, EXC)
+check("other department email asks about an equivalent course", "قسم آخر" in r["email"]["body"]
+      and "CSE 351" in r["email"]["body"], r.get("email"))
+
+# advisor signal: spotting advisor cases in the student's words (helps the weaker fallback models)
+from tools.advisor import advisor_signal  # noqa: E402
+for q in ["اكتبلي الإيميل للمرشد", "عايز اكلم المرشد", "مين مرشدي؟", "ايميل المرشد بتاعي ايه", "send an email to my advisor"]:
+    check(f"explicit advisor request: {q}", advisor_signal(q) == "explicit", advisor_signal(q))
+for q in ["مادة CSE 351 العدد قفل", "نسيت اسجل المواد", "عايز ازود حد الساعات", "المادة مفتوحة في قسم تاني؟"]:
+    check(f"likely advisor case: {q}", advisor_signal(q) == "likely", advisor_signal(q))
+for q in ["اقدر اسجل كام ساعة؟", "معدلي كام؟", "مين بيدرس CSE 351؟", "السيستم معلق ومش عارف اسجل"]:
+    check(f"not an advisor case: {q}", advisor_signal(q) is None, advisor_signal(q))
+
+# paper registration: GPA below 2 (14 on the system, 15 on paper), system closed, last term below 12
+import copy  # noqa: E402
+r = call_tool("paper_registration", {"reason": "more_hours"}, PROB)
+check("paper: on warning stays at 12, no paper option", r["cases"][0]["applies"] is False and r["system_max_credits"] == 12, r)
+r = call_tool("paper_registration", {"reason": "more_hours"}, EXC)
+check("paper: GPA above 2 does not need paper for more hours", r["cases"][0]["applies"] is False, r)
+r = call_tool("paper_registration", {"reason": "system_closed"}, EXC)
+check("paper: system closed always goes on paper, and says to go to student affairs",
+      r["paper_needed"] and "شئون الطلاب" in r["cases"][0]["explanation"] and r["how_ar"], r)
+r = call_tool("paper_registration", {"reason": "more_hours"}, PROB)
+check("paper: no 'go to student affairs' when paper does not apply", "شئون الطلاب" not in r["explanation"] and not r["how_ar"], r)
+check("paper: 26 hours left is not the last term", not call_tool("paper_registration", {"reason": "below_minimum"}, NEAR)["cases"][0]["applies"])
+
+low = copy.deepcopy(d.students()[EXC])  # a GPA-below-2 student not yet on warning (first two terms)
+low["student_id"] = "test-low"
+low["academic_status"].update({"cumulative_gpa": 1.8, "main_semesters_completed": 1})
+last = copy.deepcopy(d.students()[NEAR])  # 8 hours left: the last term
+last["student_id"] = "test-last"
+last["academic_status"]["earned_hours"] = last["academic_status"]["required_hours"] - 8
+d.students().update({"test-low": low, "test-last": last})
+r = call_tool("paper_registration", {"reason": "more_hours"}, "test-low")
+check("paper: GPA 1.8 -> 14 on the system, 15 on paper with 5 courses of 3",
+      r["system_max_credits"] == 14 and r["cases"][0]["applies"] and "15" in r["cases"][0]["explanation"], r)
+check("paper: 14 requested fits the system", not call_tool("paper_registration", {"reason": "more_hours", "requested_hours": 14}, "test-low")["cases"][0]["applies"])
+check("paper: 16 requested is too many", "مينفعش" in call_tool("paper_registration", {"reason": "more_hours", "requested_hours": 16}, "test-low")["cases"][0]["explanation"])
+r = call_tool("paper_registration", {"reason": "below_minimum"}, "test-last")
+check("paper: 8 hours left in the last term -> paper below 12, go to student affairs",
+      r["cases"][0]["applies"] and r["paper_needed"] and "شئون الطلاب" in r["cases"][0]["explanation"], r)
+del d.students()["test-low"], d.students()["test-last"]
+
+# project allowance: projects 1 and 2 up to 4 hours short on paper, project 3 up to 6
+def _with_hours(base, sid, earned):
+    s = copy.deepcopy(d.students()[base])
+    s["student_id"] = sid
+    s["academic_status"]["earned_hours"] = earned
+    d.students()[sid] = s
+    return sid
+
+def _project(sid, code):
+    return call_tool("paper_registration", {"reason": "project_allowance", "course_code": code}, sid)["cases"][0]["projects"][0]
+
+check("project 1 (needs 96): 93 hours -> paper", _project(_with_hours(EXC, "t93", 93), "ARI 381")["status"] == "paper")
+check("project 1: 92 hours (4 short) -> paper", _project(_with_hours(EXC, "t92", 92), "ARI 381")["status"] == "paper")
+check("project 1: 91 hours (5 short) -> not yet", _project(_with_hours(EXC, "t91", 91), "ARI 381")["status"] == "not_yet")
+check("project 1: 96 hours -> system", _project(_with_hours(EXC, "t96", 96), "ARI 381")["status"] == "system")
+check("project 2 (needs 116): 112 -> paper, 111 -> not yet",
+      _project(_with_hours(EXC, "t112", 112), "ARI 481")["status"] == "paper"
+      and _project(_with_hours(EXC, "t111", 111), "ARI 481")["status"] == "not_yet")
+check("project 3 (needs 130): 124 -> paper, 123 -> not yet",
+      _project(_with_hours(EXC, "t124", 124), "ARI 482")["status"] == "paper"
+      and _project(_with_hours(EXC, "t123", 123), "ARI 482")["status"] == "not_yet")
+check("project allowance only for projects", _project(EXC, "CSE 351")["status"] == "not_project")
+r = call_tool("registration_eligibility", {"course_code": "ARI 381"}, "t93")
+check("eligibility mentions the project allowance", any("سماحية المشاريع" in c["detail"] for c in r["checks"]), r.get("checks"))
+for sid in ("t93", "t92", "t91", "t96", "t112", "t111", "t124", "t123"):
+    del d.students()[sid]
+
 # registry: every tool callable, session student overrides the model's
 check("tool names unique", len({t["name"] for t in TOOLS}) == len(TOOLS))
 check("student id injected", call_tool("academic_level", {"student_id": "wrong"}, EXC)["found"])
