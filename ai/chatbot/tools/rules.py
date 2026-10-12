@@ -263,7 +263,7 @@ def course_info(query: str, student_id: str | None = None) -> dict:
     c = d.find_course(query)
     if not c:
         return d.not_found("المادة", query)
-    prereqs = [d.course_label(p) for p in c["prerequisites"]]
+    prereqs = [d.course_label(p) for p in d.prereqs(c)]
     pools = [p["level"] for p in d.program().get("elective_pools", []) if c["code"] in p["courses"]]
     out = {"found": True, "code": c["code"], "name_ar": c["name_ar"], "name_en": c.get("name_en"),
            "credits": c["credits"], "type": c["type"], "category": c["category"], "department": c["department"],
@@ -290,12 +290,12 @@ def course_unlocks(course_code: str) -> dict:
     if not c:
         return d.not_found("المادة", course_code)
     allc = d.courses()
-    direct = [x["code"] for x in allc.values() if c["code"] in x["prerequisites"]]
+    direct = [x["code"] for x in allc.values() if c["code"] in d.prereqs(x)]
     seen, frontier = set(direct), list(direct)
     while frontier:
         cur = frontier.pop()
         for x in allc.values():
-            if cur in x["prerequisites"] and x["code"] not in seen:
+            if cur in d.prereqs(x) and x["code"] not in seen:
                 seen.add(x["code"])
                 frontier.append(x["code"])
     indirect = sorted(seen - set(direct))
@@ -481,15 +481,15 @@ def registration_eligibility(student_id: str, course_code: str, term_type: str =
         add("projects_not_in_summer", False, "المشاريع مينفعش تتسجل في الصيفي.", ARTICLES["project"])
 
     # Prerequisites (passed with at least a D) and the exception of article 19.
-    missing = [p for p in c["prerequisites"] if not d.passed(best.get(p))]
+    missing = [p for p in d.prereqs(c) if not d.passed(best.get(p))]
     if missing:
         failed_before = [p for p in missing if best.get(p) and best[p]["grade"] == "F"]
         detail = "ناقصه المتطلبات: " + "، ".join(d.course_label(p) for p in missing)
         if failed_before and st["level"] >= 4:
             detail += " (مستوى رابع وساقط فيها، فممكن يسجلها بالتزامن بموافقة المجلس الأكاديمي — مادة 19)."
         add("prerequisites", False, detail, ARTICLES["concurrent"] if failed_before else None)
-    elif c["prerequisites"]:
-        add("prerequisites", True, "ناجح في كل المتطلبات السابقة: " + "، ".join(c["prerequisites"]))
+    elif d.prereqs(c):
+        add("prerequisites", True, "ناجح في كل المتطلبات السابقة: " + "، ".join(d.prereqs(c)))
     else:
         add("prerequisites", True, "مفيش متطلبات سابقة.")
 

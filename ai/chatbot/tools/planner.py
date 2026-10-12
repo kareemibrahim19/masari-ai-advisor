@@ -267,7 +267,7 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
 
     # Prerequisites: a course only after each unpassed prerequisite, in an earlier term.
     for k, (ii, ti, _) in enumerate(var):
-        for pre in allc[code_of[ii]]["prerequisites"]:
+        for pre in d.prereqs(allc[code_of[ii]]):
             if pre in passed:
                 continue
             if pre not in item_of:
@@ -378,7 +378,7 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
         memo[code] = (None, ("cycle",))
         c = allc[code]
         lower, held_by = 0, None
-        for p in c["prerequisites"]:
+        for p in d.prereqs(c):
             if p in passed:
                 continue
             pi, _ = earliest(p)
@@ -422,7 +422,7 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
         ri, rcause = earliest(root)
         when = lambda k: _short(terms[k]) if k is not None else {"ar": "بعد الحد الأقصى للدراسة", "en": "after the study limit"}
         ar, en = [], []
-        for p in allc[root]["prerequisites"]:
+        for p in d.prereqs(allc[root]):
             if p in retaking:
                 ar.append(f"إنت سقطت في {_name(p)['ar']} قبل كده وبتعيدها الترم ده، فاللي بعدها اتأخر.")
                 en.append(f"You failed {_name(p)['en']} before and are retaking it this semester, so what follows it is delayed.")

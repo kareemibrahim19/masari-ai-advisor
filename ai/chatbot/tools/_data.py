@@ -99,6 +99,13 @@ def current_courses(student: dict) -> list[dict]:
     return []
 
 
+def prereqs(course: dict) -> list[str]:
+    """Prerequisites, plus the project before this one (project 1 -> 2 -> 3, one project per semester)."""
+    order = rules().get("project_order", {}).get("courses", [])
+    extra = [order[order.index(course["code"]) - 1]] if course["code"] in order[1:] else []
+    return list(dict.fromkeys(course["prerequisites"] + extra))
+
+
 def hours_needed(course: dict) -> tuple[int, int]:
     """(hours the course asks for, the fewest it can be registered with). Projects can be registered a few
     hours short (4 for ARI 381 / 481, 6 for ARI 482) by paper registration at the faculty."""

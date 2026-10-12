@@ -626,6 +626,7 @@ function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined;
           · {num(c.credits)} {t("creditsShort")}
         </span>
         {flag && <span className={cn("rounded px-1.5 py-px font-medium", flag.cls)}>{t(flag.key)}</span>}
+        {c.type === "project" && <span className="rounded bg-muted px-1.5 py-px font-medium text-muted-foreground">{t("graduationProject")}</span>}
         {c.paper_registration && (
           <span className={cn("rounded px-1.5 py-px font-medium tabular-nums", paperStyle)}>
             {t("paperRegistration")}

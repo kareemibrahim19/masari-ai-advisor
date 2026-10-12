@@ -35,7 +35,7 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
         summer = t["term"] == "summer"
         for c in t["courses"]:
             course = allc[c["code"]]
-            for p in course["prerequisites"]:
+            for p in d.prereqs(course):
                 if p not in seen:
                     out.append(f"{c['code']} before its prerequisite {p} ({t['en']})")
             need, least = d.hours_needed(course)
@@ -99,9 +99,10 @@ check("near graduation 4y is past", not p["feasible"] and p["why"]["code"] == "p
 
 # Why a target is not possible: a plain reason in both languages.
 p = build_graduation_plan(EXC, 4.5)
-check("4.5y blocked by ARI 481: 109 hours, below even the 112 of paper registration", p["why"]["code"] == "course"
-      and p["why"]["root"] == "ARI 481" and "116" in p["why"]["ar"] and "112" in p["why"]["ar"] and "109" in p["why"]["ar"]
-      and "116" in p["why"]["en"], p.get("why"))
+check("4.5y blocked by the project chain 381 -> 481 -> 482 (project 1 needs 92 hours, spring only)",
+      p["why"]["code"] == "course" and p["why"]["root"] == "ARI 381"
+      and p["why"]["chain"] == ["ARI 381", "ARI 481", "ARI 482"] and "92" in p["why"]["ar"] and "96" in p["why"]["en"],
+      p.get("why"))
 p = build_graduation_plan(NEW, 4.5)
 paper = [c["code"] for t in p["terms"] for c in t["courses"] if c.get("paper_registration")]
 check("new student 4.5y uses the project tolerance (paper registration)", p["feasible"] and paper, paper)
@@ -154,6 +155,15 @@ for name, sid in BY.items():
             p = build_graduation_plan(sid, years, summer)
             ok = (p["status"] == "feasible") == p["feasible"] and (p["status"] != "conditional" or p["conditions"])
             check(f"status consistent ({name} {years}y summer={summer})", ok, p.get("status"))
+
+# Projects: 1 before 2 before 3, never two in the same semester.
+for name, sid in BY.items():
+    for years in (4, 4.5, 5):
+        for summer in (True, False):
+            p = build_graduation_plan(sid, years, summer)
+            at = {c["code"]: i for i, t in enumerate(p.get("terms", [])) for c in t["courses"]}
+            seq = [at[c] for c in ("ARI 381", "ARI 481", "ARI 482") if c in at]
+            check(f"projects in order, one per semester ({name} {years}y summer={summer})", seq == sorted(set(seq)), at)
 
 # Options table
 o = plan_options(NEW)

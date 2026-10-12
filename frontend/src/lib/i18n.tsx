@@ -254,6 +254,7 @@ const dict = {
     en: "Not this course's semester, but the college opens it for a student who needs it to graduate this semester.",
   },
   paperRegistration: { ar: "تسجيل ورقي", en: "Paper registration" },
+  graduationProject: { ar: "مشروع تخرج", en: "Graduation project" },
   paperRegistrationHint: {
     ar: "مشروع ساعاتك فيه أقل من المطلوب بس جوه السماحية (4 ساعات لمشروع 1 و2، و6 لمشروع 3)، فبيتسجّل ورقي في الكلية.",
     en: "A project you are a few hours short for, within the tolerance (4 hours for projects 1 and 2, 6 for project 3): it is registered on paper at the faculty.",
