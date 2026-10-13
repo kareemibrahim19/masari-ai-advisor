@@ -331,3 +331,15 @@ class ChatMessageRow(Base):
     position: Mapped[int] = mapped_column(primary_key=True)
     role: Mapped[str] = mapped_column(String(16))  # user / assistant
     message: Mapped[dict] = mapped_column(JSON)
+
+
+# ------------------------------------------------------------------------------------------------ accounts
+
+class Account(Base):
+    """A student's sign-in password, kept only as a salted hash (see db/accounts.py). Like the chats it is not a
+    foreign key to students and is never dropped by seed --reset, so passwords survive reloading the data."""
+    __tablename__ = "accounts"
+
+    student_id: Mapped[str] = mapped_column(String(16), primary_key=True)
+    password_hash: Mapped[str] = mapped_column(String(256))
+    updated_at: Mapped[datetime] = mapped_column(DateTime)  # UTC, when the password was last set
