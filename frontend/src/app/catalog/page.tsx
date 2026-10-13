@@ -485,7 +485,12 @@ function ElectiveOptions({ group, chosen, onPick }: { group: "L300" | "L400"; ch
 
 function Regulations() {
   const { t, tr, num } = useI18n()
-  const { record } = useStudentView()
+  const { record, student } = useStudentView()
+  // "Your limit" marks a row only when it is the student's real limit: a student on academic warning (12) or in
+  // the first term (18, no GPA yet) has no row in the GPA table, so their limit is shown under it instead.
+  const isMine = (row: (typeof loadTable)[number]) =>
+    row.max === student.maxLoad && record.gpa !== null && record.gpa >= (row.min ?? -Infinity) && record.gpa < (row.maxGpa ?? Infinity)
+  const limitInTable = loadTable.some(isMine)
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
       <Card>
@@ -499,7 +504,7 @@ function Regulations() {
           <table className="w-full text-sm">
             <tbody className="divide-y">
               {loadTable.map((row) => {
-                const mine = record.gpa !== null && record.gpa >= (row.min ?? -Infinity) && record.gpa < (row.maxGpa ?? Infinity)
+                const mine = isMine(row)
                 return (
                   <tr key={row.max} className={cn(mine && "bg-primary/8")}>
                     <td className="px-3 py-2.5">
@@ -515,6 +520,12 @@ function Regulations() {
               })}
             </tbody>
           </table>
+          {!limitInTable && (
+            <p className="flex flex-wrap items-center gap-2 rounded-lg bg-primary/8 px-3 py-2.5 text-sm">
+              <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground">{t("yourLimit")}</span>
+              {tr(student.maxLoadRule)}
+            </p>
+          )}
           <ul className="list-disc space-y-1.5 ps-5 text-sm leading-relaxed">
             {ruleSections[0].items.map((i) => (
               <li key={i.en}>{tr(i)}</li>
