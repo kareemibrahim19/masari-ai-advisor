@@ -34,7 +34,17 @@ jobs:
           cache: pip
           cache-dependency-path: ai/requirements.txt
       - run: pip install -r ai/requirements.txt
-      - run: python -m compileall -q ai/app.py ai/chatbot
+      - run: python -m compileall -q ai/app.py ai/chatbot ai/db
+      - name: Database round-trip (in-memory SQLite, no server needed)
+        run: python ai/tests/test_db.py
+      - name: Tools (rules, advisor, instructors) on the six mock students
+        run: python ai/tests/test_tools.py
+      - name: Graduation planner, re-checked against the regulations
+        run: python ai/tests/test_planner.py
+      - name: Saved recent chats (database + API)
+        run: |
+          pip install httpx
+          python ai/tests/test_chats.py
 
   # After a merge to main passes the checks above, publish both parts to Vercel
   # (live site: https://masari-web-sigma.vercel.app, AI service: https://masari-ai-pink.vercel.app).
