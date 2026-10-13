@@ -18,7 +18,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import students  # noqa: E402
+import auth  # noqa: E402  (only the signed-in student's own chats, once MASARI_REQUIRE_AUTH is on)
 from db import chats as store  # noqa: E402
 from db.database import SessionLocal  # noqa: E402
 
@@ -29,12 +29,6 @@ _tables_ready = set()  # databases whose chat tables are known to exist
 def get_session():
     with SessionLocal() as s:
         yield s
-
-
-def known_student(student_id: str) -> str:
-    if not students.get_student(student_id):
-        raise HTTPException(404, "Student not found")
-    return student_id
 
 
 def _run(s: Session, work: Callable[[], object]):
@@ -59,12 +53,12 @@ class ChatBody(BaseModel):
 
 
 @router.get("/api/students/{student_id}/chats")
-def list_chats(student_id: str = Depends(known_student), s: Session = Depends(get_session)):
+def list_chats(student_id: str = Depends(auth.own_student), s: Session = Depends(get_session)):
     return {"chats": _run(s, lambda: store.list_chats(s, student_id))}
 
 
 @router.put("/api/students/{student_id}/chats/{chat_id}")
-def save_chat(body: ChatBody, chat_id: str, student_id: str = Depends(known_student),
+def save_chat(body: ChatBody, chat_id: str, student_id: str = Depends(auth.own_student),
               s: Session = Depends(get_session)):
     if len(chat_id) > 64:
         raise HTTPException(400, "Bad chat id")
@@ -76,7 +70,7 @@ def save_chat(body: ChatBody, chat_id: str, student_id: str = Depends(known_stud
 
 
 @router.delete("/api/students/{student_id}/chats/{chat_id}")
-def delete_chat(chat_id: str, student_id: str = Depends(known_student), s: Session = Depends(get_session)):
+def delete_chat(chat_id: str, student_id: str = Depends(auth.own_student), s: Session = Depends(get_session)):
     if not _run(s, lambda: store.delete_chat(s, student_id, chat_id)):
         raise HTTPException(404, "Chat not found")
     return {"deleted": chat_id}

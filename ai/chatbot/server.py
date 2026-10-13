@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 import uvicorn
-from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from google.genai import errors
@@ -21,6 +21,8 @@ from rag import Masari  # noqa: E402  (also loads .env)
 import stt  # noqa: E402
 import students  # noqa: E402
 import chat_history  # noqa: E402
+import auth  # noqa: E402
+import security  # noqa: E402
 from db import source as data_source  # noqa: E402  (students.py put ai/ on the path)
 from tools.planner import build_graduation_plan, plan_options  # noqa: E402
 from tools import call_tool, tool_names  # noqa: E402
@@ -41,10 +43,24 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=list(dict.fromkeys(KNOWN_ORIGINS + EXTRA_ORIGINS)),
     allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "Authorization"],
 )
+app.include_router(auth.router)  # password sign-in; auth.check() keeps each student's data to that student
 app.include_router(chat_history.router)  # recent chats saved per student (database)
 bot = Masari()  # builds / loads the search index once at startup
+
+# Every chat question and recording costs a model call, so one student (or one address) gets a fair share.
+# Change with MASARI_CHAT_PER_MINUTE / MASARI_CHAT_PER_DAY.
+chat_per_minute = security.RateLimiter(int(os.getenv("MASARI_CHAT_PER_MINUTE", "10")), 60)
+chat_per_day = security.RateLimiter(int(os.getenv("MASARI_CHAT_PER_DAY", "200")), 24 * 3600)
+
+
+def limit_model_calls(request: Request, student_id: str | None) -> None:
+    key = auth.signed_in(request) or student_id or auth.client_address(request)
+    for limiter in (chat_per_minute, chat_per_day):
+        if wait := limiter.hit(key):
+            raise HTTPException(429, "أسئلة كتير ورا بعض، استنى دقيقة وجرّب تاني.",
+                                headers={"Retry-After": str(int(wait) + 1)})
 
 
 class Message(BaseModel):
@@ -69,9 +85,11 @@ class ChatRequest(BaseModel):
 
 
 @app.post("/api/chat")
-def chat(req: ChatRequest):
+def chat(req: ChatRequest, request: Request):
+    auth.check(request, req.student_id)
     if not req.question.strip():
         raise HTTPException(400, "Empty question")
+    limit_model_calls(request, req.student_id)
     if req.student_id and not students.get_student(req.student_id):
         raise HTTPException(404, "Student not found")
     try:
@@ -95,9 +113,10 @@ class PlanRequest(BaseModel):
 
 
 @app.post("/api/plan")
-def plan(req: PlanRequest):
+def plan(req: PlanRequest, request: Request):
     """Graduation plan for the plan page: the plan, the plan without the what-if (to compare), and which
     targets are reachable with / without summer."""
+    auth.check(request, req.student_id)
     result = build_graduation_plan(req.student_id, req.target_years, req.allow_summer,
                                    req.failed_courses, req.expected_term_gpa)
     if not result.get("found"):
@@ -114,8 +133,10 @@ MAX_AUDIO_BYTES =10 * 1024 * 1024  # ~10 minutes of compressed speech
 
 
 @app.post("/api/transcribe")
-async def transcribe(audio: UploadFile = File(...), language: str | None = Form(None)):
+async def transcribe(request: Request, audio: UploadFile = File(...), language: str | None = Form(None)):
     """Speech-to-text for the chat microphone (Whisper). Returns {"text": "..."}."""
+    auth.check(request)
+    limit_model_calls(request, None)
     data = await audio.read()
     if len(data) > MAX_AUDIO_BYTES:
         raise HTTPException(413, "Recording is too long")
@@ -127,19 +148,24 @@ async def transcribe(audio: UploadFile = File(...), language: str | None = Form(
 
 @app.get("/api/health")
 def health():
-    """Quick check after a deploy: is the service up, and does it read students from the database or the files?"""
-    return {"ok": True, "data_source": data_source.active()}
+    """Quick check after a deploy: is the service up, does it read students from the database or the files, and
+    is the sign-in protection on?"""
+    return {"ok": True, "data_source": data_source.active(), "auth_required": auth.required()}
 
 
 @app.get("/api/students")
 def list_students():
-    """Mock students for the frontend's "choose a student" screen (one card per student)."""
+    """Mock students for the frontend's "choose a student" screen (one card per student). Not offered once the
+    sign-in protection is on: it would show every student to anyone."""
+    if auth.required():
+        raise HTTPException(404, "Not found")
     return {"students": students.list_students()}
 
 
 @app.get("/api/students/{student_id}")
-def get_student(student_id: str):
+def get_student(student_id: str, request: Request):
     """Full record of one student: personal, contact, guardian, qualification, academic status, all terms."""
+    auth.check(request, student_id)
     s = students.get_student(student_id)
     if not s:
         raise HTTPException(404, "Student not found")
@@ -153,7 +179,7 @@ def instructor_courses():
 
 
 @app.get("/api/instructors/recommend")
-def recommend_instructors(course_code: str, student_id: str, pace: float | None = None,
+def recommend_instructors(course_code: str, student_id: str, request: Request, pace: float | None = None,
                           workload: float | None = None, practical: float | None = None,
                           exclude: list[str] = Query(default=[])):
     """Instructors of a course ranked for one student, with the basis and reasons (same result the chat tool gives).
@@ -162,6 +188,7 @@ def recommend_instructors(course_code: str, student_id: str, pace: float | None 
     student's own history (or by the surveys alone for a first-year student). `exclude` (repeatable) lists
     instructors to leave out: "i4" everywhere, or "i4:CSE 315" in that course only.
     """
+    auth.check(request, student_id)
     if not students.get_student(student_id):
         raise HTTPException(404, "Student not found")
     result = instructor_tools.recommend_instructor(student_id, course_code, pace, workload, practical, exclude=exclude)
@@ -176,8 +203,11 @@ class ToolRequest(BaseModel):
 
 
 @app.post("/api/tools/{name}")
-def run_tool(name: str, req: ToolRequest):
+def run_tool(name: str, req: ToolRequest, request: Request):
     """Run one tool directly (the pages show these results without going through the chat)."""
+    auth.check(request, req.student_id)
+    if "student_id" in req.args:  # a student typed into the tool's arguments must be the caller too
+        auth.check(request, str(req.args["student_id"]))
     if name not in tool_names():
         raise HTTPException(404, f"Unknown tool: {name}")
     if req.student_id and not students.get_student(req.student_id):
