@@ -425,7 +425,7 @@ function PanelContent({ onDone }: { onDone?: () => void }) {
         {t("newChat")}
       </Button>
 
-      {/* Recent chats, saved per student in this browser */}
+      {/* Recent chats, saved to the student's account */}
       <section className="space-y-3">
         <h3 className="flex items-center gap-2 text-sm font-semibold">
           <History className="size-4 text-muted-foreground" aria-hidden />

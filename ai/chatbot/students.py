@@ -1,20 +1,20 @@
-"""Mock student records (ai/data/students.json) served to the frontend's "choose a student" screen.
+"""Student records served to the frontend's "choose a student" screen.
 
-The records are fictional and stand in for the university system until the backend team
-connects real student data with the same shape.
+Read from the database when DATABASE_URL is set, else from ai/data/students.json (see ai/db/source.py). The
+records are fictional and stand in for the university system until real student data is loaded with the same shape.
 """
 
-import json
+import sys
 from functools import lru_cache
 from pathlib import Path
 
-STUDENTS_FILE = Path(__file__).resolve().parents[1] / "data" / "students.json"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from db import source  # noqa: E402
 
 
 @lru_cache(maxsize=1)
 def _all() -> dict[str, dict]:
-    data = json.loads(STUDENTS_FILE.read_text(encoding="utf-8"))
-    return {s["student_id"]: s for s in data["students"]}
+    return {s["student_id"]: s for s in source.load("students.json")["students"]}
 
 
 def summary(s: dict) -> dict:

@@ -6,3 +6,5 @@ rank_bm25
 numpy
 python-multipart
 scipy
+sqlalchemy>=2.0
+pg8000>=1.31

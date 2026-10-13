@@ -1,15 +1,16 @@
-"""Shared data access for the Masari tools: courses, rules, students and instructors, loaded once."""
+"""Shared data access for the Masari tools: courses, rules, students and instructors, loaded once.
 
-import json
+Students, advisors and instructors come from the database when DATABASE_URL is set, else from ai/data
+(see ai/db/source.py); courses and rules always come from ai/data/courses.json.
+"""
+
 import re
+import sys
 from functools import lru_cache
 from pathlib import Path
 
-DATA_DIR = Path(__file__).resolve().parents[2] / "data"
-
-
-def _load(name: str) -> dict:
-    return json.loads((DATA_DIR / name).read_text(encoding="utf-8"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from db.source import load as _load  # noqa: E402
 
 
 @lru_cache(maxsize=1)

@@ -3,14 +3,15 @@
 /**
  * Interactive demo state that must survive switching pages:
  * selected courses, the open recommendations tab, instructor preferences, the what-if scenario and the chat.
- * Nothing is saved to a server; a full page refresh resets it. New chat questions go to the Masari AI service.
+ * A full page refresh resets it, except the recent chats, which are saved to the student's account
+ * (see chat-history.ts). New chat questions go to the Masari AI service.
  */
 import * as React from "react"
 import { MASARI_API_URL } from "@/lib/api-url"
 import { defaultPrefs, instructors, type StudentPrefs } from "@/lib/demo-content"
 import type { L } from "@/lib/i18n"
 import { usePlanChoice } from "@/lib/plan-api"
-import { chatTitle, loadChats, saveChats, upsertChat, type SavedChat } from "@/lib/chat-history"
+import { chatTitle, dropChat, loadChats, pushChat, saveChats, syncChats, upsertChat, type SavedChat } from "@/lib/chat-history"
 import { useStudentView } from "@/lib/student-context"
 import type { StudentView } from "@/lib/student-view"
 
@@ -73,7 +74,7 @@ type DemoState = {
   thinking: boolean
   sendMessage: (text: string) => void
   newChat: () => void
-  /** Recent chats of this student (newest first), saved in this browser. */
+  /** Recent chats of this student (newest first), saved to the account (and a copy in this browser). */
   chats: SavedChat[]
   /** The open chat's id, or null for a new chat that has no message yet. */
   chatId: string | null
@@ -100,6 +101,24 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
   const messagesRef = React.useRef<ChatMessage[]>([])
   const chatIdRef = React.useRef<string | null>(null)
 
+  // The browser's copy shows first; then the account's chats replace it (with chats saved here before uploaded).
+  React.useEffect(() => {
+    const c = new AbortController()
+    const startedAt = Date.now()
+    syncChats(studentId, loadChats(studentId), c.signal)
+      .then((synced) =>
+        setChats((list) => {
+          // keep a chat changed while the list was loading; its own save is already on the way to the server
+          const changed = list.filter((x) => x.updatedAt >= startedAt)
+          const out = changed.reduce(upsertChat, synced)
+          saveChats(studentId, out)
+          return out
+        })
+      )
+      .catch(() => {}) // service unreachable: keep the chats saved in this browser
+    return () => c.abort()
+  }, [studentId])
+
   /** Shows `next` and saves it as the open chat (a new chat gets its id with its first message). */
   const commit = React.useCallback(
     (next: ChatMessage[]) => {
@@ -107,12 +126,14 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       setMessages(next)
       if (!next.length) return
       const id = chatIdRef.current ?? (chatIdRef.current = crypto.randomUUID())
+      const chat: SavedChat = { id, title: chatTitle(next), updatedAt: Date.now(), messages: next }
       setChatId(id)
       setChats((list) => {
-        const out = upsertChat(list, { id, title: chatTitle(next), updatedAt: Date.now(), messages: next })
+        const out = upsertChat(list, chat)
         saveChats(studentId, out)
         return out
       })
+      pushChat(studentId, chat)
     },
     [studentId]
   )
@@ -245,6 +266,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
         saveChats(studentId, out)
         return out
       })
+      dropChat(studentId, id)
       if (chatIdRef.current === id) newChat()
     },
     [studentId, newChat]

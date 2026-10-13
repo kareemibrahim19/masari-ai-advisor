@@ -20,6 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from rag import Masari  # noqa: E402  (also loads .env)
 import stt  # noqa: E402
 import students  # noqa: E402
+import chat_history  # noqa: E402
+from db import source as data_source  # noqa: E402  (students.py put ai/ on the path)
 from tools.planner import build_graduation_plan, plan_options  # noqa: E402
 from tools import call_tool, tool_names  # noqa: E402
 from tools import instructors as instructor_tools  # noqa: E402
@@ -38,9 +40,10 @@ EXTRA_ORIGINS = [o.strip().lstrip(chr(0xFEFF)) for o in os.getenv("MASARI_CORS_O
 app.add_middleware(
     CORSMiddleware,
     allow_origins=list(dict.fromkeys(KNOWN_ORIGINS + EXTRA_ORIGINS)),
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["Content-Type"],
 )
+app.include_router(chat_history.router)  # recent chats saved per student (database)
 bot = Masari()  # builds / loads the search index once at startup
 
 
@@ -120,6 +123,12 @@ async def transcribe(audio: UploadFile = File(...), language: str | None = Form(
         return {"text": stt.transcribe(data, audio.filename or "audio.webm", language or None)}
     except stt.STTError as e:
         raise HTTPException(502, str(e))
+
+
+@app.get("/api/health")
+def health():
+    """Quick check after a deploy: is the service up, and does it read students from the database or the files?"""
+    return {"ok": True, "data_source": data_source.active()}
 
 
 @app.get("/api/students")

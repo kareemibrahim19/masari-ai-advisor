@@ -115,15 +115,32 @@ Add `exclude` (repeatable, `i4` or `i4:CSE 315`) to leave instructors out; they 
 Add `pace`, `workload`, `practical` (0-100) to `recommend` only when the student set them; without them the
 ranking uses the student's own grades (or the surveys alone for a first-year student).
 
+### Recent chats (saved to the student's account)
+
+The chat page saves each chat here, so a student sees the same recent chats on any device or browser
+([`chat_history.py`](chat_history.py), stored with [`ai/db`](../db/README.md); needs `DATABASE_URL` when hosted).
+
+| Endpoint | Does |
+|---|---|
+| `GET /api/students/{student_id}/chats` | `{ "chats": [...] }`, newest first, at most 20 |
+| `PUT /api/students/{student_id}/chats/{chat_id}` | creates or replaces one chat: `{ "title", "updatedAt" (ms), "messages": [...] }`; the 20 newest are kept |
+| `DELETE /api/students/{student_id}/chats/{chat_id}` | deletes one chat |
+
+A chat is the website's `SavedChat` (`frontend/src/lib/chat-history.ts`); `chat_id` is the UUID the page made.
+404 for an unknown student or a chat of another student, 503 when the database cannot be reached (the page then
+keeps chats in the browser only).
+
 `POST /api/transcribe` (multipart form): `audio` = the recording (webm / mp4 / ogg / mp3 / wav, up to 10 MB),
 optional `language` = `ar` or `en` (auto-detected otherwise). Response: `{ "text": "..." }`.
 
 ### Students (mock data, for the "choose a student" screen)
 
 Six fictional students in `ai/data/students.json`, shaped like the university portal. They stand in for
-real student data until the backend connects it with the same shape.
+real student data until it is loaded with the same shape. When `DATABASE_URL` is set the service reads them (and
+advisors and instructors) from the database instead, with the files as the fallback; see
+[`ai/db/README.md`](../db/README.md). `GET /api/health` → `{ "ok": true, "data_source": "database" }` (or `"files"`).
 
-`GET /api/students` → one card per student:
+`GET /api/students` → one card per student, ordered by student id:
 
 ```json
 { "students": [ { "student_id": "897948891", "name_ar": "يوسف محمود السيد النجار", "name_en": "Youssef Mahmoud Elsayed Elnaggar",
@@ -155,6 +172,7 @@ The current term (Fall 2026-2027) is `in_progress`: courses are registered and h
 | `GROQ_API_KEY` | none; needed for the microphone with the `groq` backend |
 | `STT_BACKEND` | `groq`; `local` runs Whisper on this machine (`pip install faster-whisper`, downloads ~1.6 GB on first use, not for Vercel) |
 | `GROQ_STT_MODEL` / `LOCAL_STT_MODEL` | `whisper-large-v3-turbo` / `large-v3-turbo` |
+| `DATABASE_URL` | none: a SQLite file `ai/masari.db` (local only). Set a Postgres URL (Neon / Supabase) when hosted, or recent chats are not saved to accounts. See [`ai/db/README.md`](../db/README.md) |
 | `MASARI_CORS_ORIGINS` | none. The site domains (`masari-web-sigma.vercel.app`, localhost:3000) are always allowed; list extra origins here, comma-separated |
 
 The frontend reads the service URL from `NEXT_PUBLIC_MASARI_API_URL` (default `http://localhost:8000` in development, `https://masari-ai-pink.vercel.app` in production builds).
