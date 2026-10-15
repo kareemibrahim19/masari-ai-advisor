@@ -157,8 +157,10 @@ def _student(s: dict, advisor_id: str | None, taught_by: dict) -> Student:
     return row
 
 
-# The tables seed() fills from ai/data. The others (chats, passwords) hold what students saved and are never reset.
-DATA_TABLES = [t for t in Base.metadata.sorted_tables if t.name not in ("chats", "chat_messages", "accounts")]
+# The tables seed() fills from ai/data. The others (chats, passwords, choices) hold what students saved and are
+# never reset.
+DATA_TABLES = [t for t in Base.metadata.sorted_tables
+               if t.name not in ("chats", "chat_messages", "accounts", "student_choices")]
 
 SUMMARY_FIELDS = ("registered_hours", "earned_hours", "term_gpa", "cumulative_gpa", "cumulative_earned_hours",
                   "academic_standing")

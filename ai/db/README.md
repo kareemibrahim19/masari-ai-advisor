@@ -18,6 +18,7 @@ says which one the service is using: `"data_source": "database"` or `"files"`.
 | `source.py` | What the AI service reads: the database when `DATABASE_URL` is set and it has students, else the JSON files (also when the database cannot be reached) |
 | `export.py` | Reads the database back **in the exact shape of the JSON files**, so the code that reads the files can switch to the database without other changes |
 | `chats.py` | Saved recent chats: list, save (keeps the newest 20 per student), delete |
+| `choices.py` | Saved choices from the recommendations page (courses, sliders, hidden instructors), one row per student; never dropped by `seed.py --reset` |
 | `accounts.py` | Student passwords (salted hashes) for signing in; also the command to set them: `accounts.py set <id>`, `accounts.py demo`, `accounts.py list` |
 
 ## Run
