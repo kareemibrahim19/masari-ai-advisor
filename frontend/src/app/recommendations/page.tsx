@@ -7,12 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Bar, CategoryTag, Code, PageHeader, SlotTag } from "@/components/masari/bits"
+import { SeatRequestButton } from "@/components/masari/seat-request"
 import { AiExplanation, ConfidenceMeter, SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import { courseNames, dimensionLabels, type StudentPrefs, type TeachingProfile } from "@/lib/demo-content"
 import { basisText, useInstructorCourses, useInstructorRanking } from "@/lib/data/instructor-source"
 import { useStudentView } from "@/lib/student-context"
 import type { RecommendedCourse } from "@/lib/student-view"
 import { type RecTab, useDemoState } from "@/lib/demo-state"
+import { useSeatRequests } from "@/lib/seat-requests"
 import { type DictKey, useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
@@ -48,6 +50,7 @@ function CoursesTab() {
   const { t, tr, num } = useI18n()
   const { selected, toggleCourse: toggle } = useDemoState()
   const { recommendedCourses, ineligibleCourses, student } = useStudentView()
+  const seats = useSeatRequests(student.id)
   const load = recommendedCourses.filter((c) => selected.includes(c.code)).reduce((s, c) => s + c.credits, 0)
   const over = load > student.maxLoad
 
@@ -55,7 +58,14 @@ function CoursesTab() {
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
       <ol className="space-y-3">
         {recommendedCourses.map((c, i) => (
-          <CourseCard key={c.code} course={c} rank={i + 1} added={selected.includes(c.code)} onToggle={() => toggle(c.code)} />
+          <CourseCard
+            key={c.code}
+            course={c}
+            rank={i + 1}
+            added={selected.includes(c.code)}
+            onToggle={() => toggle(c.code)}
+            seats={seats}
+          />
         ))}
       </ol>
 
@@ -114,8 +124,23 @@ function CoursesTab() {
   )
 }
 
-function CourseCard({ course: c, rank, added, onToggle }: { course: RecommendedCourse; rank: number; added: boolean; onToggle: () => void }) {
+function CourseCard({
+  course: c,
+  rank,
+  added,
+  onToggle,
+  seats,
+}: {
+  course: RecommendedCourse
+  rank: number
+  added: boolean
+  onToggle: () => void
+  seats: ReturnType<typeof useSeatRequests>
+}) {
   const { t, tr, num } = useI18n()
+  // The full section to ask a seat in: the first one not requested yet, else the first (shown as "Request sent").
+  const full = c.sections.filter((s) => s.seatsLeft === 0)
+  const fullSection = full.find((s) => !seats.isSent(c.code, s.id)) ?? full[0]
   return (
     <li>
       <Card className={cn("transition-shadow", added && "ring-primary/40")}>
@@ -196,11 +221,7 @@ function CourseCard({ course: c, rank, added, onToggle }: { course: RecommendedC
               </span>
             </div>
             <div className="flex gap-2">
-              {c.sections.some((s) => s.seatsLeft === 0) && (
-                <Button variant="outline" className="h-10">
-                  {t("requestSeat")}
-                </Button>
-              )}
+              {fullSection && <SeatRequestButton seats={seats} code={c.code} section={fullSection.id} className="h-10" />}
               <Button variant={added ? "secondary" : "default"} className="h-10 min-w-32 gap-1.5" aria-pressed={added} onClick={onToggle}>
                 {added ? <Check className="size-4" /> : <Plus className="size-4" />}
                 {added ? t("added") : t("addToPlan")}

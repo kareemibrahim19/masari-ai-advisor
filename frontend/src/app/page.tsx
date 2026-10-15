@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Bar, CategoryTag, Code, Ring, SlotTag } from "@/components/masari/bits"
 import { JourneyRail } from "@/components/masari/journey"
+import { SeatRequestButton } from "@/components/masari/seat-request"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import { useI18n } from "@/lib/i18n"
 import { semesterLabel, useGraduationPlan, usePlanChoice } from "@/lib/plan-api"
 import { formatLongDate, upcomingReminders, useToday } from "@/lib/reminders"
+import { useSeatRequests } from "@/lib/seat-requests"
 import { useStudentView } from "@/lib/student-context"
 import { cn } from "@/lib/utils"
 
@@ -23,6 +25,7 @@ export default function DashboardPage() {
   const { t, tr, num, lang } = useI18n()
   const { alerts, electiveCategories, proposedNow, recommendedCourses, requirementGroups, student } = useStudentView()
   const remaining = student.total - student.earned
+  const seats = useSeatRequests(student.id)
   // What the rules-engine planner would register this term (prerequisites, credit thresholds and load limit checked).
   const proposal = recommendedCourses.filter((c) => proposedNow.includes(c.code))
   const proposalCredits = proposal.reduce((s, c) => s + c.credits, 0)
@@ -237,10 +240,8 @@ export default function DashboardPage() {
                     <p className="font-medium">{tr(a.title)}</p>
                     <p className="text-sm leading-relaxed text-muted-foreground">{tr(a.body)}</p>
                     {a.sourceId && <SourceChip sourceId={a.sourceId} />}
-                    {a.kind === "seat" && (
-                      <Button variant="outline" size="sm" className="h-8">
-                        {t("requestSeat")}
-                      </Button>
+                    {a.seat && (
+                      <SeatRequestButton seats={seats} code={a.seat.code} section={a.seat.section} size="sm" className="h-8" />
                     )}
                   </div>
                 </li>

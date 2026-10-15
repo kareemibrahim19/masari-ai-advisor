@@ -139,6 +139,8 @@ const dict = {
   seats: { ar: "مقاعد", en: "seats" },
   full: { ar: "مكتمل", en: "Full" },
   requestSeat: { ar: "طلب فتح مقعد", en: "Request a seat" },
+  seatRequested: { ar: "تم إرسال الطلب", en: "Request sent" },
+  seatRequestFailed: { ar: "الطلب ماتبعتش، جرّب تاني", en: "Request not sent, try again" },
   forCourse: { ar: "المقرر", en: "Course" },
   compatibility: { ar: "التوافق معك", en: "Compatibility with you" },
   yourPreferences: { ar: "تفضيلاتك", en: "Your preferences" },

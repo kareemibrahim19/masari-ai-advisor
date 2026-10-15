@@ -9,7 +9,9 @@
 import * as React from "react"
 import { clearSession, login, savedStudentId, SIGNED_OUT_EVENT, type LoginResult } from "@/lib/auth"
 import { getStudent } from "@/lib/data/student-source"
+import { fetchSections } from "@/lib/data/sections-source"
 import type { StudentFileEntry } from "@/lib/data/types"
+import { sectionsFor, type Section } from "@/lib/demo-content"
 import { buildStudentView, type StudentView } from "@/lib/student-view"
 
 type StudentContextValue = {
@@ -25,6 +27,16 @@ const StudentContext = React.createContext<StudentContextValue | null>(null)
 export function StudentProvider({ children }: { children: React.ReactNode }) {
   const [entry, setEntry] = React.useState<StudentFileEntry | null>(null)
   const [ready, setReady] = React.useState(false)
+  // Seats per section from the AI service; the simulated ones until it answers (or if it cannot be reached).
+  const [sections, setSections] = React.useState<Record<string, Section[]>>(sectionsFor)
+
+  React.useEffect(() => {
+    const c = new AbortController()
+    fetchSections(c.signal)
+      .then(setSections)
+      .catch(() => {})
+    return () => c.abort()
+  }, [])
 
   React.useEffect(() => {
     // A saved sign-in that has not expired: load the student with its token.
@@ -51,7 +63,7 @@ export function StudentProvider({ children }: { children: React.ReactNode }) {
     setEntry(null)
   }, [])
 
-  const view = React.useMemo(() => (entry ? buildStudentView(entry) : null), [entry])
+  const view = React.useMemo(() => (entry ? buildStudentView(entry, sections) : null), [entry, sections])
   const value = React.useMemo(() => ({ ready, view, signIn, signOut }), [ready, view, signIn, signOut])
 
   return <StudentContext.Provider value={value}>{children}</StudentContext.Provider>

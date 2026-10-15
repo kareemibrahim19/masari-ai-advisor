@@ -47,7 +47,15 @@ const HORIZON = 12
 
 export type RequirementGroup = { id: string; name: L; earned: number; required: number }
 export type ElectiveCategory = { id: string; name: L; done: number; required: number }
-export type Alert = { id: string; kind: "warning" | "info" | "seat"; title: L; body: L; sourceId?: string }
+export type Alert = {
+  id: string
+  kind: "warning" | "info" | "seat"
+  title: L
+  body: L
+  sourceId?: string
+  /** For a "seat" alert: the full section the student can request a seat in. */
+  seat?: { code: string; section: string }
+}
 
 export type RecommendedCourse = {
   code: string
@@ -141,7 +149,8 @@ const termIndex = (plan: PlannedCourse[][]) => new Map(plan.flatMap((t, i) => t.
 
 // ---------------------------------------------------------------- the view
 
-export function buildStudentView(s: StudentFileEntry) {
+/** `sections`: seats per section by course code (from the AI service; the simulated ones until it answers). */
+export function buildStudentView(s: StudentFileEntry, sections: Record<string, Section[]> = sectionsFor) {
   const record = toStudentRecord(s)
   const st = s.academic_status
   const now = currentTerm(s)
@@ -242,7 +251,7 @@ export function buildStudentView(s: StudentFileEntry) {
       priority: priorityScore(i, currentSemester),
       prereqs: i.prereqs,
       unlocks: dependentsOf(i.code),
-      sections: sectionsFor[i.code] ?? [{ id: "1", seatsLeft: 15, capacity: 40 }],
+      sections: sections[i.code] ?? [{ id: "1", seatsLeft: 15, capacity: 40 }],
       verifiedReasons: verifiedReasonsFor(i),
       aiReason: { ar: "", en: "" },
       slot: i.slot,
@@ -352,6 +361,7 @@ export function buildStudentView(s: StudentFileEntry) {
         ar: `سكشن ${open.id} فيه ${open.seatsLeft} مقاعد متاحة. لو محتاج سكشن ${full.id} تقدر تبعت طلب فتح مقعد.`,
         en: `Section ${open.id} has ${open.seatsLeft} seats left. If you need section ${full.id}, you can send a seat request.`,
       },
+      seat: { code: c.code, section: full.id },
     })
   }
 
