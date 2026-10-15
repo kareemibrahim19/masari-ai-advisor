@@ -20,8 +20,8 @@ from sqlalchemy.orm import Session
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from db.models import (  # noqa: E402
     AcademicStatus, Advisor, Base, Course, CoursePrerequisite, CourseResult, ElectivePool, ElectivePoolCourse,
-    ElectivePoolSlot, ElectiveSlot, Guardian, Instructor, Meta, Offering, PreviousQualification, Program, Student,
-    StudentTerm)
+    ElectivePoolSlot, ElectiveSlot, Guardian, Instructor, Meta, Offering, PreviousQualification, Program,
+    SectionSeats, Student, StudentTerm)
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
@@ -42,6 +42,7 @@ def seed(session: Session, data_dir: Path = DATA_DIR) -> dict[str, int]:
     advisors_file = load_json("advisors.json", data_dir)
     students_file = load_json("students.json", data_dir)
     history_file = load_json("student_instructor_history.json", data_dir)
+    sections_file = load_json("sections.json", data_dir)
 
     # meta: the facts that sit next to the lists in each file
     session.add_all([
@@ -49,7 +50,8 @@ def seed(session: Session, data_dir: Path = DATA_DIR) -> dict[str, int]:
         Meta(key="instructor_dimensions", value=instructors_file["dimensions"]),
         Meta(key="notes", value={f: d["_note"] for f, d in (
             ("students.json", students_file), ("instructors.json", instructors_file),
-            ("advisors.json", advisors_file), ("student_instructor_history.json", history_file)) if "_note" in d}),
+            ("advisors.json", advisors_file), ("student_instructor_history.json", history_file),
+            ("sections.json", sections_file)) if "_note" in d}),
     ])
 
     # program, courses, prerequisites, electives
@@ -88,6 +90,9 @@ def seed(session: Session, data_dir: Path = DATA_DIR) -> dict[str, int]:
     for o in instructors_file["offerings"]:
         session.add(Offering(course_code=o["course_code"], section=o["section"], instructor_id=o["instructor_id"],
                              offered_term=o["offered_term"], responses=o["responses"], profile=o["profile"]))
+    for pos, x in enumerate(sections_file["sections"]):
+        session.add(SectionSeats(course_code=x["course_code"], section=x["section"], offered_term=x["offered_term"],
+                                 position=pos, capacity=x["capacity"], enrolled=x["enrolled"]))
 
     # advisors, then students (a student points at an advisor)
     advisor_of = {}
@@ -157,10 +162,10 @@ def _student(s: dict, advisor_id: str | None, taught_by: dict) -> Student:
     return row
 
 
-# The tables seed() fills from ai/data. The others (chats, passwords, choices) hold what students saved and are
-# never reset.
+# The tables seed() fills from ai/data. The others (chats, passwords, choices, seat requests) hold what students
+# saved and are never reset.
 DATA_TABLES = [t for t in Base.metadata.sorted_tables
-               if t.name not in ("chats", "chat_messages", "accounts", "student_choices")]
+               if t.name not in ("chats", "chat_messages", "accounts", "student_choices", "seat_requests")]
 
 SUMMARY_FIELDS = ("registered_hours", "earned_hours", "term_gpa", "cumulative_gpa", "cumulative_earned_hours",
                   "academic_standing")

@@ -9,6 +9,7 @@ the database by calling these functions instead of reading the files, with nothi
     instructors_file(s)     == json.load("instructors.json")
     advisors_file(s)        == json.load("advisors.json")
     history_file(s)         == json.load("student_instructor_history.json")
+    sections_file(s)        == json.load("sections.json")
 
 `s` is an open Session. tests/test_db.py checks that each one matches its file.
 """
@@ -17,7 +18,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from db.models import (Advisor, Course, CourseResult, ElectivePool, ElectiveSlot, Instructor, Meta, Offering,
-                       Program, Student, StudentTerm)
+                       Program, SectionSeats, Student, StudentTerm)
 from db.seed import SUMMARY_FIELDS
 
 
@@ -184,6 +185,13 @@ def instructors_file(s: Session) -> dict:
                        "offered_term": o.offered_term, "responses": o.responses, "profile": o.profile}
                       for o in s.scalars(select(Offering).order_by(Offering.id))],
     })
+
+
+def sections_file(s: Session) -> dict:
+    return _with_note(s, "sections.json", {"sections": [
+        {"course_code": x.course_code, "section": x.section, "offered_term": x.offered_term,
+         "capacity": x.capacity, "enrolled": x.enrolled}
+        for x in s.scalars(select(SectionSeats).order_by(SectionSeats.position))]})
 
 
 def advisors_file(s: Session) -> dict:

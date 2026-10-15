@@ -9,8 +9,10 @@ database without changing the shape they read (export.py rebuilds the files' exa
     advisors ─< students ─┬─ guardians, previous_qualifications, academic_status   (one row each)
                           └─< student_terms ─< course_results >─ courses, instructors
     instructors ─< offerings >─ courses          (survey profiles per section)
+    section_seats >─ courses                     (capacity and enrolled per section, same key as offerings)
     meta         ─ small key/value facts (current term, survey dimensions, data notes)
     chats ─< chat_messages                       (a student's recent chats with Masari, saved by the website)
+    student_choices, seat_requests, accounts     (what students save; never dropped by seed --reset)
 
 course_results.instructor_id / section say who taught the student that course (was
 student_instructor_history.json); they are empty where it is not known (current term, trainings, projects).
@@ -301,6 +303,19 @@ class Offering(Base):
     profile: Mapped[dict] = mapped_column(JSON)
 
 
+class SectionSeats(Base):
+    """How many seats a section has and how many are taken (ai/data/sections.json; simulated until the faculty's
+    registration system gives the real numbers). Same key as the offering: course, section, term."""
+    __tablename__ = "section_seats"
+
+    course_code: Mapped[str] = mapped_column(ForeignKey("courses.code"), primary_key=True)
+    section: Mapped[str] = mapped_column(String(8), primary_key=True)
+    offered_term: Mapped[str] = mapped_column(String(16), primary_key=True)
+    position: Mapped[int] = mapped_column(default=0)  # order in sections.json
+    capacity: Mapped[int]
+    enrolled: Mapped[int]
+
+
 # ------------------------------------------------------------------------------------------------ chats
 
 class Chat(Base):
@@ -344,6 +359,21 @@ class StudentChoices(Base):
     student_id: Mapped[str] = mapped_column(String(16), primary_key=True)
     choices: Mapped[dict] = mapped_column(JSON)  # {selected: [...], prefs: {...} | null, excluded: [...]}
     updated_at: Mapped[datetime] = mapped_column(DateTime)  # UTC, as sent by the website; the newest save wins
+
+
+class SeatRequest(Base):
+    """A student asking for a seat in a full section ("Request a seat" on the website), for the faculty to review.
+    One request per student, section and term; like the chats it is never dropped by seed --reset."""
+    __tablename__ = "seat_requests"
+    __table_args__ = (UniqueConstraint("student_id", "course_code", "section", "offered_term"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    student_id: Mapped[str] = mapped_column(String(16), index=True)
+    course_code: Mapped[str] = mapped_column(String(16))
+    section: Mapped[str] = mapped_column(String(8))
+    offered_term: Mapped[str] = mapped_column(String(16))
+    status: Mapped[str] = mapped_column(String(16), default="pending")  # pending; later approved / declined
+    created_at: Mapped[datetime] = mapped_column(DateTime)  # UTC
 
 
 # ------------------------------------------------------------------------------------------------ accounts
