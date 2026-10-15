@@ -21,6 +21,7 @@ from rag import Masari  # noqa: E402  (also loads .env)
 import stt  # noqa: E402
 import students  # noqa: E402
 import chat_history  # noqa: E402
+import student_choices  # noqa: E402
 import auth  # noqa: E402
 import security  # noqa: E402
 from db import source as data_source  # noqa: E402  (students.py put ai/ on the path)
@@ -47,6 +48,7 @@ app.add_middleware(
 )
 app.include_router(auth.router)  # password sign-in; auth.check() keeps each student's data to that student
 app.include_router(chat_history.router)  # recent chats saved per student (database)
+app.include_router(student_choices.router)  # chosen courses, sliders, hidden instructors per student (database)
 bot = Masari()  # builds / loads the search index once at startup
 
 # Every chat question and recording costs a model call, so one student (or one address) gets a fair share.

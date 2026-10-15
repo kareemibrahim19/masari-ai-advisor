@@ -131,6 +131,18 @@ A chat is the website's `SavedChat` (`frontend/src/lib/chat-history.ts`); `chat_
 404 for an unknown student or a chat of another student, 503 when the database cannot be reached (the page then
 keeps chats in the browser only).
 
+### Saved choices (saved to the student's account)
+
+The recommendations page saves what the student chose, so a refresh or another device shows the same
+([`student_choices.py`](student_choices.py), stored with [`ai/db`](../db/README.md)).
+
+| Endpoint | Does |
+|---|---|
+| `GET /api/students/{student_id}/choices` | `{ "choices": {...} }`, or `{ "choices": null }` if none saved yet |
+| `PUT /api/students/{student_id}/choices` | saves `{ "selected": ["CSE 315", ...], "prefs": {"pace", "workload", "practical"} (0–100) or null, "excluded": ["i4", "i2:CSE 315"], "updatedAt" (ms) }`; an older `updatedAt` than the stored one is ignored |
+
+404 for an unknown student, 503 when the database cannot be reached (the page then keeps its choices until a refresh).
+
 `POST /api/transcribe` (multipart form): `audio` = the recording (webm / mp4 / ogg / mp3 / wav, up to 10 MB),
 optional `language` = `ar` or `en` (auto-detected otherwise). Response: `{ "text": "..." }`.
 
