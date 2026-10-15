@@ -3,8 +3,9 @@
 /**
  * Interactive demo state that must survive switching pages:
  * selected courses, the open recommendations tab, instructor preferences, the what-if scenario and the chat.
- * A full page refresh resets it, except the recent chats, which are saved to the student's account
- * (see chat-history.ts). New chat questions go to the Masari AI service.
+ * A full page refresh resets it, except what is saved to the student's account: the recent chats
+ * (see chat-history.ts) and the chosen courses, sliders and hidden instructors (see student-choices.ts).
+ * New chat questions go to the Masari AI service.
  */
 import * as React from "react"
 import { MASARI_API_URL } from "@/lib/api-url"
@@ -16,6 +17,7 @@ import { defaultPrefs, instructors, type StudentPrefs } from "@/lib/demo-content
 import type { L } from "@/lib/i18n"
 import { usePlanChoice } from "@/lib/plan-api"
 import { chatTitle, dropChat, loadChats, pushChat, saveChats, syncChats, upsertChat, type SavedChat } from "@/lib/chat-history"
+import { fetchChoices, pushChoices, type SavedChoices } from "@/lib/student-choices"
 import { useStudentView } from "@/lib/student-context"
 import type { StudentView } from "@/lib/student-view"
 
@@ -151,6 +153,43 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
 
   // Preferences are sent only once the student has moved a slider (or asked for a style in the chat).
   const prefsTouched = prefs.pace !== defaultPrefs.pace || prefs.workload !== defaultPrefs.workload || prefs.practical !== defaultPrefs.practical
+
+  // The choices saved to the account replace the defaults once they arrive. Until then nothing is saved, so the
+  // defaults never overwrite them; if the service cannot be reached, later changes are still saved when it is back.
+  const choicesLoaded = React.useRef(false)
+  const lastSavedChoices = React.useRef("")
+  React.useEffect(() => {
+    const c = new AbortController()
+    const offered = new Set(view.recommendedCourses.map((x) => x.code))
+    fetchChoices(studentId, c.signal)
+      .then((saved) => {
+        if (!saved) return
+        const selected = saved.selected.filter((code) => offered.has(code))
+        setSelected(selected)
+        if (saved.prefs) setPrefs(saved.prefs)
+        setExcluded(saved.excluded)
+        lastSavedChoices.current = JSON.stringify({ selected, prefs: saved.prefs, excluded: saved.excluded })
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!c.signal.aborted) choicesLoaded.current = true
+      })
+    return () => c.abort()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studentId])
+
+  // Saves the choices shortly after they change (one save for a slider dragged across many values).
+  React.useEffect(() => {
+    if (!choicesLoaded.current) return
+    const choices: SavedChoices = { selected, prefs: prefsTouched ? prefs : null, excluded }
+    const json = JSON.stringify(choices)
+    if (json === lastSavedChoices.current) return
+    const t = setTimeout(() => {
+      lastSavedChoices.current = json
+      pushChoices(studentId, choices)
+    }, 800)
+    return () => clearTimeout(t)
+  }, [studentId, selected, prefs, prefsTouched, excluded])
 
   const restoreInstructor = React.useCallback((key: string) => {
     setExcluded((list) => list.filter((k) => k !== key))
