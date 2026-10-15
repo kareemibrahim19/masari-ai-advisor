@@ -1,9 +1,8 @@
 "use client"
 
 /**
- * Login (design "Concept A · Quiet card"). The access code is the student's ID from students.json;
- * it is checked through lib/data/student-source.ts, so the real backend can replace it later.
- * Visitors who are not signed in are sent here by the app shell.
+ * Login (design "Concept A · Quiet card"): student ID + password, checked by the AI service
+ * (POST /api/auth/login, lib/auth.ts). Visitors who are not signed in are sent here by the app shell.
  */
 import { useRouter } from "next/navigation"
 import * as React from "react"
@@ -25,6 +24,8 @@ export default function LoginPage() {
   const router = useRouter()
   const input = React.useRef<HTMLInputElement>(null)
   const [code, setCode] = React.useState("")
+  const [password, setPassword] = React.useState("")
+  const passwordInput = React.useRef<HTMLInputElement>(null)
   const [error, setError] = React.useState<DictKey | null>(null)
   const [shake, setShake] = React.useState(0)
   const [busy, setBusy] = React.useState(false)
@@ -37,10 +38,10 @@ export default function LoginPage() {
     if (view && !signingIn.current) router.replace("/")
   }, [view, router])
 
-  const fail = (key: DictKey) => {
+  const fail = (key: DictKey, focus: "code" | "password" = "code") => {
     setError(key)
     setShake((n) => n + 1)
-    input.current?.focus()
+    ;(focus === "password" ? passwordInput : input).current?.focus()
   }
 
   const submit = async (e: React.FormEvent) => {
@@ -48,15 +49,19 @@ export default function LoginPage() {
     if (busy) return
     if (!code) return fail("loginErrEmpty")
     if (code.length < CODE_LENGTH) return fail("loginErrShort")
+    if (!password) return fail("loginErrNoPassword", "password")
     setError(null)
     setBusy(true)
     signingIn.current = true
-    const [student] = await Promise.all([signIn(code), new Promise((r) => setTimeout(r, MIN_CHECK_MS))])
+    const [result] = await Promise.all([signIn(code, password), new Promise((r) => setTimeout(r, MIN_CHECK_MS))])
     setBusy(false)
-    if (!student) {
+    if (!result.ok) {
       signingIn.current = false
-      return fail("loginErrWrong")
+      setPassword("")
+      const key = result.reason === "wrong" ? "loginErrWrong" : result.reason === "too_many" ? "loginErrTooMany" : "loginErrUnavailable"
+      return fail(key, result.reason === "wrong" ? "password" : "code")
     }
+    const student = result.student
     setWelcome({ ar: student.personal.name_ar.split(" ")[0], en: student.personal.name_en.split(" ")[0] })
     setTimeout(() => router.replace("/"), REDIRECT_MS)
   }
@@ -140,6 +145,25 @@ export default function LoginPage() {
                   aria-invalid={error ? true : undefined}
                   aria-describedby={error ? "code-msg" : undefined}
                   autoFocus
+                />
+                <label className={s.label} htmlFor="password">
+                  {t("loginPassword")}
+                </label>
+                <input
+                  ref={passwordInput}
+                  id="password"
+                  name="password"
+                  className={s.input}
+                  type="password"
+                  autoComplete="current-password"
+                  dir="ltr"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    setError(null)
+                  }}
+                  aria-invalid={error === "loginErrWrong" || error === "loginErrNoPassword" ? true : undefined}
+                  aria-describedby={error ? "code-msg" : undefined}
                 />
                 {error && (
                   <p className={s.msg} id="code-msg" role="alert">

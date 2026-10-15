@@ -5,12 +5,11 @@
  * The AI service (ai/chatbot/server.py) answers GET {API}/api/students/{id} from the database
  * (ai/data/students.json when the service has no database). When the service cannot be reached the
  * six fictional students in src/data/demo/students.json (a copy of ai/data/students.json) are used,
- * so the site still works offline. The access code is the student's own student_id.
- * LATER: a real sign-in, e.g. POST {API}/auth/login { code, password } → the student (or 401),
- * keeping the same return types (see types.ts).
+ * so a signed-in student can keep browsing when the service is briefly unreachable. Signing in itself always
+ * goes through the server with a password (lib/auth.ts), never through this copy.
  */
 import file from "@/data/demo/students.json"
-import { MASARI_API_URL } from "@/lib/api-url"
+import { apiFetch } from "@/lib/auth"
 import type { StudentFileEntry, StudentsFile } from "@/lib/data/types"
 
 const data = file as StudentsFile
@@ -28,16 +27,12 @@ export async function getStudent(studentId: string): Promise<StudentFileEntry | 
   const id = studentId.trim()
   if (!/^\d{1,16}$/.test(id)) return null
   try {
-    const res = await fetch(`${MASARI_API_URL}/api/students/${id}`, { signal: AbortSignal.timeout(TIMEOUT_MS) })
-    if (res.status === 404) return null
+    const res = await apiFetch(`/api/students/${id}`, { signal: AbortSignal.timeout(TIMEOUT_MS) })
+    // Not found, or the token is not valid for this student: no record (the student signs in again).
+    if (res.status === 404 || res.status === 401 || res.status === 403) return null
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     return (await res.json()) as StudentFileEntry
   } catch {
     return demoStudent(id)
   }
-}
-
-/** Checks an access code and returns the student it belongs to, or null if no student has it. */
-export async function findStudentByAccessCode(code: string): Promise<StudentFileEntry | null> {
-  return getStudent(code)
 }

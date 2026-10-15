@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { AppIcon } from "@/components/masari/brand"
 import { AiBadge, RagSourceChip } from "@/components/masari/trust"
 import { chatSuggestions } from "@/lib/demo-content"
-import { useDemoState, type AdvisorEmail, type ChatMessage, type RagSource } from "@/lib/demo-state"
+import { RATE_LIMITED, useDemoState, type AdvisorEmail, type ChatMessage, type RagSource } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
 import { useStudentView } from "@/lib/student-context"
 import { useVoiceInput } from "@/lib/use-voice-input"
@@ -247,10 +247,16 @@ function ErrorReply({ detail }: { detail: string }) {
   return (
     <AssistantShell>
       <div className="rounded-xl border border-destructive/30 bg-destructive/8 px-3.5 py-3 text-sm text-destructive" role="alert">
-        <p className="font-medium">{t("chatError")}</p>
-        <p className="mt-1 text-xs opacity-80" dir="ltr">
-          {detail}
-        </p>
+        {detail === RATE_LIMITED ? (
+          <p className="font-medium">{t("chatTooMany")}</p>
+        ) : (
+          <>
+            <p className="font-medium">{t("chatError")}</p>
+            <p className="mt-1 text-xs opacity-80" dir="ltr">
+              {detail}
+            </p>
+          </>
+        )}
       </div>
     </AssistantShell>
   )

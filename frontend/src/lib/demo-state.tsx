@@ -8,6 +8,10 @@
  */
 import * as React from "react"
 import { MASARI_API_URL } from "@/lib/api-url"
+import { apiFetch } from "@/lib/auth"
+
+/** Error detail of a chat answer refused for too many questions in a row (HTTP 429). */
+export const RATE_LIMITED = "rate_limited"
 import { defaultPrefs, instructors, type StudentPrefs } from "@/lib/demo-content"
 import type { L } from "@/lib/i18n"
 import { usePlanChoice } from "@/lib/plan-api"
@@ -188,7 +192,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
         setThinking(false)
       }
 
-      fetch(`${MASARI_API_URL}/api/chat`, {
+      apiFetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // student_id lets the service run its tools (credit limit, standing, GPA, instructors...) on this student.
@@ -212,6 +216,8 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       })
         .then(async (res) => {
           const data = await res.json().catch(() => ({}))
+          // 429: too many questions in a row; the chat page shows its own message for this code.
+          if (res.status === 429) throw new Error(RATE_LIMITED)
           if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`)
           if (!controller.signal.aborted && Array.isArray(data.actions)) applyActions(data.actions as ChatAction[])
           // The email comes from the tool's result, not the model's text, so the button always has all of it.

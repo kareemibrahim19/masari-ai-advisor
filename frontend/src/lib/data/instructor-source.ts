@@ -10,7 +10,7 @@
  * demo never shows an empty screen (`source` tells which one is on screen).
  */
 import * as React from "react"
-import { MASARI_API_URL } from "@/lib/api-url"
+import { apiFetch } from "@/lib/auth"
 import {
   confidenceFromResponses,
   defaultPrefs,
@@ -62,7 +62,7 @@ type ApiInstructor = {
 type ApiExcluded = { instructor_id: string; name_ar: string; name_en: string }
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
-  const res = await fetch(`${MASARI_API_URL}${path}`, { signal })
+  const res = await apiFetch(path, { signal })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
 }

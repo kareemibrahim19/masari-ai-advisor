@@ -6,7 +6,7 @@
  * (POST /api/transcribe, Whisper large-v3-turbo) and hands the text back through `onText`.
  */
 import * as React from "react"
-import { MASARI_API_URL } from "@/lib/api-url"
+import { apiFetch } from "@/lib/auth"
 
 export type VoiceState = "idle" | "recording" | "transcribing"
 
@@ -31,7 +31,7 @@ export function useVoiceInput(onText: (text: string) => void) {
     const form = new FormData()
     form.append("audio", blob, `voice.${ext}`)
     try {
-      const res = await fetch(`${MASARI_API_URL}/api/transcribe`, { method: "POST", body: form })
+      const res = await apiFetch("/api/transcribe", { method: "POST", body: form })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`)
       if (data.text) onTextRef.current(data.text)

@@ -3,7 +3,7 @@
  * The plan is solved in Python against the regulations; the page only shows it.
  */
 import * as React from "react"
-import { MASARI_API_URL } from "@/lib/api-url"
+import { apiFetch } from "@/lib/auth"
 
 export type TargetYears = 4 | 4.5 | 5
 
@@ -106,7 +106,7 @@ export type PlanQuery = {
 }
 
 export async function fetchPlan(q: PlanQuery, signal?: AbortSignal): Promise<PlanResponse> {
-  const res = await fetch(`${MASARI_API_URL}/api/plan`, {
+  const res = await apiFetch("/api/plan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

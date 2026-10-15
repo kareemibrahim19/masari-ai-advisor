@@ -1,22 +1,22 @@
 "use client"
 
 /**
- * The signed-in student. The login page calls signIn(code); every other page reads the student's
- * computed view with useStudentView(). The id is kept in sessionStorage so a refresh stays signed in
- * (closing the tab signs out). Data comes from lib/data/student-source.ts.
+ * The signed-in student. The login page calls signIn(studentId, password), which signs in on the server
+ * (lib/auth.ts); every other page reads the student's computed view with useStudentView(). The token and id
+ * are kept in sessionStorage, so a refresh stays signed in (closing the tab signs out). When the server
+ * rejects the token (401 on any request), the student is signed out and the app shell opens /login.
  */
 import * as React from "react"
-import { findStudentByAccessCode, getStudent } from "@/lib/data/student-source"
+import { clearSession, login, savedStudentId, SIGNED_OUT_EVENT, type LoginResult } from "@/lib/auth"
+import { getStudent } from "@/lib/data/student-source"
 import type { StudentFileEntry } from "@/lib/data/types"
 import { buildStudentView, type StudentView } from "@/lib/student-view"
-
-const KEY = "masari.studentId"
 
 type StudentContextValue = {
   /** false until the saved session has been checked (avoids flashing the login page on refresh). */
   ready: boolean
   view: StudentView | null
-  signIn: (code: string) => Promise<StudentFileEntry | null>
+  signIn: (studentId: string, password: string) => Promise<LoginResult>
   signOut: () => void
 }
 
@@ -27,32 +27,27 @@ export function StudentProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = React.useState(false)
 
   React.useEffect(() => {
-    let saved: string | null = null
-    try {
-      saved = sessionStorage.getItem(KEY)
-    } catch {}
-    // Same path with or without a saved id, so state is only set from the async result.
+    // A saved sign-in that has not expired: load the student with its token.
+    const saved = savedStudentId()
     Promise.resolve(saved ? getStudent(saved) : null).then((s) => {
+      if (!s) clearSession()
       setEntry(s)
       setReady(true)
     })
+    // The server rejected the token (expired, or signed out elsewhere): back to the login page.
+    const onSignedOut = () => setEntry(null)
+    window.addEventListener(SIGNED_OUT_EVENT, onSignedOut)
+    return () => window.removeEventListener(SIGNED_OUT_EVENT, onSignedOut)
   }, [])
 
-  const signIn = React.useCallback(async (code: string) => {
-    const s = await findStudentByAccessCode(code)
-    if (s) {
-      try {
-        sessionStorage.setItem(KEY, s.student_id)
-      } catch {}
-      setEntry(s)
-    }
-    return s
+  const signIn = React.useCallback(async (studentId: string, password: string) => {
+    const result = await login(studentId, password)
+    if (result.ok) setEntry(result.student)
+    return result
   }, [])
 
   const signOut = React.useCallback(() => {
-    try {
-      sessionStorage.removeItem(KEY)
-    } catch {}
+    clearSession()
     setEntry(null)
   }, [])
 

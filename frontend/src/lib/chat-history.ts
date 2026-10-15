@@ -7,7 +7,7 @@
  *   PUT    {API}/api/students/{id}/chats/{chatId}   the whole chat, after each question and answer
  *   DELETE {API}/api/students/{id}/chats/{chatId}
  */
-import { MASARI_API_URL } from "@/lib/api-url"
+import { apiFetch } from "@/lib/auth"
 import type { ChatMessage } from "@/lib/demo-state"
 
 export type SavedChat = { id: string; title: string; updatedAt: number; messages: ChatMessage[] }
@@ -37,11 +37,11 @@ export function saveChats(studentId: string, chats: SavedChat[]) {
 }
 
 const chatsUrl = (studentId: string, chatId?: string) =>
-  `${MASARI_API_URL}/api/students/${encodeURIComponent(studentId)}/chats${chatId ? `/${encodeURIComponent(chatId)}` : ""}`
+  `/api/students/${encodeURIComponent(studentId)}/chats${chatId ? `/${encodeURIComponent(chatId)}` : ""}`
 
 /** Saves one chat to the account. Failures are ignored: the copy in this browser is uploaded on the next sync. */
 export function pushChat(studentId: string, chat: SavedChat) {
-  fetch(chatsUrl(studentId, chat.id), {
+  apiFetch(chatsUrl(studentId, chat.id), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title: chat.title, updatedAt: chat.updatedAt, messages: chat.messages }),
@@ -49,7 +49,7 @@ export function pushChat(studentId: string, chat: SavedChat) {
 }
 
 export function dropChat(studentId: string, chatId: string) {
-  fetch(chatsUrl(studentId, chatId), { method: "DELETE", keepalive: true }).catch(() => {})
+  apiFetch(chatsUrl(studentId, chatId), { method: "DELETE", keepalive: true }).catch(() => {})
 }
 
 /**
@@ -60,7 +60,7 @@ export function dropChat(studentId: string, chatId: string) {
  */
 export async function syncChats(studentId: string, local: SavedChat[], signal?: AbortSignal): Promise<SavedChat[]> {
   const startedAt = Date.now()
-  const res = await fetch(chatsUrl(studentId), { signal })
+  const res = await apiFetch(chatsUrl(studentId), { signal })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   const server = ((await res.json()).chats as SavedChat[]).filter(isChat)
 
