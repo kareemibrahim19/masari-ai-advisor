@@ -1,0 +1,1041 @@
+{
+  "_note": "بيانات وهمية لعدد المقاعد في كل سكشن (السعة والمسجلين)، بنفس الشكل اللي هتيجي بيه الداتا الحقيقية.",
+  "sections": [
+    {
+      "course_code": "UNR 061",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 40,
+      "enrolled": 33
+    },
+    {
+      "course_code": "UNR 021",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 45,
+      "enrolled": 41
+    },
+    {
+      "course_code": "UNR 181",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 19
+    },
+    {
+      "course_code": "UNR 241",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 22
+    },
+    {
+      "course_code": "UNR 121",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 19
+    },
+    {
+      "course_code": "UNR 261",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 35,
+      "enrolled": 32
+    },
+    {
+      "course_code": "UNR 471",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 21
+    },
+    {
+      "course_code": "BAS 011",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 45
+    },
+    {
+      "course_code": "BAS 011",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 19
+    },
+    {
+      "course_code": "BAS 021",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 45
+    },
+    {
+      "course_code": "BAS 021",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 24
+    },
+    {
+      "course_code": "BAS 012",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 21
+    },
+    {
+      "course_code": "BAS 012",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 24
+    },
+    {
+      "course_code": "BAS 022",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 25
+    },
+    {
+      "course_code": "BAS 022",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 24
+    },
+    {
+      "course_code": "BAS 031",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 23
+    },
+    {
+      "course_code": "BAS 031",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 40,
+      "enrolled": 20
+    },
+    {
+      "course_code": "BAS 031",
+      "section": "3",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 31
+    },
+    {
+      "course_code": "BAS 032",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 35,
+      "enrolled": 35
+    },
+    {
+      "course_code": "BAS 032",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 18
+    },
+    {
+      "course_code": "BAS 041",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 20
+    },
+    {
+      "course_code": "BAS 041",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 32
+    },
+    {
+      "course_code": "BAS 041",
+      "section": "3",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 24
+    },
+    {
+      "course_code": "PDE 051",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 45,
+      "enrolled": 45
+    },
+    {
+      "course_code": "PDE 051",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 35,
+      "enrolled": 20
+    },
+    {
+      "course_code": "PDE 052",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 29
+    },
+    {
+      "course_code": "PDE 052",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 18
+    },
+    {
+      "course_code": "ENG 111",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 40,
+      "enrolled": 27
+    },
+    {
+      "course_code": "ENG 111",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 33
+    },
+    {
+      "course_code": "BAS 115",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 30
+    },
+    {
+      "course_code": "BAS 115",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 37
+    },
+    {
+      "course_code": "BAS 116",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 40
+    },
+    {
+      "course_code": "BAS 116",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 45,
+      "enrolled": 29
+    },
+    {
+      "course_code": "BAS 216",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 26
+    },
+    {
+      "course_code": "BAS 216",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 40,
+      "enrolled": 27
+    },
+    {
+      "course_code": "ELE 151",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 23
+    },
+    {
+      "course_code": "ELE 151",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 26
+    },
+    {
+      "course_code": "BAS 217",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 35
+    },
+    {
+      "course_code": "BAS 217",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 16
+    },
+    {
+      "course_code": "ENG 312",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 23
+    },
+    {
+      "course_code": "ENG 312",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 25
+    },
+    {
+      "course_code": "CSE 151",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 40,
+      "enrolled": 40
+    },
+    {
+      "course_code": "CSE 151",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 31
+    },
+    {
+      "course_code": "ECE 121",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 25
+    },
+    {
+      "course_code": "ECE 121",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 24
+    },
+    {
+      "course_code": "ECE 122",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 40
+    },
+    {
+      "course_code": "ECE 122",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 35,
+      "enrolled": 26
+    },
+    {
+      "course_code": "ECE 122",
+      "section": "3",
+      "offered_term": "spring",
+      "capacity": 45,
+      "enrolled": 27
+    },
+    {
+      "course_code": "CSE 141",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 30
+    },
+    {
+      "course_code": "CSE 141",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 25
+    },
+    {
+      "course_code": "BAS 218",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 24
+    },
+    {
+      "course_code": "BAS 218",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 24
+    },
+    {
+      "course_code": "CSE 221",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 40,
+      "enrolled": 25
+    },
+    {
+      "course_code": "CSE 221",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 30
+    },
+    {
+      "course_code": "ECE 223",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 30
+    },
+    {
+      "course_code": "ECE 223",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 22
+    },
+    {
+      "course_code": "ECE 234",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 35
+    },
+    {
+      "course_code": "ECE 234",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 28
+    },
+    {
+      "course_code": "ECE 332",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 40,
+      "enrolled": 40
+    },
+    {
+      "course_code": "ECE 332",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 25
+    },
+    {
+      "course_code": "ECE 332",
+      "section": "3",
+      "offered_term": "fall",
+      "capacity": 40,
+      "enrolled": 27
+    },
+    {
+      "course_code": "CSE 112",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 35,
+      "enrolled": 24
+    },
+    {
+      "course_code": "CSE 112",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 20
+    },
+    {
+      "course_code": "CSE 112",
+      "section": "3",
+      "offered_term": "spring",
+      "capacity": 45,
+      "enrolled": 30
+    },
+    {
+      "course_code": "ECE 333",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 45
+    },
+    {
+      "course_code": "ECE 333",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 30
+    },
+    {
+      "course_code": "ECE 333",
+      "section": "3",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 24
+    },
+    {
+      "course_code": "CSE 251",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 20
+    },
+    {
+      "course_code": "CSE 251",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 31
+    },
+    {
+      "course_code": "CSE 042",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 34
+    },
+    {
+      "course_code": "CSE 042",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 18
+    },
+    {
+      "course_code": "CSE 423",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 27
+    },
+    {
+      "course_code": "CSE 423",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 26
+    },
+    {
+      "course_code": "CSE 423",
+      "section": "3",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 23
+    },
+    {
+      "course_code": "CSE 351",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 45,
+      "enrolled": 45
+    },
+    {
+      "course_code": "CSE 351",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 26
+    },
+    {
+      "course_code": "CSE 351",
+      "section": "3",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 22
+    },
+    {
+      "course_code": "CSE 313",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 30
+    },
+    {
+      "course_code": "CSE 313",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 45,
+      "enrolled": 28
+    },
+    {
+      "course_code": "CSE 111",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 45,
+      "enrolled": 40
+    },
+    {
+      "course_code": "CSE 111",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 35,
+      "enrolled": 31
+    },
+    {
+      "course_code": "CSE 315",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 28
+    },
+    {
+      "course_code": "CSE 315",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 19
+    },
+    {
+      "course_code": "CSE 212",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 22
+    },
+    {
+      "course_code": "CSE 212",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 35,
+      "enrolled": 24
+    },
+    {
+      "course_code": "ECE 235",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 30
+    },
+    {
+      "course_code": "ECE 235",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 33
+    },
+    {
+      "course_code": "ECE 224",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 23
+    },
+    {
+      "course_code": "ECE 224",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 30,
+      "enrolled": 16
+    },
+    {
+      "course_code": "CSE 451",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 32
+    },
+    {
+      "course_code": "CSE 451",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 30
+    },
+    {
+      "course_code": "CSE 317",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 40,
+      "enrolled": 31
+    },
+    {
+      "course_code": "CSE 317",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 35,
+      "enrolled": 19
+    },
+    {
+      "course_code": "CSE 452",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 45,
+      "enrolled": 35
+    },
+    {
+      "course_code": "CSE 452",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 35,
+      "enrolled": 24
+    },
+    {
+      "course_code": "CSE 452",
+      "section": "3",
+      "offered_term": "spring",
+      "capacity": 45,
+      "enrolled": 31
+    },
+    {
+      "course_code": "CSE 311",
+      "section": "1",
+      "offered_term": "fall",
+      "capacity": 30,
+      "enrolled": 15
+    },
+    {
+      "course_code": "CSE 311",
+      "section": "2",
+      "offered_term": "fall",
+      "capacity": 40,
+      "enrolled": 22
+    },
+    {
+      "course_code": "ECE 321",
+      "section": "1",
+      "offered_term": "spring",
+      "capacity": 45,
+      "enrolled": 45
+    },
+    {
+      "course_code": "ECE 321",
+      "section": "2",
+      "offered_term": "spring",
+      "capacity": 45,
+      "enrolled": 37
+    },
+    {
+      "course_code": "ECE 321",
+      "section": "3",
+      "offered_term": "spring",
+      "capacity": 40,
+      "enrolled": 21
+    },
+    {
+      "course_code": "CSE 316",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 40,
+      "enrolled": 40
+    },
+    {
+      "course_code": "CSE 316",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 40,
+      "enrolled": 23
+    },
+    {
+      "course_code": "ECE 334",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 40,
+      "enrolled": 26
+    },
+    {
+      "course_code": "ECE 334",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 24
+    },
+    {
+      "course_code": "ECE 334",
+      "section": "3",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 24
+    },
+    {
+      "course_code": "BAS 315",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 45,
+      "enrolled": 45
+    },
+    {
+      "course_code": "BAS 315",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 25
+    },
+    {
+      "course_code": "BAS 315",
+      "section": "3",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 20
+    },
+    {
+      "course_code": "CSE 319",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 40,
+      "enrolled": 35
+    },
+    {
+      "course_code": "CSE 319",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 21
+    },
+    {
+      "course_code": "CSE 318",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 30
+    },
+    {
+      "course_code": "CSE 318",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 45,
+      "enrolled": 32
+    },
+    {
+      "course_code": "CSE 318",
+      "section": "3",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 15
+    },
+    {
+      "course_code": "BAS 311",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 45,
+      "enrolled": 40
+    },
+    {
+      "course_code": "BAS 311",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 30
+    },
+    {
+      "course_code": "BAS 311",
+      "section": "3",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 32
+    },
+    {
+      "course_code": "CSE 335",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 25
+    },
+    {
+      "course_code": "CSE 335",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 23
+    },
+    {
+      "course_code": "CSE 352",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 45,
+      "enrolled": 31
+    },
+    {
+      "course_code": "CSE 352",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 24
+    },
+    {
+      "course_code": "ECE 432",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 35
+    },
+    {
+      "course_code": "ECE 432",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 19
+    },
+    {
+      "course_code": "ECE 432",
+      "section": "3",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 26
+    },
+    {
+      "course_code": "CSE 454",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 29
+    },
+    {
+      "course_code": "CSE 454",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 23
+    },
+    {
+      "course_code": "CSE 454",
+      "section": "3",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 28
+    },
+    {
+      "course_code": "CSE 455",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 27
+    },
+    {
+      "course_code": "CSE 455",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 40,
+      "enrolled": 20
+    },
+    {
+      "course_code": "ECE 435",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 45,
+      "enrolled": 41
+    },
+    {
+      "course_code": "ECE 435",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 40,
+      "enrolled": 23
+    },
+    {
+      "course_code": "ECE 435",
+      "section": "3",
+      "offered_term": "both",
+      "capacity": 45,
+      "enrolled": 26
+    },
+    {
+      "course_code": "CSE 412",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 24
+    },
+    {
+      "course_code": "CSE 412",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 20
+    },
+    {
+      "course_code": "CSE 413",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 20
+    },
+    {
+      "course_code": "CSE 413",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 30
+    },
+    {
+      "course_code": "CSE 456",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 21
+    },
+    {
+      "course_code": "CSE 456",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 19
+    },
+    {
+      "course_code": "CSE 457",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 30
+    },
+    {
+      "course_code": "CSE 457",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 45,
+      "enrolled": 39
+    },
+    {
+      "course_code": "CSE 457",
+      "section": "3",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 24
+    },
+    {
+      "course_code": "CSE 414",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 35
+    },
+    {
+      "course_code": "CSE 414",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 19
+    },
+    {
+      "course_code": "CSE 414",
+      "section": "3",
+      "offered_term": "both",
+      "capacity": 45,
+      "enrolled": 25
+    },
+    {
+      "course_code": "CSE 458",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 30,
+      "enrolled": 26
+    },
+    {
+      "course_code": "CSE 458",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 45,
+      "enrolled": 32
+    },
+    {
+      "course_code": "CSE 459",
+      "section": "1",
+      "offered_term": "both",
+      "capacity": 35,
+      "enrolled": 25
+    },
+    {
+      "course_code": "CSE 459",
+      "section": "2",
+      "offered_term": "both",
+      "capacity": 45,
+      "enrolled": 26
+    }
+  ]
+}
