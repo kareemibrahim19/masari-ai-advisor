@@ -106,6 +106,7 @@ try:
     import auth
     import chat_history
     import student_choices
+    import seats
 except ImportError as e:  # e.g. Windows Smart App Control blocks pydantic-core's DLL
     print(f"skip API checks ({e.__class__.__name__}: {str(e).splitlines()[0][:80]})")
 else:
@@ -113,6 +114,7 @@ else:
     app.include_router(auth.router)
     app.include_router(chat_history.router)
     app.include_router(student_choices.router)
+    app.include_router(seats.router)
     Local = sessionmaker(bind=engine)
 
     def session_override():
@@ -122,6 +124,7 @@ else:
     app.dependency_overrides[auth.get_session] = session_override
     app.dependency_overrides[chat_history.get_session] = session_override
     app.dependency_overrides[student_choices.get_session] = session_override
+    app.dependency_overrides[seats.get_session] = session_override
     api = TestClient(app)
 
     r = api.post("/api/auth/login", json={"student_id": A, "password": "a new password"})
@@ -149,6 +152,12 @@ else:
     check("on: own choices with the token", api.get(f"/api/students/{A}/choices", headers=mine).status_code == 200)
     check("on: saving another student's choices is 403", api.put(
         f"/api/students/{B}/choices", json={"selected": [], "updatedAt": 1}, headers=mine).status_code == 403)
+    check("on: seat requests without a token is 401", api.get(f"/api/students/{A}/seat-requests").status_code == 401)
+    check("on: own seat requests with the token",
+          api.get(f"/api/students/{A}/seat-requests", headers=mine).status_code == 200)
+    check("on: another student's seat requests is 403",
+          api.get(f"/api/students/{B}/seat-requests", headers=mine).status_code == 403)
+    check("on: the seats per section stay open", api.get("/api/sections").status_code == 200)
     os.environ.pop("MASARI_REQUIRE_AUTH")
 
     # Guessing: after 5 wrong tries the student is locked for a while, even with the right password.
