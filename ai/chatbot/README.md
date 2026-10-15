@@ -143,6 +143,18 @@ The recommendations page saves what the student chose, so a refresh or another d
 
 404 for an unknown student, 503 when the database cannot be reached (the page then keeps its choices until a refresh).
 
+### Seats and seat requests
+
+Seats per section come from `ai/data/sections.json` (simulated; made by `ai/scripts/generate_mock_sections.py`), or
+the database when `DATABASE_URL` is set ([`seats.py`](seats.py)).
+
+| Endpoint | Does |
+|---|---|
+| `GET /api/sections` | `{ "term", "courses": { "CSE 315": [{ "section", "capacity", "enrolled", "seats_left", "instructor_id" }] } }`: sections offered this term (the term in `students.json`, or both terms). Open without signing in |
+| `GET /api/students/{student_id}/seat-requests` | `{ "requests": [{ "id", "course_code", "section", "offered_term", "status", "created_at" }] }` |
+| `POST /api/students/{student_id}/seat-requests` | `{ "course_code", "section" }` of a **full** section: 201 with the new request (status `pending`), 200 with the same one if already asked, 409 if the section still has seats, 404 if there is no such section this term |
+| `DELETE /api/students/{student_id}/seat-requests/{id}` | withdraws a request |
+
 `POST /api/transcribe` (multipart form): `audio` = the recording (webm / mp4 / ogg / mp3 / wav, up to 10 MB),
 optional `language` = `ar` or `en` (auto-detected otherwise). Response: `{ "text": "..." }`.
 
