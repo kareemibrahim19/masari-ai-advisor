@@ -45,6 +45,8 @@ jobs:
         run: |
           pip install httpx
           python ai/tests/test_chats.py
+      - name: Saved choices (database + API)
+        run: python ai/tests/test_choices.py
       - name: Password sign-in (hashes, tokens, limits, protected endpoints)
         run: python ai/tests/test_auth.py
 
