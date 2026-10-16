@@ -672,6 +672,95 @@ def _earliest(proj, cap, current, main_now, allow_summer, start: int):
     return None, None, None
 
 
+IMPROVE_GRADE = "B"  # the grade assumed in a course retaken to raise the GPA (the last grade counts, article 30)
+FLAG_AR["improvement"] = "تحسين: إعادة مادة ناجح فيها عشان المعدل يوصل 2.00"
+
+
+def _improvement_plan(s: dict, proj: dict, current: dict, main_now: int, last_main: int, allow_summer: bool,
+                      cap: int, target_years) -> dict:
+    """Every course is passed but the cumulative GPA is under 2.00, so the student cannot graduate yet (article 26).
+    Once the program is finished, any passed course can be improved until the GPA reaches 2.00 (article 30 item 2),
+    so the plan picks the fewest courses that get there with a B and places them in the coming terms."""
+    gp, allc, r = _grade_points(), d.courses(), d.rules()
+    need = r["graduation"]["min_cgpa"]
+    best = d.best_attempts(s)
+    cur = d.current_courses(s)
+    cur_codes = {c["code"] for c in cur}
+    # Graded hours once the current term is graded, as in _projection; their points give the projected GPA.
+    hours = (sum(a["credits"] for code, a in best.items() if a["grade"] in gp and code not in cur_codes)
+             + sum(c["credits"] for c in cur if allc.get(c["code"], {}).get("graded", True) and c["credits"] > 0))
+    points = proj["cgpa"] * hours
+    target = gp[IMPROVE_GRADE]
+    options = sorted(((code, (target - gp[a["grade"]]) * a["credits"]) for code, a in best.items()
+                      if code not in cur_codes and a["grade"] in gp and gp[a["grade"]] < target
+                      and allc[code]["type"] not in ("project", "training") and d.passed(a)),
+                     key=lambda x: -x[1])
+    picks = []
+    for code, gain in options:
+        if (points + sum(g for _, g in picks)) / hours >= need:
+            break
+        picks.append((code, gain))
+    gpa_after = round((points + sum(g for _, g in picks)) / hours, 2)
+    why = {"code": "gpa_below_2",
+           "ar": f"خلّصت كل المواد، بس معدلك التراكمي هيبقى {proj['cgpa']} والتخرج محتاج {need:.2f} على الأقل (مادة 26).",
+           "en": f"Every course is done, but your cumulative GPA will be {proj['cgpa']} and graduation needs at least "
+                 f"{need:.2f} (article 26)."}
+    base = {"feasible": False, "status": "impossible", "reason": why["ar"], "reason_code": "gpa_below_2", "why": why,
+            "summer_courses": [], "college_requests": []}
+    if gpa_after < need:
+        return {**base, "terms": [], "graduation_term": None,
+                "explanation": why["ar"] + f" وحتى لو حسّنت كل موادك لـ {IMPROVE_GRADE} مش هيوصل {need:.2f}، فكلّم مرشدك."}
+
+    # The improvement courses in the coming terms: each in a term it runs in, within the hour limits.
+    terms = _terms_after(current, main_now + 1, main_now + 6)
+    todo, placed = [c for c, _ in picks], {}
+    for ti, t in enumerate(terms):
+        if not todo:
+            break
+        if t["term"] == "summer" and not allow_summer:
+            continue
+        limit, load = (_summer_hours() if t["term"] == "summer" else cap), 0
+        for code in list(todo):
+            if _options(allc[code], t, allc[code]["planned_semester"] or 0, last_main, allow_summer, False) is None:
+                continue
+            if load + allc[code]["credits"] <= limit:
+                placed[code] = ti
+                load += allc[code]["credits"]
+                todo.remove(code)
+    rows = []
+    for ti, t in enumerate(terms[:max(placed.values()) + 1]):
+        cs = sorted(code for code, k in placed.items() if k == ti)
+        rows.append({**_term_label(t), "term": t["term"], "academic_year": t["academic_year"], "main_semester": t["main"],
+                     "credits": sum(allc[c]["credits"] for c in cs), "max_credits": cap if t["term"] != "summer" else None,
+                     "courses": [{"code": c, "name_ar": allc[c]["name_ar"], "name_en": allc[c].get("name_en"),
+                                  "credits": allc[c]["credits"], "type": allc[c]["type"],
+                                  "planned_semester": allc[c]["planned_semester"], "flag": "improvement",
+                                  "flag_ar": FLAG_AR["improvement"], "current_grade": best[c]["grade"]} for c in cs]})
+    rows = [row for row in rows if row["courses"] or row["term"] != "summer"]
+    # The 12-hour minimum, as in the main plan: the graduation semester may be under it on paper, others need approval.
+    min_load = r["min_credits_main_semester"]
+    mains = [row for row in rows if row["term"] != "summer"]
+    for row in mains:
+        if row["credits"] >= min_load:
+            continue
+        if row is mains[-1]:
+            row["below_minimum_paper"] = True
+            row["below_minimum_ar"] = f"ترم التخرج أقل من {min_load} ساعة: بيتسجل ورقي."
+        else:
+            row["warning"] = f"أقل من الحد الأدنى ({min_load} ساعة) في ترم تحسين، فمحتاج موافقة المجلس."
+    grad_t = terms[max(placed.values())]
+    on_time = grad_t["pos"] <= last_main
+    grad = _term_label(grad_t)
+    names = "، ".join(f"{_name(c)['ar']} (تقديرك {best[c]['grade']})" for c, _ in picks)
+    text = (f"{why['ar']} تقدر تحسّن أي مواد درستها لحد ما توصل {need:.2f} (مادة 30). لو أعدت {names} وجبت فيها "
+            f"{IMPROVE_GRADE} على الأقل، معدلك هيبقى {gpa_after} وتتخرج في {grad['ar']}.")
+    if not on_time:
+        text += f" وده بعد هدف {target_years} سنين."
+    return {**base, "feasible": on_time, "status": "feasible" if on_time else "impossible",
+            "terms": rows, "graduation_term": grad, "explanation": text,
+            "improvement": {"courses": [c for c, _ in picks], "assumed_grade": IMPROVE_GRADE, "gpa_after": gpa_after}}
+
+
 def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer: bool = True,
                           failed_courses: list[str] | None = None, expected_term_gpa: float | None = None,
                           with_risk: bool = True) -> dict:
@@ -702,7 +791,8 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
     proj = _projection(s, failed, expected_term_gpa)
     if "error" in proj:
         return {"found": False, **proj}
-    main_now = s["academic_status"]["main_semesters_completed"] + 1  # the current term's main semester
+    # Main semesters done once the current term ends: a summer is not a main semester, so it adds none.
+    main_now = s["academic_status"]["main_semesters_completed"] + (0 if current["term"] == "summer" else 1)
     cap, cap_why = _load_cap(proj["cgpa"], main_now)
     last_main = TARGETS[target_years]
 
@@ -723,6 +813,11 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
     }
 
     remaining_required, pools = _to_place(proj["passed"])
+    if not remaining_required and not pools and proj["cgpa"] is not None \
+            and proj["cgpa"] < d.rules()["graduation"]["min_cgpa"]:
+        out["articles"].append(ARTICLES["improve"])
+        out["assumptions"].append(f"مواد التحسين محسوبة على إنك هتجيب فيها {IMPROVE_GRADE} على الأقل، والتقدير الأخير هو اللي بيتحسب.")
+        return {**out, **_improvement_plan(s, proj, current, main_now, last_main, allow_summer, cap, target_years)}
     if not remaining_required and not pools:
         return {**out, "feasible": True, "graduation_term": _term_label(current), "terms": [],
                 "explanation": "لو نجحت في مواد الترم ده هتتخرج في آخره."}

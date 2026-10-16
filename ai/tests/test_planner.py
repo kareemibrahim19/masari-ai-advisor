@@ -207,6 +207,46 @@ last = [t for t in p["terms"] if t["term"] != "summer"][-1]
 check("one course left at the end: graduation semester under 12 on paper", last["credits"] < 12
       and last.get("below_minimum_paper"), (last["en"], last["credits"]))
 
+# Asked during a summer: the summer is not a main semester, so the next fall is the next one (not one later).
+import copy  # noqa: E402
+s = copy.deepcopy(d.get_student(EXC))
+s["student_id"] = "test-summer"
+done = s["academic_status"]["main_semesters_completed"]
+last_year = [t for t in s["terms"] if t["status"] == "published"][-1]["academic_year"]
+s["terms"] = [t for t in s["terms"] if t["status"] == "published" and not (t["term"] == "summer" and t["academic_year"] == last_year)]
+s["terms"].append({"academic_year": last_year, "term": "summer", "term_ar": "الصيفي", "status": "in_progress", "courses": []})
+d.students()["test-summer"] = s
+p = build_graduation_plan("test-summer", 5, True)
+first_main = next(t for t in p["terms"] if t["term"] != "summer")
+check("during a summer: the next fall is main semester done + 1", first_main["main_semester"] == done + 1,
+      (done, first_main["main_semester"]))
+check("during a summer: no main semester counted for it", p["current_main_semester"] == done, p["current_main_semester"])
+
+# Every course passed but a GPA under 2.00: improve courses until 2.00 (articles 26 and 30), not "you graduate".
+allc = d.courses()
+taken = [c for c in allc.values() if c["type"] != "elective"] + [
+    allc[code] for pool in d.program()["elective_pools"] for code in pool["courses"][:pool["choose"]]]
+low = copy.deepcopy(d.get_student(EXC))
+low["student_id"] = "test-lowgpa"
+low["terms"] = [
+    {"academic_year": "2029-2030", "term": "spring", "status": "published",
+     "courses": [{"code": c["code"], "name_ar": c["name_ar"], "credits": c["credits"], "attempt": 1,
+                  "grade": "C-" if c.get("graded", True) else "P"} for c in taken]},
+    {"academic_year": "2030-2031", "term": "fall", "status": "in_progress", "courses": []}]
+low["academic_status"].update({"cumulative_gpa": 1.7, "main_semesters_completed": 10, "consecutive_warning_semesters": 1,
+                               "earned_hours": sum(c["credits"] for c in taken)})
+d.students()["test-lowgpa"] = low
+p = build_graduation_plan("test-lowgpa", 5, True)
+imp = p.get("improvement") or {}
+check("GPA under 2.00 with nothing left: not 'you graduate'", p.get("reason_code") == "gpa_below_2" and p["terms"], p.get("explanation"))
+check("improvement plan reaches 2.00 with a B", imp.get("gpa_after", 0) >= 2.0, imp)
+check("improvement plan only retakes passed courses, flagged as improvement",
+      all(c["flag"] == "improvement" and c["code"] in imp["courses"] for t in p["terms"] for c in t["courses"]))
+mains = [t for t in p["terms"] if t["term"] != "summer"]
+check("improvement terms keep the 12-hour minimum rule", all(t["credits"] >= 12 or t.get("warning") for t in mains[:-1])
+      and (mains[-1]["credits"] >= 12 or mains[-1].get("below_minimum_paper")), [(t["en"], t["credits"]) for t in mains])
+del d.students()["test-summer"], d.students()["test-lowgpa"]
+
 # Options table
 o = plan_options(NEW)
 check("options table 3 targets", [r["target_years"] for r in o["options"]] == [4, 4.5, 5], o)
