@@ -88,6 +88,11 @@ def academic_standing(student_id: str) -> dict:
            "warning_threshold": r["warning_gpa_threshold"], "article": ARTICLES["warning"]}
     if cgpa is None:
         out["explanation"] = "لسه مفيش معدل تراكمي، فمفيش إنذار."
+    elif warned and streak >= limit:
+        out["terms_left_before_dismissal"] = 0
+        out["dismissal_reached"] = True
+        out["explanation"] = (f"معدله {cgpa} أقل من 2.00 لـ {streak} فصول رئيسية متتالية، فوصل لحد الفصل من البرنامج "
+                              f"({limit} فصول متتالية).")
     elif warned:
         left = limit - streak
         out["terms_left_before_dismissal"] = left

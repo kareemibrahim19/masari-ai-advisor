@@ -273,6 +273,17 @@ check("paper: 8 hours left in the last term -> paper below 12, go to student aff
       r["cases"][0]["applies"] and r["paper_needed"] and "شئون الطلاب" in r["cases"][0]["explanation"], r)
 del d.students()["test-low"], d.students()["test-last"]
 
+# Three warning semesters in a row: dismissal reached is said plainly (not "0 more semesters").
+gone = copy.deepcopy(d.students()[PROB])
+gone["student_id"] = "test-gone"
+gone["academic_status"]["consecutive_warning_semesters"] = 3
+d.students()["test-gone"] = gone
+r = call_tool("academic_standing", {}, "test-gone")
+check("dismissal reached: says so, not '0 more semesters'",
+      r.get("dismissal_reached") and "لحد الفصل" in r["explanation"] and "لـ 0" not in r["explanation"], r.get("explanation"))
+check("dismissal reached: still mentions the council's last chance", "last_chance" in r, r)
+del d.students()["test-gone"]
+
 # project allowance: projects 1 and 2 up to 4 hours short on paper, project 3 up to 6
 def _with_hours(base, sid, earned):
     s = copy.deepcopy(d.students()[base])
