@@ -251,6 +251,12 @@ const dict = {
   flagTrainingSummer: { ar: "تدريب صيفي", en: "Summer training" },
   flagCollegeRequest: { ar: "بموافقة الكلية", en: "College approval" },
   flagGraduationRequest: { ar: "طلب تخرج للكلية", en: "Graduation request" },
+  flagImprovement: { ar: "تحسين", en: "Improvement" },
+  flagImprovementWas: { ar: "تقديرك دلوقتي", en: "now" },
+  flagImprovementHint: {
+    ar: "خلّصت كل المواد بس معدلك أقل من 2.00، فبتعيد مواد ناجح فيها عشان المعدل يوصل 2.00 (مادة 30). التقدير الأخير هو اللي بيتحسب.",
+    en: "Every course is done but your GPA is under 2.00, so you retake passed courses to reach 2.00 (article 30). The last grade counts.",
+  },
   flagSummerHint: {
     ar: "الكلية بتفتح مواد الصيفي لو عدد كفاية من الطلاب طلبها (بحد أقصى 6 ساعات للطالب).",
     en: "The college opens summer courses when enough students request them (up to 6 credit hours per student).",

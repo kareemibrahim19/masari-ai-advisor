@@ -7,7 +7,13 @@ import { apiFetch } from "@/lib/auth"
 
 export type TargetYears = 4 | 4.5 | 5
 
-export type PlanFlag = "regular" | "summer_on_demand" | "training_summer" | "college_request" | "graduation_request"
+export type PlanFlag =
+  | "regular"
+  | "summer_on_demand"
+  | "training_summer"
+  | "college_request"
+  | "graduation_request"
+  | "improvement"
 
 export type PlanCourse = {
   code: string
@@ -22,6 +28,8 @@ export type PlanCourse = {
   /** Hours earned before this semester, and the hours the project asks for (set with paper_registration). */
   hours_before?: number
   hours_needed?: number
+  /** The grade the student has now in a course retaken to raise the GPA (set with the "improvement" flag). */
+  current_grade?: string
 }
 
 export type PlanTerm = {

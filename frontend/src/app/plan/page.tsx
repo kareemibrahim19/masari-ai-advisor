@@ -50,6 +50,7 @@ const flagStyle: Record<Exclude<PlanFlag, "regular">, { key: Parameters<ReturnTy
   training_summer: { key: "flagTrainingSummer", cls: "bg-muted text-muted-foreground" },
   college_request: { key: "flagCollegeRequest", cls: "bg-primary/10 text-primary" },
   graduation_request: { key: "flagGraduationRequest", cls: "bg-primary/10 text-primary" },
+  improvement: { key: "flagImprovement", cls: "bg-verified-soft text-verified" },
 }
 
 /** Projects registered within the hours tolerance must be registered on paper at the faculty. */
@@ -281,7 +282,7 @@ export default function PlanPage() {
             </section>
           )}
 
-          <Legend />
+          <Legend improvement={plan.terms.some((term) => term.courses.some((c) => c.flag === "improvement"))} />
 
           <div className="flex flex-wrap items-center gap-2">
             <VerifiedBadge />
@@ -633,7 +634,12 @@ function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined;
         <span>
           · {num(c.credits)} {t("creditsShort")}
         </span>
-        {flag && <span className={cn("rounded px-1.5 py-px font-medium", flag.cls)}>{t(flag.key)}</span>}
+        {flag && (
+          <span className={cn("rounded px-1.5 py-px font-medium", flag.cls)}>
+            {t(flag.key)}
+            {c.flag === "improvement" && c.current_grade && ` · ${t("flagImprovementWas")} ${c.current_grade}`}
+          </span>
+        )}
         {c.type === "project" && <span className="rounded bg-muted px-1.5 py-px font-medium text-muted-foreground">{t("graduationProject")}</span>}
         {c.paper_registration && (
           <span className={cn("rounded px-1.5 py-px font-medium tabular-nums", paperStyle)}>
@@ -646,12 +652,14 @@ function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined;
   )
 }
 
-function Legend() {
+function Legend({ improvement }: { improvement: boolean }) {
   const { t } = useI18n()
-  const items = [
-    { flag: "summer_on_demand" as const, hint: t("flagSummerHint") },
-    { flag: "college_request" as const, hint: t("flagCollegeRequestHint") },
-    { flag: "graduation_request" as const, hint: t("flagGraduationRequestHint") },
+  const items: { flag: Exclude<PlanFlag, "regular">; hint: string }[] = [
+    { flag: "summer_on_demand", hint: t("flagSummerHint") },
+    { flag: "college_request", hint: t("flagCollegeRequestHint") },
+    { flag: "graduation_request", hint: t("flagGraduationRequestHint") },
+    // Only when this plan has improvement courses: most students never need it.
+    ...(improvement ? [{ flag: "improvement" as const, hint: t("flagImprovementHint") }] : []),
   ]
   return (
     <div className="space-y-2 rounded-xl border p-4">
