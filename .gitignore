@@ -24,3 +24,6 @@ Thumbs.db
 
 # Standalone HTML build output (rebuild with ai/chatbot/build_standalone.py)
 ai/chatbot/dist/
+
+# Stress test raw results (5 MB, same seed gives the same file): ai/scripts/stress_plan.py
+ai/simulation/plan_stress.json
