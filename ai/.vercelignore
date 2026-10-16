@@ -1,6 +1,7 @@
 # Not needed by the hosted service
 chatbot/dist/
 scripts/
+simulation/
 **/__pycache__/
 .env*
 .vercel/
