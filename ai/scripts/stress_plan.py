@@ -98,17 +98,21 @@ def cap_for(cgpa, main_done: int) -> int:
     return next(b["max_credits"] for b in R["max_credits_by_gpa"] if b["gpa_min"] <= cgpa < b["gpa_max"])
 
 
+WITHDRAWN, DEPRIVED = "W", "DN"  # a withdrawal is not an attempt; a deprivation counts as 0 in the GPA
+
+
 def best_attempts(terms: list[dict]) -> dict:
     best = {}
     for t in terms:
         if t["status"] == "published":
             for c in t["courses"]:
-                best[c["code"]] = c
+                if c.get("grade") != WITHDRAWN:
+                    best[c["code"]] = c
     return best
 
 
 def is_pass(grade: str) -> bool:
-    return grade not in ("F", "FP")
+    return grade == "P" or (grade in GP and grade not in ("F", DEPRIVED))
 
 
 def cgpa_of(terms: list[dict]):
@@ -140,7 +144,7 @@ def projection(rec: dict, failed=(), term_gpa=None) -> dict:
     cgpa = round((p + per * ph) / (h + nh), 2) if h + nh else g0
     main_now = rec["academic_status"]["main_semesters_completed"] + (0 if cur["term"] == "summer" else 1)
     return {"passed": passed, "earned": sum(C[c]["credits"] for c in passed), "cgpa": cgpa, "main_now": main_now,
-            "cur": cur}
+            "cur": cur, "graded": h + nh, "points": p + per * ph}
 
 
 def remaining(passed: set) -> tuple[list[str], list[tuple[int, list[str]]]]:
@@ -153,23 +157,19 @@ def remaining(passed: set) -> tuple[list[str], list[tuple[int, list[str]]]]:
     return req, pools
 
 
-def terms_after(kind: str, year: int, main_now: int, last_main: int, summer_after: bool = False) -> list[dict]:
-    """Terms after the current one, up to main semester `last_main`. year = start of the academic year.
-    `summer_after` also counts the summer right after that semester (a policy question, see the report)."""
+def terms_after(kind: str, year: int, main_now: int, last_main: int, summer_after: bool = True) -> list[dict]:
+    """Terms after the current one, up to main semester `last_main` and the summer right after it (the summer of the
+    last year counts in the target, confirmed 2026-10-17). year = start of the academic year."""
     out, m = [], main_now
-    if main_now >= last_main and not summer_after:
-        return out
     while True:
         kind = NEXT[kind]
         if kind == "fall":
             year += 1
         if kind != "summer":
             m += 1
-            if m > last_main:
-                return out
-        out.append({"term": kind, "year": year, "main": m if kind != "summer" else None})
-        if (m == last_main and (kind == "summer" if summer_after else kind != "summer")) or m > last_main:
+        if m > last_main or (kind == "summer" and m == last_main and not summer_after):
             return out
+        out.append({"term": kind, "year": year, "main": m if kind != "summer" else None})
 
 
 def caps_of(terms: list[dict], cap: int, hi_from) -> list:
@@ -192,15 +192,16 @@ def caps_of(terms: list[dict], cap: int, hi_from) -> list:
 # ================================================================ the independent solver
 
 def oracle(passed: set, earned: int, cap: int, kind: str, year: int, main_now: int, last_main: int,
-           summer: bool, hi_from=None, no_gap: bool = False, request: bool = True, summer_after: bool = False,
-           min12: bool = False):
-    """Is there ANY schedule of the remaining courses that finishes by main semester `last_main`?
+           summer: bool, hi_from=None, request: bool = True, summer_after: bool = True, min12: bool = False):
+    """Is there ANY schedule of the remaining courses that finishes by main semester `last_main` (and its summer)?
 
-    Hard rules: each course once, prerequisites in an earlier term, offering (term of the plan semester,
-    electives and projects in fall or spring, summer any non-project up to 6 hours, training any term), hour
-    thresholds with the projects' tolerance, the hour cap (15 on paper in a 14-hour term of 3-hour courses),
-    and one course outside its term in the last semester (a request to the college). The 12-hour minimum is
-    not a hard rule (the council can approve less). Returns the schedule {code: term index} or None.
+    Rules (courses.json and what the team confirmed): each course once, prerequisites in an earlier term, offering
+    (term of the plan semester, electives and projects in fall or spring, summer any non-project up to 6 hours,
+    training any term), hour thresholds with the projects' tolerance, the hour cap (15 on paper in a 14-hour term of
+    3-hour courses), no empty main semester before graduation (and no summer after an empty one), and a mandatory
+    course outside its semester only by request: one in the graduation semester, or one alone in a semester where
+    nothing else is taken. The 12-hour minimum is soft (council approval) unless `min12`.
+    Returns the schedule {code: term index} or None.
     """
     terms = terms_after(kind, year, main_now, last_main, summer_after)
     req, pools = remaining(passed)
@@ -210,17 +211,18 @@ def oracle(passed: set, earned: int, cap: int, kind: str, year: int, main_now: i
         return None
     caps = caps_of(terms, cap, hi_from)
     items = req + [c for _, cs in pools for c in cs]
-    var, off = [], []  # (code, term), whether it is a graduation request
+    var, off = [], []  # (code, term), whether it is opened by request
     for c in items:
         for ti, t in enumerate(terms):
             if runs_in(c, t["term"], summer):
                 var.append((c, ti)), off.append(False)
-            elif request and t["main"] == last_main and C[c]["type"] == "mandatory":
+            elif request and t["main"] is not None and C[c]["type"] == "mandatory":
                 var.append((c, ti)), off.append(True)
     nx = len(var)
     lows = [ti for ti, cp in enumerate(caps) if cp == 14]
-    nact = len(terms) if (no_gap or min12) else 0
-    n = nx + len(lows) + nact
+    mains = [ti for ti, t in enumerate(terms) if t["main"] is not None]
+    A_, S_ = nx + len(lows), nx + len(lows) + len(mains)  # "active" and "only requested" per main term
+    n = S_ + len(mains)
     rows, cols, vals, lo, hi = [], [], [], [], []
 
     def add(co: dict, a, b):
@@ -248,7 +250,7 @@ def oracle(passed: set, earned: int, cap: int, kind: str, year: int, main_now: i
         for p in prereqs(c):
             if p in passed:
                 continue
-            if p not in by_code:  # an elective prerequisite that is not remaining cannot happen here
+            if p not in by_code:
                 return None
             add({k: 1, **{k2: -1 for k2 in by_code[p] if var[k2][1] < ti}}, -np.inf, 0)
         need = hours_least(c)
@@ -270,26 +272,30 @@ def oracle(passed: set, earned: int, cap: int, kind: str, year: int, main_now: i
                     add({k: 1, w: 1}, -np.inf, 1)
         else:
             add(cr, -np.inf, caps[ti])
-    reqs = [k for k in range(nx) if off[k]]
-    if reqs:
-        add({k: 1 for k in reqs}, 0, 1)
-    if no_gap:  # the planner's own extra rule: no empty main semester before one with courses
-        mains = [ti for ti, t in enumerate(terms) if t["main"] is not None]
-        base = nx + len(lows)
-        for j, ti in enumerate(mains):
-            ks = [k for k in range(nx) if var[k][1] == ti]
-            add({**{k: 1 for k in ks}, base + j: -len(ks) or -1}, -np.inf, 0)
-            add({**{k: 1 for k in ks}, base + j: -1}, 0, np.inf)
-            if j + 1 < len(mains):
-                add({base + j: 1, base + j + 1: -1}, 0, np.inf)
-    if min12:  # every main semester with courses has 12 hours, except the last main semester of the horizon
-        mains = [ti for ti, t in enumerate(terms) if t["main"] is not None]
-        base = nx + len(lows)
-        for j, ti in enumerate(mains[:-1]):
-            ks = [k for k in range(nx) if var[k][1] == ti]
+    for j, ti in enumerate(mains):
+        ks = [k for k in range(nx) if var[k][1] == ti]
+        a, solo = A_ + j, S_ + j
+        nxt = {A_ + j + 1: 1} if j + 1 < len(mains) else {}
+        for k in ks:
+            add({k: 1, a: -1}, -np.inf, 0)  # a course makes the term active ...
+        add({a: 1, **{k: -1 for k in ks}}, -np.inf, 0)  # ... and an active term has a course
+        if nxt:
+            add({a: 1, A_ + j + 1: -1}, 0, np.inf)  # no empty main semester before one with courses
+        reqs = [k for k in ks if off[k]]
+        if reqs:
+            add({k: 1 for k in reqs}, 0, 1)
+            for k in reqs:  # graduation semester (active, the next one not) or a semester of only that course
+                add({k: 1, a: -1, **nxt, solo: -1}, -np.inf, 0)
             for k in ks:
-                add({k: 1, base + j: -1}, -np.inf, 0)
-            add({**{k: C[var[k][0]]["credits"] for k in ks}, base + j: -R["min_credits_main_semester"]}, 0, np.inf)
+                if not off[k]:
+                    add({k: 1, solo: 1}, -np.inf, 1)
+        if min12 and nxt:  # 12 hours in every semester before the graduation one
+            add({**{k: C[var[k][0]]["credits"] for k in ks}, A_ + j + 1: -R["min_credits_main_semester"]}, 0, np.inf)
+    for si, t in enumerate(terms):  # a summer has courses only after a main semester with courses
+        if t["main"] is None and si - 1 in mains:
+            for k in range(nx):
+                if var[k][1] == si:
+                    add({k: 1, A_ + mains.index(si - 1): -1}, -np.inf, 0)
     A = coo_matrix((vals, (rows, cols)), shape=(len(lo), n)).tocsr()
     res = milp(np.zeros(n), integrality=np.ones(n), bounds=Bounds(0, 1), constraints=LinearConstraint(A, lo, hi),
                options={"time_limit": 60})
@@ -303,7 +309,7 @@ def oracle(passed: set, earned: int, cap: int, kind: str, year: int, main_now: i
 def oracle_earliest(pj: dict, cap: int, summer: bool, start: int, stop: int):
     """The earliest main semester in [start, stop] the independent solver can finish by (None if none)."""
     kind, year = pj["cur"]["term"], int(pj["cur"]["academic_year"].split("-")[0])
-    for last in range(max(start, pj["main_now"] + 1), stop + 1):
+    for last in range(max(start, pj["main_now"]), stop + 1):
         if oracle(pj["passed"], pj["earned"], cap, kind, year, pj["main_now"], last, summer) is not None:
             return last
     return None
@@ -324,7 +330,7 @@ def plan_problems(pj: dict, plan: dict, summer: bool, cap: int) -> list[str]:
     caps = caps_of(expect, cap, hi_from)
     seen, done_hours = set(passed), earned
     improvement = plan.get("improvement")
-    last_main_row = max((i for i, r in enumerate(rows) if r["term"] != "summer"), default=-1)
+    last_main_row = max((i for i, r in enumerate(rows) if r["term"] != "summer" and r["courses"]), default=-1)
     j = 0
     for i, r in enumerate(rows):
         while j < len(expect) and expect[j]["term"] == "summer" and r["term"] != "summer":
@@ -349,9 +355,15 @@ def plan_problems(pj: dict, plan: dict, summer: bool, cap: int) -> list[str]:
                 out.append(f"{c} في {r['ar']} ومعاه {done_hours} ساعة بس (محتاج {hours_least(c)})")
             flag = next(x["flag"] for x in r["courses"] if x["code"] == c)
             if not runs_in(c, r["term"], summer):
-                if not (flag == "graduation_request" and i == last_main_row and r["term"] != "summer"):
-                    out.append(f"{c} في {r['ar']} وهي مش بتتدرّس فيه")
-        n_req = sum(1 for x in r["courses"] if x["flag"] == "graduation_request")
+                grad_req = flag == "graduation_request" and i == last_main_row
+                open_req = flag == "open_request" and len(codes) == 1
+                if r["term"] == "summer" or not (grad_req or open_req):
+                    out.append(f"{c} في {r['ar']} وهي مش بتتدرّس فيه ({flag})")
+        n_req = sum(1 for x in r["courses"] if x["flag"] in ("graduation_request", "open_request"))
+        if r["term"] != "summer" and not codes and i < len(rows) - 1:
+            out.append(f"{r['ar']} فاضي وبعده ترمات فيها مواد")
+        if r["term"] == "summer" and codes and i > 0 and rows[i - 1]["term"] != "summer" and not rows[i - 1]["courses"]:
+            out.append(f"{r['ar']} فيه مواد بعد ترم أساسي فاضي")
         if r["term"] == "summer":
             if hours > SUMMER_MAX:
                 out.append(f"{hours} ساعة في {r['ar']} (الصيفي أقصاه {SUMMER_MAX})")
@@ -362,12 +374,10 @@ def plan_problems(pj: dict, plan: dict, summer: bool, cap: int) -> list[str]:
                 out.append(f"{hours} ساعة في {r['ar']} فوق الحد {cp}")
             if improvement and hours > cap:
                 out.append(f"{hours} ساعة تحسين في {r['ar']} فوق الحد {cap}")
-        if n_req and i != last_main_row:
-            out.append(f"طلب للكلية في {r['ar']} ومش ترم التخرج")
+        if n_req > 1:
+            out.append(f"أكتر من مادة بطلب في {r['ar']}")
         seen |= set(codes)
         done_hours += hours
-    if sum(1 for r in rows for x in r["courses"] if x["flag"] == "graduation_request") > 1:
-        out.append("أكتر من طلب للكلية")
     if improvement:
         return out
     req, pools = remaining(seen)
@@ -406,11 +416,15 @@ PROFILES = {
 
 
 def grade_for(rng, prof, code, retake) -> str:
+    """A grade for a course: a withdrawal now and then (W), a failure by the profile's rate, some of them for
+    absence (DN, counts as 0), else a letter (a retake after a failure is capped at B+)."""
     mean, sd, pf = PROFILES[prof][:3]
+    if rng.random() < 0.03:
+        return WITHDRAWN
     if C[code].get("graded", True) is False:
         return "FP" if rng.random() < pf else "P"
     if rng.random() < pf:
-        return "F"
+        return DEPRIVED if rng.random() < 0.15 else "F"
     g = letter(min(100, max(60, rng.gauss(mean, sd))))
     if retake and GRADES.index(g) < GRADES.index(R["retake_max_grade"]):
         g = R["retake_max_grade"]
@@ -484,7 +498,7 @@ def lived(rng, sid: str) -> dict:
         prof2, switch = prof, 99
     mains = rng.choice([0, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 9, 10, 11, 12, 13])
     kind, year = "fall", 2026 - (mains // 2) - (1 if mains % 2 else 0)
-    terms, main_done = [], 0
+    terms, main_done, streak, freezes = [], 0, 0, 0
     p_cur = prof
     while True:
         best = best_attempts(terms)
@@ -497,15 +511,21 @@ def lived(rng, sid: str) -> dict:
             break  # the current term is a summer
         if main_done >= switch:
             p_cur = prof2
+        if kind != "summer" and terms and rng.random() < 0.03:
+            freezes += 1  # a frozen semester (وقف قيد): nothing registered, and it does not count
+            kind = NEXT[kind]
+            continue
         go_summer = kind != "summer" or rng.random() < PROFILES[p_cur][3]
         codes = pick(rng, terms, passed, earned, kind, cg, main_done, p_cur, not terms) if go_summer else []
         if codes:
-            attempted = {c["code"] for t in terms for c in t["courses"]}
+            attempted = {c["code"] for t in terms for c in t["courses"] if c["grade"] != WITHDRAWN}
             rows = [{"code": c, "credits": C[c]["credits"],
                      "grade": grade_for(rng, p_cur, c, c in attempted)} for c in codes]
             terms.append({"term": kind, "academic_year": year_of(kind, year), "status": "published", "courses": rows})
         if kind != "summer":
             main_done += 1
+            g = cgpa_of(terms)
+            streak = streak + 1 if g is not None and g < 2 and main_done >= R["warning_starts_after_main_semester"] else 0
         kind = NEXT[kind]
         if kind == "fall":
             year += 1
@@ -518,8 +538,10 @@ def lived(rng, sid: str) -> dict:
         return None
     terms.append({"term": kind, "academic_year": year_of(kind, year), "status": "in_progress",
                   "courses": [{"code": c, "credits": C[c]["credits"]} for c in cur]})
+    grades = Counter(c.get("grade") for t in terms for c in t["courses"])
     return record(sid, terms, main_done, {"kind": "lived", "profile": prof if prof == prof2 else f"{prof}→{prof2}",
-                                          "mains": mains})
+                                          "mains": mains, "W": grades[WITHDRAWN], "DN": grades[DEPRIVED],
+                                          "freezes": freezes}, streak)
 
 
 def transfer(rng, sid: str) -> dict:
@@ -560,9 +582,10 @@ def transfer(rng, sid: str) -> dict:
     return record(sid, terms, main_done, {"kind": "transfer", "share": round(f, 2)})
 
 
-def record(sid: str, terms: list[dict], main_done: int, meta: dict) -> dict:
+def record(sid: str, terms: list[dict], main_done: int, meta: dict, streak: int = 0) -> dict:
     return {"student_id": sid, "terms": terms, "meta": meta,
-            "academic_status": {"cumulative_gpa": cgpa_of(terms), "main_semesters_completed": main_done}}
+            "academic_status": {"cumulative_gpa": cgpa_of(terms), "main_semesters_completed": main_done,
+                                "consecutive_warning_semesters": streak}}
 
 
 def with_grades(passed_grades: dict, current: list[str], kind: str, start: int, main_done: int, sid: str,
@@ -711,6 +734,7 @@ def check_one(rec: dict, follow: bool) -> dict:
                 "summer_courses": sum(1 for c in courses if c["flag"] == "summer_on_demand"),
                 "training_main": sum(1 for c in courses if c["flag"] == "college_request"),
                 "grad_request": sum(1 for c in courses if c["flag"] == "graduation_request"),
+                "open_request": sum(1 for c in courses if c["flag"] == "open_request"),
                 "paper_project": sum(1 for c in courses if c.get("paper_registration")),
                 "paper_load": sum(1 for r in rows if r.get("paper_load")),
                 "council": sum(1 for r in rows if r.get("warning")),
@@ -718,8 +742,12 @@ def check_one(rec: dict, follow: bool) -> dict:
                 "improvement": p.get("improvement") is not None}
             for issue in plan_problems(pj, p, summer, cap):
                 problem("invalid_plan", f"{years} سنين، صيفي {'أيوه' if summer else 'لأ'}: {issue}")
-            if p.get("improvement") is not None or (not p.get("terms") and p["feasible"]):
-                continue  # improvement plans and "graduate at the end of this term" are checked separately
+            if p.get("improvement") is not None:
+                continue  # improvement plans are checked by plan_problems
+            if not p.get("terms") and p.get("graduation_term"):  # graduates at the end of this term
+                if (status == "feasible") != (pj["main_now"] <= last):
+                    problem("graduate_now", f"بيتخرج آخر الترم ده (الترم {pj['main_now']}) ومساري قال {status} لهدف {years} سنين")
+                continue
             kind, year = pj["cur"]["term"], int(pj["cur"]["academic_year"][:4])
             as_is = oracle(pj["passed"], pj["earned"], cap, kind, year, pj["main_now"], last, summer)
             if status == "feasible":
@@ -730,33 +758,32 @@ def check_one(rec: dict, follow: bool) -> dict:
                 continue
             # Not feasible as things stand: the independent solver must agree ...
             if as_is is not None:
-                gap = oracle(pj["passed"], pj["earned"], cap, kind, year, pj["main_now"], last, summer, no_gap=True)
                 problem("false_no", f"قال مش ممكن في {years} سنين (صيفي {'أيوه' if summer else 'لأ'}) وفيه جدول بيلحق",
-                        why=(p.get("why") or {}).get("ar"), years=years, summer=summer,
-                        cause="no_gap" if gap is None else "solver", witness=as_is)
-            # ... and each lever the planner offers must work, and a lever it does not offer must not.
-            if summer and as_is is None and oracle(pj["passed"], pj["earned"], cap, kind, year, pj["main_now"], last,
-                                                   summer, summer_after=True) is not None:
-                out["notes"].append({"kind": "summer_after", "years": years})
-            if not summer and status == "impossible" and pj["main_now"] < last:
-                if oracle(pj["passed"], pj["earned"], cap, kind, year, pj["main_now"], last, True) is not None:
-                    problem("missed_route", f"قال مش ممكن في {years} سنين من غير صيفي، ومقالش إن الصيفي بيحلها")
-            if status == "impossible":
-                e = p.get("earliest_main_semester") or grad_sem
-                if e is None:
-                    if p.get("graduation_term") is None and oracle_earliest(pj, cap, summer, last + 1, MAX_MAIN):
-                        problem("no_plan", f"مرجّعش أي خطة ({years} سنين) وفيه خطة جوه الحد الأقصى")
-                    continue
-                if e - 1 > max(last, pj["main_now"]) and \
-                        oracle(pj["passed"], pj["earned"], cap, kind, year, pj["main_now"], e - 1, summer) is not None:
-                    problem("not_earliest", f"قال أقرب تخرج الترم {e} ({years} سنين، صيفي {summer}) وينفع الترم {e - 1}")
-                # A fall / spring graduation when the summer before it already works (same rules as the planner:
-                # no empty semester, 12 hours in every semester but the last).
-                grad = (p.get("graduation_term") or {}).get("ar", "")
-                if summer and grad and not grad.startswith("الصيفي") and e - 1 >= pj["main_now"] and \
-                        oracle(pj["passed"], pj["earned"], cap, kind, year, pj["main_now"], e - 1, True,
-                               summer_after=True, no_gap=True, min12=True) is not None:
-                    problem("summer_skipped", f"قال أقرب تخرج {grad} ({years} سنين) وينفع يتخرج في الصيفي اللي قبله")
+                        why=(p.get("why") or {}).get("ar"), years=years, summer=summer, witness=as_is)
+            # ... summer is offered when it is what makes the target ...
+            if not summer and status == "impossible" and \
+                    oracle(pj["passed"], pj["earned"], cap, kind, year, pj["main_now"], last, True) is not None:
+                problem("missed_route", f"قال مش ممكن في {years} سنين من غير صيفي، ومقالش إن الصيفي بيحلها")
+            if status != "impossible":
+                continue
+            # ... and "earliest graduation" is the earliest term: nothing finishes a term before it.
+            grad = p.get("graduation_term")
+            if not grad:
+                if oracle_earliest(pj, cap, summer, last + 1, MAX_MAIN) is not None:
+                    problem("no_plan", f"مرجّعش أي خطة ({years} سنين) وفيه خطة جوه الحد الأقصى")
+                continue
+            last_row = (p.get("terms") or [{}])[-1]
+            if grad["ar"].startswith("الصيفي") and not any(c["flag"] == "summer_on_demand" for c in last_row.get("courses", [])):
+                earlier = None  # only the training in the last summer: the usual path, not a later graduation
+            elif grad["ar"].startswith("الصيفي"):  # could it end with the main semester before this summer?
+                earlier = oracle(pj["passed"], pj["earned"], cap, kind, year, pj["main_now"], grad_sem, summer,
+                                 summer_after=False)
+            else:  # could it end by the summer before this semester (or the semester before)?
+                earlier = (oracle(pj["passed"], pj["earned"], cap, kind, year, pj["main_now"], grad_sem - 1, summer)
+                           if grad_sem - 1 >= pj["main_now"] else None)
+            if earlier is not None:
+                problem("not_earliest", f"قال أقرب تخرج {grad['ar']} ({years} سنين، صيفي {summer}) وفيه ترم قبله بيلحق",
+                        witness=earlier)
     # What-if: fail one or two current courses and expect some term GPA (the plan page's inputs).
     rng = random.Random(sid)
     graded = [c["code"] for c in pj["cur"]["courses"] if C[c["code"]].get("graded", True) and C[c["code"]]["credits"]]
@@ -786,7 +813,7 @@ def check_one(rec: dict, follow: bool) -> dict:
                     ok = oracle(wj["passed"], wj["earned"], wcap, wj["cur"]["term"], int(wj["cur"]["academic_year"][:4]),
                                 wj["main_now"], last, summer)
                     st_ = p.get("status")
-                    if (st_ == "feasible") != (ok is not None) and not (st_ != "feasible" and ok is not None and wj["main_now"] >= last):
+                    if (st_ == "feasible") != (ok is not None):
                         problem("false_no" if ok is not None else "oracle_disagrees",
                                 f"what-if ({years} سنين، صيفي {summer}): مساري قال {st_} والحل المستقل {'لقى' if ok is not None else 'ملقاش'} جدول",
                                 cause="whatif")
@@ -819,13 +846,32 @@ def check_one(rec: dict, follow: bool) -> dict:
     except Exception as e:  # noqa: BLE001
         problem("crash", f"جدول الأهداف وقع: {e!r}")
 
-    # GPA under 2.00: the plan should not promise graduation without saying the GPA has to come up.
+    # GPA under 2.00: the plan says graduation needs 2.00, how many semesters are left before dismissal (article 25)
+    # and the semester GPA that gets back to 2.00.
     if pj["cgpa"] is not None and pj["cgpa"] < 2.0:
         p = plans.get((5, True))
-        if p and p.get("found") and p.get("graduation_term") and not p.get("improvement"):
-            out["notes"].append({"kind": "gpa_under_2", "explanation": p.get("explanation")})
-    if follow:
+        if p and p.get("found") and p.get("graduation_term") and p.get("improvement") is None:
+            w = p.get("gpa_warning")
+            streak = rec["academic_status"].get("consecutive_warning_semesters") or 0
+            if pj["cur"]["term"] != "summer":
+                streak = streak + 1 if pj["main_now"] >= R["warning_starts_after_main_semester"] else 0
+            left = max(0, R["dismissal_after_consecutive_low_semesters"] - streak)
+            out["notes"].append({"kind": "gpa_under_2", "left": left, "said": w})
+            if not w:
+                problem("gpa_warning", "معدله تحت 2.00 والخطة مقالتش إن التخرج محتاج 2.00 ولا إمتى الفصل")
+            else:
+                if w["semesters_left"] != left:
+                    problem("gpa_warning", f"قال فاضل {w['semesters_left']} ترم قبل الفصل والمتوقع {left}")
+                if left:
+                    need = math.ceil((2.0 * (pj["graded"] + cap) - pj["points"]) / cap * 100 - 1e-9) / 100
+                    if abs((w.get("next_term_gpa") or -9) - need) > 0.011:
+                        problem("gpa_warning", f"قال محتاج معدل ترم {w.get('next_term_gpa')} والمحسوب {need}")
+    if follow == "follow":
         out["follow"] = follow_plan(rec, pj)
+    elif follow == "deviate":
+        out["deviate"] = deviate_plan(rec, pj)
+        for issue in out["deviate"]["issues"]:
+            problem("deviate", issue)
     return out
 
 
@@ -883,6 +929,132 @@ def follow_plan(rec: dict, pj: dict) -> dict:
     return {"ok": False, "why": "مخلصش بعد 30 ترم", "promised": promised, "log": log}
 
 
+def deviate_plan(rec: dict, pj: dict) -> dict:
+    """A student who asks Masari every term but does not do exactly what it says: drops courses, adds others,
+    skips a summer, freezes a semester, withdraws (W), fails (F) or is deprived (DN). Every term Masari must re-plan
+    from what was really registered: a plan that can be followed, and the right verdict."""
+    rec = json.loads(json.dumps(rec))
+    sid = rec["student_id"]
+    rng = random.Random("deviate-" + sid)
+    issues, steps, did = [], 0, Counter()
+    cg = pj["cgpa"] if pj["cgpa"] is not None else 2.5
+    grade = next(g for lo, g in BAND_GRADE if cg >= lo)
+    outcome = "30 ترم من غير ما يخلّص"
+    for steps in range(1, 31):
+        d.students = lambda: {sid: rec}
+        cj = projection(rec)
+        cap = cap_for(cj["cgpa"], cj["main_now"])
+        try:
+            p = planner.build_graduation_plan(sid, 5, True, with_risk=False)
+        except Exception as e:  # noqa: BLE001
+            issues.append(f"ترم {steps}: الخطة وقعت {e!r}")
+            outcome = "الخطة وقعت"
+            break
+        if not p.get("found"):
+            issues.append(f"ترم {steps}: الخطة رجّعت خطأ: {p.get('error')}")
+            outcome = "خطأ"
+            break
+        for issue in plan_problems(cj, p, True, cap):
+            issues.append(f"ترم {steps}: {issue}")
+        if p.get("improvement") is None and p.get("terms"):
+            ok = oracle(cj["passed"], cj["earned"], cap, cj["cur"]["term"], int(cj["cur"]["academic_year"][:4]),
+                        cj["main_now"], TARGETS[5], True)
+            if (p.get("status") == "feasible") != (ok is not None):
+                issues.append(f"ترم {steps}: مساري قال {p.get('status')} والحل المستقل {'لقى' if ok else 'ملقاش'} جدول")
+        # The term is graded: mostly as the student's level, sometimes not.
+        cur = next(t for t in rec["terms"] if t["status"] == "in_progress")
+        results = {}
+        for c in cur["courses"]:
+            r = rng.random()
+            if C[c["code"]].get("graded", True) is False:
+                results[c["code"]] = "FP" if r < 0.05 else "P"
+            else:
+                results[c["code"]] = WITHDRAWN if r < 0.05 else "F" if r < 0.12 else DEPRIVED if r < 0.14 else grade
+            did[results[c["code"]]] += results[c["code"]] in (WITHDRAWN, "F", DEPRIVED, "FP")
+        # Masari after the results (asked as a what-if while the term is still in progress, like the page does).
+        failed = [c for c, g in results.items() if not is_pass(g)]
+        graded = [c["code"] for c in cur["courses"] if C[c["code"]].get("graded", True) and C[c["code"]]["credits"]]
+        hrs = sum(C[c]["credits"] for c in graded)
+        pts = sum(GP.get(results[c], 0) * C[c]["credits"] for c in graded)
+        tg = math.floor(100 * pts / hrs) / 100 if hrs else None
+        try:
+            p2 = planner.build_graduation_plan(sid, 5, True, failed, tg, with_risk=False)
+        except Exception as e:  # noqa: BLE001
+            issues.append(f"ترم {steps}: الخطة بعد النتيجة وقعت {e!r}")
+            outcome = "الخطة وقعت"
+            break
+        for c in cur["courses"]:
+            c["grade"] = results[c["code"]]
+        cur["status"] = "published"
+        st = rec["academic_status"]
+        st["cumulative_gpa"] = cgpa_of(rec["terms"])
+        if cur["term"] != "summer":
+            st["main_semesters_completed"] += 1
+            low = st["cumulative_gpa"] is not None and st["cumulative_gpa"] < 2
+            st["consecutive_warning_semesters"] = (st.get("consecutive_warning_semesters", 0) + 1
+                                                   if low and st["main_semesters_completed"] >= 2 else 0)
+            if st["consecutive_warning_semesters"] >= R["dismissal_after_consecutive_low_semesters"]:
+                outcome = "وصل لحد الفصل (3 ترمات إنذار)"
+                break
+        passed = {c for c, a in best_attempts(rec["terms"]).items() if is_pass(a["grade"])}
+        req, pools = remaining(passed)
+        if not req and not pools:
+            outcome = "اتخرج" if st["cumulative_gpa"] >= 2 else "خلّص المواد ومعدله تحت 2.00"
+            break
+        if not p2.get("found"):
+            issues.append(f"ترم {steps}: الخطة بعد النتيجة رجّعت خطأ: {p2.get('error')}")
+            outcome = "خطأ"
+            break
+        if p2.get("improvement") is not None:
+            outcome = "خلّص المواد ومعدله تحت 2.00 (خطة تحسين)"
+            break
+        # Next term: the plan's next term, changed the way students change it.
+        rows = [r for r in p2.get("terms") or [] if r["courses"] or r["term"] != "summer"]
+        if not rows:
+            outcome = "مفيش خطة جوه الحد الأقصى للدراسة"
+            break
+        nxt = rows[0]
+        if nxt["term"] == "summer" and len(rows) > 1 and rng.random() < 0.3:
+            nxt = rows[1]  # skips the summer
+            did["skipped_summer"] += 1
+        term, year = nxt["term"], int(nxt["academic_year"][:4])
+        codes = [c["code"] for c in nxt["courses"]]
+        if term != "summer" and rng.random() < 0.04:  # freezes the semester: the next one instead, its own courses
+            did["freeze"] += 1
+            term = NEXT[NEXT[term]] if term == "spring" else "spring"
+            year += 1 if nxt["term"] == "spring" else 0
+            codes = []
+        if term != "summer":
+            if codes and rng.random() < 0.3:
+                for c in rng.sample(codes, min(len(codes) - 1, rng.choice([1, 2]))):
+                    codes.remove(c)
+                did["dropped"] += 1
+            if rng.random() < 0.3 or not codes:
+                earned = sum(C[c]["credits"] for c in passed)
+                extra = [c for c in pick(rng, rec["terms"], passed, earned, term, st["cumulative_gpa"],
+                                         st["main_semesters_completed"], "average", False) if c not in codes]
+                load = sum(C[c]["credits"] for c in codes)
+                for c in extra:
+                    if load + C[c]["credits"] <= cap and not (C[c]["type"] == "project" and any(x in PROJECTS for x in codes)):
+                        codes.append(c)
+                        load += C[c]["credits"]
+                        did["added"] += 1
+                        if not codes or rng.random() < 0.5:
+                            break
+        # The registration system refuses what the student is not allowed yet (a prerequisite failed, hours short).
+        earned = sum(C[c]["credits"] for c in passed)
+        codes = [c for c in codes if c not in passed and all(x in passed for x in prereqs(c)) and earned >= hours_least(c)]
+        if not codes:  # nothing of the plan is allowed: registers what is open instead
+            codes = pick(rng, rec["terms"], passed, earned, term, st["cumulative_gpa"], st["main_semesters_completed"],
+                         "average", False)
+        if not codes:
+            outcome = "مفيش مواد يسجلها"
+            break
+        rec["terms"].append({"term": term, "academic_year": year_of(term, year), "status": "in_progress",
+                             "courses": [{"code": c, "credits": C[c]["credits"]} for c in codes]})
+    return {"steps": steps, "issues": issues, "outcome": outcome, "did": dict(did)}
+
+
 def _order(label: str | None) -> tuple:
     if not label:
         return (9999, 9)
@@ -919,6 +1091,9 @@ def kept(results: list[dict], students: list[dict]) -> list[dict]:
     """Full records only of the students something went wrong for (the rest come back with the same seed)."""
     keep = {r["sid"] for r in results if r["problems"] or (r.get("follow") or {}).get("ok") is False}
     for r in results:
+        for n in r.get("notes", []):
+            n.pop("said", None)
+    for r in results:
         if r.get("follow"):
             r["follow"].pop("log", None)
     return [s for s in students if s["student_id"] in keep]
@@ -928,8 +1103,9 @@ def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 1500
     students = build_students(n)
-    follow_every = 4  # one student in four also follows the plan to the end
-    jobs = [(s, i % follow_every == 0 or s["meta"]["kind"] == "edge") for i, s in enumerate(students)]
+    # One student in four follows the plan to the end, one in eight does their own thing; edge cases follow.
+    jobs = [(s, "follow" if i % 4 == 0 or s["meta"]["kind"] == "edge" else "deviate" if i % 8 == 1 else None)
+            for i, s in enumerate(students)]
     t0 = time.time()
     results = []
     with Pool(max(1, min(6, (os.cpu_count() or 2) - 2))) as pool:

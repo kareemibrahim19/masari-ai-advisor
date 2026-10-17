@@ -251,6 +251,7 @@ const dict = {
   flagTrainingSummer: { ar: "تدريب صيفي", en: "Summer training" },
   flagCollegeRequest: { ar: "بموافقة الكلية", en: "College approval" },
   flagGraduationRequest: { ar: "طلب تخرج للكلية", en: "Graduation request" },
+  flagOpenRequest: { ar: "الكلية بتفتحهالك", en: "Opened for you" },
   flagImprovement: { ar: "تحسين", en: "Improvement" },
   flagImprovementWas: { ar: "تقديرك دلوقتي", en: "now" },
   flagImprovementHint: {
@@ -268,6 +269,10 @@ const dict = {
   flagGraduationRequestHint: {
     ar: "المادة مش في ترمها، بس الكلية بتفتحها لطالب محتاجها عشان يتخرج الترم ده.",
     en: "Not this course's semester, but the college opens it for a student who needs it to graduate this semester.",
+  },
+  flagOpenRequestHint: {
+    ar: "مفيش مواد متاحة ليك الترم ده، ومينفعش يبقى فاضي، فالكلية بتفتحلك المادة دي بطلب مخصوص.",
+    en: "Nothing you need runs this semester and it cannot stay empty, so the college opens this course for you by request.",
   },
   paperRegistration: { ar: "تسجيل ورقي", en: "Paper registration" },
   graduationProject: { ar: "مشروع تخرج", en: "Graduation project" },

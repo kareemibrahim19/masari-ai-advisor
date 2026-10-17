@@ -13,6 +13,7 @@ export type PlanFlag =
   | "training_summer"
   | "college_request"
   | "graduation_request"
+  | "open_request"
   | "improvement"
 
 export type PlanCourse = {
@@ -80,6 +81,16 @@ export type GraduationPlan = {
   gpa_needed?: { from: 0 | 1; cap: number; term_gpa: number; next_term_gpa?: number }
   /** What a cumulative GPA under 2.00 would do to this target (status "feasible"). */
   risk?: { cap: number; still_possible: boolean; ar: string; en: string }
+  /** GPA under 2.00 after this semester: graduation needs 2.00, and how many semesters are left before dismissal. */
+  gpa_warning?: {
+    cgpa: number
+    semesters_left: number
+    dismissal_reached: boolean
+    next_term_gpa?: number
+    average_term_gpa?: number
+    ar: string
+    en: string
+  }
   /** "past": the target's last term is already behind the student; "constraints": the rules don't allow it. */
   reason_code?: "past" | "constraints"
   why?: WhyNot | null

@@ -27,7 +27,8 @@ PROBLEM_AR = {
     "missed_route": "قالت \"مش ممكن\" من غير صيفي ومقالتش إن الصيفي بيحلها",
     "not_earliest": "\"أقرب تخرج\" مش أقرب حاجة",
     "no_plan": "مرجّعتش خطة وفيه خطة",
-    "summer_skipped": "\"أقرب تخرج\" خريف أو ربيع، والصيفي اللي قبله كان كفاية",
+    "gpa_warning": "معدل تحت 2.00: التحذير ناقص، أو عدد الترمات قبل الفصل أو المعدل المطلوب غلط",
+    "deviate": "طالب غيّر في الخطة: الخطة الجديدة مكسورة أو الحكم غلط",
     "monotonic": "هدف أطول بقى أصعب",
     "summer_worse": "الصيفي خلّى الحال أسوأ",
     "table": "جدول الأهداف في الصفحة مختلف عن الخطة",
@@ -135,6 +136,7 @@ def asks(results: list[dict]) -> str:
     items = [("مواد في الصيفي (لو الكلية فتحتها)", sum(1 for c in cells if c["summer_courses"])),
              ("تدريب في ترم أساسي (بموافقة الكلية)", sum(1 for c in cells if c["training_main"])),
              ("مادة في غير ترمها في ترم التخرج (طلب للكلية)", sum(1 for c in cells if c["grad_request"])),
+             ("ترم مفيش فيه مواد ليه، والكلية بتفتحله مادة", sum(1 for c in cells if c.get("open_request"))),
              ("مشروع بتسجيل ورقي (ساعات ناقصة جوه السماحية)", sum(1 for c in cells if c["paper_project"])),
              ("15 ساعة ورقي بمعدل تحت 2.00", sum(1 for c in cells if c["paper_load"])),
              ("ترم قبل التخرج أقل من 12 ساعة (موافقة المجلس)", sum(1 for c in cells if c["council"])),
@@ -197,6 +199,27 @@ def follow_section(results: list[dict]) -> tuple[str, dict]:
     return out, st
 
 
+def deviate_section(results: list[dict]) -> tuple[str, dict]:
+    ds = [r["deviate"] for r in results if r.get("deviate")]
+    did = Counter()
+    for x in ds:
+        did.update(x["did"])
+    steps = sum(x["steps"] for x in ds)
+    bad = [x for x in ds if x["issues"]]
+    st = {"n": len(ds), "steps": steps, "bad": len(bad)}
+    labels = [("W", "انسحب من مادة (W)"), ("F", "سقط في مادة"), ("DN", "اتحرم بالغياب (DN)"), ("FP", "سقط في تدريب"),
+              ("dropped", "شال مواد من اللي الخطة قالتها"), ("added", "زوّد مادة الخطة مقالتهاش"),
+              ("skipped_summer", "محضرش الصيفي اللي الخطة قالته"), ("freeze", "وقف قيد ترم")]
+    rows = [[esc(t), f"{did.get(k, 0):,}"] for k, t in labels]
+    outcomes = Counter(x["outcome"] for x in ds)
+    out = (f"<p>{len(ds):,} طالب، {steps:,} ترم. كل ترم مساري اتسأل من جديد على حسب اللي الطالب سجّله فعلًا، "
+           f"والخطة الجديدة اتفحصت (قواعد + الحل المستقل). "
+           f"<b class='{'bad' if bad else 'ok'}'>{len(bad) or 'ولا'} طالب</b> طلعت له خطة مكسورة أو حكم غلط.</p>"
+           + table(["الطلاب عملوا إيه", "مرات"], rows)
+           + "<h3>وصلوا لفين</h3>" + table(["النهاية", "طلاب"], [[esc(k), f"{v}"] for k, v in outcomes.most_common()]))
+    return out, st
+
+
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     data = json.loads((OUT / "plan_stress.json").read_text(encoding="utf-8"))
@@ -209,6 +232,11 @@ def main() -> None:
     bad_students = sum(1 for r in results if r["problems"])
     time_html, tst = timing(results)
     follow_html, fst = follow_section(results)
+    deviate_html, dst = deviate_section(results)
+    lived_ = [r for r in results if r["meta"]["kind"] == "lived"]
+    with_w = sum(1 for r in lived_ if r["meta"].get("W"))
+    with_dn = sum(1 for r in lived_ if r["meta"].get("DN"))
+    with_fr = sum(1 for r in lived_ if r["meta"].get("freezes"))
     kinds = Counter(r["meta"]["kind"] for r in results)
     profiles = Counter(r["meta"].get("profile", "").split("→")[0] for r in results if r["meta"]["kind"] == "lived")
 
@@ -257,6 +285,8 @@ def main() -> None:
 <li><b>{kinds['transfer']:,} طالب محوّل / معادلات:</b> المواد الناجح فيها مجموعة عشوائية (بس متطلباتها موجودة)، ومعاها شوية مواد ساقط فيها. دي بتعمل أوضاع غريبة مش هتطلع من المسار العادي.</li>
 <li><b>{kinds['edge']:,} حالة على الحافة معمولة باليد:</b> طالب جديد، فاضل مشروع 3 بس، سقط في مشروع 1، ساعات تحت حد المشروع بساعة، معدل 2.00 و3.00 بالظبط، خلّص المواد ومعدله تحت 2.00، فاضل تدريب بس، فاضل مادة واحدة في غير ترمها، قرب الحد الأقصى للدراسة، بيعيد أول سلسلة طويلة.</li>
 <li>الترم الحالي ممكن يكون خريف أو ربيع أو صيفي.</li>
+<li>في تاريخ الطلاب: {with_w:,} طالب انسحبوا من مادة (W) مرة على الأقل، و{with_dn:,} اتحرموا بالغياب (DN)، و{with_fr:,} عملوا وقف قيد ترم.</li>
+<li><b>{dst['n']:,} طالب مشيوا على مزاجهم:</b> كل ترم بيسألوا مساري، وبعدين يشيلوا مواد أو يزوّدوا، أو ميحضروش الصيفي، أو يوقفوا قيد، أو ينسحبوا أو يسقطوا أو يتحرموا، ومساري لازم يعيد الخطة على اللي اتسجّل فعلًا.</li>
 </ul>
 <h3>2. الأسئلة</h3>
 <p>كل طالب اتسأل 6 أسئلة (3 أهداف × صيفي أو لأ)، زي جدول الأهداف في صفحة الخطة، وكمان سؤال "what-if" عشوائي: "لو سقطت في المادة دي وجبت معدل ترم كذا؟".</p>
@@ -266,6 +296,7 @@ def main() -> None:
 (14 تحت 2.00 → 12 لما الإنذار يبدأ، 15 ورقي لو كلهم 3 ساعات)، الصيفي 6 ساعات ومن غير مشاريع، المشاريع ورا بعض، والخطة توصل 160 ساعة.</li>
 <li><b>الحكم صح؟</b> الحل المستقل (برنامج خطي بأعداد صحيحة اتكتب من جديد) بيقول هل فيه أي جدول بيلحق الهدف. بنقارن: "ممكن" / "ممكن بشرط" / "مش ممكن"، و"أقرب تخرج" فعلًا أقرب حاجة (الترم اللي قبله مستحيل).</li>
 <li><b>منطقي مع نفسه؟</b> هدف أطول عمره ما يبقى أصعب، الصيفي عمره ما يأخّر، وجدول الأهداف في الصفحة بيقول نفس اللي في الخطة.</li>
+<li><b>طلاب بيغيّروا:</b> {dst['n']:,} طالب بيعملوا عكس الخطة أحيانًا، وكل ترم بنفحص الخطة الجديدة اللي مساري بيطلّعها.</li>
 <li><b>نمشي على الخطة:</b> {fst['n']:,} طالب عملوا اللي الخطة قالته بالظبط ونجحوا في كل حاجة (بدرجات بتخلّي المعدل في نفس الشريحة)، واتسألوا تاني كل ترم. هل اتخرجوا في الميعاد اللي اتوعدوا بيه؟</li>
 </ol>
 <p class="small">نفس الـ seed بيطلع نفس النتيجة. الفحص كله مكتوب من courses.json وقواعد الخطة اللي اتفقنا عليها، فلو القاعدة نفسها فهمها غلط، الاتنين هيغلطوا مع بعض: ده اللي محتاج مراجعة من حد بيفهم اللائحة (تحت).</p>
@@ -277,6 +308,7 @@ def main() -> None:
 <h2>النتيجة بالتفصيل</h2>
 <div class="card"><h3>المشاكل اللي الفحص لقاها</h3>{problems_section(results)}</div>
 <div class="card"><h3>مشينا على الخطة لحد التخرج</h3>{follow_html}</div>
+<div class="card"><h3>طلاب مشيوا على مزاجهم</h3>{deviate_html}</div>
 <div class="card"><h3>إجابات مساري على الطلاب دول</h3>{answers(results)}
 <p class="small">"ممكن بشرط" = مش هيلحق وهو ماشي كده، بس هيلحق لو حضر صيفي أو رفع معدله لـ 3.00 (والخطة بتقوله الشرط).</p></div>
 <div class="card"><h3>الخطط بتطلب إيه من الطالب والكلية (هدف 5 سنين مع الصيفي)</h3>{asks(results)}</div>

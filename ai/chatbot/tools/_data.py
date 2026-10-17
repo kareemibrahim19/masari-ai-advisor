@@ -88,19 +88,32 @@ def course_label(code: str) -> str:
     return f"{code} {c['name_ar']}" if c else code
 
 
+# Grades that are not letters: a withdrawal (article 15) has no grade and leaves the course not passed and out of
+# the GPA; a student deprived for absence (over 25%) gets "DN", which counts in the GPA as 0.
+WITHDRAWN = "W"
+DEPRIVED = "DN"
+FAILING = ("F", "FP", DEPRIVED)
+
+
 def best_attempts(student: dict) -> dict[str, dict]:
-    """code -> the student's latest graded attempt (the latest attempt is the one that counts)."""
+    """code -> the student's latest graded attempt (the latest attempt is the one that counts). A withdrawal is not
+    an attempt: it does not replace an earlier grade."""
     best = {}
     for t in student["terms"]:
         if t["status"] != "published":
             continue
         for c in t["courses"]:
-            best[c["code"]] = c
+            if c.get("grade") != WITHDRAWN:
+                best[c["code"]] = c
     return best
 
 
 def passed(attempt: dict | None) -> bool:
-    return bool(attempt) and attempt["grade"] not in ("F", "FP")
+    """A pass (P) or a passing letter grade. F, FP, a deprivation (DN), a withdrawal or no grade is not a pass."""
+    if not attempt:
+        return False
+    g = attempt.get("grade")
+    return g == "P" or (g in rules()["grade_points"] and g not in FAILING)
 
 
 def current_courses(student: dict) -> list[dict]:

@@ -50,6 +50,7 @@ const flagStyle: Record<Exclude<PlanFlag, "regular">, { key: Parameters<ReturnTy
   training_summer: { key: "flagTrainingSummer", cls: "bg-muted text-muted-foreground" },
   college_request: { key: "flagCollegeRequest", cls: "bg-primary/10 text-primary" },
   graduation_request: { key: "flagGraduationRequest", cls: "bg-primary/10 text-primary" },
+  open_request: { key: "flagOpenRequest", cls: "bg-primary/10 text-primary" },
   improvement: { key: "flagImprovement", cls: "bg-verified-soft text-verified" },
 }
 
@@ -474,6 +475,12 @@ function PlanSummary({ plan }: { plan: GraduationPlan }) {
                 <b className="font-semibold">{t("whyShort")}</b> {tr(plan.why)}
               </p>
             )}
+            {plan.gpa_warning && (
+              <p className="flex items-start gap-1.5 rounded-lg border border-warning/40 bg-background/70 p-2.5 font-normal text-warning">
+                <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
+                <span>{tr(plan.gpa_warning)}</span>
+              </p>
+            )}
             {status === "feasible" && plan.risk && (
               <p className={cn("flex items-start gap-1.5 text-xs font-normal", plan.risk.still_possible ? "text-muted-foreground" : "text-warning")}>
                 <TriangleAlert className="mt-px size-3.5 shrink-0" aria-hidden />
@@ -658,6 +665,7 @@ function Legend({ improvement }: { improvement: boolean }) {
     { flag: "summer_on_demand", hint: t("flagSummerHint") },
     { flag: "college_request", hint: t("flagCollegeRequestHint") },
     { flag: "graduation_request", hint: t("flagGraduationRequestHint") },
+    { flag: "open_request", hint: t("flagOpenRequestHint") },
     // Only when this plan has improvement courses: most students never need it.
     ...(improvement ? [{ flag: "improvement" as const, hint: t("flagImprovementHint") }] : []),
   ]

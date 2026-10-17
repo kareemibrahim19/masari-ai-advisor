@@ -143,7 +143,9 @@ def gpa_calculator(student_id: str) -> dict:
 # ---------------------------------------------------------------- 4. retake / improvement
 
 def _attempts_of(student: dict, code: str) -> list[dict]:
-    return [c for t in student["terms"] if t["status"] == "published" for c in t["courses"] if c["code"] == code]
+    """Graded attempts of a course, oldest first (a withdrawal is not an attempt)."""
+    return [c for t in student["terms"] if t["status"] == "published" for c in t["courses"]
+            if c["code"] == code and c.get("grade") != d.WITHDRAWN]
 
 
 def _improvements_used(student: dict) -> int:
@@ -151,7 +153,7 @@ def _improvements_used(student: dict) -> int:
     used = 0
     for code in {c["code"] for t in student["terms"] if t["status"] == "published" for c in t["courses"]}:
         rows = _attempts_of(student, code)
-        used += sum(1 for i in range(1, len(rows)) if rows[i - 1]["grade"] not in ("F", "FP"))
+        used += sum(1 for i in range(1, len(rows)) if d.passed(rows[i - 1]))
     return used
 
 
@@ -233,7 +235,7 @@ def retake_info(student_id: str, course_code: str) -> dict:
         base.update(status="must_retake", article=ARTICLES["training"],
                     explanation="التدريب نجاح/رسوب، ولازم يعيده لحد ما ينجح عشان يتخرج (مادة 17).")
         return base
-    if last["grade"] == "F":
+    if last["grade"] in ("F", d.DEPRIVED):
         cap = r["retake_max_grade"]
         text = (f"راسب في المادة (F) ولازم يعيدها. أقصى تقدير بعد الإعادة {cap}. "
                 f"هيحضر المادة ويعيد الامتحان حسب اللوائح المالية (مادة 15).")
@@ -247,7 +249,7 @@ def retake_info(student_id: str, course_code: str) -> dict:
     used = 0
     for code2 in {c["code"] for t in s["terms"] if t["status"] == "published" for c in t["courses"]}:
         rows = _attempts_of(s, code2)
-        used += sum(1 for i in range(1, len(rows)) if rows[i - 1]["grade"] not in ("F", "FP"))
+        used += sum(1 for i in range(1, len(rows)) if d.passed(rows[i - 1]))
     imp = r["improvement"]
     left = imp["max_courses"] - used
     base.update(status="passed", current_grade=last["grade"], improvements_used=used, improvements_left=left,
