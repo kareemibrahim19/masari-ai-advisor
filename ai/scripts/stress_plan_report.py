@@ -29,6 +29,8 @@ PROBLEM_AR = {
     "no_plan": "مرجّعتش خطة وفيه خطة",
     "gpa_warning": "معدل تحت 2.00: التحذير ناقص، أو عدد الترمات قبل الفصل أو المعدل المطلوب غلط",
     "deviate": "طالب غيّر في الخطة: الخطة الجديدة مكسورة أو الحكم غلط",
+    "gpa_path": "المعدل بيتغير: حد الساعات أو التحذير أو الخطة الجديدة غلط",
+    "graduate_now": "بيتخرج آخر الترم ده: الحكم على الهدف غلط",
     "monotonic": "هدف أطول بقى أصعب",
     "summer_worse": "الصيفي خلّى الحال أسوأ",
     "table": "جدول الأهداف في الصفحة مختلف عن الخطة",
@@ -220,6 +222,69 @@ def deviate_section(results: list[dict]) -> tuple[str, dict]:
     return out, st
 
 
+PATH_AR = {"rising": "طالع (D ← A)", "falling": "نازل (A ← D)", "around_2": "رايح جاي حوالين 2.00",
+           "around_3": "رايح جاي حوالين 3.00", "crash_recover": "وقع وبعدين رجع (D, D, D+, ثم A)"}
+
+
+def gpa_section(results: list[dict]) -> tuple[str, dict]:
+    gs = [r["gpa_path"] for r in results if r.get("gpa_path")]
+    bad = [g for g in gs if g["issues"]]
+    st = {"n": len(gs), "steps": sum(g["steps"] for g in gs), "bad": len(bad),
+          "cap_changes": sum(g["cap_changes"] for g in gs), "warned": sum(g["warned_terms"] for g in gs)}
+    rows = []
+    for key, label in PATH_AR.items():
+        xs = [g for g in gs if g["path"] == key]
+        if not xs:
+            continue
+        out = Counter(g["outcome"] for g in xs)
+        rows.append([esc(label), f"{len(xs)}", f"{sum(g['steps'] for g in xs):,}", f"{sum(g['cap_changes'] for g in xs)}",
+                     f"{sum(g['warned_terms'] for g in xs)}", f"{sum(g['date_changes'] for g in xs)}",
+                     esc("، ".join(f"{k}: {v}" for k, v in out.most_common())),
+                     f"<span class='{'bad' if any(g['issues'] for g in xs) else 'ok'}'>{sum(len(g['issues']) for g in xs) or '✓'}</span>"])
+    html_ = (f"<p>{len(gs):,} طالب ماشيين على الخطة وناجحين، بس درجاتهم بتتغير كل ترم أساسي على مسار (تحت). كل ترم مساري اتسأل "
+             f"تاني ({st['steps']:,} مرة) واتفحص: <b>حد الساعات</b> لازم يتغير مع المعدل الجديد (21 / 18 / 14 / 12 تحت الإنذار)، "
+             f"<b>التحذير</b> يظهر لما المعدل يقع تحت 2.00 ويختفي لما يطلع، بعدد الترمات الصح قبل الفصل والمعدل المطلوب، "
+             f"و<b>الخطة الجديدة</b> سليمة وحكمها صح.</p>"
+             + table(["مسار المعدل", "طلاب", "ترمات", "مرات الحد اتغير", "ترمات فيها تحذير", "مرات الميعاد اتغير", "النهاية", "مشاكل"],
+                     rows, 1))
+    return html_, st
+
+
+CHANGE_AR = {"skipped_summer": "محضرش الصيفي", "freeze": "وقف قيد الترم", "dropped": "شال مواد", "added": "زوّد مواد"}
+GRADE_NOTE = {"W": "انسحب", "DN": "محروم", "F": "سقط", "FP": "سقط"}
+
+
+def examples_section() -> str:
+    path = OUT / "plan_stress_examples.json"
+    if not path.exists():
+        return ""
+    parts = []
+    for e in json.loads(path.read_text(encoding="utf-8")):
+        rows = []
+        for i, st in enumerate(e["log"], 1):
+            res = "، ".join(f"{name.split(' ', 2)[2]}: {GRADE_NOTE.get(g, g)}" for name, g in st["results"].items()
+                           if g in GRADE_NOTE) or "نجح في الكل"
+            said, reg = set(st["said"]["courses"]), set(st["registered"]["courses"])
+            diff = [CHANGE_AR[c] for c in st.get("changes", []) if c in ("freeze", "skipped_summer")]
+            if st["said"]["term"] != st["registered"]["term"]:
+                diff.append(f"سجّل في {st['registered']['term']} بدل {st['said']['term']}")
+            if said - reg:
+                diff.append("شال: " + "، ".join(sorted(said - reg)))
+            if reg - said:
+                diff.append("زوّد: " + "، ".join(sorted(reg - said)))
+            moved = st["grad_before"] != st["grad_after"]
+            rows.append([f"{i}", esc(st["term"]), esc(res),
+                         f"{esc(st['said']['term'])}<br><span class='small'>{esc('، '.join(st['said']['courses']))}</span>",
+                         f"{esc(st['registered']['term'])}<br><span class='small'>{esc('، '.join(st['registered']['courses']))}</span>",
+                         f"<span class='warn'>{esc(' · '.join(diff))}</span>" if diff else "<span class='ok'>زي الخطة</span>",
+                         f"<span class='{'warn' if moved else ''}'>{esc(st['grad_after'])}</span>"])
+        parts.append(f"<h3>{esc(e['sid'])} · {e['steps']} ترم · {esc(e['outcome'])}</h3>"
+                     + table(["#", "الترم", "النتيجة", "مساري قاله يسجّل", "هو سجّل", "الفرق", "التخرج المتوقع بعدها"], rows, 99))
+    return ("<p>نفس الاختبار بس بالتفصيل لـ 3 طلاب: كل ترم مساري بيقول للطالب يسجّل إيه، والطالب بيعمل حاجة تانية، والترم "
+            "اللي بعده مساري بيعيد الخطة على اللي اتسجّل فعلًا. العمود الأخير هو ميعاد التخرج اللي مساري قاله بعد النتيجة، "
+            "وباللون البرتقالي لما اتغير.</p>" + "".join(parts))
+
+
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     data = json.loads((OUT / "plan_stress.json").read_text(encoding="utf-8"))
@@ -233,6 +298,7 @@ def main() -> None:
     time_html, tst = timing(results)
     follow_html, fst = follow_section(results)
     deviate_html, dst = deviate_section(results)
+    gpa_html, gst = gpa_section(results)
     lived_ = [r for r in results if r["meta"]["kind"] == "lived"]
     with_w = sum(1 for r in lived_ if r["meta"].get("W"))
     with_dn = sum(1 for r in lived_ if r["meta"].get("DN"))
@@ -296,6 +362,7 @@ def main() -> None:
 (14 تحت 2.00 → 12 لما الإنذار يبدأ، 15 ورقي لو كلهم 3 ساعات)، الصيفي 6 ساعات ومن غير مشاريع، المشاريع ورا بعض، والخطة توصل 160 ساعة.</li>
 <li><b>الحكم صح؟</b> الحل المستقل (برنامج خطي بأعداد صحيحة اتكتب من جديد) بيقول هل فيه أي جدول بيلحق الهدف. بنقارن: "ممكن" / "ممكن بشرط" / "مش ممكن"، و"أقرب تخرج" فعلًا أقرب حاجة (الترم اللي قبله مستحيل).</li>
 <li><b>منطقي مع نفسه؟</b> هدف أطول عمره ما يبقى أصعب، الصيفي عمره ما يأخّر، وجدول الأهداف في الصفحة بيقول نفس اللي في الخطة.</li>
+<li><b>المعدل بيتغير:</b> {gst['n']:,} طالب ماشيين على الخطة بس معدلهم طالع أو نازل أو رايح جاي حوالين 2.00 و3.00، وكل ترم بنفحص حد الساعات والتحذير والخطة الجديدة.</li>
 <li><b>طلاب بيغيّروا:</b> {dst['n']:,} طالب بيعملوا عكس الخطة أحيانًا، وكل ترم بنفحص الخطة الجديدة اللي مساري بيطلّعها.</li>
 <li><b>نمشي على الخطة:</b> {fst['n']:,} طالب عملوا اللي الخطة قالته بالظبط ونجحوا في كل حاجة (بدرجات بتخلّي المعدل في نفس الشريحة)، واتسألوا تاني كل ترم. هل اتخرجوا في الميعاد اللي اتوعدوا بيه؟</li>
 </ol>
@@ -308,7 +375,9 @@ def main() -> None:
 <h2>النتيجة بالتفصيل</h2>
 <div class="card"><h3>المشاكل اللي الفحص لقاها</h3>{problems_section(results)}</div>
 <div class="card"><h3>مشينا على الخطة لحد التخرج</h3>{follow_html}</div>
+<div class="card"><h3>المعدل وهو بيتغير</h3>{gpa_html}</div>
 <div class="card"><h3>طلاب مشيوا على مزاجهم</h3>{deviate_html}</div>
+<div class="card"><h3>أمثلة: طالب مساري قاله خطة وهو عمل غيرها</h3>{examples_section()}</div>
 <div class="card"><h3>إجابات مساري على الطلاب دول</h3>{answers(results)}
 <p class="small">"ممكن بشرط" = مش هيلحق وهو ماشي كده، بس هيلحق لو حضر صيفي أو رفع معدله لـ 3.00 (والخطة بتقوله الشرط).</p></div>
 <div class="card"><h3>الخطط بتطلب إيه من الطالب والكلية (هدف 5 سنين مع الصيفي)</h3>{asks(results)}</div>

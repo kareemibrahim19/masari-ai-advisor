@@ -868,6 +868,10 @@ def check_one(rec: dict, follow: bool) -> dict:
                         problem("gpa_warning", f"قال محتاج معدل ترم {w.get('next_term_gpa')} والمحسوب {need}")
     if follow == "follow":
         out["follow"] = follow_plan(rec, pj)
+    elif follow == "gpa":
+        out["gpa_path"] = gpa_path(rec, pj)
+        for issue in out["gpa_path"]["issues"]:
+            problem("gpa_path", issue)
     elif follow == "deviate":
         out["deviate"] = deviate_plan(rec, pj)
         for issue in out["deviate"]["issues"]:
@@ -936,7 +940,7 @@ def deviate_plan(rec: dict, pj: dict) -> dict:
     rec = json.loads(json.dumps(rec))
     sid = rec["student_id"]
     rng = random.Random("deviate-" + sid)
-    issues, steps, did = [], 0, Counter()
+    issues, steps, did, log = [], 0, Counter(), []
     cg = pj["cgpa"] if pj["cgpa"] is not None else 2.5
     grade = next(g for lo, g in BAND_GRADE if cg >= lo)
     outcome = "30 ترم من غير ما يخلّص"
@@ -1014,6 +1018,12 @@ def deviate_plan(rec: dict, pj: dict) -> dict:
             outcome = "مفيش خطة جوه الحد الأقصى للدراسة"
             break
         nxt = rows[0]
+        before = dict(did)
+        entry = {"term": when_label(cur["term"], cur["academic_year"]),
+                 "results": {c["code"]: c["grade"] for c in cur["courses"]},
+                 "grad_before": (p.get("graduation_term") or {}).get("ar"),
+                 "grad_after": (p2.get("graduation_term") or {}).get("ar"),
+                 "said": {"term": when_label(nxt["term"], nxt["academic_year"]), "courses": [c["code"] for c in nxt["courses"]]}}
         if nxt["term"] == "summer" and len(rows) > 1 and rng.random() < 0.3:
             nxt = rows[1]  # skips the summer
             did["skipped_summer"] += 1
@@ -1052,7 +1062,131 @@ def deviate_plan(rec: dict, pj: dict) -> dict:
             break
         rec["terms"].append({"term": term, "academic_year": year_of(term, year), "status": "in_progress",
                              "courses": [{"code": c, "credits": C[c]["credits"]} for c in codes]})
-    return {"steps": steps, "issues": issues, "outcome": outcome, "did": dict(did)}
+        entry["registered"] = {"term": when_label(term, year_of(term, year)), "courses": codes}
+        entry["changes"] = [k for k in ("skipped_summer", "freeze", "dropped", "added") if did[k] > before.get(k, 0)]
+        log.append(entry)
+    return {"steps": steps, "issues": issues, "outcome": outcome, "did": dict(did), "log": log}
+
+
+def when_label(term: str, academic_year: str) -> str:
+    """'fall', '2029-2030' -> 'خريف 2029' (the calendar year the term falls in)."""
+    start = int(academic_year[:4])
+    return f"{ {'fall': 'خريف', 'spring': 'ربيع', 'summer': 'صيفي'}[term]} {start if term == 'fall' else start + 1}"
+
+
+# Term grades over time: the GPA goes up, down, or back and forth across 2.00 and 3.00 (the cap and the warning move).
+GPA_PATHS = {
+    "rising": ["D", "D+", "C", "C+", "B", "B+", "A", "A"],
+    "falling": ["A", "B+", "B-", "C", "C-", "D+", "D", "D"],
+    "around_2": ["D+", "B", "D+", "B-", "D", "B", "C-", "B"],
+    "around_3": ["B-", "A-", "B-", "A", "C+", "A", "B", "A-"],
+    "crash_recover": ["D", "D", "D+", "A", "A", "A-", "A", "A"],
+}
+
+
+def gpa_path(rec: dict, pj: dict) -> dict:
+    """The student follows the plan and passes, but the GPA moves term by term along a path. Every term Masari is
+    asked again: the hour cap must follow the new GPA (and academic warning), the plan must still be valid and its
+    verdict right, and under 2.00 the warning must say how many semesters are left and the GPA needed."""
+    rec = json.loads(json.dumps(rec))
+    sid = rec["student_id"]
+    name = list(GPA_PATHS)[sum(map(ord, sid)) % len(GPA_PATHS)]
+    path = GPA_PATHS[name]
+    issues, log = [], []
+    outcome, steps, mains = "30 ترم من غير ما يخلّص", 0, 0
+    for steps in range(1, 31):
+        d.students = lambda: {sid: rec}
+        cj = projection(rec)
+        cap = cap_for(cj["cgpa"], cj["main_now"])
+        try:
+            p = planner.build_graduation_plan(sid, 5, True, with_risk=False)
+        except Exception as e:  # noqa: BLE001
+            issues.append(f"ترم {steps}: الخطة وقعت {e!r}")
+            outcome = "الخطة وقعت"
+            break
+        if not p.get("found"):
+            issues.append(f"ترم {steps}: خطأ: {p.get('error')}")
+            outcome = "خطأ"
+            break
+        said_cap = p["after_this_term"]["max_credits"]
+        if said_cap != cap:
+            issues.append(f"ترم {steps}: معدله هيبقى {cj['cgpa']} وحد الساعات اللي مساري قاله {said_cap} والمتوقع {cap}")
+        for issue in plan_problems(cj, p, True, cap):
+            issues.append(f"ترم {steps}: {issue}")
+        if p.get("improvement") is None and p.get("terms"):
+            ok = oracle(cj["passed"], cj["earned"], cap, cj["cur"]["term"], int(cj["cur"]["academic_year"][:4]),
+                        cj["main_now"], TARGETS[5], True)
+            if (p.get("status") == "feasible") != (ok is not None):
+                issues.append(f"ترم {steps}: مساري قال {p.get('status')} والحل المستقل {'لقى' if ok else 'ملقاش'} جدول")
+        w = p.get("gpa_warning")
+        low = cj["cgpa"] is not None and cj["cgpa"] < 2
+        if low and p.get("graduation_term") and p.get("improvement") is None:
+            streak = rec["academic_status"].get("consecutive_warning_semesters") or 0
+            if cj["cur"]["term"] != "summer":
+                streak = streak + 1 if cj["main_now"] >= R["warning_starts_after_main_semester"] else 0
+            left = max(0, R["dismissal_after_consecutive_low_semesters"] - streak)
+            if not w:
+                issues.append(f"ترم {steps}: معدله {cj['cgpa']} ومفيش تحذير")
+            elif w["semesters_left"] != left:
+                issues.append(f"ترم {steps}: قال فاضل {w['semesters_left']} ترم قبل الفصل والمتوقع {left}")
+            elif left:
+                need = math.ceil((2.0 * (cj["graded"] + cap) - cj["points"]) / cap * 100 - 1e-9) / 100
+                if abs((w.get("next_term_gpa") or -9) - need) > 0.011:
+                    issues.append(f"ترم {steps}: قال محتاج معدل {w.get('next_term_gpa')} والمحسوب {need}")
+        elif not low and w:
+            issues.append(f"ترم {steps}: معدله {cj['cgpa']} ومساري حذّره إنه تحت 2.00")
+        log.append({"cgpa": cj["cgpa"], "cap": cap, "grad": (p.get("graduation_term") or {}).get("ar"),
+                    "warning": bool(w)})
+        # Grade the term along the path (main semesters move along it; a summer gets the same grade).
+        cur = next(t for t in rec["terms"] if t["status"] == "in_progress")
+        g = path[min(mains, len(path) - 1)]
+        results = {c["code"]: ("P" if C[c["code"]].get("graded", True) is False else g) for c in cur["courses"]}
+        graded = [c["code"] for c in cur["courses"] if C[c["code"]].get("graded", True) and C[c["code"]]["credits"]]
+        hrs = sum(C[c]["credits"] for c in graded)
+        tg = math.floor(100 * sum(GP[results[c]] * C[c]["credits"] for c in graded) / hrs) / 100 if hrs else None
+        p2 = planner.build_graduation_plan(sid, 5, True, [], tg, with_risk=False)  # after the results (what-if)
+        for c in cur["courses"]:
+            c["grade"] = results[c["code"]]
+        cur["status"] = "published"
+        st = rec["academic_status"]
+        st["cumulative_gpa"] = cgpa_of(rec["terms"])
+        if cur["term"] != "summer":
+            mains += 1
+            st["main_semesters_completed"] += 1
+            under = st["cumulative_gpa"] is not None and st["cumulative_gpa"] < 2
+            st["consecutive_warning_semesters"] = (st.get("consecutive_warning_semesters", 0) + 1
+                                                   if under and st["main_semesters_completed"] >= 2 else 0)
+            if st["consecutive_warning_semesters"] >= R["dismissal_after_consecutive_low_semesters"]:
+                outcome = "وصل لحد الفصل (3 ترمات إنذار)"
+                break
+        passed = {c for c, a in best_attempts(rec["terms"]).items() if is_pass(a["grade"])}
+        req, pools = remaining(passed)
+        if not req and not pools:
+            outcome = "اتخرج" if st["cumulative_gpa"] >= 2 else "خلّص المواد ومعدله تحت 2.00"
+            break
+        if not p2.get("found") or p2.get("improvement") is not None:
+            outcome = "خلّص المواد ومعدله تحت 2.00 (خطة تحسين)" if p2.get("improvement") is not None else "خطأ"
+            break
+        rows = [r for r in p2.get("terms") or [] if r["courses"] or r["term"] != "summer"]
+        if not rows:
+            outcome = "مفيش خطة جوه الحد الأقصى للدراسة"
+            break
+        nxt = rows[0]
+        earned = sum(C[c]["credits"] for c in passed)
+        codes = [c["code"] for c in nxt["courses"] if all(x in passed for x in prereqs(c["code"]))
+                 and earned >= hours_least(c["code"])]
+        if not codes:
+            outcome = "مفيش مواد يسجلها"
+            break
+        rec["terms"].append({"term": nxt["term"], "academic_year": nxt["academic_year"], "status": "in_progress",
+                             "courses": [{"code": c, "credits": C[c]["credits"]} for c in codes]})
+    caps = [x["cap"] for x in log]
+    return {"path": name, "steps": steps, "issues": issues, "outcome": outcome,
+            "cap_changes": sum(1 for a, b in zip(caps, caps[1:]) if a != b),
+            "date_changes": sum(1 for a, b in zip(log, log[1:]) if a["grad"] != b["grad"]),
+            "warned_terms": sum(1 for x in log if x["warning"]),
+            "gpa_min": min((x["cgpa"] for x in log if x["cgpa"] is not None), default=None),
+            "gpa_max": max((x["cgpa"] for x in log if x["cgpa"] is not None), default=None)}
 
 
 def _order(label: str | None) -> tuple:
@@ -1096,15 +1230,43 @@ def kept(results: list[dict], students: list[dict]) -> list[dict]:
     for r in results:
         if r.get("follow"):
             r["follow"].pop("log", None)
+        if r.get("deviate"):
+            r["deviate"].pop("log", None)
     return [s for s in students if s["student_id"] in keep]
+
+
+def examples(k: int = 3) -> None:
+    """Students who do not follow the plan, term by term, for people to read: what Masari said, what the student
+    registered instead, and the plan after. Picks the ones who changed the most and still graduated."""
+    found = []
+    for s in build_students(120):
+        if s["meta"]["kind"] != "lived" or s["academic_status"]["main_semesters_completed"] > 6:
+            continue
+        r = deviate_plan(s, projection(s))
+        kinds = {c for e in r["log"] for c in e["changes"]} | {g for e in r["log"] for g in e["results"].values()
+                                                              if g in (WITHDRAWN, DEPRIVED, "F")}
+        if r["outcome"] == "اتخرج" and not r["issues"]:
+            found.append((len(kinds), r["steps"], s["student_id"], s["meta"], r))
+    found.sort(key=lambda x: (-x[0], -x[1]))
+    out = [{"sid": sid, "meta": meta, **r} for _, _, sid, meta, r in found[:k]]
+    for e in out:
+        for step in e["log"]:
+            step["results"] = {f"{c} {C[c]['name_ar']}": g for c, g in step["results"].items()}
+    (OUT / "plan_stress_examples.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
+    print("examples:", [(e["sid"], e["steps"]) for e in out])
 
 
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
+    if sys.argv[1:] == ["--examples"]:
+        examples()
+        return
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 1500
     students = build_students(n)
-    # One student in four follows the plan to the end, one in eight does their own thing; edge cases follow.
-    jobs = [(s, "follow" if i % 4 == 0 or s["meta"]["kind"] == "edge" else "deviate" if i % 8 == 1 else None)
+    # One student in four follows the plan to the end, one in eight does their own thing, one in eight follows it
+    # while the GPA goes up and down; edge cases follow.
+    jobs = [(s, "follow" if i % 4 == 0 or s["meta"]["kind"] == "edge" else "deviate" if i % 8 == 1
+             else "gpa" if i % 8 == 2 else None)
             for i, s in enumerate(students)]
     t0 = time.time()
     results = []
