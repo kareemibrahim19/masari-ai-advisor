@@ -29,6 +29,19 @@ export function registeredNow(s: StudentFileEntry): string[] {
   return s.terms.filter((t) => t.status === "in_progress").flatMap((t) => t.courses.map((c) => c.code))
 }
 
+/** The record as if `codes` were passed too (pool courses fill free elective slots of their level). */
+export function assumePassed(r: StudentRecord, codes: string[]): StudentRecord {
+  const passed = [...r.passed, ...codes.filter((c) => !r.passed.includes(c))]
+  const electiveChoices = { ...r.electiveChoices }
+  const taken = new Set(Object.values(electiveChoices))
+  for (const code of codes) {
+    const g = poolGroup.get(code)
+    const slot = g && !taken.has(code) ? SLOTS[g].find((x) => !electiveChoices[x]) : undefined
+    if (slot) electiveChoices[slot] = code
+  }
+  return { ...r, passed, failed: r.failed.filter((c) => !codes.includes(c)), electiveChoices }
+}
+
 export function toStudentRecord(s: StudentFileEntry): StudentRecord {
   const grades = latestGrades(s)
   const passed = [...grades].filter(([, g]) => g !== FAIL).map(([code]) => code)

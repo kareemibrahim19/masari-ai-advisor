@@ -63,6 +63,7 @@ with Session(engine) as s:
     check("changing the password replaces the old one", accounts.check_password(s, A, "a new password")
           and not accounts.check_password(s, A, PASSWORD))
     check("list of students with a password", accounts.with_password(s) == {A})
+    check("has_password", accounts.has_password(s, A) and not accounts.has_password(s, B))
 
 create_and_seed(engine)
 create_and_seed(engine, reset=True)
@@ -87,6 +88,11 @@ try:
 except security.AuthNotConfigured:
     check("a short secret is refused", True)
 os.environ["MASARI_AUTH_SECRET"] = saved
+act, _ = security.make_token(A, now=1_000_000, purpose="activate", seconds=600)
+check("activation token reads back for activation", security.read_token(act, now=1_000_100, purpose="activate") == A)
+check("activation token is not a sign-in", security.read_token(act, now=1_000_100) is None)
+check("sign-in token is not an activation", security.read_token(token, now=1_000_100, purpose="activate") is None)
+check("activation token expires in minutes", security.read_token(act, now=1_000_601, purpose="activate") is None)
 
 # ---------------------------------------------------------------- rate limits
 lim = security.RateLimiter(limit=3, window=60)
@@ -159,6 +165,50 @@ else:
           api.get(f"/api/students/{B}/seat-requests", headers=mine).status_code == 403)
     check("on: the seats per section stay open", api.get("/api/sections").status_code == 200)
     os.environ.pop("MASARI_REQUIRE_AUTH")
+
+    # First sign-in: a student with no password proves who they are with the national ID, then picks one.
+    import students as student_records
+    C = "839263318"  # a third mock student, never given a password above
+    nid = student_records.get_student(C)["personal"]["national_id"]
+    same = "These details do not match, or the account is already active"
+    r = api.post("/api/auth/activate/check", json={"student_id": C, "national_id": "30000000000000"})
+    check("activate: wrong national ID is 401", r.status_code == 401 and r.json()["detail"] == same, r.text)
+    r = api.post("/api/auth/activate/check", json={"student_id": "999999999", "national_id": nid})
+    check("activate: unknown student, same 401", r.status_code == 401 and r.json()["detail"] == same, r.text)
+    r = api.post("/api/auth/activate/check", json={"student_id": A, "national_id":
+                                                   student_records.get_student(A)["personal"]["national_id"]})
+    check("activate: a student who has a password, same 401", r.status_code == 401 and r.json()["detail"] == same, r.text)
+    r = api.post("/api/auth/activate/check", json={"student_id": C, "national_id": nid})
+    check("activate: right national ID gives an activation token and the name", r.status_code == 200
+          and r.json()["name_en"] == student_records.get_student(C)["personal"]["name_en"]
+          and "national_id" not in r.text, r.text)
+    act = r.json()["activation_token"]
+    check("activate: the activation token does not open data",
+          api.get("/api/auth/me", headers={"Authorization": f"Bearer {act}"}).status_code == 401)
+    r = api.post("/api/auth/activate", json={"activation_token": mine["Authorization"][7:], "password": "a password 1"})
+    check("activate: a sign-in token cannot set a password", r.status_code == 401, r.text)
+    r = api.post("/api/auth/activate", json={"activation_token": act, "password": "short"})
+    check("activate: too short a password is 422", r.status_code == 422, r.text)
+    r = api.post("/api/auth/activate", json={"activation_token": act, "password": "my first password"})
+    check("activate: sets the password and signs in", r.status_code == 200
+          and security.read_token(r.json()["token"]) == C and r.json()["student"]["student_id"] == C, r.text)
+    r = api.post("/api/auth/activate", json={"activation_token": act, "password": "someone else's"})
+    check("activate: the same activation cannot be used again", r.status_code == 409, r.text)
+    check("activate: login with the new password", api.post("/api/auth/login", json={
+        "student_id": C, "password": "my first password"}).status_code == 200)
+    r = api.post("/api/auth/activate/check", json={"student_id": C, "national_id": nid})
+    check("activate: once active, the check refuses", r.status_code == 401, r.text)
+    with Local() as s:
+        accounts.remove_password(s, C)
+        s.commit()
+    r = api.post("/api/auth/activate/check", json={"student_id": C, "national_id": nid})
+    check("activate: after an admin reset, the student can activate again", r.status_code == 200, r.text)
+    auth.activate_per_student.reset(C)
+    codes = [api.post("/api/auth/activate/check", json={"student_id": C, "national_id": f"3000000000000{i}"}).status_code
+             for i in range(5)]
+    r = api.post("/api/auth/activate/check", json={"student_id": C, "national_id": nid})
+    check("activate: 6th try is 429", codes == [401] * 5 and r.status_code == 429, (codes, r.status_code))
+    auth.login_per_address.reset("testclient")
 
     # Guessing: after 5 wrong tries the student is locked for a while, even with the right password.
     auth.login_per_student.reset(A)

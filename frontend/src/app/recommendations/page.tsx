@@ -1,236 +1,26 @@
 "use client"
 
 import * as React from "react"
-import { AlertTriangle, Check, CheckCircle2, LockKeyhole, Plus, Trophy, Unlock, XCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { AlertTriangle } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Bar, CategoryTag, Code, PageHeader, SlotTag } from "@/components/masari/bits"
-import { SeatRequestButton } from "@/components/masari/seat-request"
-import { AiExplanation, ConfidenceMeter, SourceChip, VerifiedBadge } from "@/components/masari/trust"
+import { Bar, Code, PageHeader } from "@/components/masari/bits"
+import { AiExplanation, ConfidenceMeter } from "@/components/masari/trust"
 import { courseNames, dimensionLabels, type StudentPrefs, type TeachingProfile } from "@/lib/demo-content"
 import { basisText, useInstructorCourses, useInstructorRanking } from "@/lib/data/instructor-source"
 import { useStudentView } from "@/lib/student-context"
-import type { RecommendedCourse } from "@/lib/student-view"
-import { type RecTab, useDemoState } from "@/lib/demo-state"
-import { useSeatRequests } from "@/lib/seat-requests"
+import { useDemoState } from "@/lib/demo-state"
 import { type DictKey, useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
+/** Instructors of this term's courses, ranked for the student (the course list itself is on the dashboard). */
 export default function RecommendationsPage() {
   const { t } = useI18n()
-  const { recTab, setRecTab } = useDemoState()
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6">
       <PageHeader title={t("recTitle")} subtitle={t("recSubtitle")} />
-      <Tabs value={recTab} onValueChange={(v) => setRecTab(v as RecTab)} className="gap-5">
-        <TabsList className="h-11! w-full sm:w-fit">
-          <TabsTrigger value="courses" className="px-5">
-            {t("tabCourses")}
-          </TabsTrigger>
-          <TabsTrigger value="instructors" className="px-5">
-            {t("tabInstructors")}
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="courses">
-          <CoursesTab />
-        </TabsContent>
-        <TabsContent value="instructors">
-          <InstructorsTab />
-        </TabsContent>
-      </Tabs>
+      <InstructorsTab />
     </div>
-  )
-}
-
-// ------------------------------------------------------------------------------ Courses
-
-function CoursesTab() {
-  const { t, tr, num } = useI18n()
-  const { selected, toggleCourse: toggle } = useDemoState()
-  const { recommendedCourses, ineligibleCourses, student } = useStudentView()
-  const seats = useSeatRequests(student.id)
-  const load = recommendedCourses.filter((c) => selected.includes(c.code)).reduce((s, c) => s + c.credits, 0)
-  const over = load > student.maxLoad
-
-  return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <ol className="space-y-3">
-        {recommendedCourses.map((c, i) => (
-          <CourseCard
-            key={c.code}
-            course={c}
-            rank={i + 1}
-            added={selected.includes(c.code)}
-            onToggle={() => toggle(c.code)}
-            seats={seats}
-          />
-        ))}
-      </ol>
-
-      <div className="space-y-4 lg:sticky lg:top-20 lg:self-start">
-        {/* Deterministic load validation — updates as courses are added/removed */}
-        <Card className={cn(over && "ring-destructive/50")}>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between gap-2 font-semibold">
-              {t("selectedLoad")}
-              <VerifiedBadge />
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="flex items-baseline gap-1.5">
-              <span className={cn("text-3xl font-bold tabular-nums", over && "text-destructive")}>{num(load)}</span>
-              <span className="text-sm text-muted-foreground">
-                / {num(student.maxLoad)} {t("creditHours")}
-              </span>
-            </p>
-            <Bar value={load} max={student.maxLoad} barClassName={over ? "bg-destructive" : "bg-verified"} label={t("selectedLoad")} />
-            <p className={cn("flex items-center gap-1.5 text-sm font-medium", over ? "text-destructive" : "text-verified")} role="status">
-              {over ? <XCircle className="size-4" aria-hidden /> : <CheckCircle2 className="size-4" aria-hidden />}
-              {over ? t("loadOver") : t("loadOk")}
-            </p>
-            <p className="text-xs text-muted-foreground">{tr(student.maxLoadRule)}</p>
-            <SourceChip sourceId="load" />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-semibold">
-              <LockKeyhole className="size-4 text-muted-foreground" aria-hidden />
-              {t("notEligible")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-              {ineligibleCourses.map((c) => (
-                <li key={c.code} className="space-y-1.5 rounded-lg border border-dashed p-3">
-                  <p className="text-sm font-medium">
-                    {tr(c.name)} <Code className="text-xs text-muted-foreground">{c.code}</Code>
-                  </p>
-                  <p className="flex items-start gap-1.5 text-xs text-destructive">
-                    <XCircle className="mt-px size-3.5 shrink-0" aria-hidden />
-                    {tr(c.reason)}
-                  </p>
-                  <SourceChip sourceId={c.sourceId} />
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  )
-}
-
-function CourseCard({
-  course: c,
-  rank,
-  added,
-  onToggle,
-  seats,
-}: {
-  course: RecommendedCourse
-  rank: number
-  added: boolean
-  onToggle: () => void
-  seats: ReturnType<typeof useSeatRequests>
-}) {
-  const { t, tr, num } = useI18n()
-  // The full section to ask a seat in: the first one not requested yet, else the first (shown as "Request sent").
-  const full = c.sections.filter((s) => s.seatsLeft === 0)
-  const fullSection = full.find((s) => !seats.isSent(c.code, s.id)) ?? full[0]
-  return (
-    <li>
-      <Card className={cn("transition-shadow", added && "ring-primary/40")}>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap items-start gap-3">
-            <span
-              className={cn(
-                "grid size-10 shrink-0 place-items-center rounded-xl text-sm font-bold tabular-nums",
-                rank === 1 ? "bg-highlight-soft text-highlight-ink" : "bg-muted text-muted-foreground"
-              )}
-              aria-label={`${t("rank")} ${rank}`}
-            >
-              {rank === 1 ? <Trophy className="size-5" aria-hidden /> : num(rank)}
-            </span>
-            <div className="min-w-0 flex-1 space-y-1">
-              <h3 className="text-base font-semibold">{tr(c.name)}</h3>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <Code>{c.code}</Code>
-                <span>·</span>
-                <span>
-                  {num(c.credits)} {t("creditHours")}
-                </span>
-                <CategoryTag category={c.category} />
-                {c.slot && <SlotTag slot={c.slot} />}
-              </div>
-            </div>
-            <div className="w-28 space-y-1 text-end">
-              <p className="text-xs text-muted-foreground">{t("priority")}</p>
-              <p className="text-xl font-bold text-primary tabular-nums" aria-label={t("scoreOutOf")}>
-                {num(c.priority)}
-              </p>
-              <Bar value={c.priority} className="h-1.5" label={t("priority")} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
-            <div className="space-y-2 rounded-lg bg-verified-soft/50 p-3">
-              <VerifiedBadge className="h-5 bg-transparent px-0" />
-              <ul className="space-y-1.5">
-                {c.verifiedReasons.map((r) => (
-                  <li key={r.en} className="flex items-start gap-1.5 text-sm">
-                    <Check className="mt-0.5 size-3.5 shrink-0 text-verified" aria-hidden />
-                    {tr(r)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {tr(c.aiReason) && <AiExplanation>{tr(c.aiReason)}</AiExplanation>}
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-              {c.unlocks.length > 0 && (
-                <span className="flex flex-wrap items-center gap-1.5">
-                  <Unlock className="size-3.5 text-primary" aria-hidden />
-                  <span className="text-muted-foreground">
-                    {t("unlocks")} {num(c.unlocks.length)} {t("coursesWord")}:
-                  </span>
-                  {c.unlocks.map((u) => (
-                    <span key={u} className="rounded bg-muted px-1.5 py-0.5" title={tr(courseNames[u])}>
-                      <Code>{u}</Code>
-                    </span>
-                  ))}
-                </span>
-              )}
-              <span className="flex flex-wrap items-center gap-1.5" aria-label={t("sectionSeats")}>
-                {c.sections.map((s) => (
-                  <span
-                    key={s.id}
-                    className={cn(
-                      "rounded px-1.5 py-0.5 tabular-nums",
-                      s.seatsLeft === 0 ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {t("section")} {num(Number(s.id))}: {s.seatsLeft === 0 ? t("full") : `${num(s.seatsLeft)} ${t("seats")}`}
-                  </span>
-                ))}
-              </span>
-            </div>
-            <div className="flex gap-2">
-              {fullSection && <SeatRequestButton seats={seats} code={c.code} section={fullSection.id} className="h-10" />}
-              <Button variant={added ? "secondary" : "default"} className="h-10 min-w-32 gap-1.5" aria-pressed={added} onClick={onToggle}>
-                {added ? <Check className="size-4" /> : <Plus className="size-4" />}
-                {added ? t("added") : t("addToPlan")}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </li>
   )
 }
 
@@ -246,10 +36,10 @@ function InstructorsTab() {
   const { t, tr, num, lang } = useI18n()
   const view = useStudentView()
   const { insCourse: course, setInsCourse: setCourse, prefs, setPrefs, excluded, restoreInstructor } = useDemoState()
-  // This term's proposed courses that have instructor data (else the first few courses that have any).
+  // The courses registered this term that have instructor data (else the first few courses that have any).
   const withData = useInstructorCourses()
-  const proposed = view.proposedNow.filter((c) => withData.includes(c))
-  const courseOptions = proposed.length ? proposed : withData.slice(0, 6)
+  const registered = view.student.registeredNow.filter((c) => withData.includes(c))
+  const courseOptions = registered.length ? registered : withData.slice(0, 6)
   const firstOption = courseOptions[0]
   React.useEffect(() => {
     if (firstOption && !courseOptions.includes(course)) setCourse(firstOption)

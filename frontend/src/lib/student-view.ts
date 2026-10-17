@@ -24,17 +24,19 @@ import {
   LOAD_BANDS,
   maxLoad,
   MIN_LOAD,
+  coursePriority,
   planGraduation,
-  priorityScore,
   remainingItems,
   RETAKE_MAX_GRADE,
   statusOf,
   type PlanItem,
   type PlanOptions,
+  type Priority,
   type StudentRecord,
 } from "@/lib/rules"
 import { defaultPrefsSummary, sectionsFor, type Section } from "@/lib/demo-content"
-import { registeredNow, toStudentRecord } from "@/lib/data/student-adapter"
+import { assumePassed, registeredNow, toStudentRecord } from "@/lib/data/student-adapter"
+import { buildTimetable } from "@/lib/timetable"
 import { dataTerm } from "@/lib/data/student-source"
 import type { StudentFileEntry } from "@/lib/data/types"
 
@@ -71,6 +73,53 @@ export type RecommendedCourse = {
   aiReason: L
   slot?: string
 }
+
+/** A course the student is registered in this term. `estimatedDelay`: semesters graduation slips without it, from
+ * the browser's planner (no summers); the AI service's planner gives the real figure (lib/graduation-delays.ts). */
+export type CurrentCourse = { code: string; name: L; credits: number; category: Category; estimatedDelay: number }
+export type RankedCourse = CurrentCourse & { priority: number; why: L }
+
+/**
+ * This term's courses, most important first. `service` is the AI service's answer (a null delay: graduation not
+ * possible within the study limit without it, counted as 2+); a course it has no answer for uses the browser's
+ * estimate, which knows nothing about summers or requests.
+ */
+export function rankCurrentCourses(list: CurrentCourse[], service?: GraduationDelays | null): RankedCourse[] {
+  return list
+    .map((c) => {
+      const fromService = service && c.code in service.delays ? service.delays[c.code] : undefined
+      const p = coursePriority(
+        c.code,
+        fromService === undefined ? c.estimatedDelay : (fromService ?? 2),
+        !!service?.needs_request[c.code]
+      )
+      return { ...c, priority: p.score, why: priorityWhy(p) }
+    })
+    .sort((a, b) => b.priority - a.priority || a.code.localeCompare(b.code))
+}
+
+/** One line saying where a priority comes from. */
+function priorityWhy(p: Priority): L {
+  const ar: string[] = []
+  const en: string[] = []
+  if (p.delayTerms > 0) {
+    ar.push(p.delayTerms === 1 ? "لو منجحتش فيها التخرج يتأخر ترم" : `لو منجحتش فيها التخرج يتأخر ${p.delayTerms} ترمات`)
+    en.push(`Not passing it delays graduation by ${p.delayTerms} semester${p.delayTerms === 1 ? "" : "s"}`)
+  }
+  if (p.needsRequest) {
+    ar.push("لو منجحتش فيها هتضطر تاخدها في الصيفي أو بطلب للكلية عشان التخرج ميتأخرش")
+    en.push("Not passing it needs a summer course or a college request to graduate on time")
+  }
+  if (p.unlocks > 0) {
+    ar.push(p.unlocks === 1 ? "بتفتح مادة واحدة بعدها" : p.unlocks === 2 ? "بتفتح مادتين بعدها" : `بتفتح ${p.unlocks} مواد بعدها`)
+    en.push(`Opens ${p.unlocks} later course${p.unlocks === 1 ? "" : "s"}`)
+  }
+  if (!ar.length) return { ar: "مش بتفتح مواد بعدها ومش هتأخر التخرج", en: "Opens no later course and does not delay graduation" }
+  return { ar: ar.join(" · "), en: en.join(" · ") }
+}
+
+/** GET /api/students/{id}/graduation-delays (ai/chatbot/tools/priorities.py). */
+export type GraduationDelays = { delays: Record<string, number | null>; needs_request: Record<string, boolean> }
 
 export type IneligibleCourse = { code: string; name: L; credits: number; reason: L; sourceId: string; missing: string[] }
 
@@ -186,6 +235,8 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
     completed: record.passed,
     completedSemesters: st.main_semesters_completed,
     registeredNow: registeredNow(s),
+    /** This term's weekly classes (simulated, see lib/timetable.ts). */
+    timetable: buildTimetable(s, studyLevel(currentSemester)),
   }
 
   // -------------------------------------------------------------- progress
@@ -242,13 +293,23 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
     return out
   }
 
+  /** Semesters until graduation for a record, planning from `startTerm` (beyond the horizon counts as the horizon). */
+  const graduationOf = (r: StudentRecord, opts: PlanOptions) => {
+    const idx = planGraduation(r, opts).graduationIndex
+    return idx < 0 ? HORIZON : idx
+  }
+  // A course the planner takes this term delays graduation if failing it now pushes the plan back.
+  const baselineIdx = baseline.graduationIndex < 0 ? HORIZON : baseline.graduationIndex
+  const delayIfSkipped = (code: string) =>
+    (baseline.terms[0] ?? []).some((i) => i.code === code) ? graduationOf(record, { ...planOpts, failAt: { [code]: 0 } }) - baselineIdx : 0
+
   const recommendedCourses: RecommendedCourse[] = eligibleNow
     .map((i) => ({
       code: i.code,
       name: courseNameL(i.code),
       credits: i.credits,
       category: i.category,
-      priority: priorityScore(i, currentSemester),
+      priority: coursePriority(i.code, delayIfSkipped(i.code)).score,
       prereqs: i.prereqs,
       unlocks: dependentsOf(i.code),
       sections: sections[i.code] ?? [{ id: "1", seatsLeft: 15, capacity: 40 }],
@@ -257,6 +318,23 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
       slot: i.slot,
     }))
     .sort((a, b) => b.priority - a.priority || a.code.localeCompare(b.code))
+
+  // -------------------------------------------------------------- the courses registered this term
+
+  // Planned from next term on: with every registered course passed, and with one of them not passed.
+  const nextOpts: PlanOptions = { ...planOpts, startTerm: startTerm === "fall" ? "spring" : "fall", currentSemester: currentSemester + 1 }
+  const registered = s.terms.filter((t) => t.status === "in_progress").flatMap((t) => t.courses)
+  const allPassedIdx = graduationOf(assumePassed(record, registered.map((c) => c.code)), nextOpts)
+  const currentCourses: CurrentCourse[] = registered.map((c) => {
+    const others = registered.filter((x) => x.code !== c.code).map((x) => x.code)
+    return {
+      code: c.code,
+      name: { ar: c.name_ar, en: c.name_en },
+      credits: c.credits,
+      category: c.code.split(" ")[0] as Category,
+      estimatedDelay: graduationOf(assumePassed(record, others), nextOpts) - allPassedIdx,
+    }
+  })
 
   /** What the planner registers in the current term — the default selection in the UI. */
   const proposedNow = (baseline.terms[0] ?? []).map((i) => i.code)
@@ -484,6 +562,7 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
     alerts,
     recommendedCourses,
     proposedNow,
+    currentCourses,
     ineligibleCourses,
     baselinePlan,
     baselineGraduationIndex,

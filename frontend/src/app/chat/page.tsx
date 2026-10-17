@@ -36,7 +36,8 @@ export default function ChatPage() {
 
   return (
     <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_320px]">
-      <section className="flex h-[calc(100dvh-8rem-env(safe-area-inset-bottom))] min-w-0 flex-col lg:h-[calc(100dvh-4rem)]" aria-labelledby="chat-title">
+      {/* The screen minus the header (4rem + its 1px border) and, below lg, the bottom nav: only the messages scroll. */}
+      <section className="flex h-[calc(100dvh-8rem-1px-env(safe-area-inset-bottom))] min-w-0 flex-col lg:h-[calc(100dvh-4rem-1px)]" aria-labelledby="chat-title">
         <h1 id="chat-title" className="sr-only">
           {t("chatTitle")}
         </h1>
@@ -370,7 +371,7 @@ function Typing() {
 
 function ContextPanel() {
   return (
-    <aside className="relative hidden h-[calc(100dvh-4rem)] overflow-y-auto border-s bg-card p-5 lg:block">
+    <aside className="relative hidden h-[calc(100dvh-4rem-1px)] overflow-y-auto border-s bg-card p-5 lg:block">
       <PanelContent />
     </aside>
   )

@@ -1,4 +1,5 @@
-"""Student passwords for signing in (POST /api/auth/login in ai/chatbot/auth.py).
+"""Student passwords for signing in (POST /api/auth/login in ai/chatbot/auth.py). A student with none yet sets
+their own from the website's /activate page (POST /api/auth/activate); the commands below are for the admin.
 
 A password is never stored, only a salted PBKDF2-SHA256 hash ("pbkdf2_sha256$<iterations>$<salt>$<hash>"), made
 with Python's own hashlib so nothing compiled has to be installed. Run from the repo root:
@@ -6,6 +7,7 @@ with Python's own hashlib so nothing compiled has to be installed. Run from the 
     .venv\\Scripts\\python.exe ai\\db\\accounts.py set 883941655   set (or change) one student's password
     .venv\\Scripts\\python.exe ai\\db\\accounts.py demo            one password for every student who has none yet
     .venv\\Scripts\\python.exe ai\\db\\accounts.py list            which students have a password
+    .venv\\Scripts\\python.exe ai\\db\\accounts.py reset 883941655 remove one student's password (they activate again)
 
 The password is typed at a hidden prompt, so it never lands in the shell history. The database is DATABASE_URL
 (see database.py), the same one the AI service uses.
@@ -78,6 +80,19 @@ def set_password(s: Session, student_id: str, password: str) -> None:
     s.add(account)
 
 
+def has_password(s: Session, student_id: str) -> bool:
+    return s.get(Account, student_id) is not None
+
+
+def remove_password(s: Session, student_id: str) -> bool:
+    """Deletes the student's password (they set a new one from /activate). False if they had none."""
+    account = s.get(Account, student_id)
+    if account is None:
+        return False
+    s.delete(account)
+    return True
+
+
 def with_password(s: Session) -> set[str]:
     return set(s.scalars(select(Account.student_id)))
 
@@ -98,6 +113,7 @@ if __name__ == "__main__":
     sub.add_parser("set", help="set one student's password").add_argument("student_id")
     sub.add_parser("demo", help="one password for every student who has none yet")
     sub.add_parser("list", help="which students have a password")
+    sub.add_parser("reset", help="remove one student's password, so they activate again").add_argument("student_id")
     args = parser.parse_args()
 
     from db import source
@@ -111,6 +127,10 @@ if __name__ == "__main__":
         if args.command == "list":
             for sid, name in students.items():
                 print(f"  {sid}  {'yes' if sid in has else 'no ':<4} {name}")
+        elif args.command == "reset":
+            if not remove_password(s, args.student_id):
+                raise SystemExit(f"{args.student_id} has no password.")
+            print(f"Password removed for {args.student_id}. They can set a new one from the /activate page.")
         elif args.command == "set":
             if args.student_id not in students:
                 raise SystemExit(f"No student with id {args.student_id}.")

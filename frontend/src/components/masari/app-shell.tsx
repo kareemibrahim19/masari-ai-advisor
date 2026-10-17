@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import * as React from "react"
-import { CalendarRange, Languages, LayoutDashboard, Library, LogOut, MessageSquareText, Moon, Sparkles, Sun } from "lucide-react"
+import { CalendarClock, CalendarRange, Languages, LayoutDashboard, Library, LogOut, MessageSquareText, Moon, Sparkles, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CalendarButton } from "@/components/masari/calendar-sheet"
 import { DeadlinePopup } from "@/components/masari/deadline-popup"
@@ -17,6 +17,7 @@ import { createStoredValue } from "@/lib/use-stored"
 const nav: { href: string; key: DictKey; short: DictKey; icon: React.ComponentType<{ className?: string }> }[] = [
   { href: "/", key: "navDashboard", short: "navDashboard", icon: LayoutDashboard },
   { href: "/chat", key: "navChat", short: "navChatShort", icon: MessageSquareText },
+  { href: "/schedule", key: "navSchedule", short: "navScheduleShort", icon: CalendarClock },
   { href: "/recommendations", key: "navCourses", short: "navCoursesShort", icon: Sparkles },
   { href: "/plan", key: "navPlan", short: "navPlanShort", icon: CalendarRange },
   { href: "/catalog", key: "navCatalog", short: "navCatalogShort", icon: Library },
@@ -84,7 +85,7 @@ function BottomNav() {
       aria-label={t("mainNav")}
       className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t bg-background/92 backdrop-blur supports-backdrop-filter:bg-background/80 lg:hidden"
     >
-      <ul className="mx-auto grid h-16 max-w-xl grid-cols-5">
+      <ul className="mx-auto grid h-16 max-w-xl grid-flow-col auto-cols-fr">
         {nav.map(({ href, short, icon: Icon }) => {
           const active = isActive(href, pathname)
           return (
@@ -135,14 +136,14 @@ function StudentChip() {
 }
 
 /**
- * Frame around every page, and the login gate: /login renders on its own; every other page needs a
- * signed-in student and sends visitors without one to /login.
+ * Frame around every page, and the login gate: /login and /activate (first sign-in) render on their own;
+ * every other page needs a signed-in student and sends visitors without one to /login.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const { ready, view } = useStudent()
-  const isLogin = pathname === "/login"
+  const isLogin = pathname === "/login" || pathname === "/activate"
 
   React.useEffect(() => {
     if (ready && !view && !isLogin) router.replace("/login")

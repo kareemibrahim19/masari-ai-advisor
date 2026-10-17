@@ -3,29 +3,30 @@
 /**
  * From 3 days before a calendar date, a popup at the top of the screen when the student opens the site.
  * It closes only with its own button (not Esc, not a click outside), so we know the student saw it.
- * Once closed it stays closed for that event until the number of days left changes (tomorrow).
+ * Once closed it stays closed for that event until the number of days left changes (tomorrow). On the day itself
+ * it goes away at 2 PM (see lib/reminders.ts), even if it is open.
  */
 import * as React from "react"
 import { AlertDialog } from "@base-ui/react/alert-dialog"
 import { BellRing } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useI18n } from "@/lib/i18n"
-import { dismiss, isDismissed, POPUP_DAYS, upcomingReminders, useToday, type Reminder } from "@/lib/reminders"
+import { dismiss, isDismissed, POPUP_DAYS, upcomingReminders, useNow, type Reminder } from "@/lib/reminders"
 import { cn } from "@/lib/utils"
 
 export function DeadlinePopup() {
   const { t, tr } = useI18n()
-  const today = useToday()
+  const now = useNow()
   const [closed, setClosed] = React.useState(false)
   // Read after mount: dismissals live in this browser's storage.
   const [shown, setShown] = React.useState<Reminder[] | null>(null)
 
   React.useEffect(() => {
-    if (!today) return
-    const due = upcomingReminders(today, POPUP_DAYS).filter((r) => !isDismissed(r))
+    if (!now) return
+    const due = upcomingReminders(now, POPUP_DAYS).filter((r) => !isDismissed(r))
     // eslint-disable-next-line react-hooks/set-state-in-effect -- storage is only readable after mount
     setShown(due)
-  }, [today])
+  }, [now])
 
   const open = !closed && !!shown && shown.length > 0
   const urgent = !!shown?.some((r) => r.urgency === 3)

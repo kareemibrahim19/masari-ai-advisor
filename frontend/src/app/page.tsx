@@ -1,18 +1,21 @@
 "use client"
 
 import Link from "next/link"
-import { AlertTriangle, ArrowLeft, Armchair, BellRing, CalendarDays, CalendarRange, Info, MessageSquareText } from "lucide-react"
+import { AlertTriangle, Armchair, BellRing, CalendarDays, CalendarRange, Info, MessageSquareText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { Bar, CategoryTag, Code, Ring, SlotTag } from "@/components/masari/bits"
+import { Bar, CategoryTag, Code, Ring } from "@/components/masari/bits"
 import { JourneyRail } from "@/components/masari/journey"
+import { PriorityLevel } from "@/components/masari/priority-level"
 import { SeatRequestButton } from "@/components/masari/seat-request"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import { useI18n } from "@/lib/i18n"
 import { semesterLabel, useGraduationPlan, usePlanChoice } from "@/lib/plan-api"
-import { formatLongDate, upcomingReminders, useToday } from "@/lib/reminders"
+import { formatLongDate, upcomingReminders, useNow, useToday } from "@/lib/reminders"
 import { useSeatRequests } from "@/lib/seat-requests"
+import { useGraduationDelays } from "@/lib/graduation-delays"
 import { useStudentView } from "@/lib/student-context"
+import { rankCurrentCourses } from "@/lib/student-view"
 import { cn } from "@/lib/utils"
 
 const alertStyle = {
@@ -23,12 +26,13 @@ const alertStyle = {
 
 export default function DashboardPage() {
   const { t, tr, num, lang } = useI18n()
-  const { alerts, electiveCategories, proposedNow, recommendedCourses, requirementGroups, student } = useStudentView()
+  const { alerts, currentCourses, electiveCategories, requirementGroups, student } = useStudentView()
   const remaining = student.total - student.earned
   const seats = useSeatRequests(student.id)
   // What the rules-engine planner would register this term (prerequisites, credit thresholds and load limit checked).
-  const proposal = recommendedCourses.filter((c) => proposedNow.includes(c.code))
-  const proposalCredits = proposal.reduce((s, c) => s + c.credits, 0)
+  const delays = useGraduationDelays(student.id)
+  const thisTerm = rankCurrentCourses(currentCourses, delays)
+  const currentCredits = thisTerm.reduce((s, c) => s + c.credits, 0)
   // The path and the estimate follow the target the student picked on the plan page (no what-if here).
   const [choice] = usePlanChoice(student.id)
   const { data, error, loading } = useGraduationPlan({
@@ -44,7 +48,8 @@ export default function DashboardPage() {
   const targetKey = ({ 4: "years4", 4.5: "years45", 5: "years5" } as const)[choice.target]
   // Today's date next to the greeting, and calendar dates in the next 5 days as alerts.
   const today = useToday()
-  const reminders = today ? upcomingReminders(today) : []
+  const now = useNow()
+  const reminders = now ? upcomingReminders(now) : []
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-10 px-4 py-6 md:px-6 md:py-10">
@@ -154,18 +159,19 @@ export default function DashboardPage() {
       </section>
 
       <div className="grid grid-cols-[minmax(0,1fr)] gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        {/* Next term proposal */}
+        {/* The courses registered this term, most important first */}
         <section aria-labelledby="next-title" className="space-y-4">
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h2 id="next-title" className="text-xl font-semibold">
               {t("nextSemester")}
             </h2>
             <span className="text-sm text-muted-foreground tabular">
-              {num(proposalCredits)} / {num(student.maxLoad)} {t("creditHours")}
+              {num(currentCredits)} {t("creditHours")}
             </span>
           </div>
+          <p className="-mt-2 text-xs text-muted-foreground">{t("priorityHow")}</p>
           <ol className="divide-y overflow-hidden rounded-2xl border bg-card">
-            {proposal.map((c) => (
+            {thisTerm.map((c) => (
               <li key={c.code} className="flex items-center gap-4 px-4 py-3.5">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{tr(c.name)}</p>
@@ -174,24 +180,14 @@ export default function DashboardPage() {
                     <span className="tabular">
                       {num(c.credits)} {t("creditsShort")}
                     </span>
-                    {c.slot && <SlotTag slot={c.slot} />}
                   </p>
+                  <p className="mt-1 text-xs text-muted-foreground">{tr(c.why)}</p>
                 </div>
                 <CategoryTag category={c.category} className="hidden sm:inline-flex" />
-                <span className="w-14 text-end">
-                  <span className="block text-lg font-semibold tabular">{num(c.priority)}</span>
-                  <span className="block text-[11px] text-muted-foreground">{t("priority")}</span>
-                </span>
+                <PriorityLevel score={c.priority} className="shrink-0" />
               </li>
             ))}
           </ol>
-          <Link
-            href="/recommendations"
-            className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-highlight-ink underline-offset-4 hover:underline focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none"
-          >
-            {t("viewAll")}
-            <ArrowLeft className="size-4 ltr:rotate-180" aria-hidden />
-          </Link>
         </section>
 
         {/* Alerts */}

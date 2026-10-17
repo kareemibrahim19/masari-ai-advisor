@@ -3,6 +3,7 @@
  * Prototype implementation in the browser; the real one belongs in the backend with the same logic.
  */
 import {
+  allDependentsOf,
   chainDepth,
   courses,
   electivePools,
@@ -149,6 +150,34 @@ export function priorityScore(item: PlanItem, currentSemester: number) {
   const projectBonus = item.type === "project" ? 10 : 0
   return Math.min(100, 60 + 12 * depth + onSchedule + projectBonus)
 }
+
+/**
+ * A course's priority for the student, 0–100, from three things that can be counted:
+ * - graduation (up to 60): if the student does not pass it this term, graduation is 1 semester later = 45,
+ *   2 or more = 60; still on time but only through a summer opening or a college request = 20;
+ * - unlocks (up to 25): how many courses need it, directly or further down the chain, on a rising-then-flat
+ *   scale: 1 course ≈ 6, 5 ≈ 15, 20 or more = 25;
+ * - chain (up to 15): how long the longest prerequisite chain after it is, 5 points a step.
+ * A course that delays nothing, needs nothing and opens nothing scores 0.
+ */
+export type Priority = { score: number; delayTerms: number; needsRequest: boolean; unlocks: number; chain: number }
+export function coursePriority(code: string, delayTerms: number, needsRequest = false): Priority {
+  const unlocks = allDependentsOf(code).length
+  const chain = chainDepth(code)
+  const delayPoints = delayTerms >= 2 ? 60 : delayTerms === 1 ? 45 : needsRequest ? 20 : 0
+  const unlockPoints = Math.round(25 * Math.min(1, Math.log2(1 + unlocks) / Math.log2(21)))
+  return {
+    score: delayPoints + unlockPoints + Math.min(15, 5 * chain),
+    delayTerms: Math.max(0, delayTerms),
+    needsRequest: delayTerms <= 0 && needsRequest,
+    unlocks,
+    chain,
+  }
+}
+
+/** How a priority score reads: high from 45 (anything that delays graduation), medium from 20 (anything that would
+ * need a summer course or a college request). */
+export const priorityLevel = (score: number): "high" | "medium" | "normal" => (score >= 45 ? "high" : score >= 20 ? "medium" : "normal")
 
 export type PlanOptions = {
   maxLoad: number

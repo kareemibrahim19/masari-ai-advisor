@@ -27,6 +27,7 @@ import auth  # noqa: E402
 import security  # noqa: E402
 from db import source as data_source  # noqa: E402  (students.py put ai/ on the path)
 from tools.planner import build_graduation_plan, plan_options  # noqa: E402
+from tools import priorities  # noqa: E402
 from tools import call_tool, tool_names  # noqa: E402
 from tools import instructors as instructor_tools  # noqa: E402
 
@@ -52,6 +53,7 @@ app.include_router(chat_history.router)  # recent chats saved per student (datab
 app.include_router(student_choices.router)  # chosen courses, sliders, hidden instructors per student (database)
 app.include_router(seats.router)  # seats per section, and seat requests for full sections
 bot = Masari()  # builds / loads the search index once at startup
+priorities.warm_up()  # the graduation delays behind the dashboard's course priorities, in the background
 
 # Every chat question and recording costs a model call, so one student (or one address) gets a fair share.
 # Change with MASARI_CHAT_PER_MINUTE / MASARI_CHAT_PER_DAY.
@@ -174,6 +176,17 @@ def get_student(student_id: str, request: Request):
     if not s:
         raise HTTPException(404, "Student not found")
     return s
+
+
+@app.get("/api/students/{student_id}/graduation-delays")
+def graduation_delays(student_id: str, request: Request):
+    """For each course of the current term: how many semesters later the student graduates without passing it
+    (tools/priorities.py). The website turns it into the course's priority."""
+    auth.check(request, student_id)
+    result = priorities.graduation_delays(student_id)
+    if not result.get("found"):
+        raise HTTPException(404, result.get("error", "Student not found"))
+    return result
 
 
 @app.get("/api/instructors/courses")

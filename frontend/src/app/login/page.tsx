@@ -4,6 +4,7 @@
  * Login (design "Concept A · Quiet card"): student ID + password, checked by the AI service
  * (POST /api/auth/login, lib/auth.ts). Visitors who are not signed in are sent here by the app shell.
  */
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 import { AlertCircle, ArrowRight, Check, Languages, Loader2, Lock, Moon, Sun } from "lucide-react"
@@ -12,6 +13,7 @@ import { useTheme } from "@/components/masari/app-shell"
 import { type DictKey, useI18n } from "@/lib/i18n"
 import { useStudent } from "@/lib/student-context"
 import s from "./login.module.css"
+import { PasswordField } from "./password-field"
 
 const CODE_LENGTH = 9
 const MIN_CHECK_MS = 600 // keep the "checking" state visible long enough to read
@@ -149,14 +151,11 @@ export default function LoginPage() {
                 <label className={s.label} htmlFor="password">
                   {t("loginPassword")}
                 </label>
-                <input
+                <PasswordField
                   ref={passwordInput}
                   id="password"
                   name="password"
-                  className={s.input}
-                  type="password"
                   autoComplete="current-password"
-                  dir="ltr"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value)
@@ -185,6 +184,10 @@ export default function LoginPage() {
                   )}
                 </button>
               </form>
+              <p className={s.alt}>
+                {t("loginFirstTime")}
+                <Link href="/activate">{t("loginActivateLink")}</Link>
+              </p>
 
               <div className={s.divider} />
               <div className={s.notes}>

@@ -21,7 +21,6 @@ import { fetchChoices, pushChoices, type SavedChoices } from "@/lib/student-choi
 import { useStudentView } from "@/lib/student-context"
 import type { StudentView } from "@/lib/student-view"
 
-export type RecTab = "courses" | "instructors"
 
 /**
  * Something the chat asks the website to change on its pages, returned by the AI service next to the answer:
@@ -65,8 +64,6 @@ const defaultInstructorCourse = (view: StudentView) =>
 type DemoState = {
   selected: string[]
   toggleCourse: (code: string) => void
-  recTab: RecTab
-  setRecTab: (tab: RecTab) => void
   insCourse: string
   setInsCourse: (code: string) => void
   prefs: StudentPrefs
@@ -94,7 +91,6 @@ const DemoStateContext = React.createContext<DemoState | null>(null)
 export function DemoStateProvider({ children }: { children: React.ReactNode }) {
   const view = useStudentView()
   const [selected, setSelected] = React.useState<string[]>(view.proposedNow)
-  const [recTab, setRecTab] = React.useState<RecTab>("courses")
   const [insCourse, setInsCourse] = React.useState(() => defaultInstructorCourse(view))
   const [prefs, setPrefs] = React.useState<StudentPrefs>(defaultPrefs)
   const [excluded, setExcluded] = React.useState<string[]>([])
@@ -321,8 +317,6 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
     () => ({
       selected,
       toggleCourse,
-      recTab,
-      setRecTab,
       insCourse,
       setInsCourse,
       prefs,
@@ -340,7 +334,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       openChat,
       deleteChat,
     }),
-    [selected, toggleCourse, recTab, insCourse, prefs, excluded, restoreInstructor, scenarioId, messages, thinking, sendMessage, newChat, chats, chatId, openChat, deleteChat]
+    [selected, toggleCourse, insCourse, prefs, excluded, restoreInstructor, scenarioId, messages, thinking, sendMessage, newChat, chats, chatId, openChat, deleteChat]
   )
 
   return <DemoStateContext.Provider value={value}>{children}</DemoStateContext.Provider>

@@ -4,6 +4,8 @@
  * Reminders for the academic calendar's dates (lib/academic-calendar.ts):
  * - from 5 days before an event, an academic alert on the dashboard that turns redder as the day nears;
  * - from 3 days before, a popup when the student opens the site, which only the student can close.
+ * On the day itself a reminder stays until 2 PM, when the faculty closes (Student Affairs too), even if the
+ * deadline was earlier (e.g. 12 noon); after that it is gone and the next date shows once it is 5 days away.
  */
 import * as React from "react"
 import { calendarEvents, type CalendarEvent } from "@/lib/academic-calendar"
@@ -11,6 +13,8 @@ import type { L } from "@/lib/i18n"
 
 export const ALERT_DAYS = 5
 export const POPUP_DAYS = 3
+/** The faculty closes at 2 PM: a date's reminders stop at this time on the day itself. */
+export const DAY_CLOSES = "14:00"
 
 /** Today as YYYY-MM-DD in the student's time zone. `masari.today` in localStorage overrides it for demos. */
 function todayIso() {
@@ -27,6 +31,21 @@ const noop = () => () => {}
 /** Today's date, or null while rendering on the server (so the prerendered HTML never holds a stale date). */
 export function useToday(): string | null {
   return React.useSyncExternalStore(noop, todayIso, () => null)
+}
+
+/** "YYYY-MM-DDTHH:MM" now, so a reminder can end at 2 PM. */
+function nowIso() {
+  const d = new Date()
+  return `${todayIso()}T${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`
+}
+const everyHalfMinute = (tick: () => void) => {
+  const id = setInterval(tick, 30_000)
+  return () => clearInterval(id)
+}
+
+/** Date and time now, ticking while the page is open (null on the server). Pass it to upcomingReminders(). */
+export function useNow(): string | null {
+  return React.useSyncExternalStore(everyHalfMinute, nowIso, () => null)
 }
 
 const toDate = (iso: string) => {
@@ -63,11 +82,16 @@ function whenPhrase(n: number): L {
   return { ar: `كمان ${n} أيام`, en: `in ${n} days` }
 }
 
-/** Calendar events from today up to `within` days ahead, soonest first. */
-export function upcomingReminders(today: string, within = ALERT_DAYS): Reminder[] {
+/**
+ * Calendar events from today up to `within` days ahead, soonest first. `now` is "YYYY-MM-DDTHH:MM" (useNow);
+ * a date alone counts as the start of the day. Today's events are left out from 2 PM.
+ */
+export function upcomingReminders(now: string, within = ALERT_DAYS): Reminder[] {
+  const today = now.slice(0, 10)
+  const closed = now.length > 10 && now.slice(11, 16) >= DAY_CLOSES
   return calendarEvents
     .map((event) => ({ event, daysLeft: daysBetween(today, event.date) }))
-    .filter((x) => x.daysLeft >= 0 && x.daysLeft <= within)
+    .filter((x) => x.daysLeft >= 0 && x.daysLeft <= within && !(x.daysLeft === 0 && closed))
     .sort((a, b) => a.daysLeft - b.daysLeft)
     .map(({ event, daysLeft }) => {
       const when = whenPhrase(daysLeft)
