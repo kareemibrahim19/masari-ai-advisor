@@ -151,8 +151,8 @@ const dict = {
     en: "Your registered courses this term that have more than one teaching assistant.",
   },
   assistantsNote: {
-    ar: "مساري مش بيرتّب المعيدين ولا بيفضّل حد على التاني. دي معلومات تساعدك تختار، والاختيار ليك.",
-    en: "Masari does not rank the teaching assistants or favor one over another. These facts help you choose; the choice is yours.",
+    ar: "تُعرض بيانات المعيدين بشكل محايد دون ترتيب أو تفضيل، لمساعدتك على اتخاذ القرار المناسب لك.",
+    en: "Teaching assistants are listed neutrally, without ranking or preference, to help you make the choice that suits you.",
   },
   noRecommendations: { ar: "لا يوجد توصيات لك", en: "No recommendations for you" },
   noRecommendationsHint: {
