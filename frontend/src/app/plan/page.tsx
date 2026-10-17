@@ -475,6 +475,9 @@ function PlanSummary({ plan }: { plan: GraduationPlan }) {
                 <b className="font-semibold">{t("whyShort")}</b> {tr(plan.why)}
               </p>
             )}
+            {plan.frozen && (
+              <p className="rounded-lg border bg-background/70 p-2.5 font-normal text-foreground/85">{tr(plan.frozen)}</p>
+            )}
             {plan.gpa_warning && (
               <p className="flex items-start gap-1.5 rounded-lg border border-warning/40 bg-background/70 p-2.5 font-normal text-warning">
                 <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
@@ -561,7 +564,7 @@ function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduat
   const over = term.max_credits !== null && term.credits > term.max_credits && !term.paper_load
 
   return (
-    <Card className={cn(summer && "border-dashed bg-muted/30", term.courses.length === 0 && "opacity-70")}>
+    <Card className={cn((summer || term.frozen) && "border-dashed bg-muted/30", term.courses.length === 0 && "opacity-70")}>
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-2 font-semibold">
           <span className="flex items-center gap-1.5">
@@ -570,7 +573,9 @@ function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduat
           </span>
           {isGraduation && <GraduationCap className="size-4 text-primary" aria-label={t("estGraduation")} />}
         </CardTitle>
-        {summer ? (
+        {term.frozen ? (
+          <p className="text-xs text-muted-foreground">{t("frozenTerm")}</p>
+        ) : summer ? (
           <p className="text-xs text-muted-foreground">{t("summerTerm")}</p>
         ) : (
           <div className="space-y-1.5 pt-1">

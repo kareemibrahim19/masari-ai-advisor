@@ -47,6 +47,8 @@ export type PlanTerm = {
   paper_load?: boolean
   /** The graduation semester under 12 hours, registered on paper. */
   below_minimum_paper?: boolean
+  /** A semester the student froze (وقف قيد): no courses, and it does not count in the target. */
+  frozen?: boolean
 }
 
 export type TermLabel = { ar: string; en: string }
@@ -82,6 +84,8 @@ export type GraduationPlan = {
   /** What a cumulative GPA under 2.00 would do to this target (status "feasible"). */
   risk?: { cap: number; still_possible: boolean; ar: string; en: string }
   /** GPA under 2.00 after this semester: graduation needs 2.00, and how many semesters are left before dismissal. */
+  /** The student froze the current semester: the plan starts with the semester they return. */
+  frozen?: { ar: string; en: string }
   gpa_warning?: {
     cgpa: number
     semesters_left: number

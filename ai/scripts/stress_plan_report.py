@@ -31,6 +31,7 @@ PROBLEM_AR = {
     "deviate": "طالب غيّر في الخطة: الخطة الجديدة مكسورة أو الحكم غلط",
     "gpa_path": "المعدل بيتغير: حد الساعات أو التحذير أو الخطة الجديدة غلط",
     "graduate_now": "بيتخرج آخر الترم ده: الحكم على الهدف غلط",
+    "frozen": "موقف قيده دلوقتي: الخطة مبيّنتش ده أو مقالتش يطلبه منين",
     "monotonic": "هدف أطول بقى أصعب",
     "summer_worse": "الصيفي خلّى الحال أسوأ",
     "table": "جدول الأهداف في الصفحة مختلف عن الخطة",
@@ -265,8 +266,9 @@ def examples_section() -> str:
             res = "، ".join(f"{name.split(' ', 2)[2]}: {GRADE_NOTE.get(g, g)}" for name, g in st["results"].items()
                            if g in GRADE_NOTE) or "نجح في الكل"
             said, reg = set(st["said"]["courses"]), set(st["registered"]["courses"])
-            diff = [CHANGE_AR[c] for c in st.get("changes", []) if c in ("freeze", "skipped_summer")]
-            if st["said"]["term"] != st["registered"]["term"]:
+            diff = [f"وقف قيد {st['frozen']}، ورجع سأل مساري" if st.get("frozen") else CHANGE_AR[c]
+                    for c in st.get("changes", []) if c in ("freeze", "skipped_summer")]
+            if st["said"]["term"] != st["registered"]["term"] and not st.get("frozen"):
                 diff.append(f"سجّل في {st['registered']['term']} بدل {st['said']['term']}")
             if said - reg:
                 diff.append("شال: " + "، ".join(sorted(said - reg)))
@@ -303,6 +305,7 @@ def main() -> None:
     with_w = sum(1 for r in lived_ if r["meta"].get("W"))
     with_dn = sum(1 for r in lived_ if r["meta"].get("DN"))
     with_fr = sum(1 for r in lived_ if r["meta"].get("freezes"))
+    frozen_now = sum(1 for r in lived_ if r["meta"].get("frozen_now"))
     kinds = Counter(r["meta"]["kind"] for r in results)
     profiles = Counter(r["meta"].get("profile", "").split("→")[0] for r in results if r["meta"]["kind"] == "lived")
 
@@ -351,7 +354,7 @@ def main() -> None:
 <li><b>{kinds['transfer']:,} طالب محوّل / معادلات:</b> المواد الناجح فيها مجموعة عشوائية (بس متطلباتها موجودة)، ومعاها شوية مواد ساقط فيها. دي بتعمل أوضاع غريبة مش هتطلع من المسار العادي.</li>
 <li><b>{kinds['edge']:,} حالة على الحافة معمولة باليد:</b> طالب جديد، فاضل مشروع 3 بس، سقط في مشروع 1، ساعات تحت حد المشروع بساعة، معدل 2.00 و3.00 بالظبط، خلّص المواد ومعدله تحت 2.00، فاضل تدريب بس، فاضل مادة واحدة في غير ترمها، قرب الحد الأقصى للدراسة، بيعيد أول سلسلة طويلة.</li>
 <li>الترم الحالي ممكن يكون خريف أو ربيع أو صيفي.</li>
-<li>في تاريخ الطلاب: {with_w:,} طالب انسحبوا من مادة (W) مرة على الأقل، و{with_dn:,} اتحرموا بالغياب (DN)، و{with_fr:,} عملوا وقف قيد ترم.</li>
+<li>في تاريخ الطلاب: {with_w:,} طالب انسحبوا من مادة (W) مرة على الأقل، و{with_dn:,} اتحرموا بالغياب (DN)، و{with_fr:,} عملوا وقف قيد ترم قبل كده. و{frozen_now:,} طالب <b>موقفين قيدهم دلوقتي</b>: الخطة لازم تبيّن الترم ده إنه وقف قيد (ومش متحسب من سنين الهدف) وتبدأ من الترم اللي هيرجعوا فيه.</li>
 <li><b>{dst['n']:,} طالب مشيوا على مزاجهم:</b> كل ترم بيسألوا مساري، وبعدين يشيلوا مواد أو يزوّدوا، أو ميحضروش الصيفي، أو يوقفوا قيد، أو ينسحبوا أو يسقطوا أو يتحرموا، ومساري لازم يعيد الخطة على اللي اتسجّل فعلًا.</li>
 </ul>
 <h3>2. الأسئلة</h3>

@@ -252,6 +252,7 @@ const dict = {
   flagCollegeRequest: { ar: "بموافقة الكلية", en: "College approval" },
   flagGraduationRequest: { ar: "طلب تخرج للكلية", en: "Graduation request" },
   flagOpenRequest: { ar: "الكلية بتفتحهالك", en: "Opened for you" },
+  frozenTerm: { ar: "موقف قيدك الترم ده (مش متحسب من سنين الهدف)", en: "Enrollment frozen this semester (not counted in the target)" },
   flagImprovement: { ar: "تحسين", en: "Improvement" },
   flagImprovementWas: { ar: "تقديرك دلوقتي", en: "now" },
   flagImprovementHint: {

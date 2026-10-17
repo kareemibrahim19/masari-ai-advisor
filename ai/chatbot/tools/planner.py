@@ -728,7 +728,7 @@ def _gpa_below_2(s: dict, proj: dict, cap: int, current: dict) -> dict | None:
         return None
     main_done = s["academic_status"]["main_semesters_completed"]
     streak = s["academic_status"].get("consecutive_warning_semesters") or 0
-    if current["term"] != "summer":  # this main semester ends under 2.00
+    if current["term"] != "summer" and current["status"] != "frozen":  # this main semester ends under 2.00
         streak = streak + 1 if main_done + 1 >= r["warning_starts_after_main_semester"] else 0
     limit = r["dismissal_after_consecutive_low_semesters"]
     left = limit - streak
@@ -875,22 +875,53 @@ def _improvement_plan(s: dict, proj: dict, current: dict, main_now: int, last_ma
             "improvement": {"courses": [c for c, _ in picks], "assumed_grade": IMPROVE_GRADE, "gpa_after": gpa_after}}
 
 
+FROZEN_AR = ("إنت موقف قيدك الترم ده، فمش متحسب من سنين الهدف، والخطة من أول ترم هترجع فيه. "
+             "وقف القيد بيتطلب من شئون الطلاب وليه رسوم إدارية (مادة 12).")
+FROZEN_EN = ("Your enrollment is frozen this semester, so it does not count in the target, and the plan starts with the "
+             "semester you return. A freeze is requested from student affairs and has an administrative fee (article 12).")
+
+
+def current_or_frozen(s: dict) -> dict | None:
+    """The term the plan starts after: the one in progress, or the latest term if the student froze it (وقف قيد)."""
+    current = next((t for t in s["terms"] if t["status"] == "in_progress"), None)
+    if current is None and s["terms"] and s["terms"][-1]["status"] == "frozen":
+        current = s["terms"][-1]
+    return current
+
+
 def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer: bool = True,
                           failed_courses: list[str] | None = None, expected_term_gpa: float | None = None,
                           with_risk: bool = True) -> dict:
     """A term-by-term plan to graduate within `target_years` (4, 4.5 or 5) of enrollment.
 
     What-if inputs: `failed_courses` (current-term courses the student fails) and `expected_term_gpa`.
+    A frozen semester (وقف قيد) does not count: the target is 8 / 9 / 10 semesters of study. A student frozen now gets
+    the plan from the semester they return, worked out from the last semester they studied, with the frozen
+    semester shown first.
     """
+    out = _build_graduation_plan(student_id, target_years, allow_summer, failed_courses, expected_term_gpa, with_risk)
+    if out.get("found") and out.get("frozen") and out.get("terms"):
+        f = out["frozen"]
+        out["terms"] = [{"ar": f["term"]["ar"], "en": f["term"]["en"], "term": f["term_kind"],
+                         "academic_year": f["academic_year"], "main_semester": None, "credits": 0, "max_credits": None,
+                         "courses": [], "frozen": True, "frozen_ar": "موقف قيدك الترم ده"}] + (out.get("terms") or [])
+        out["explanation"] = FROZEN_AR + " " + out.get("explanation", "")
+    return out
+
+
+def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summer: bool = True,
+                           failed_courses: list[str] | None = None, expected_term_gpa: float | None = None,
+                           with_risk: bool = True) -> dict:
     s = d.get_student(student_id)
     if not s:
         return d.not_found("الطالب", student_id)
     if target_years not in TARGETS:
         return {"found": False, "error": "الهدف لازم يكون 4 أو 4.5 أو 5 سنين."}
     target_years = int(target_years) if float(target_years).is_integer() else target_years  # 5.0 -> 5
-    current = next((t for t in s["terms"] if t["status"] == "in_progress"), None)
+    current = current_or_frozen(s)
     if not current:
         return {"found": False, "error": "مفيش ترم حالي مسجل للطالب."}
+    frozen = current["status"] == "frozen"
     if expected_term_gpa is not None and not 0 <= expected_term_gpa <= 4:
         return {"found": False, "error": "معدل الترم لازم يكون بين 0 و 4."}
 
@@ -905,14 +936,16 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
     proj = _projection(s, failed, expected_term_gpa)
     if "error" in proj:
         return {"found": False, **proj}
-    # Main semesters done once the current term ends: a summer is not a main semester, so it adds none.
-    main_now = s["academic_status"]["main_semesters_completed"] + (0 if current["term"] == "summer" else 1)
+    # Main semesters done once the current term ends: a summer is not a main semester, and neither is a frozen one.
+    main_now = s["academic_status"]["main_semesters_completed"] + (0 if current["term"] == "summer" or frozen else 1)
     cap, cap_why = _load_cap(proj["cgpa"], main_now)
     last_main = TARGETS[target_years]
 
     out = {
         "found": True, "student_id": s["student_id"], "target_years": target_years, "allow_summer": allow_summer,
         "current_term": _term_label(current), "current_main_semester": main_now,
+        **({"frozen": {"term": _term_label(current), "term_kind": current["term"], "academic_year": current["academic_year"],
+                       "ar": FROZEN_AR, "en": FROZEN_EN}} if frozen else {}),
         "what_if": {"failed_courses": [d.course_label(c) for c in failed], "expected_term_gpa": expected_term_gpa},
         "after_this_term": {"cumulative_gpa": proj["cgpa"], "term_gpa": proj["term_gpa"],
                             "earned_hours": proj["earned"], "max_credits": cap, "why": cap_why},
@@ -936,10 +969,15 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
         # Graduating at the end of this term: within the target if this term is (a summer belongs to the semester
         # before it).
         on_time = main_now <= last_main
-        out = {**out, "feasible": on_time, "graduation_term": _term_label(current), "terms": [],
+        if frozen:  # nothing this term and nothing left: every requirement is already met
+            studied = [t for t in s["terms"] if t["status"] == "published"]
+            grad, text = (_term_label(studied[-1]) if studied else None,
+                          "خلّصت كل متطلبات التخرج، فكلّم شئون الطلاب عن إجراءات التخرج.")
+        else:
+            grad, text = _term_label(current), "لو نجحت في مواد الترم ده هتتخرج في آخره."
+        out = {**out, "feasible": on_time, "graduation_term": grad, "terms": [],
                "status": "feasible" if on_time else "impossible",
-               "explanation": "لو نجحت في مواد الترم ده هتتخرج في آخره."
-                              + ("" if on_time else f" وده بعد هدف {target_years} سنين.")}
+               "explanation": text + ("" if on_time else f" وده بعد هدف {target_years} سنين.")}
         if not on_time:
             out["reason_code"] = "past"
             out["why"] = {"code": "past", "ar": f"إنت دلوقتي في الترم رقم {main_now}، وهدف {target_years} سنين آخره الترم رقم {last_main}.",

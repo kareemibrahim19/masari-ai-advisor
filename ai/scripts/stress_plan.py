@@ -127,7 +127,7 @@ def projection(rec: dict, failed=(), term_gpa=None) -> dict:
     recomputed here)."""
     terms = rec["terms"]
     best = best_attempts(terms)
-    cur = next(t for t in terms if t["status"] == "in_progress")
+    cur = next((t for t in terms if t["status"] == "in_progress"), None) or terms[-1]  # else frozen (وقف قيد)
     cur_codes = {c["code"] for c in cur["courses"]}
     passed = ({c for c, a in best.items() if is_pass(a["grade"])} | cur_codes) - set(failed)
     old = [a for c, a in best.items() if a["grade"] in GP and c not in cur_codes]
@@ -142,7 +142,8 @@ def projection(rec: dict, failed=(), term_gpa=None) -> dict:
     else:
         per = 2.5 if g0 is None else g0
     cgpa = round((p + per * ph) / (h + nh), 2) if h + nh else g0
-    main_now = rec["academic_status"]["main_semesters_completed"] + (0 if cur["term"] == "summer" else 1)
+    main_now = rec["academic_status"]["main_semesters_completed"] + (0 if cur["term"] == "summer"
+                                                                     or cur["status"] == "frozen" else 1)
     return {"passed": passed, "earned": sum(C[c]["credits"] for c in passed), "cgpa": cgpa, "main_now": main_now,
             "cur": cur, "graded": h + nh, "points": p + per * ph}
 
@@ -322,6 +323,11 @@ def plan_problems(pj: dict, plan: dict, summer: bool, cap: int) -> list[str]:
     out = []
     passed, earned = set(pj["passed"]), pj["earned"]
     rows = plan.get("terms") or []
+    if pj["cur"]["status"] == "frozen" and rows:
+        if not rows[0].get("frozen") or rows[0]["courses"]:
+            out.append("موقف قيده الترم ده والخطة مبتبيّنش ده في أولها")
+        else:
+            rows = rows[1:]
     conds = {c["kind"] for c in plan.get("conditions", [])}
     summer = summer or "summer" in conds
     hi_from = (plan.get("gpa_needed") or {}).get("from") if "gpa" in conds else None
@@ -513,6 +519,7 @@ def lived(rng, sid: str) -> dict:
             p_cur = prof2
         if kind != "summer" and terms and rng.random() < 0.03:
             freezes += 1  # a frozen semester (وقف قيد): nothing registered, and it does not count
+            terms.append({"term": kind, "academic_year": year_of(kind, year), "status": "frozen", "courses": []})
             kind = NEXT[kind]
             continue
         go_summer = kind != "summer" or rng.random() < PROFILES[p_cur][3]
@@ -533,15 +540,19 @@ def lived(rng, sid: str) -> dict:
     passed = {c for c, a in best.items() if is_pass(a["grade"])}
     earned = sum(C[c]["credits"] for c in passed)
     cg = cgpa_of(terms)
-    cur = pick(rng, terms, passed, earned, kind, cg, main_done, p_cur, not terms)
-    if not cur:  # nothing open this term (e.g. an empty summer): take the next main term instead
-        return None
-    terms.append({"term": kind, "academic_year": year_of(kind, year), "status": "in_progress",
-                  "courses": [{"code": c, "credits": C[c]["credits"]} for c in cur]})
+    frozen_now = kind != "summer" and bool(terms) and rng.random() < 0.05
+    if frozen_now:  # frozen right now: the plan starts with the semester after this one
+        terms.append({"term": kind, "academic_year": year_of(kind, year), "status": "frozen", "courses": []})
+    else:
+        cur = pick(rng, terms, passed, earned, kind, cg, main_done, p_cur, not terms)
+        if not cur:  # nothing open this term (e.g. an empty summer): take the next main term instead
+            return None
+        terms.append({"term": kind, "academic_year": year_of(kind, year), "status": "in_progress",
+                      "courses": [{"code": c, "credits": C[c]["credits"]} for c in cur]})
     grades = Counter(c.get("grade") for t in terms for c in t["courses"])
     return record(sid, terms, main_done, {"kind": "lived", "profile": prof if prof == prof2 else f"{prof}→{prof2}",
                                           "mains": mains, "W": grades[WITHDRAWN], "DN": grades[DEPRIVED],
-                                          "freezes": freezes}, streak)
+                                          "freezes": freezes, "frozen_now": bool(frozen_now)}, streak)
 
 
 def transfer(rng, sid: str) -> dict:
@@ -791,7 +802,7 @@ def check_one(rec: dict, follow: bool) -> dict:
         failed = rng.sample(graded, min(len(graded), rng.choice([1, 1, 2])))
         ph = sum(C[c]["credits"] for c in graded if c not in failed)
         nh = sum(C[c]["credits"] for c in graded)
-        tg = round(rng.uniform(0, 4.0 * ph / nh), 2) if ph else 0.0
+        tg = math.floor(100 * rng.uniform(0, 4.0 * ph / nh)) / 100 if ph else 0.0  # at most the highest possible
         years, last = rng.choice(list(TARGETS.items()))
         summer = rng.random() < 0.5
         try:
@@ -822,6 +833,11 @@ def check_one(rec: dict, follow: bool) -> dict:
     out["ms"] = round(1000 * max(times), 1) if times else None
     out["ms_total"] = round(1000 * sum(times), 1)
 
+    # Frozen right now: the plan says so (student affairs, fees) and starts with the semester they return.
+    if pj["cur"]["status"] == "frozen":
+        for key, pl in plans.items():
+            if pl.get("found") and pl.get("terms") and not ("شئون الطلاب" in pl.get("explanation", "") and pl.get("frozen")):
+                problem("frozen", f"موقف قيده والخطة ({key[0]} سنين) مقالتش ده أو مقالتش يطلبه منين")
     # Consistency: a longer target or summer never makes things worse.
     cells = out["cells"]
     for summer in (0, 1):
@@ -853,7 +869,7 @@ def check_one(rec: dict, follow: bool) -> dict:
         if p and p.get("found") and p.get("graduation_term") and p.get("improvement") is None:
             w = p.get("gpa_warning")
             streak = rec["academic_status"].get("consecutive_warning_semesters") or 0
-            if pj["cur"]["term"] != "summer":
+            if pj["cur"]["term"] != "summer" and pj["cur"]["status"] != "frozen":  # a frozen term changes nothing
                 streak = streak + 1 if pj["main_now"] >= R["warning_starts_after_main_semester"] else 0
             left = max(0, R["dismissal_after_consecutive_low_semesters"] - streak)
             out["notes"].append({"kind": "gpa_under_2", "left": left, "said": w})
@@ -866,6 +882,10 @@ def check_one(rec: dict, follow: bool) -> dict:
                     need = math.ceil((2.0 * (pj["graded"] + cap) - pj["points"]) / cap * 100 - 1e-9) / 100
                     if abs((w.get("next_term_gpa") or -9) - need) > 0.011:
                         problem("gpa_warning", f"قال محتاج معدل ترم {w.get('next_term_gpa')} والمحسوب {need}")
+    if follow and pj["cur"]["status"] == "frozen":  # frozen now: comes back the way Masari says, then goes on
+        rec, pj = returned(rec)
+        if rec is None:
+            return out
     if follow == "follow":
         out["follow"] = follow_plan(rec, pj)
     elif follow == "gpa":
@@ -931,6 +951,20 @@ def follow_plan(rec: dict, pj: dict) -> dict:
         rec["terms"].append({"term": nxt["term"], "academic_year": nxt["academic_year"], "status": "in_progress",
                              "courses": [{"code": c["code"], "credits": C[c["code"]]["credits"]} for c in nxt["courses"]]})
     return {"ok": False, "why": "مخلصش بعد 30 ترم", "promised": promised, "log": log}
+
+
+def returned(rec: dict):
+    """A student frozen now registers the semester they return in, as the plan says (None if there is no plan)."""
+    rec = json.loads(json.dumps(rec))
+    sid = rec["student_id"]
+    d.students = lambda: {sid: rec}
+    p = planner.build_graduation_plan(sid, 5, True, with_risk=False)
+    back = [r for r in (p.get("terms") or [])[1:] if r["courses"]]
+    if not back:
+        return None, None
+    rec["terms"].append({"term": back[0]["term"], "academic_year": back[0]["academic_year"], "status": "in_progress",
+                         "courses": [{"code": c["code"], "credits": C[c["code"]]["credits"]} for c in back[0]["courses"]]})
+    return rec, projection(rec)
 
 
 def deviate_plan(rec: dict, pj: dict) -> dict:
@@ -1029,11 +1063,28 @@ def deviate_plan(rec: dict, pj: dict) -> dict:
             did["skipped_summer"] += 1
         term, year = nxt["term"], int(nxt["academic_year"][:4])
         codes = [c["code"] for c in nxt["courses"]]
-        if term != "summer" and rng.random() < 0.04:  # freezes the semester: the next one instead, its own courses
+        if term != "summer" and rng.random() < 0.04:  # freezes the semester, then asks Masari on the way back
             did["freeze"] += 1
-            term = NEXT[NEXT[term]] if term == "spring" else "spring"
-            year += 1 if nxt["term"] == "spring" else 0
-            codes = []
+            rec["terms"].append({"term": term, "academic_year": year_of(term, year), "status": "frozen", "courses": []})
+            d.students = lambda: {sid: rec}
+            fj = projection(rec)
+            fcap = cap_for(fj["cgpa"], fj["main_now"])
+            pf = planner.build_graduation_plan(sid, 5, True, with_risk=False)
+            if not pf.get("found"):
+                issues.append(f"ترم {steps}: موقف قيده والخطة رجّعت خطأ: {pf.get('error')}")
+                outcome = "خطأ"
+                break
+            for issue in plan_problems(fj, pf, True, fcap):
+                issues.append(f"ترم {steps} (وقف قيد): {issue}")
+            back = [r for r in (pf.get("terms") or [])[1:] if r["courses"] or r["term"] != "summer"]
+            if not back:
+                outcome = "مفيش خطة بعد وقف القيد"
+                break
+            entry["frozen"] = when_label(term, year_of(term, year))
+            entry["said"] = {"term": when_label(back[0]["term"], back[0]["academic_year"]),
+                             "courses": [c["code"] for c in back[0]["courses"]]}
+            term, year = back[0]["term"], int(back[0]["academic_year"][:4])
+            codes = [c["code"] for c in back[0]["courses"]]
         if term != "summer":
             if codes and rng.random() < 0.3:
                 for c in rng.sample(codes, min(len(codes) - 1, rng.choice([1, 2]))):

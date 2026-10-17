@@ -324,6 +324,33 @@ check("a deprivation (DN) is not a pass", not d.passed(d.best_attempts(s)[code0]
 for k in ("test-one-spring", "test-two-spring", "test-summer-counts", "test-under-2"):
     del d.students()[k]
 
+# A frozen semester (وقف قيد) does not count in the target; a student frozen now gets the plan from the semester they
+# return, from the last semester they studied, with the frozen one shown first (confirmed 2026-10-17).
+fz = copy.deepcopy(d.get_student(EXC))
+fz["student_id"] = "test-frozen"
+cur = next(t for t in fz["terms"] if t["status"] == "in_progress")
+done_before = fz["academic_status"]["main_semesters_completed"]
+studying = build_graduation_plan(EXC, 5, True)
+for c in cur["courses"]:
+    c["grade"] = "B+" if allc[c["code"]].get("graded", True) else "P"
+cur["status"] = "published"
+fz["academic_status"]["main_semesters_completed"] = done_before + (0 if cur["term"] == "summer" else 1)
+nxt_year = cur["academic_year"] if cur["term"] == "fall" else f"{int(cur['academic_year'][:4]) + 1}-{int(cur['academic_year'][:4]) + 2}"
+nxt_kind = "spring" if cur["term"] == "fall" else "fall"
+fz["terms"].append({"academic_year": nxt_year, "term": nxt_kind, "status": "frozen", "courses": []})
+d.students()["test-frozen"] = fz
+p = build_graduation_plan("test-frozen", 5, True)
+check("frozen now: the plan works (no 'no current term')", p.get("found") and p["terms"], p.get("error"))
+check("frozen now: the frozen semester is shown first", p["terms"][0].get("frozen") and not p["terms"][0]["courses"],
+      p["terms"][0])
+check("frozen now: it does not count (same semester number as before it)",
+      p["current_main_semester"] == fz["academic_status"]["main_semesters_completed"], p["current_main_semester"])
+check("frozen now: the note says student affairs and fees", "شئون الطلاب" in p["explanation"] and "رسوم" in p["explanation"])
+nxt = p["terms"][1]
+check("frozen now: the plan starts with the semester after the frozen one",
+      (nxt["term"], nxt["academic_year"]) != (nxt_kind, nxt_year) and nxt["courses"], (nxt["term"], nxt["academic_year"]))
+del d.students()["test-frozen"]
+
 # Options table
 o = plan_options(NEW)
 check("options table 3 targets", [r["target_years"] for r in o["options"]] == [4, 4.5, 5], o)
