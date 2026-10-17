@@ -50,7 +50,10 @@ export function useTheme() {
 /** Desktop: horizontal tabs in the top bar. The active tab is marked by an orange rule, like the logo's destination dot. */
 function TopNav() {
   const pathname = usePathname()
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
+  // Full tab names only where every tab still fits on one line: Arabic on 2xl screens. The English names are longer,
+  // so English keeps the short ones and the bar never scrolls sideways.
+  const longNames = lang === "ar"
   return (
     <nav aria-label={t("mainNav")} className="hidden h-full items-stretch gap-1 lg:flex">
       {nav.map(({ href, key, short, icon: Icon }) => {
@@ -61,14 +64,14 @@ function TopNav() {
             href={href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "relative flex items-center gap-1.5 rounded-lg px-2 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring xl:gap-2 xl:px-2.5 2xl:px-3",
+              "relative flex items-center gap-1.5 rounded-lg px-2 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring xl:gap-2 xl:px-2.5",
               "after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 after:rounded-full after:transition-colors",
               active ? "text-foreground after:bg-brand-accent" : "text-muted-foreground after:bg-transparent hover:text-foreground"
             )}
           >
             <Icon className="size-[17px]" aria-hidden />
-            <span className="2xl:hidden">{t(short)}</span>
-            <span className="hidden 2xl:inline">{t(key)}</span>
+            <span className={cn(longNames && "2xl:hidden")}>{t(short)}</span>
+            {longNames && <span className="hidden 2xl:inline">{t(key)}</span>}
           </Link>
         )
       })}
@@ -120,14 +123,15 @@ function StudentChip() {
   const { tr, t } = useI18n()
   const { student } = useStudentView()
   const full = tr(student.fullName)
-  // The header shows the first two names; the full name is in the tooltip and on the dashboard.
+  // The header shows the first two names; the full name is in the tooltip and on the dashboard. Between lg and xl
+  // the top bar also holds every tab, so the name gives way to the avatar there and the bar never scrolls sideways.
   const short = full.split(/\s+/).slice(0, 2).join(" ")
   return (
     <div className="flex min-w-0 shrink-0 items-center gap-2.5 ps-1 sm:ps-2" aria-label={t("studentProfile")} title={full}>
       <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-primary text-sm font-semibold text-primary-foreground">
         {full.charAt(0)}
       </span>
-      <span className="hidden leading-tight whitespace-nowrap sm:block">
+      <span className="hidden leading-tight whitespace-nowrap sm:block lg:hidden xl:block">
         <span className="block text-sm font-medium">{short}</span>
         <span className="block text-xs text-muted-foreground tabular">{tr(student.level)}</span>
       </span>
