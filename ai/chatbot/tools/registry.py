@@ -5,6 +5,7 @@ filled in automatically, so the model never has to guess it.
 """
 
 from . import advisor
+from . import assistants as tas
 from . import instructors as ins
 from . import planner
 from . import rules
@@ -12,11 +13,6 @@ from . import rules
 _STUDENT = {"student_id": {"type": "string", "description": "رقم الطالب (بيتملّى تلقائيًا من الجلسة)."}}
 _COURSE = {"type": "string", "description": "كود المادة (زي CSE 351) أو اسمها."}
 _TERM_TYPE = {"type": "string", "enum": ["main", "summer"], "description": "main = خريف/ربيع، summer = صيفي."}
-_PREFS = {
-    "pace": {"type": "number", "description": "سرعة الشرح اللي الطالب بيفضلها من 0 (بطيء) لـ 100 (سريع). اختياري."},
-    "workload": {"type": "number", "description": "العبء اللي بيفضله من 0 (خفيف) لـ 100 (تقيل). اختياري."},
-    "practical": {"type": "number", "description": "الجانب العملي اللي بيفضله من 0 (نظري) لـ 100 (عملي). اختياري."},
-}
 
 
 def _t(name, description, properties, required, fn, needs_student=False):
@@ -73,36 +69,15 @@ TOOLS = [
         "course_code": {"type": "string", "description": "كود المشروع لـ project_allowance (ARI 381 أو ARI 481 أو ARI 482). اختياري."},
         "requested_hours": {"type": "number", "description": "عدد الساعات اللي الطالب عايزه لو قاله. اختياري."}},
        ["student_id"], rules.paper_registration, True),
-    # ---- instructor tools
-    _t("who_teaches", "مين الدكاترة والشعب اللي بيدرّسوا مادة معينة.",
+    # ---- who teaches, and the teaching assistants (Masari does not rank or recommend doctors)
+    _t("who_teaches", "مين الدكاترة والشعب اللي بيدرّسوا مادة معينة (معلومة بس، مساري مش بيرشح دكاترة).",
        {"course_code": _COURSE, "term": {"type": "string", "enum": ["fall", "spring"]}},
        ["course_code"], ins.who_teaches),
-    _t("instructor_profile", "بروفايل دكتور من استبيانات الطلبة: سرعة الشرح، العبء، العملي، الوضوح، الرضا، وعدد التقييمات.",
-       {"instructor": {"type": "string", "description": "اسم الدكتور أو رقمه (زي i4)."}, "course_code": _COURSE},
-       ["instructor"], ins.instructor_profile),
-    _t("student_preferences", "تفضيلات الطالب في الدكاترة: اللي قالها، واللي بتقوله درجاته مع دكاترة قبل كده.",
-       {**_STUDENT, **_PREFS}, ["student_id"], ins.student_preferences, True),
-    _t("compare_instructors", "مقارنة دكتورين لنفس المادة جنب بعض، ومين أنسب للطالب.",
-       {"instructor_a": {"type": "string"}, "instructor_b": {"type": "string"},
-        "course_code": {"type": "string", "description": "كود المادة أو اسمها. اختياري لو الدكتورين ليهم مادة مشتركة واحدة."},
-        **_STUDENT, **_PREFS}, ["instructor_a", "instructor_b"], ins.compare_instructors, True),
-    _t("recommend_instructor", "ترتيب دكاترة مادة حسب مناسبتهم للطالب مع السبب (تقييمات الطلبة، تفضيلاته، أداؤه السابق).",
-       {**_STUDENT, "course_code": _COURSE, **_PREFS, "term": {"type": "string", "enum": ["fall", "spring"]}},
-       ["student_id", "course_code"], ins.recommend_instructor, True),
-]
-
-TOOLS += [
-    # ---- actions: the answer also tells the website to change what the page shows
-    _t("avoid_instructor", "الطالب مش عايز يدرس مع دكتور معين: بيشيله من صفحة الترشيحات. استخدمها لما يقول 'مش عايز د. فلان' أو 'شيل د. فلان'.",
-       {"instructor": {"type": "string", "description": "اسم الدكتور أو رقمه."},
-        "course_code": {"type": "string", "description": "كود المادة لو الاستبعاد في مادة معينة بس. سيبه فاضي لكل المواد."}},
-       ["instructor"], ins.avoid_instructor),
-    _t("restore_instructor", "الطالب غيّر رأيه وعايز دكتور اتشال يرجع للترشيحات.",
-       {"instructor": {"type": "string", "description": "اسم الدكتور أو رقمه."},
-        "course_code": {"type": "string", "description": "كود المادة لو كان استبعاد في مادة واحدة."}},
-       ["instructor"], ins.restore_instructor),
-    _t("set_instructor_preferences", "الطالب وصف الأسلوب اللي بيفضله (شرح بطيء/سريع، عبء خفيف/تقيل، عملي/نظري): بتحرّك السلايدرز في صفحة الترشيحات.",
-       {**_PREFS}, [], ins.set_instructor_preferences),
+    _t("teaching_assistants", "المعيدين: من غير course_code بترجع مواد الطالب المسجلة الترم ده اللي ليها أكتر من معيد "
+       "(ودي اللي في تاب التوصيات)، ومع course_code بترجع معيدين المادة دي. لكل معيد: سنه، سنة تعيينه، "
+       "وأول مرة يدرّس المادة ولا المرة الكام. اعرض المعلومات بس ومتفضّلش معيد على التاني.",
+       {**_STUDENT, "course_code": {"type": "string", "description": "كود المادة أو اسمها. اختياري."}},
+       [], tas.teaching_assistants, True),
 ]
 
 TOOLS += [
@@ -154,8 +129,8 @@ def call_tool(name: str, args: dict | None = None, student_id: str | None = None
               session: dict | None = None) -> dict:
     """Run a tool by name. Unknown tools or bad arguments return an error dict instead of raising.
 
-    `session` is what the website already holds for this student (instructors they asked to avoid, the
-    preferences they set), so the chat's recommendations match what the recommendations page shows.
+    `session` is what the website already holds for this student (the schedule on the courses tab, the plan
+    page's target), so the chat's answers match what the pages show.
     """
     tool = _BY_NAME.get(name)
     if not tool:
@@ -173,11 +148,6 @@ def call_tool(name: str, args: dict | None = None, student_id: str | None = None
             args.setdefault("target_years", session["plan_target"])
         if session.get("plan_summer") is not None:
             args.setdefault("allow_summer", session["plan_summer"])
-    if name == "recommend_instructor":
-        if session.get("excluded") and "exclude" not in args:
-            args["exclude"] = list(session["excluded"])
-        for k, v in (session.get("preferences") or {}).items():
-            args.setdefault(k, v)
     if tool["needs_student"] and student_id and "student_id" in tool["parameters"]["properties"]:
         args["student_id"] = student_id  # the session's student always wins over what the model typed
     try:

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/kareemibrahim19/masari-ai-advisor/actions/workflows/ci.yml/badge.svg)](https://github.com/kareemibrahim19/masari-ai-advisor/actions/workflows/ci.yml)
 
-Masari is an AI Engineering graduation project: a personalized, explainable academic advisor. It explains university regulations, checks eligibility with a deterministic rules engine, recommends courses and instructors, and plans the path to graduation. The rules decide; the language model only explains.
+Masari is an AI Engineering graduation project: a personalized, explainable academic advisor. It explains university regulations, checks eligibility with a deterministic rules engine, recommends courses (and shows the teaching assistants of courses taught by more than one), and plans the path to graduation. The rules decide; the language model only explains.
 
 **Live demo:** https://masari-web-sigma.vercel.app
 
@@ -14,7 +14,7 @@ This repository contains the **website** and the **AI service** (a RAG chatbot o
 | [`prototype/masari-prototype.html`](prototype/masari-prototype.html) | A single-file, offline-viewable version of the same UI. Open it in any browser. |
 | [`ai/chatbot/`](ai/chatbot/) | Masari AI service: FastAPI + Gemini RAG chatbot (`/api/chat`) and Whisper speech-to-text for the microphone (`/api/transcribe`). See [`ai/chatbot/README.md`](ai/chatbot/README.md). |
 | [`ai/db/`](ai/db/) | Database (SQLAlchemy; SQLite locally, Postgres when hosted): the tables for the data below and a script that loads it. See [`ai/db/README.md`](ai/db/README.md). |
-| [`ai/data/`](ai/data/) | AI data: course list (`courses.json`), chunked regulations for RAG (`regulations_chunks.json`), mock students, and mock instructors with survey profiles (`instructors.json`). |
+| [`ai/data/`](ai/data/) | AI data: course list (`courses.json`), chunked regulations for RAG (`regulations_chunks.json`), mock students, mock instructors (`instructors.json`) and mock teaching assistants (`teaching_assistants.json`). |
 | [`frontend/public/brand/`](frontend/public/brand/) | Brand files: logo SVG/PNG set and the color palette (`masari-colors.css` / `.json`). |
 
 ## Project structure
@@ -28,7 +28,7 @@ masari-ai-advisor/
 │   ├── public/brand/         logos and color palette
 │   └── public/calendar/      the faculty's academic calendar image (replaced each semester)
 ├── ai/
-│   ├── chatbot/              FastAPI RAG service (rag.py, server.py, stt.py) and tools/ (rules, instructors, graduation planner)
+│   ├── chatbot/              FastAPI RAG service (rag.py, server.py, stt.py) and tools/ (rules, teaching assistants, graduation planner)
 │   ├── data/                 courses + regulation chunks used by the chatbot
 │   ├── app.py                Vercel entrypoint
 │   └── requirements.txt
@@ -57,7 +57,7 @@ The website reads the AI service URL from `NEXT_PUBLIC_MASARI_API_URL` (default 
 
 - **Dashboard**: the "your path" graduation rail (it follows the target picked on the graduation plan, with summer semesters), academic standing, next-term proposal and alerts.
 - **Ask Masari**: chat answered by the AI service from the regulations and the student's own record, with cited sources, typed or spoken (microphone → Whisper). An empty chat greets the student and offers simple starter questions.
-- **Recommendations**: ranked courses with live credit-load validation, plus instructor compatibility.
+- **Recommendations**: ranked courses with live credit-load validation, plus the teaching assistants (age, appointment year, times taught) of registered courses that have more than one. Masari does not rank or recommend doctors.
 - **Graduation plan**: pick a target of 4, 4.5 or 5 years (5 = the regulation plan) and whether summer semesters are possible. The plan is solved semester by semester; a target that is not possible says why (for example a project's credit-hour threshold or a failed course in a prerequisite chain) and shows the earliest graduation instead. When a target is out of reach as things stand, the planner looks for a route: a summer (up to 6 hours), or a cumulative GPA of 3.00 for 21 hours (it says the semester GPA needed), and shows each route that works as conditions to meet; a GPA ladder shows the student's band and the one needed. Projects can be registered a few hours short (4 for ARI 381 / 481, 6 for ARI 482), marked "paper registration". What-if: courses of this semester you might fail (multi-select) and the semester GPA you expect.
 - **Course catalog**: every AI Engineering course with prerequisites (Arabic names in Arabic), plus the program regulations.
 - **Academic calendar**: the calendar icon in the header shows the faculty's calendar for the current semester.
@@ -69,7 +69,7 @@ Each semester, replace the calendar image in `frontend/public/calendar/` and upd
 ## Data
 
 - **Program data is real**: courses, prerequisites, elective pools and regulations of the B.Sc. in AI Engineering (Faculty of Engineering, Mansoura University). It comes from the [AIE Program Guide](https://aieprogramguide.vercel.app/), an unofficial summary of the bylaws, so verify it against the official bylaws.
-- **Student, instructors and seat data are simulated.** Nothing is connected to a university system.
+- **Student, instructor, teaching assistant and seat data are simulated.** Nothing is connected to a university system.
 - Recommendations and eligibility are computed by the rules engine in `frontend/src/lib/rules.ts`.
 - The graduation plan is computed by the AI service (`POST /api/plan`, [`ai/chatbot/tools/planner.py`](ai/chatbot/tools/planner.py)) as a small integer program (scipy / HiGHS) over the regulations: prerequisites, each course's semester, the GPA credit cap, project hour thresholds and summer limits. Summer courses are marked "if the college opens them". Tests: `ai/tests/test_planner.py`.
 

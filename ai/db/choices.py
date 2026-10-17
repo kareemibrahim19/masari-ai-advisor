@@ -1,7 +1,6 @@
 """What each student chose on the recommendations page, saved so a refresh or another device shows the same thing.
 
-The website sends all of it each time something changes: { selected: [course codes], prefs: {pace, workload,
-practical} or null, excluded: [instructor keys], updatedAt (ms since 1970) }. The newest save wins, so a page left
+The website sends all of it each time something changes: { selected: [course codes], updatedAt (ms since 1970) }. The newest save wins, so a page left
 open on an old device cannot undo what was chosen later on another one.
 """
 

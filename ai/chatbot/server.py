@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 import uvicorn
-from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from google.genai import errors
@@ -29,7 +29,7 @@ from db import source as data_source  # noqa: E402  (students.py put ai/ on the 
 from tools.planner import build_graduation_plan, plan_options  # noqa: E402
 from tools import priorities  # noqa: E402
 from tools import call_tool, tool_names  # noqa: E402
-from tools import instructors as instructor_tools  # noqa: E402
+from tools import assistants as assistant_tools  # noqa: E402
 
 app = FastAPI(title="Masari AI Advisor")
 # Let the Next.js frontend (another origin) call the API from the browser. The known site domains are always
@@ -50,7 +50,7 @@ app.add_middleware(
 )
 app.include_router(auth.router)  # password sign-in; auth.check() keeps each student's data to that student
 app.include_router(chat_history.router)  # recent chats saved per student (database)
-app.include_router(student_choices.router)  # chosen courses, sliders, hidden instructors per student (database)
+app.include_router(student_choices.router)  # chosen courses per student (database)
 app.include_router(seats.router)  # seats per section, and seat requests for full sections
 bot = Masari()  # builds / loads the search index once at startup
 priorities.warm_up()  # the graduation delays behind the dashboard's course priorities, in the background
@@ -79,8 +79,6 @@ class ChatRequest(BaseModel):
     history: list[Message] = []
     student_id: str | None = None  # the selected student; without it the student-data tools are not offered
     # What the website currently holds for this student, so the chat agrees with the recommendations page:
-    excluded_instructors: list[str] = []  # instructors the student asked to avoid ("i4" or "i4:CSE 315")
-    preferences: dict[str, float] | None = None  # pace / workload / practical (0-100), only if the student set them
     # The schedule on the courses tab: what is chosen, what may be chosen (by priority, with credits) and the limit.
     selected_courses: list[str] = []
     eligible_courses: list[dict] = []  # [{"code": "CSE 151", "credits": 3}, ...]
@@ -99,8 +97,7 @@ def chat(req: ChatRequest, request: Request):
     if req.student_id and not students.get_student(req.student_id):
         raise HTTPException(404, "Student not found")
     try:
-        session = {"excluded": req.excluded_instructors, "preferences": req.preferences,
-                   "selected_courses": req.selected_courses, "eligible_courses": req.eligible_courses,
+        session = {"selected_courses": req.selected_courses, "eligible_courses": req.eligible_courses,
                    "max_load": req.max_load, "plan_target": req.plan_target, "plan_summer": req.plan_summer}
         return bot.answer(req.question.strip(), [m.model_dump() for m in req.history], req.student_id, session)
     except errors.APIError as e:
@@ -189,28 +186,15 @@ def graduation_delays(student_id: str, request: Request):
     return result
 
 
-@app.get("/api/instructors/courses")
-def instructor_courses():
-    """Courses that have instructor survey data (for the recommendations page's course picker)."""
-    return instructor_tools.courses_with_instructors()
-
-
-@app.get("/api/instructors/recommend")
-def recommend_instructors(course_code: str, student_id: str, request: Request, pace: float | None = None,
-                          workload: float | None = None, practical: float | None = None,
-                          exclude: list[str] = Query(default=[])):
-    """Instructors of a course ranked for one student, with the basis and reasons (same result the chat tool gives).
-
-    pace / workload / practical (0-100) are the student's stated preferences; leave them out to rank by the
-    student's own history (or by the surveys alone for a first-year student). `exclude` (repeatable) lists
-    instructors to leave out: "i4" everywhere, or "i4:CSE 315" in that course only.
-    """
+@app.get("/api/teaching-assistants")
+def teaching_assistants(student_id: str, request: Request):
+    """The recommendations tab: the student's registered courses (this term) that have more than one teaching
+    assistant, with each assistant's age, appointment year and how many times they taught the course. Empty
+    `courses` means no recommendations for this student. Same result as the chat's teaching_assistants tool."""
     auth.check(request, student_id)
-    if not students.get_student(student_id):
-        raise HTTPException(404, "Student not found")
-    result = instructor_tools.recommend_instructor(student_id, course_code, pace, workload, practical, exclude=exclude)
+    result = assistant_tools.recommendations_for(student_id)
     if not result.get("found"):
-        raise HTTPException(404, result.get("error", "Not found"))
+        raise HTTPException(404, "Student not found")
     return result
 
 

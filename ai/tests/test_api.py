@@ -22,27 +22,13 @@ def check(name, cond, got=None):
 
 NEW, EXC = "833603614", "883941655"
 
-r = c.get("/api/instructors/courses").json()
-check("course list has ECE 321", any(x["code"] == "ECE 321" and x["sections"] == 3 for x in r["courses"]))
-
-r = c.get("/api/instructors/recommend", params={"course_code": "ECE 321", "student_id": NEW}).json()
-check("first-year student -> surveys_only", r["basis"] == "surveys_only" and r["basis_en"], r.get("basis"))
-check("ranking has english reasons", all("reasons_en" in x for x in r["ranking"]))
-
-r = c.get("/api/instructors/recommend", params={"course_code": "ECE 321", "student_id": NEW,
-                                                 "pace": 85, "workload": 85, "practical": 85}).json()
-check("stated preferences change the basis and the winner", r["basis"] == "surveys_and_preferences"
-      and r["ranking"][0]["instructor_id"] == "i2", r.get("basis"))
-
-r = c.get("/api/instructors/recommend", params={"course_code": "ECE 321", "student_id": EXC}).json()
-check("student with grades -> performance", r["basis"] == "surveys_and_performance", r.get("basis"))
-
-r = c.get("/api/instructors/recommend", params={"course_code": "ECE 321", "student_id": NEW, "exclude": ["i1", "i2"]}).json()
-check("exclude query leaves those instructors out", [x["instructor_id"] for x in r["ranking"]] == ["i3"]
-      and len(r["excluded"]) == 2, r.get("ranking"))
-
-check("unknown student 404", c.get("/api/instructors/recommend", params={"course_code": "ECE 321", "student_id": "x"}).status_code == 404)
-check("unknown course 404", c.get("/api/instructors/recommend", params={"course_code": "XXX 999", "student_id": NEW}).status_code == 404)
+r = c.get("/api/teaching-assistants", params={"student_id": NEW}).json()
+check("first-year student sees BAS 011, BAS 021 and BAS 031 with two assistants each",
+      [x["code"] for x in r["courses"]] == ["BAS 011", "BAS 021", "BAS 031"] and all(len(x["assistants"]) == 2 for x in r["courses"]), r)
+r = c.get("/api/teaching-assistants", params={"student_id": "839263318"}).json()
+check("final-year student: no recommendations", r["courses"] == [], r)
+check("unknown student 404", c.get("/api/teaching-assistants", params={"student_id": "x"}).status_code == 404)
+check("doctor ranking endpoint is gone", c.get("/api/instructors/recommend", params={"course_code": "ECE 321", "student_id": NEW}).status_code == 404)
 
 r = c.post("/api/tools/credit_limit", json={"student_id": "897948891"}).json()
 check("generic tool endpoint", r["max_credits"] == 12, r)

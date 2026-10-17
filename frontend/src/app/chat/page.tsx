@@ -478,10 +478,6 @@ function PanelContent({ onDone }: { onDone?: () => void }) {
             </div>
           ))}
         </dl>
-        <div className="rounded-lg border bg-card p-3 text-sm">
-          <p className="mb-1 text-xs text-muted-foreground">{t("yourPreferences")}</p>
-          <p className="font-medium">{tr(student.preferences.summary)}</p>
-        </div>
       </section>
     </div>
   )

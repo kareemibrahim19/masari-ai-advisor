@@ -100,25 +100,31 @@ check("new student blocked from project", not r["eligible"], r)
 r = call_tool("registration_eligibility", {"course_code": "BAS 011"}, EXC)
 check("already passed", not r["eligible"], r)
 
-# instructors
+# who teaches (no doctor ranking any more) and the teaching assistants
 r = call_tool("who_teaches", {"course_code": "ECE 321"})
 check("ECE 321 has 3 sections", len(r["sections"]) == 3, r)
-check("profile by name", call_tool("instructor_profile", {"instructor": "ليلى"})["instructor_id"] == "i3")
-r = call_tool("recommend_instructor", {"course_code": "ECE 321"}, NEW)
-check("new student -> surveys_only", r["basis"] == "surveys_only", r["basis"])
-r2 = call_tool("recommend_instructor", {"course_code": "ECE 321", "pace": 85, "workload": 85, "practical": 85}, NEW)
-check("stated prefs -> preferences basis, picks demanding", r2["basis"] == "surveys_and_preferences"
-      and r2["ranking"][0]["instructor_id"] == "i2", [(x["instructor_id"], x["score"]) for x in r2["ranking"]])
-r3 = call_tool("recommend_instructor", {"course_code": "ECE 321"}, EXC)
-check("student with grades -> performance basis", r3["basis"] == "surveys_and_performance", r3["basis"])
-low = next(x for x in r["ranking"] if x["instructor_id"] == "i3")
-check("few responses flagged low confidence", low["confidence"] == "low" and any("قليل" in t for t in low["reasons"]))
-r = call_tool("compare_instructors", {"course_code": "ECE 321", "instructor_a": "سارة", "instructor_b": "عمرو"}, EXC)
-check("compare picks one", r["found"] and "better_for_student" in r, r)
-check("compare wrong course", call_tool("compare_instructors", {"course_code": "ECE 321", "instructor_a": "سارة",
-                                                              "instructor_b": "هاني"})["found"] is False)
+check("who_teaches shows no survey ratings", all("profile" not in x and "responses" not in x for x in r["sections"]), r)
+for gone in ("recommend_instructor", "instructor_profile", "compare_instructors", "student_preferences",
+             "avoid_instructor", "restore_instructor", "set_instructor_preferences"):
+    check(f"{gone} is removed", all(t["name"] != gone for t in TOOLS))
+MALAK, YOUSSEF, HANA, ZIAD = "833603614", "897948891", "883941655", "824548805"
+r = call_tool("teaching_assistants", {}, MALAK)
+check("first-year student: BAS 011, BAS 021 and BAS 031 have two assistants",
+      [c["code"] for c in r["courses"]] == ["BAS 011", "BAS 021", "BAS 031"]
+      and all(len(c["assistants"]) == 2 for c in r["courses"]), r)
+a = r["courses"][0]["assistants"][0]
+check("each assistant has age, appointment year and times taught",
+      all(k in a for k in ("age", "appointed_year", "times_taught", "first_time", "period")), a)
+check("second year: BAS 115, CSE 141, ECE 121 and CSE 251",
+      [c["code"] for c in call_tool("teaching_assistants", {}, YOUSSEF)["courses"]] == ["BAS 115", "CSE 141", "ECE 121", "CSE 251"])
+check("third year: CSE 251", [c["code"] for c in call_tool("teaching_assistants", {}, HANA)["courses"]] == ["CSE 251"])
+r = call_tool("teaching_assistants", {}, ZIAD)
+check("no course with two assistants -> no recommendations", r["found"] and r["courses"] == [], r)
+check("a course with one assistant is not a recommendation but can be asked about",
+      len(call_tool("teaching_assistants", {"course_code": "CSE 221"})["assistants"]) == 1)
+check("teaching_assistants unknown course", call_tool("teaching_assistants", {"course_code": "XXX 999"})["found"] is False)
 
-# find_courses / improvement_candidates / compare without a course
+# find_courses / improvement_candidates
 r = call_tool("find_courses", {"query": "الذكاء الاصطناعي"})
 check("find_courses puts the closest name first", r["found"] and r["matches"][0]["code"] == "CSE 151", r)
 check("find_courses nothing", call_tool("find_courses", {"query": "zzzzqq"})["found"] is False)
@@ -127,33 +133,6 @@ check("improvement candidates ranked by gain", r["found"] and r["candidates"]
       and r["candidates"] == sorted(r["candidates"], key=lambda x: -x["gain_if_A"]), r)
 check("improvement candidates never offer an A student's course", all(c["current_grade"] not in ("A", "A+", "A-") for c in r["candidates"]))
 check("improvement: new student has none", call_tool("improvement_candidates", {}, NEW)["candidates"] == [])
-r = call_tool("compare_instructors", {"instructor_a": "هاني", "instructor_b": "منى"}, EXC)
-check("compare infers the one shared course", r["found"] and "CSE 315" in r["course"], r)
-r = call_tool("compare_instructors", {"instructor_a": "سارة", "instructor_b": "عمرو"}, EXC)
-check("compare lists several shared courses", r["found"] is False and len(r["common_courses"]) > 1, r)
-r = call_tool("compare_instructors", {"instructor_a": "سارة", "instructor_b": "هاني"}, EXC)
-check("compare: no shared course", r["found"] is False, r)
-
-# actions the chat applies to the pages
-r = call_tool("avoid_instructor", {"instructor": "سارة"})
-check("avoid_instructor returns an action", r["found"] and r["action"]["type"] == "avoid_instructor"
-      and r["action"]["instructor_id"] == "i1" and r["action"]["key"] == "i1", r)
-r = call_tool("avoid_instructor", {"instructor": "سارة", "course_code": "ECE 321"})
-check("avoid in one course keys by course", r["action"]["key"] == "i1:ECE 321", r)
-check("avoid unknown instructor", call_tool("avoid_instructor", {"instructor": "مجهول"})["found"] is False)
-check("restore_instructor returns an action", call_tool("restore_instructor", {"instructor": "سارة"})["action"]["type"] == "restore_instructor")
-r = call_tool("set_instructor_preferences", {"pace": 20, "practical": 150})
-check("preferences are clamped to 0-100", r["action"]["preferences"] == {"pace": 20, "practical": 100}, r)
-check("preferences need a value", call_tool("set_instructor_preferences", {})["found"] is False)
-r = call_tool("recommend_instructor", {"course_code": "ECE 321"}, NEW, {"excluded": ["i1"]})
-check("excluded instructor leaves the ranking", all(x["instructor_id"] != "i1" for x in r["ranking"])
-      and [x["instructor_id"] for x in r["excluded"]] == ["i1"], r)
-r = call_tool("recommend_instructor", {"course_code": "CSE 315"}, NEW, {"excluded": ["i1:ECE 321"]})
-check("a per-course exclusion does not touch other courses", len(r["ranking"]) == 2, r)
-r = call_tool("recommend_instructor", {"course_code": "ECE 321"}, NEW, {"excluded": ["i1", "i2", "i3"]})
-check("everyone excluded -> empty ranking with a message", r["ranking"] == [] and len(r["excluded"]) == 3, r)
-r = call_tool("recommend_instructor", {"course_code": "ECE 321"}, NEW, {"preferences": {"pace": 85, "workload": 85, "practical": 85}})
-check("session preferences are used by the chat tool", r["basis"] == "surveys_and_preferences" and r["ranking"][0]["instructor_id"] == "i2", r)
 
 # the schedule on the courses tab (the website sends what the page holds)
 PAGE = {"eligible_courses": [{"code": "BAS 011", "credits": 3}, {"code": "BAS 021", "credits": 3},

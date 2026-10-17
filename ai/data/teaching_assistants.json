@@ -1,0 +1,216 @@
+{
+ "_note": "بيانات وهمية للمعيدين ومين بيدرّس سكاشن كل مادة في الترم الحالي. المادة بيبقى ليها أكتر من معيد لما السكشن بيتدرّس بمعيد مختلف في كل فترة من الفترتين المفتوحين على السيستم. times_taught = دي المرة الكام اللي المعيد بيدرّس فيها المادة (1 = أول مرة).",
+ "term": {
+  "academic_year": "2026-2027",
+  "term": "fall"
+ },
+ "teaching_assistants": [
+  {
+   "id": "ta1",
+   "name_ar": "م. أحمد سمير الجندي",
+   "name_en": "Eng. Ahmed Samir El-Gendy",
+   "department": "BAS",
+   "age": 27,
+   "appointed_year": 2022
+  },
+  {
+   "id": "ta2",
+   "name_ar": "م. نورهان عادل شاهين",
+   "name_en": "Eng. Nourhan Adel Shahin",
+   "department": "BAS",
+   "age": 24,
+   "appointed_year": 2024
+  },
+  {
+   "id": "ta3",
+   "name_ar": "م. محمود وليد عبد العزيز",
+   "name_en": "Eng. Mahmoud Walid Abdelaziz",
+   "department": "BAS",
+   "age": 28,
+   "appointed_year": 2021
+  },
+  {
+   "id": "ta4",
+   "name_ar": "م. رنا خالد المنشاوي",
+   "name_en": "Eng. Rana Khaled El-Menshawy",
+   "department": "BAS",
+   "age": 25,
+   "appointed_year": 2023
+  },
+  {
+   "id": "ta5",
+   "name_ar": "م. كريم أشرف يونس",
+   "name_en": "Eng. Karim Ashraf Younis",
+   "department": "CSE",
+   "age": 25,
+   "appointed_year": 2023
+  },
+  {
+   "id": "ta6",
+   "name_ar": "م. ياسمين طارق فوزي",
+   "name_en": "Eng. Yasmin Tarek Fawzy",
+   "department": "CSE",
+   "age": 29,
+   "appointed_year": 2020
+  },
+  {
+   "id": "ta7",
+   "name_ar": "م. مصطفى هشام البنا",
+   "name_en": "Eng. Mostafa Hesham El-Banna",
+   "department": "CSE",
+   "age": 24,
+   "appointed_year": 2024
+  },
+  {
+   "id": "ta8",
+   "name_ar": "م. عمر جمال الصاوي",
+   "name_en": "Eng. Omar Gamal El-Sawy",
+   "department": "CSE",
+   "age": 26,
+   "appointed_year": 2023
+  },
+  {
+   "id": "ta9",
+   "name_ar": "م. سارة إبراهيم النجار",
+   "name_en": "Eng. Sara Ibrahim El-Naggar",
+   "department": "BAS",
+   "age": 25,
+   "appointed_year": 2023
+  },
+  {
+   "id": "ta10",
+   "name_ar": "م. حسام علي مراد",
+   "name_en": "Eng. Hossam Ali Mourad",
+   "department": "ECE",
+   "age": 28,
+   "appointed_year": 2021
+  }
+ ],
+ "course_assistants": [
+  {
+   "course_code": "BAS 011",
+   "assistants": [
+    {
+     "ta_id": "ta1",
+     "period": 1,
+     "times_taught": 4
+    },
+    {
+     "ta_id": "ta2",
+     "period": 2,
+     "times_taught": 1
+    }
+   ]
+  },
+  {
+   "course_code": "BAS 031",
+   "assistants": [
+    {
+     "ta_id": "ta3",
+     "period": 1,
+     "times_taught": 5
+    },
+    {
+     "ta_id": "ta4",
+     "period": 2,
+     "times_taught": 2
+    }
+   ]
+  },
+  {
+   "course_code": "CSE 141",
+   "assistants": [
+    {
+     "ta_id": "ta5",
+     "period": 1,
+     "times_taught": 2
+    },
+    {
+     "ta_id": "ta7",
+     "period": 2,
+     "times_taught": 1
+    }
+   ]
+  },
+  {
+   "course_code": "CSE 251",
+   "assistants": [
+    {
+     "ta_id": "ta6",
+     "period": 1,
+     "times_taught": 3
+    },
+    {
+     "ta_id": "ta8",
+     "period": 2,
+     "times_taught": 1
+    }
+   ]
+  },
+  {
+   "course_code": "ECE 121",
+   "assistants": [
+    {
+     "ta_id": "ta10",
+     "period": 1,
+     "times_taught": 4
+    },
+    {
+     "ta_id": "ta8",
+     "period": 2,
+     "times_taught": 2
+    }
+   ]
+  },
+  {
+   "course_code": "BAS 021",
+   "assistants": [
+    {
+     "ta_id": "ta1",
+     "period": 1,
+     "times_taught": 3
+    },
+    {
+     "ta_id": "ta9",
+     "period": 2,
+     "times_taught": 2
+    }
+   ]
+  },
+  {
+   "course_code": "BAS 115",
+   "assistants": [
+    {
+     "ta_id": "ta4",
+     "period": 1,
+     "times_taught": 2
+    },
+    {
+     "ta_id": "ta2",
+     "period": 2,
+     "times_taught": 1
+    }
+   ]
+  },
+  {
+   "course_code": "CSE 221",
+   "assistants": [
+    {
+     "ta_id": "ta5",
+     "period": 1,
+     "times_taught": 1
+    }
+   ]
+  },
+  {
+   "course_code": "CSE 313",
+   "assistants": [
+    {
+     "ta_id": "ta6",
+     "period": 1,
+     "times_taught": 4
+    }
+   ]
+  }
+ ]
+}

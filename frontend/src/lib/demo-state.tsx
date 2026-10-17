@@ -2,9 +2,9 @@
 
 /**
  * Interactive demo state that must survive switching pages:
- * selected courses, the open recommendations tab, instructor preferences, the what-if scenario and the chat.
+ * selected courses, the open recommendations tab, the what-if scenario and the chat.
  * A full page refresh resets it, except what is saved to the student's account: the recent chats
- * (see chat-history.ts) and the chosen courses, sliders and hidden instructors (see student-choices.ts).
+ * (see chat-history.ts) and the chosen courses (see student-choices.ts).
  * New chat questions go to the Masari AI service.
  */
 import * as React from "react"
@@ -13,23 +13,18 @@ import { apiFetch } from "@/lib/auth"
 
 /** Error detail of a chat answer refused for too many questions in a row (HTTP 429). */
 export const RATE_LIMITED = "rate_limited"
-import { defaultPrefs, instructors, type StudentPrefs } from "@/lib/demo-content"
 import type { L } from "@/lib/i18n"
 import { usePlanChoice } from "@/lib/plan-api"
 import { chatTitle, dropChat, loadChats, pushChat, saveChats, syncChats, upsertChat, type SavedChat } from "@/lib/chat-history"
 import { fetchChoices, pushChoices, type SavedChoices } from "@/lib/student-choices"
 import { useStudentView } from "@/lib/student-context"
-import type { StudentView } from "@/lib/student-view"
 
 
 /**
  * Something the chat asks the website to change on its pages, returned by the AI service next to the answer:
- * remove an instructor from the recommendations, bring one back, or move the preference sliders.
+ * add or remove courses on the schedule, or attach the email to the academic advisor.
  */
 export type ChatAction =
-  | { type: "avoid_instructor"; key: string; instructor_id: string; name_ar: string; name_en: string; course_code: string | null }
-  | { type: "restore_instructor"; key: string; instructor_id: string }
-  | { type: "set_preferences"; preferences: Partial<StudentPrefs> }
   | { type: "select_course"; course_code: string }
   | { type: "unselect_course"; course_code: string }
   | { type: "set_selection"; courses: string[] }
@@ -57,20 +52,9 @@ function toHistory(messages: ChatMessage[]) {
   })
 }
 
-/** Instructor tab default: the first proposed course that has instructor data, else the first course with any. */
-const defaultInstructorCourse = (view: StudentView) =>
-  view.proposedNow.find((code) => instructors.some((i) => i.courseCode === code)) ?? instructors[0]?.courseCode ?? ""
-
 type DemoState = {
   selected: string[]
   toggleCourse: (code: string) => void
-  insCourse: string
-  setInsCourse: (code: string) => void
-  prefs: StudentPrefs
-  setPrefs: React.Dispatch<React.SetStateAction<StudentPrefs>>
-  /** Instructors the student asked (in the chat) not to see: "i4" everywhere, "i4:CSE 315" in one course. */
-  excluded: string[]
-  restoreInstructor: (key: string) => void
   scenarioId: string | null
   setScenarioId: (id: string | null) => void
   messages: ChatMessage[]
@@ -91,9 +75,6 @@ const DemoStateContext = React.createContext<DemoState | null>(null)
 export function DemoStateProvider({ children }: { children: React.ReactNode }) {
   const view = useStudentView()
   const [selected, setSelected] = React.useState<string[]>(view.proposedNow)
-  const [insCourse, setInsCourse] = React.useState(() => defaultInstructorCourse(view))
-  const [prefs, setPrefs] = React.useState<StudentPrefs>(defaultPrefs)
-  const [excluded, setExcluded] = React.useState<string[]>([])
   const [scenarioId, setScenarioId] = React.useState<string | null>(null)
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
   const studentId = view.student.id
@@ -147,9 +128,6 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
     setSelected((s) => (s.includes(code) ? s.filter((c) => c !== code) : [...s, code]))
   }, [])
 
-  // Preferences are sent only once the student has moved a slider (or asked for a style in the chat).
-  const prefsTouched = prefs.pace !== defaultPrefs.pace || prefs.workload !== defaultPrefs.workload || prefs.practical !== defaultPrefs.practical
-
   // The choices saved to the account replace the defaults once they arrive. Until then nothing is saved, so the
   // defaults never overwrite them; if the service cannot be reached, later changes are still saved when it is back.
   const choicesLoaded = React.useRef(false)
@@ -162,9 +140,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
         if (!saved) return
         const selected = saved.selected.filter((code) => offered.has(code))
         setSelected(selected)
-        if (saved.prefs) setPrefs(saved.prefs)
-        setExcluded(saved.excluded)
-        lastSavedChoices.current = JSON.stringify({ selected, prefs: saved.prefs, excluded: saved.excluded })
+        lastSavedChoices.current = JSON.stringify({ selected })
       })
       .catch(() => {})
       .finally(() => {
@@ -174,10 +150,10 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studentId])
 
-  // Saves the choices shortly after they change (one save for a slider dragged across many values).
+  // Saves the choices shortly after they change (one save for several quick clicks).
   React.useEffect(() => {
     if (!choicesLoaded.current) return
-    const choices: SavedChoices = { selected, prefs: prefsTouched ? prefs : null, excluded }
+    const choices: SavedChoices = { selected }
     const json = JSON.stringify(choices)
     if (json === lastSavedChoices.current) return
     const t = setTimeout(() => {
@@ -185,24 +161,15 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       pushChoices(studentId, choices)
     }, 800)
     return () => clearTimeout(t)
-  }, [studentId, selected, prefs, prefsTouched, excluded])
-
-  const restoreInstructor = React.useCallback((key: string) => {
-    setExcluded((list) => list.filter((k) => k !== key))
-  }, [])
+  }, [studentId, selected])
 
   /** Applies what the chat asked the pages to change. */
   const applyActions = React.useCallback(
     (actions: ChatAction[]) => {
     const offered = new Set(view.recommendedCourses.map((c) => c.code))
     for (const a of actions) {
-      if (a.type === "avoid_instructor") setExcluded((list) => (list.includes(a.key) ? list : [...list, a.key]))
-      else if (a.type === "restore_instructor")
-        // "i4" also clears the per-course entries of that instructor
-        setExcluded((list) => list.filter((k) => k !== a.key && k.split(":")[0] !== a.instructor_id))
-      else if (a.type === "set_preferences") setPrefs((p) => ({ ...p, ...a.preferences }))
       // Courses: only ones this page offers (the service checked them against the same list).
-      else if (a.type === "select_course" && offered.has(a.course_code))
+      if (a.type === "select_course" && offered.has(a.course_code))
         setSelected((s) => (s.includes(a.course_code) ? s : [...s, a.course_code]))
       else if (a.type === "unselect_course") setSelected((s) => s.filter((c) => c !== a.course_code))
       else if (a.type === "set_selection") setSelected(a.courses.filter((c) => offered.has(c)))
@@ -230,15 +197,11 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       apiFetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // student_id lets the service run its tools (credit limit, standing, GPA, instructors...) on this student.
-        // excluded_instructors / preferences tell it what the recommendations page currently shows, so the chat
-        // never suggests someone the student removed.
+        // student_id lets the service run its tools (credit limit, standing, GPA, teaching assistants...) on this student.
         body: JSON.stringify({
           question: value,
           history,
           student_id: view.student.id,
-          excluded_instructors: excluded,
-          preferences: prefsTouched ? prefs : null,
           // the courses tab: what is chosen, what may be chosen (by priority) and the load limit
           selected_courses: selected,
           eligible_courses: view.recommendedCourses.map((c) => ({ code: c.code, credits: c.credits })),
@@ -273,8 +236,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
           reply({ id: crypto.randomUUID(), role: "assistant", kind: "error", detail: e.message })
         })
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [thinking, commit, view.student.id, view.student.maxLoad, view.recommendedCourses, excluded, prefs, selected, applyActions, planChoice]
+    [thinking, commit, view.student.id, view.student.maxLoad, view.recommendedCourses, selected, applyActions, planChoice]
   )
 
   const newChat = React.useCallback(() => {
@@ -317,12 +279,6 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
     () => ({
       selected,
       toggleCourse,
-      insCourse,
-      setInsCourse,
-      prefs,
-      setPrefs,
-      excluded,
-      restoreInstructor,
       scenarioId,
       setScenarioId,
       messages,
@@ -334,7 +290,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       openChat,
       deleteChat,
     }),
-    [selected, toggleCourse, insCourse, prefs, excluded, restoreInstructor, scenarioId, messages, thinking, sendMessage, newChat, chats, chatId, openChat, deleteChat]
+    [selected, toggleCourse, scenarioId, messages, thinking, sendMessage, newChat, chats, chatId, openChat, deleteChat]
   )
 
   return <DemoStateContext.Provider value={value}>{children}</DemoStateContext.Provider>

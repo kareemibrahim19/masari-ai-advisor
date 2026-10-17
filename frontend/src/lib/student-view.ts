@@ -34,7 +34,7 @@ import {
   type Priority,
   type StudentRecord,
 } from "@/lib/rules"
-import { defaultPrefsSummary, sectionsFor, type Section } from "@/lib/demo-content"
+import { sectionsFor, type Section } from "@/lib/demo-content"
 import { assumePassed, registeredNow, toStudentRecord } from "@/lib/data/student-adapter"
 import { buildTimetable } from "@/lib/timetable"
 import { dataTerm } from "@/lib/data/student-source"
@@ -231,7 +231,6 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
     maxLoad: limit,
     maxLoadRule: loadRule(record, limit),
     estGraduation: gradName(baseline.graduationIndex),
-    preferences: { summary: defaultPrefsSummary },
     completed: record.passed,
     completedSemesters: st.main_semesters_completed,
     registeredNow: registeredNow(s),

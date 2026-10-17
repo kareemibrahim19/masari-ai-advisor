@@ -351,13 +351,13 @@ class ChatMessageRow(Base):
 # ------------------------------------------------------------------------------------------------ choices
 
 class StudentChoices(Base):
-    """What a student chose on the recommendations page (courses, preference sliders, instructors they asked to hide),
+    """What a student chose on the recommendations page (the courses on the schedule),
     saved so it is still there after a refresh or on another device (see db/choices.py). Like the chats it is not a
     foreign key to students and is never dropped by seed --reset."""
     __tablename__ = "student_choices"
 
     student_id: Mapped[str] = mapped_column(String(16), primary_key=True)
-    choices: Mapped[dict] = mapped_column(JSON)  # {selected: [...], prefs: {...} | null, excluded: [...]}
+    choices: Mapped[dict] = mapped_column(JSON)  # {selected: [...]}
     updated_at: Mapped[datetime] = mapped_column(DateTime)  # UTC, as sent by the website; the newest save wins
 
 

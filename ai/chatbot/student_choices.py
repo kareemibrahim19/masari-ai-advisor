@@ -1,5 +1,5 @@
 """Saved choices API: the recommendations page saves what the student chose here, so a refresh or another device
-shows the same courses, preference sliders and hidden instructors.
+shows the same courses.
 
     GET /api/students/{student_id}/choices   the saved choices, or {"choices": null} if none yet
     PUT /api/students/{student_id}/choices   save them (the newest save wins)
@@ -46,17 +46,8 @@ def _run(s: Session, work: Callable[[], object]):
         raise HTTPException(503, "Saved choices are not available right now") from e
 
 
-class Prefs(BaseModel):
-    """The three sliders on the instructors tab, 0 to 100 (frontend StudentPrefs)."""
-    pace: int = Field(ge=0, le=100)
-    workload: int = Field(ge=0, le=100)
-    practical: int = Field(ge=0, le=100)
-
-
 class ChoicesBody(BaseModel):
     selected: list[str] = Field(max_length=40)  # course codes, e.g. "CSE 315"
-    prefs: Prefs | None = None  # null until the student moves a slider
-    excluded: list[str] = Field(default=[], max_length=100)  # instructor keys: "i4", or "i4:CSE 315" for one course
     updatedAt: int = Field(ge=0)  # ms since 1970, as the website's Date.now()
 
 
@@ -67,7 +58,7 @@ def get_choices(student_id: str = Depends(auth.own_student), s: Session = Depend
 
 @router.put("/api/students/{student_id}/choices")
 def save_choices(body: ChoicesBody, student_id: str = Depends(auth.own_student), s: Session = Depends(get_session)):
-    if any(len(x) > 32 for x in body.selected + body.excluded):
-        raise HTTPException(400, "Bad course code or instructor key")
+    if any(len(x) > 32 for x in body.selected):
+        raise HTTPException(400, "Bad course code")
     data = body.model_dump(exclude={"updatedAt"})
     return {"choices": _run(s, lambda: store.save_choices(s, student_id, data, body.updatedAt))}

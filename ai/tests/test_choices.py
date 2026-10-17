@@ -27,8 +27,7 @@ def check(name, cond, got=None):
 
 
 A, B = "883941655", "897948891"  # two of the mock students
-CHOICES = {"selected": ["CSE 315", "AIE 311"], "prefs": {"pace": 70, "workload": 30, "practical": 80},
-           "excluded": ["i4", "i2:CSE 315"]}
+CHOICES = {"selected": ["CSE 315", "AIE 311"]}
 
 tmp = tempfile.TemporaryDirectory()
 engine = make_engine(f"sqlite:///{Path(tmp.name, 'choices.db').as_posix()}")
@@ -86,12 +85,10 @@ else:
     check("PUT saves them", r.status_code == 200 and r.json()["choices"] == body, r.text)
     r = api.get(url)
     check("GET returns them (as on another device)", r.status_code == 200 and r.json()["choices"] == body, r.text)
-    r = api.put(url, json={"selected": [], "updatedAt": 1_780_000_100_000})
-    check("prefs and excluded may be left out", r.status_code == 200
-          and r.json()["choices"] == {"selected": [], "prefs": None, "excluded": [], "updatedAt": 1_780_000_100_000}, r.text)
+    r = api.put(url, json={"selected": [], "prefs": {"pace": 70}, "excluded": ["i4"], "updatedAt": 1_780_000_100_000})
+    check("old fields (sliders, hidden instructors) from an old page are dropped", r.status_code == 200
+          and r.json()["choices"] == {"selected": [], "updatedAt": 1_780_000_100_000}, r.text)
     check("unknown student is 404", api.get("/api/students/000/choices").status_code == 404)
-    check("slider above 100 is 422", api.put(url, json={**body, "prefs": {"pace": 101, "workload": 0, "practical": 0}})
-          .status_code == 422)
     check("missing updatedAt is 422", api.put(url, json={"selected": []}).status_code == 422)
     check("too long a code is 400", api.put(url, json={**body, "selected": ["x" * 40]}).status_code == 400)
 
