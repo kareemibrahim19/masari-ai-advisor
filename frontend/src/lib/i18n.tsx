@@ -285,6 +285,11 @@ const dict = {
   paperRegistration: { ar: "تسجيل ورقي", en: "Paper registration" },
   graduationProject: { ar: "مشروع تخرج", en: "Graduation project" },
   paperLoadNote: { ar: "15 ساعة (5 مواد × 3)", en: "15 hours (5 × 3-credit courses)" },
+  paperOpenedNote: { ar: "مش على السيستم", en: "not on the system" },
+  paperCaseOpened: {
+    ar: "مادة في غير ترمها الكلية بتفتحهالك بطلب (طلب تخرج، أو ترم مفيهوش مواد ليك): مش هتلاقيها على السيستم، فبتسجلها ورقي.",
+    en: "A course the college opens for you outside its semester (a graduation request, or a semester with nothing else for you): it is not on the system, so you register it on paper.",
+  },
   belowMinimumNote: { ar: "ترم تخرج أقل من 12", en: "graduation semester under 12" },
   paperRegistrationHint: {
     ar: "في حالات معينة الكلية بتطلب إن المادة أو المشروع يتسجّل ورقي مش على السيستم: بتروح لإدارة شئون الطلاب وتملا استمارة التسجيل الورقي قبل آخر ميعاد للتسجيل. الحالات دي:",

@@ -44,7 +44,9 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
             need, least = d.hours_needed(course)
             if earned < least:
                 out.append(f"{c['code']} needs {least} hours (with tolerance), has {earned}")
-            if (earned < need) != bool(c.get("paper_registration")):
+            if c["flag"] in ("graduation_request", "open_request") and not c.get("paper_registration"):
+                out.append(f"{c['code']} opened by request but not marked as paper registration")
+            if (earned < need) != bool(c.get("paper_registration") and not c.get("paper_opened")):
                 out.append(f"{c['code']} paper registration flag wrong at {earned}/{need}")
             if summer and course["type"] == "project":
                 out.append(f"project {c['code']} in summer")
@@ -284,6 +286,10 @@ p = build_graduation_plan(sid, 5, True)
 flags = [(t["term"], c["flag"]) for t in p["terms"] for c in t["courses"]]
 check("one spring course left after semester 8: 5 years possible, graduates that fall by request",
       p["status"] == "feasible" and flags == [("fall", "graduation_request")], (p["status"], flags))
+opened = [c for t in p["terms"] for c in t["courses"]]
+check("... and that course is registered on paper (not on the system)",
+      opened and all(c.get("paper_registration") and c.get("paper_opened") and "ورقي" in c["paper_note_ar"] for c in opened),
+      opened)
 check("... and 4.5 years too (a longer target is never harder)", build_graduation_plan(sid, 4.5, True)["status"] == "feasible")
 
 # Two spring courses left after a spring term, no summer: the fall cannot stay empty, so the college opens one.

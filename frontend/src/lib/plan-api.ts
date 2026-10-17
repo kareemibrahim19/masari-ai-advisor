@@ -26,6 +26,8 @@ export type PlanCourse = {
   flag: PlanFlag
   /** A project registered a few hours short of its requirement (within the tolerance): paper registration. */
   paper_registration?: boolean
+  /** Opened for the student outside its semester (by request): not on the registration system, so on paper. */
+  paper_opened?: boolean
   /** Hours earned before this semester, and the hours the project asks for (set with paper_registration). */
   hours_before?: number
   hours_needed?: number

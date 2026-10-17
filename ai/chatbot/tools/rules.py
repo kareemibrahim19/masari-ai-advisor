@@ -570,8 +570,10 @@ def paper_registration(student_id: str, reason: str | None = None, requested_hou
     """When the student registers on paper instead of the system: (1) GPA below 2.00 and wants 15 credits,
     (2) the registration system has closed, (3) fewer than 12 credits because it is the last term before
     graduation, (4) a graduation project with fewer hours than it requires, within the project allowance
-    (projects 1 and 2: 4 hours, project 3: 6 hours). `reason` picks one case (more_hours / system_closed /
-    below_minimum / project_allowance); without it every case is checked for this student."""
+    (projects 1 and 2: 4 hours, project 3: 6 hours), (5) a course the college opens for the student outside its
+    semester (a graduation request, or a semester with nothing else for them), which is not on the system.
+    `reason` picks one case (more_hours / system_closed / below_minimum / project_allowance / opened_course);
+    without it every case is checked for this student."""
     s, err = _student(student_id)
     if err:
         return err
@@ -624,6 +626,16 @@ def paper_registration(student_id: str, reason: str | None = None, requested_hou
                 projects = [p for p in projects if p["status"] != "done"] or projects
         cases.append({"case": "project_allowance", "applies": any(p["status"] == "paper" for p in projects),
                       "projects": projects, "explanation": " ".join(p["explanation"] for p in projects)})
+
+    if reason in (None, "opened_course"):
+        from . import planner  # the graduation plan decides which courses are opened (imported here: planner uses rules)
+        plan = planner.build_graduation_plan(student_id, 5, True, with_risk=False)
+        opened = [(t["ar"], c) for t in plan.get("terms", []) for c in t["courses"] if c.get("paper_opened")]
+        text = ("مادة الكلية بتفتحهالك في غير ترمها (طلب تخرج، أو ترم مفيهوش مواد ليك) مش بتبقى على السيستم، فبتسجلها ورقي. "
+                + ("في خطتك: " + "، ".join(f"{c['name_ar']} ({c['code']}) في {term}" for term, c in opened) + "."
+                   if opened else "خطتك (5 سنين مع الصيفي) مفيهاش مواد كده دلوقتي."))
+        cases.append({"case": "opened_course", "applies": bool(opened), "explanation": text,
+                      "courses": [c["code"] for _, c in opened]})
 
     if not cases:
         return {"found": False, "error": f"سبب غير معروف: {reason}"}

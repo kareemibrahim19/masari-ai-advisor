@@ -61,12 +61,15 @@ TOOLS = [
        ["student_id", "course_code"], rules.registration_eligibility, True),
     _t("paper_registration", "التسجيل الورقي: إمتى الطالب بيسجل ورقي بدل السيستم. (1) معدله أقل من 2.00 ومش تحت الإنذار وعايز 15 ساعة "
        "(5 مواد كل مادة 3 ساعات) والسيستم حده 14، (2) التسجيل قفل على السيستم، (3) هيسجل أقل من 12 ساعة لأنه آخر ترم للتخرج، "
-       "(4) سماحية المشاريع: مشروع 1 أو 2 بساعات ناقصة لحد 4، ومشروع 3 لحد 6. "
+       "(4) سماحية المشاريع: مشروع 1 أو 2 بساعات ناقصة لحد 4، ومشروع 3 لحد 6، "
+       "(5) مادة الكلية بتفتحهاله في غير ترمها (طلب تخرج، أو ترم مفيهوش مواد ليه): مش على السيستم فبتتسجل ورقي. "
        "نادِها لما الطالب يسأل عن التسجيل الورقي، أو يقول السيستم قفل، أو عايز يزود عن حده ومعدله أقل من 2، أو عايز أقل من 12، أو عايز يسجل مشروع وساعاته ناقصة.",
        {**_STUDENT,
-        "reason": {"type": "string", "enum": ["more_hours", "system_closed", "below_minimum", "project_allowance"],
+        "reason": {"type": "string", "enum": ["more_hours", "system_closed", "below_minimum", "project_allowance",
+                                              "opened_course"],
                    "description": "more_hours = عايز ساعات أكتر، system_closed = التسجيل قفل، below_minimum = أقل من 12، "
-                                  "project_allowance = مشروع وساعاته ناقصة. سيبه فاضي لو مش واضح."},
+                                  "project_allowance = مشروع وساعاته ناقصة، opened_course = مادة مفتوحة له في غير ترمها. "
+                                  "سيبه فاضي لو مش واضح."},
         "course_code": {"type": "string", "description": "كود المشروع لـ project_allowance (ARI 381 أو ARI 481 أو ARI 482). اختياري."},
         "requested_hours": {"type": "number", "description": "عدد الساعات اللي الطالب عايزه لو قاله. اختياري."}},
        ["student_id"], rules.paper_registration, True),

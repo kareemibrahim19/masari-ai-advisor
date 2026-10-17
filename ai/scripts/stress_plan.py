@@ -366,6 +366,9 @@ def plan_problems(pj: dict, plan: dict, summer: bool, cap: int) -> list[str]:
                 if r["term"] == "summer" or not (grad_req or open_req):
                     out.append(f"{c} في {r['ar']} وهي مش بتتدرّس فيه ({flag})")
         n_req = sum(1 for x in r["courses"] if x["flag"] in ("graduation_request", "open_request"))
+        for x in r["courses"]:
+            if x["flag"] in ("graduation_request", "open_request") and not (x.get("paper_registration") and x.get("paper_opened")):
+                out.append(f"{x['code']} في {r['ar']} مفتوحة بطلب ومش متعلّمة تسجيل ورقي")
         if r["term"] != "summer" and not codes and i < len(rows) - 1:
             out.append(f"{r['ar']} فاضي وبعده ترمات فيها مواد")
         if r["term"] == "summer" and codes and i > 0 and rows[i - 1]["term"] != "summer" and not rows[i - 1]["courses"]:
@@ -746,7 +749,7 @@ def check_one(rec: dict, follow: bool) -> dict:
                 "training_main": sum(1 for c in courses if c["flag"] == "college_request"),
                 "grad_request": sum(1 for c in courses if c["flag"] == "graduation_request"),
                 "open_request": sum(1 for c in courses if c["flag"] == "open_request"),
-                "paper_project": sum(1 for c in courses if c.get("paper_registration")),
+                "paper_project": sum(1 for c in courses if c.get("paper_registration") and c.get("hours_needed")),
                 "paper_load": sum(1 for r in rows if r.get("paper_load")),
                 "council": sum(1 for r in rows if r.get("warning")),
                 "grad_under_12": any(r.get("below_minimum_paper") for r in rows),

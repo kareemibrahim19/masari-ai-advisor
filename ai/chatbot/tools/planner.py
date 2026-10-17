@@ -62,6 +62,9 @@ FLAG_AR = {
     "open_request": "مادة في غير ترمها بطلب للكلية: مفيش مواد متاحة ليك الترم ده",
 }
 PAPER_AR = "تسجيل ورقي: الساعات أقل من المطلوب بس جوه السماحية"
+# A course the college opens for the student outside its semester is not on the registration system: it goes on paper.
+OPENED_PAPER_AR = ("تسجيل ورقي: المادة مش في ترمها والكلية بتفتحهالك بطلب، فمش هتلاقيها على السيستم. "
+                   "اطلبها من شئون الطلاب وسجّلها ورقي.")
 
 
 # ---------------------------------------------------------------- the student after the current term
@@ -1080,6 +1083,8 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
         for c in r["courses"]:
             if c["flag"] == "graduation_request" and i != last_main_row:
                 c["flag"], c["flag_ar"] = "open_request", FLAG_AR["open_request"]
+            if c["flag"] in ("graduation_request", "open_request"):
+                c["paper_registration"], c["paper_opened"], c["paper_note_ar"] = True, True, OPENED_PAPER_AR
     summer_courses = [c["code"] for r in rows if r["term"] == "summer" for c in r["courses"]
                       if c["flag"] == "summer_on_demand"]
     requests = [c["code"] for r in rows for c in r["courses"]
@@ -1153,6 +1158,9 @@ def graduation_plan(student_id: str, target_years: float | None = None, allow_su
         "risk_if_gpa_drops": (p.get("risk") or {}).get("ar"),
         "graduation": (p["graduation_term"] or {}).get("ar"),
         "summer_courses": p.get("summer_courses", []), "college_requests": p.get("college_requests", []),
+        # Courses registered on paper at student affairs (opened by request, or a project a few hours short).
+        "paper_registration": [{"code": c["code"], "term": t["ar"], "why": c["paper_note_ar"]}
+                               for t in p.get("terms", []) for c in t["courses"] if c.get("paper_registration")],
         "credit_cap_per_semester": p["after_this_term"]["max_credits"],
         "all_targets": [{"target_years": o["target_years"], "with_summer": cell(o["with_summer"]),
                          "without_summer": cell(o["without_summer"])} for o in opts],

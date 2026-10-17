@@ -656,6 +656,7 @@ function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined;
         {c.paper_registration && (
           <span className={cn("rounded px-1.5 py-px font-medium tabular-nums", paperStyle)}>
             {t("paperRegistration")}
+            {c.paper_opened && ` · ${t("paperOpenedNote")}`}
             {c.hours_before !== undefined && c.hours_needed !== undefined && ` · ${num(c.hours_before)}/${num(c.hours_needed)}`}
           </span>
         )}
@@ -695,6 +696,7 @@ function Legend({ improvement }: { improvement: boolean }) {
             <li>{t("paperCaseProject")}</li>
             <li>{t("paperCaseLoad15")}</li>
             <li>{t("paperCaseGradUnder12")}</li>
+            <li>{t("paperCaseOpened")}</li>
           </ul>
         </li>
       </ul>
