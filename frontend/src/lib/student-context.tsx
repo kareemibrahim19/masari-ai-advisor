@@ -7,7 +7,15 @@
  * rejects the token (401 on any request), the student is signed out and the app shell opens /login.
  */
 import * as React from "react"
-import { clearSession, login, savedStudentId, SIGNED_OUT_EVENT, type LoginResult } from "@/lib/auth"
+import {
+  activate as activateOnServer,
+  clearSession,
+  login,
+  savedStudentId,
+  SIGNED_OUT_EVENT,
+  type ActivateResult,
+  type LoginResult,
+} from "@/lib/auth"
 import { getStudent } from "@/lib/data/student-source"
 import { fetchSections } from "@/lib/data/sections-source"
 import type { StudentFileEntry } from "@/lib/data/types"
@@ -19,6 +27,8 @@ type StudentContextValue = {
   ready: boolean
   view: StudentView | null
   signIn: (studentId: string, password: string) => Promise<LoginResult>
+  /** First sign-in (/activate): sets the password with the token from activateCheck() and signs in. */
+  activate: (activationToken: string, password: string) => Promise<ActivateResult>
   signOut: () => void
 }
 
@@ -58,13 +68,22 @@ export function StudentProvider({ children }: { children: React.ReactNode }) {
     return result
   }, [])
 
+  const activate = React.useCallback(async (activationToken: string, password: string) => {
+    const result = await activateOnServer(activationToken, password)
+    if (result.ok) setEntry(result.student)
+    return result
+  }, [])
+
   const signOut = React.useCallback(() => {
     clearSession()
     setEntry(null)
   }, [])
 
   const view = React.useMemo(() => (entry ? buildStudentView(entry, sections) : null), [entry, sections])
-  const value = React.useMemo(() => ({ ready, view, signIn, signOut }), [ready, view, signIn, signOut])
+  const value = React.useMemo(
+    () => ({ ready, view, signIn, activate, signOut }),
+    [ready, view, signIn, activate, signOut]
+  )
 
   return <StudentContext.Provider value={value}>{children}</StudentContext.Provider>
 }

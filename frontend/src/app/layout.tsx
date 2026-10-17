@@ -41,7 +41,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: prePaintScript }} />
       </head>
-      <body className="min-h-full">
+      {/* Browser extensions (e.g. Grammarly's data-gr-* attributes) write on <body> before React loads. */}
+      <body className="min-h-full" suppressHydrationWarning>
         <I18nProvider>
           <TooltipProvider delay={300}>
             <StudentProvider>

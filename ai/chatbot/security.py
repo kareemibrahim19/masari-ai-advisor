@@ -3,6 +3,10 @@
 A token says "this is student X until time T" and is signed with MASARI_AUTH_SECRET (HMAC-SHA256), so the server
 can trust it without keeping a list of sessions: "883941655.1792000000.<signature>". Anyone who changes the id or
 the time breaks the signature. Changing the secret signs everyone out.
+
+A token can also carry a purpose ("activate" for the few minutes between proving who you are and choosing a
+first password, see auth.py). The purpose is part of what is signed, so such a token is never accepted as a
+sign-in, and a sign-in token is never accepted for setting a password.
 """
 
 import base64
@@ -27,19 +31,22 @@ def _secret() -> bytes:
     return secret.encode("utf-8")
 
 
-def _sign(payload: str) -> str:
+def _sign(payload: str, purpose: str = "") -> str:
+    if purpose:
+        payload = f"{purpose}:{payload}"
     mac = hmac.new(_secret(), payload.encode("utf-8"), hashlib.sha256).digest()
     return base64.urlsafe_b64encode(mac).decode("ascii").rstrip("=")
 
 
-def make_token(student_id: str, now: float | None = None) -> tuple[str, int]:
+def make_token(student_id: str, now: float | None = None, purpose: str = "",
+               seconds: int = SESSION_SECONDS) -> tuple[str, int]:
     """A token for the student and when it stops working (seconds since 1970)."""
-    expires = int(now if now is not None else time.time()) + SESSION_SECONDS
+    expires = int(now if now is not None else time.time()) + seconds
     payload = f"{student_id}.{expires}"
-    return f"{payload}.{_sign(payload)}", expires
+    return f"{payload}.{_sign(payload, purpose)}", expires
 
 
-def read_token(token: str, now: float | None = None) -> str | None:
+def read_token(token: str, now: float | None = None, purpose: str = "") -> str | None:
     """The student id inside a valid, unexpired token, else None."""
     try:
         student_id, expires, signature = token.split(".")
@@ -47,7 +54,7 @@ def read_token(token: str, now: float | None = None) -> str | None:
             return None
     except ValueError:
         return None
-    if not hmac.compare_digest(signature, _sign(f"{student_id}.{expires}")):
+    if not hmac.compare_digest(signature, _sign(f"{student_id}.{expires}", purpose)):
         return None
     return student_id
 

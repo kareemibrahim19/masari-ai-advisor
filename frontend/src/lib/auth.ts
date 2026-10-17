@@ -7,6 +7,10 @@
  * The token lives in sessionStorage next to the student id (closing the tab signs out). apiFetch() adds
  * "Authorization: Bearer <token>" to every request; a 401 on any of them means the token is no longer
  * valid, so the student is signed out and the app shell sends them to /login.
+ *
+ * First sign-in (/activate), for a student with no password yet:
+ *   POST /api/auth/activate/check { student_id, national_id } -> { activation_token, expires_at, name_ar, name_en }
+ *   POST /api/auth/activate { activation_token, password } -> same answer as login
  */
 import { MASARI_API_URL } from "@/lib/api-url"
 import type { StudentFileEntry } from "@/lib/data/types"
@@ -112,6 +116,54 @@ export async function login(studentId: string, password: string): Promise<LoginR
   }
   if (res.status === 401) return { ok: false, reason: "wrong" }
   if (res.status === 429) return { ok: false, reason: "too_many", retryAfter: retryAfterOf(res) }
+  if (!res.ok) return { ok: false, reason: "unavailable" }
+  const data = (await res.json()) as { token: string; expires_at: number; student: StudentFileEntry }
+  saveSession(data.token, data.expires_at, data.student.student_id)
+  return { ok: true, student: data.student }
+}
+
+export type ActivateCheckResult =
+  | { ok: true; activationToken: string; name: { ar: string; en: string } }
+  | { ok: false; reason: "no_match" | "too_many" | "unavailable" }
+
+const postJson = (path: string, body: unknown) =>
+  fetch(`${MASARI_API_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(20_000),
+  })
+
+/** Step 1 of activation: the national ID on file proves who the student is (only while they have no password). */
+export async function activateCheck(studentId: string, nationalId: string): Promise<ActivateCheckResult> {
+  let res: Response
+  try {
+    res = await postJson("/api/auth/activate/check", { student_id: studentId, national_id: nationalId })
+  } catch {
+    return { ok: false, reason: "unavailable" }
+  }
+  if (res.status === 401) return { ok: false, reason: "no_match" }
+  if (res.status === 429) return { ok: false, reason: "too_many" }
+  if (!res.ok) return { ok: false, reason: "unavailable" }
+  const data = (await res.json()) as { activation_token: string; name_ar: string; name_en: string }
+  return { ok: true, activationToken: data.activation_token, name: { ar: data.name_ar, en: data.name_en } }
+}
+
+export type ActivateResult =
+  | { ok: true; student: StudentFileEntry }
+  | { ok: false; reason: "expired" | "already" | "short" | "unavailable" }
+
+/** Step 2: sets the first password and signs in, like login(). */
+export async function activate(activationToken: string, password: string): Promise<ActivateResult> {
+  let res: Response
+  try {
+    res = await postJson("/api/auth/activate", { activation_token: activationToken, password })
+  } catch {
+    return { ok: false, reason: "unavailable" }
+  }
+  if (res.status === 401) return { ok: false, reason: "expired" }
+  if (res.status === 409) return { ok: false, reason: "already" }
+  if (res.status === 422) return { ok: false, reason: "short" }
   if (!res.ok) return { ok: false, reason: "unavailable" }
   const data = (await res.json()) as { token: string; expires_at: number; student: StudentFileEntry }
   saveSession(data.token, data.expires_at, data.student.student_id)

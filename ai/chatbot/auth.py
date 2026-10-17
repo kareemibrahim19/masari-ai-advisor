@@ -3,6 +3,15 @@
     POST /api/auth/login   {"student_id": "...", "password": "..."}  ->  {"token", "expires_at", "student"}
     GET  /api/auth/me      who the token belongs to
 
+A student with no password yet sets one themself, in two steps (the website's /activate page):
+
+    POST /api/auth/activate/check  {"student_id", "national_id"}  ->  {"activation_token", "expires_at", "name_ar", "name_en"}
+    POST /api/auth/activate        {"activation_token", "password"}  ->  same answer as login
+
+The check only passes while the student has no password, so it can never be used to replace someone's password
+(an admin removes one with `ai/db/accounts.py reset <id>`, after which the student activates again). Every failed check
+gets the same answer, so it does not tell whether the id, the national ID, or an existing password was the reason.
+
 The website sends the token back on every request as "Authorization: Bearer <token>". Passwords are set with
 ai/db/accounts.py. Settings (environment / .env):
 
@@ -15,6 +24,7 @@ With MASARI_REQUIRE_AUTH=1 a student's endpoints answer 401 without a valid toke
 id, and the chat and microphone need a signed-in student.
 """
 
+import hmac
 import os
 import sys
 from pathlib import Path
@@ -37,6 +47,10 @@ _tables_ready = set()
 # Guessing passwords: a few tries per student, and a few more per address (one address may try many students).
 login_per_student = security.RateLimiter(limit=5, window=15 * 60)
 login_per_address = security.RateLimiter(limit=20, window=15 * 60)
+activate_per_student = security.RateLimiter(limit=5, window=15 * 60)
+
+ACTIVATE = "activate"  # the purpose signed into an activation token
+ACTIVATE_SECONDS = 10 * 60  # time to choose the password after the national ID was accepted
 
 
 def required() -> bool:
@@ -101,10 +115,7 @@ def login(body: LoginBody, request: Request, s: Session = Depends(get_session)):
         if wait := limiter.hit(key):
             _too_many(wait)
     try:
-        bind = s.get_bind()
-        if bind.url not in _tables_ready:
-            accounts.create_tables(bind)
-            _tables_ready.add(bind.url)
+        _ensure_tables(s)
         ok = accounts.check_password(s, sid, body.password)
     except SQLAlchemyError as e:
         raise HTTPException(503, "Sign-in is not available right now") from e
@@ -112,11 +123,80 @@ def login(body: LoginBody, request: Request, s: Session = Depends(get_session)):
     if not student:  # one answer for a wrong id and a wrong password
         raise HTTPException(401, "Wrong student ID or password")
     login_per_student.reset(sid)
+    return _session_for(sid, student)
+
+
+def _ensure_tables(s: Session) -> None:
+    bind = s.get_bind()
+    if bind.url not in _tables_ready:
+        accounts.create_tables(bind)
+        _tables_ready.add(bind.url)
+
+
+def _session_for(sid: str, student: dict) -> dict:
     try:
         token, expires = security.make_token(sid)
     except security.AuthNotConfigured as e:
         raise HTTPException(503, "Sign-in is not set up on the server") from e
     return {"token": token, "expires_at": expires, "student": student}
+
+
+class ActivateCheckBody(BaseModel):
+    student_id: str = Field(min_length=1, max_length=16)
+    national_id: str = Field(min_length=1, max_length=32)
+
+
+class ActivateBody(BaseModel):
+    activation_token: str = Field(min_length=1, max_length=200)
+    password: str = Field(min_length=1, max_length=200)
+
+
+@router.post("/api/auth/activate/check")
+def activate_check(body: ActivateCheckBody, request: Request, s: Session = Depends(get_session)):
+    sid, nid = body.student_id.strip(), body.national_id.strip()
+    for limiter, key in ((login_per_address, client_address(request)), (activate_per_student, sid)):
+        if wait := limiter.hit(key):
+            _too_many(wait)
+    student = students.get_student(sid)
+    on_file = str((student or {}).get("personal", {}).get("national_id") or "")
+    matches = bool(on_file) and hmac.compare_digest(nid.encode("utf-8"), on_file.encode("utf-8"))
+    try:
+        _ensure_tables(s)
+        has_password = accounts.has_password(s, sid)
+    except SQLAlchemyError as e:
+        raise HTTPException(503, "Activation is not available right now") from e
+    if not matches or has_password:  # one answer for every reason
+        raise HTTPException(401, "These details do not match, or the account is already active")
+    activate_per_student.reset(sid)
+    try:
+        token, expires = security.make_token(sid, purpose=ACTIVATE, seconds=ACTIVATE_SECONDS)
+    except security.AuthNotConfigured as e:
+        raise HTTPException(503, "Sign-in is not set up on the server") from e
+    personal = student["personal"]
+    return {"activation_token": token, "expires_at": expires,
+            "name_ar": personal["name_ar"], "name_en": personal["name_en"]}
+
+
+@router.post("/api/auth/activate")
+def activate(body: ActivateBody, s: Session = Depends(get_session)):
+    try:
+        sid = security.read_token(body.activation_token.strip(), purpose=ACTIVATE)
+    except security.AuthNotConfigured as e:
+        raise HTTPException(503, "Sign-in is not set up on the server") from e
+    student = students.get_student(sid) if sid else None
+    if not student:
+        raise HTTPException(401, "The activation has expired. Start again.")
+    if len(body.password) < accounts.MIN_LENGTH:
+        raise HTTPException(422, f"The password must be at least {accounts.MIN_LENGTH} characters")
+    try:
+        _ensure_tables(s)
+        if accounts.has_password(s, sid):  # activated in another tab meanwhile
+            raise HTTPException(409, "The account is already active. Sign in instead.")
+        accounts.set_password(s, sid, body.password)
+        s.commit()
+    except SQLAlchemyError as e:
+        raise HTTPException(503, "Activation is not available right now") from e
+    return _session_for(sid, student)
 
 
 @router.get("/api/auth/me")

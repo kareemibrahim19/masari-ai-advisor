@@ -135,14 +135,14 @@ function StudentChip() {
 }
 
 /**
- * Frame around every page, and the login gate: /login renders on its own; every other page needs a
- * signed-in student and sends visitors without one to /login.
+ * Frame around every page, and the login gate: /login and /activate (first sign-in) render on their own;
+ * every other page needs a signed-in student and sends visitors without one to /login.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const { ready, view } = useStudent()
-  const isLogin = pathname === "/login"
+  const isLogin = pathname === "/login" || pathname === "/activate"
 
   React.useEffect(() => {
     if (ready && !view && !isLogin) router.replace("/login")
