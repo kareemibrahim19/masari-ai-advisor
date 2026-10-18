@@ -265,6 +265,10 @@
     stroke-dashoffset: 0;
   }
 }
+/* Page change: the new page's content fades in lightly (opacity only, so sticky and fixed parts are not moved). */
+.masari-page {
+  animation: masari-fade 220ms ease-out both;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,

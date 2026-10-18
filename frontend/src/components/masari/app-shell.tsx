@@ -47,15 +47,52 @@ export function useTheme() {
   return { dark, toggle: () => setTheme(dark ? "light" : "dark") }
 }
 
+type Rule = { x: number; w: number; slide: boolean }
+
+/**
+ * Places one orange rule under the active tab of a nav, so it slides to the new tab instead of jumping. `place` turns
+ * the active link's box into the rule's left edge and width. It slides only when the page changes; a resize, a
+ * language switch or the first paint just moves it. `place` must be a stable function (declared at module level).
+ */
+function useActiveRule(pathname: string, place: (link: HTMLElement) => { x: number; w: number }) {
+  const navRef = React.useRef<HTMLElement>(null)
+  const [rule, setRule] = React.useState<Rule | null>(null)
+  const lastPath = React.useRef<string | null>(null)
+
+  React.useLayoutEffect(() => {
+    const navEl = navRef.current
+    if (!navEl) return
+    const measure = (slide: boolean) => {
+      const link = navEl.querySelector<HTMLElement>('[aria-current="page"]')
+      // A hidden nav (the other screen size) has no box; leave the rule where it is.
+      if (link && !link.offsetWidth) return
+      setRule((prev) => (link ? { ...place(link), slide: slide && prev !== null } : null))
+    }
+    measure(lastPath.current !== null && lastPath.current !== pathname)
+    lastPath.current = pathname
+    const ro = new ResizeObserver(() => measure(false))
+    ro.observe(navEl)
+    return () => ro.disconnect()
+  }, [pathname, place])
+
+  return { navRef, rule }
+}
+
+// Top bar: the rule spans the tab minus 12px each side, as the old per-tab underline did.
+const placeTopRule = (link: HTMLElement) => ({ x: link.offsetLeft + 12, w: link.offsetWidth - 24 })
+// Bottom bar: a 32px rule centred over the active tab's column.
+const placeBottomRule = (link: HTMLElement) => ({ x: link.offsetLeft + (link.offsetWidth - 32) / 2, w: 32 })
+
 /** Desktop: horizontal tabs in the top bar. The active tab is marked by an orange rule, like the logo's destination dot. */
 function TopNav() {
   const pathname = usePathname()
   const { t, lang } = useI18n()
+  const { navRef, rule } = useActiveRule(pathname, placeTopRule)
   // Full tab names only where every tab still fits on one line: Arabic on 2xl screens. The English names are longer,
   // so English keeps the short ones and the bar never scrolls sideways.
   const longNames = lang === "ar"
   return (
-    <nav aria-label={t("mainNav")} className="hidden h-full items-stretch gap-1 lg:flex">
+    <nav ref={navRef} aria-label={t("mainNav")} className="relative hidden h-full items-stretch gap-1 lg:flex">
       {nav.map(({ href, key, short, icon: Icon }) => {
         const active = isActive(href, pathname)
         return (
@@ -65,8 +102,7 @@ function TopNav() {
             aria-current={active ? "page" : undefined}
             className={cn(
               "relative flex items-center gap-1.5 rounded-lg px-2 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring xl:gap-2 xl:px-2.5",
-              "after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 after:rounded-full after:transition-colors",
-              active ? "text-foreground after:bg-brand-accent" : "text-muted-foreground after:bg-transparent hover:text-foreground"
+              active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
           >
             <Icon className="size-[17px]" aria-hidden />
@@ -75,7 +111,23 @@ function TopNav() {
           </Link>
         )
       })}
+      <ActiveRule rule={rule} className="-bottom-px rounded-full" />
     </nav>
+  )
+}
+
+function ActiveRule({ rule, className }: { rule: Rule | null; className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "pointer-events-none absolute left-0 h-0.5 bg-brand-accent transition-opacity",
+        rule?.slide && "transition-[transform,width,opacity] duration-300 ease-out",
+        rule ? "opacity-100" : "opacity-0",
+        className
+      )}
+      style={rule ? { width: rule.w, transform: `translateX(${rule.x}px)` } : undefined}
+    />
   )
 }
 
@@ -83,8 +135,10 @@ function TopNav() {
 function BottomNav() {
   const pathname = usePathname()
   const { t } = useI18n()
+  const { navRef, rule } = useActiveRule(pathname, placeBottomRule)
   return (
     <nav
+      ref={navRef}
       aria-label={t("mainNav")}
       className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t bg-background/92 backdrop-blur supports-backdrop-filter:bg-background/80 lg:hidden"
     >
@@ -101,13 +155,6 @@ function BottomNav() {
                   active ? "text-foreground" : "text-muted-foreground"
                 )}
               >
-                <span
-                  className={cn(
-                    "absolute top-0 h-0.5 w-8 rounded-b-full transition-colors",
-                    active ? "bg-brand-accent" : "bg-transparent"
-                  )}
-                  aria-hidden
-                />
                 <Icon className="size-5" aria-hidden />
                 <span className="max-w-full truncate px-1">{t(short)}</span>
               </Link>
@@ -115,6 +162,7 @@ function BottomNav() {
           )
         })}
       </ul>
+      <ActiveRule rule={rule} className="top-0 rounded-b-full" />
     </nav>
   )
 }
@@ -168,6 +216,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   const { dark, toggle } = useTheme()
   const { signOut } = useStudent()
   const router = useRouter()
+  const pathname = usePathname()
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -220,7 +269,13 @@ function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main id="main" tabIndex={-1} className="flex min-w-0 flex-1 flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] outline-none lg:pb-0">
+      {/* Keyed by page, so each page fades in lightly as it arrives. */}
+      <main
+        key={pathname}
+        id="main"
+        tabIndex={-1}
+        className="masari-page flex min-w-0 flex-1 flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] outline-none lg:pb-0"
+      >
         {children}
       </main>
 
