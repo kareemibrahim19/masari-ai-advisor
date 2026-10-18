@@ -129,28 +129,61 @@ export function CourseMap() {
   const downs = React.useMemo(() => new Set(focus ? allDependentsOf(focus) : []), [focus])
 
   // ---------------------------------------------------------------- links
-  const curve = (a: { x: number; y: number }, b: { x: number; y: number }) => {
-    const x1 = rtl ? a.x : a.x + colW
-    const x2 = rtl ? b.x + colW : b.x
+  // Link from prerequisite a to course b; `reversed` swaps the edges used, for a link that starts at the course.
+  const curve = (a: { x: number; y: number }, b: { x: number; y: number }, reversed = false) => {
+    const x1 = rtl !== reversed ? a.x : a.x + colW
+    const x2 = rtl !== reversed ? b.x + colW : b.x
     const y1 = a.y + NODE_H / 2
     const y2 = b.y + NODE_H / 2
     const m = (x1 + x2) / 2
     return `M${x1} ${y1} C${m} ${y1} ${m} ${y2} ${x2} ${y2}`
   }
+  // Steps from the focused course along the chain (BFS), so its lines can draw outward one step at a time.
+  const hops = React.useMemo(() => {
+    const walk = (next: (code: string) => string[]) => {
+      const out = new Map<string, number>()
+      if (!focus) return out
+      out.set(focus, 0)
+      const queue = [focus]
+      while (queue.length) {
+        const code = queue.shift()!
+        for (const n of next(code)) {
+          if (out.has(n)) continue
+          out.set(n, out.get(code)! + 1)
+          queue.push(n)
+        }
+      }
+      return out
+    }
+    return { up: walk((code) => findCourse(code)?.prereqs ?? []), down: walk(dependentsOf) }
+  }, [focus])
   const base: { d: string; col: number }[] = []
-  let up = ""
-  let down = ""
+  // Chain links: requirements drawn from the course back to each prerequisite, what it opens drawn forward.
+  const chain: { d: string; hop: number; up: boolean }[] = []
   courses.forEach((c) =>
     c.prereqs.forEach((p) => {
       const a = pos.get(p)
       const b = pos.get(c.code)
       if (!a || !b) return
       const d = curve(a, b)
-      if (focus && (c.code === focus || ups.has(c.code)) && ups.has(p)) up += d
-      else if (focus && (p === focus || downs.has(p)) && downs.has(c.code)) down += d
+      if (focus && (c.code === focus || ups.has(c.code)) && ups.has(p)) chain.push({ d: curve(b, a, true), hop: hops.up.get(c.code) ?? 0, up: true })
+      else if (focus && (p === focus || downs.has(p)) && downs.has(c.code)) chain.push({ d, hop: hops.down.get(p) ?? 0, up: false })
       else base.push({ d, col: a.col })
     })
   )
+
+  // Picking a course from the details box: bring it into view on the map and make it glow for a moment
+  // (on phones the map scrolls sideways, so the course may be off screen).
+  const [flash, setFlash] = React.useState<{ code: string; n: number } | null>(null)
+  const pick = (code: string) => {
+    setSelected(code)
+    if (pos.has(code)) setFlash((f) => ({ code, n: (f?.n ?? 0) + 1 }))
+  }
+  React.useEffect(() => {
+    if (!flash) return
+    const el = map.current?.querySelector(`[data-code="${CSS.escape(flash.code)}"]`)
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" })
+  }, [flash])
 
   return (
     <div className="space-y-4">
@@ -163,7 +196,7 @@ export function CourseMap() {
         ))}
       </ul>
 
-      <Details code={selected} kindOf={kindOf} onPick={setSelected} onClear={() => setSelected(null)} />
+      <Details code={selected} kindOf={kindOf} onPick={pick} onClear={() => setSelected(null)} />
 
       <div
         ref={scroller}
@@ -200,8 +233,18 @@ export function CourseMap() {
                   />
                 ))}
               </g>
-              <path d={up || "M0 0"} fill="none" strokeWidth="2" className="stroke-foreground" />
-              <path d={down || "M0 0"} fill="none" strokeWidth="2" className="stroke-brand-accent" />
+              {chain.map((e) => (
+                // Keyed by the focus so each new pick draws again, step by step away from the course.
+                <path
+                  key={`${focus}${e.d}`}
+                  d={e.d}
+                  pathLength={1}
+                  fill="none"
+                  strokeWidth="2"
+                  className={e.up ? "stroke-foreground" : "stroke-brand-accent"}
+                  style={{ strokeDasharray: 1, animation: `masari-draw .22s ease-out ${e.hop * 0.18}s both` }}
+                />
+              ))}
             </svg>
 
             {courses.map((c) => {
@@ -215,7 +258,8 @@ export function CourseMap() {
                 // Outer box carries the entrance animation; the button's own opacity does the dimming.
                 <div
                   key={c.code}
-                  className="absolute rounded-xl bg-card"
+                  data-code={c.code}
+                  className="absolute scroll-m-4 rounded-xl bg-card"
                   style={{ left: p.x, top: p.y, width: colW, height: NODE_H, animation: `masari-in .45s ease ${p.col * 0.05 + p.row * 0.025}s both` }}
                 >
                   <button
@@ -245,6 +289,14 @@ export function CourseMap() {
                       </span>
                     </span>
                   </button>
+                  {flash?.code === c.code && (
+                    <span
+                      key={flash.n}
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 rounded-xl"
+                      style={{ animation: "masari-flash 1.1s ease .35s both" }}
+                    />
+                  )}
                 </div>
               )
             })}

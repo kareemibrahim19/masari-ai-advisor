@@ -56,6 +56,36 @@ export function CountUp({
   )
 }
 
+/**
+ * Text that changes like an airport board: when `value` changes, the old words fold away and the new ones
+ * fold in, one word after another. Whole words flip (letters would break Arabic joining). No motion on first show.
+ */
+export function FlipText({ value, className }: { value: string; className?: string }) {
+  const [s, setS] = React.useState<{ cur: string; old: string | null; n: number }>({ cur: value, old: null, n: 0 })
+  if (s.cur !== value) setS({ cur: value, old: s.cur, n: s.n + 1 })
+  const words = (text: string, anim: string, base: number) =>
+    text.split(" ").map((w, i) => (
+      <React.Fragment key={i}>
+        {i > 0 && " "}
+        <span className="inline-block" style={{ animation: `${anim} ${i * 0.07 + base}s both` }}>
+          {w}
+        </span>
+      </React.Fragment>
+    ))
+  return (
+    <span className={cn("inline-grid [perspective:420px]", className)}>
+      {s.old !== null && (
+        <span key={`o${s.n}`} aria-hidden className="[grid-area:1/1]" onAnimationEnd={(e) => e.target === e.currentTarget.lastElementChild && setS((x) => ({ ...x, old: null }))}>
+          {words(s.old, "masari-flip-out .16s ease-in", 0)}
+        </span>
+      )}
+      <span key={`n${s.n}`} className="[grid-area:1/1]">
+        {s.n > 0 ? words(value, "masari-flip-in .24s ease-out", 0.14) : value}
+      </span>
+    </span>
+  )
+}
+
 export function Bar({
   value,
   max = 100,

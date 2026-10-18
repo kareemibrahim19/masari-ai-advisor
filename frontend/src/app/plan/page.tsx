@@ -22,7 +22,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
-import { Bar, Code, PageHeader } from "@/components/masari/bits"
+import { Bar, Code, FlipText, PageHeader } from "@/components/masari/bits"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import { courseNames } from "@/lib/demo-content"
 import { useI18n } from "@/lib/i18n"
@@ -62,6 +62,61 @@ const termOrder = (t: { academic_year: string; term: string }) =>
   parseInt(t.academic_year, 10) * 3 + ({ fall: 0, spring: 1, summer: 2 } as Record<string, number>)[t.term]
 
 const lastTermOrder = (p: GraduationPlan) => (p.terms.length ? termOrder(p.terms[p.terms.length - 1]) : -1)
+
+/** Where a plan graduates: main (fall/spring) semesters counted from year 0, and whether it ends in a summer. */
+function graduationPoint(p: GraduationPlan) {
+  const last = p.terms[p.terms.length - 1]
+  if (!last) return null
+  return { main: parseInt(last.academic_year, 10) * 2 + (last.term === "fall" ? 0 : 1), summer: last.term === "summer" }
+}
+
+type Shift = { terms: number; summer: -1 | 0 | 1; n: number }
+
+/**
+ * How far the estimated graduation moved the last time it changed (e.g. +1 term after a what-if fail).
+ * Compared with the date shown before, once the new plan has arrived; null until it first moves.
+ */
+function useGraduationShift(plan: GraduationPlan | undefined, loading: boolean): Shift | null {
+  const [shift, setShift] = React.useState<Shift | null>(null)
+  const prev = React.useRef<ReturnType<typeof graduationPoint>>(null)
+  const point = plan && !loading ? graduationPoint(plan) : null
+  const key = point ? `${point.main}${point.summer}` : null
+  React.useEffect(() => {
+    if (!point) return
+    const before = prev.current
+    prev.current = point
+    if (!before || (before.main === point.main && before.summer === point.summer)) return
+    const terms = point.main - before.main
+    const summer = terms === 0 ? (point.summer ? 1 : -1) : 0
+    setShift((s) => ({ terms, summer, n: (s?.n ?? 0) + 1 }))
+    // point is rebuilt every render; key holds its value
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+  return shift
+}
+
+function ShiftBadge({ shift }: { shift: Shift }) {
+  const { t, num } = useI18n()
+  const later = shift.terms > 0 || shift.summer > 0
+  const sign = later ? "+" : "−"
+  const text =
+    shift.terms !== 0
+      ? `${sign}${num(Math.abs(shift.terms))} ${Math.abs(shift.terms) === 1 ? t("gradShiftTerm") : t("gradShiftTerms")}`
+      : `${sign} ${t("gradShiftSummer")}`
+  return (
+    <span
+      title={later ? t("gradShiftLater") : t("gradShiftEarlier")}
+      className={cn(
+        "inline-flex h-5 items-center rounded-full px-1.5 text-[11px] font-semibold tabular",
+        later ? "bg-warning-soft text-warning" : "bg-verified-soft text-verified"
+      )}
+      style={{ animation: "masari-in .3s ease .3s both" }}
+    >
+      <span className="sr-only">{later ? t("gradShiftLater") : t("gradShiftEarlier")}: </span>
+      <bdi>{text}</bdi>
+    </span>
+  )
+}
 
 /** A typed term GPA, or null while the field is empty / not a number between 0 and 4. */
 function parseGpa(text: string): number | null {
@@ -107,6 +162,8 @@ export default function PlanPage() {
     return m
   }, [baseline])
 
+  const shift = useGraduationShift(plan, loading)
+
   const resetWhatIf = () => {
     setFailed([])
     setGpaText("")
@@ -130,7 +187,10 @@ export default function PlanPage() {
               )}
               <div className={cn("transition-opacity", loading && "opacity-50")}>
                 <p className="text-xs text-muted-foreground">{t("estGraduation")}</p>
-                <p className="text-sm font-semibold">{plan.graduation_term ? tr(plan.graduation_term) : "—"}</p>
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold">
+                  <FlipText value={plan.graduation_term ? tr(plan.graduation_term) : "—"} />
+                  {shift && <ShiftBadge key={shift.n} shift={shift} />}
+                </p>
               </div>
             </div>
           )

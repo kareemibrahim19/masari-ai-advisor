@@ -265,6 +265,37 @@
     stroke-dashoffset: 0;
   }
 }
+/* Split-flap change (airport board): the old word folds away, the new one folds in. */
+@keyframes masari-flip-out {
+  from {
+    opacity: 1;
+    transform: rotateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: rotateX(90deg);
+  }
+}
+@keyframes masari-flip-in {
+  from {
+    opacity: 0;
+    transform: rotateX(-90deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateX(0);
+  }
+}
+/* A brief orange glow around a course box on the map, to show where it is. */
+@keyframes masari-flash {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--brand-accent) 0%, transparent);
+  }
+  35% {
+    box-shadow: 0 0 0 6px color-mix(in oklab, var(--brand-accent) 45%, transparent);
+  }
+}
 /* Page change: the new page's content fades in lightly (opacity only, so sticky and fixed parts are not moved). */
 .masari-page {
   animation: masari-fade 220ms ease-out both;

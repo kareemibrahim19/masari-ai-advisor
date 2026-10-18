@@ -1,10 +1,11 @@
 "use client"
 
+import type { CSSProperties } from "react"
 import Link from "next/link"
 import { AlertTriangle, Armchair, BellRing, CalendarDays, CalendarRange, Info, MessageSquareText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { Bar, CategoryTag, Code, CountUp, Ring } from "@/components/masari/bits"
+import { Bar, CategoryTag, Code, CountUp, FlipText, Ring } from "@/components/masari/bits"
 import { JourneyRail } from "@/components/masari/journey"
 import { PriorityLevel } from "@/components/masari/priority-level"
 import { SeatRequestButton } from "@/components/masari/seat-request"
@@ -23,6 +24,9 @@ const alertStyle = {
   info: { icon: Info, cls: "bg-muted text-foreground" },
   seat: { icon: Armchair, cls: "bg-highlight-soft text-highlight-ink" },
 } as const
+
+/** Entrance for the i-th row of a list: fade up, each row a little after the one before. */
+const rise = (i: number): CSSProperties => ({ animation: `masari-in .4s ease ${0.15 + i * 0.06}s both` })
 
 export default function DashboardPage() {
   const { t, tr, num, lang } = useI18n()
@@ -74,12 +78,12 @@ export default function DashboardPage() {
               {lang === "ar" ? (
                 <>
                   فاضلك <b className="font-semibold text-foreground tabular">{num(remaining)}</b> ساعة، والتخرج المتوقع{" "}
-                  <b className="font-semibold text-foreground">{grad}</b>.
+                  <b className="font-semibold text-foreground"><FlipText value={grad} /></b>.
                 </>
               ) : (
                 <>
                   <b className="font-semibold text-foreground tabular">{num(remaining)}</b> credit hours to go. Estimated graduation:{" "}
-                  <b className="font-semibold text-foreground">{grad}</b>.
+                  <b className="font-semibold text-foreground"><FlipText value={grad} /></b>.
                 </>
               )}
             </p>
@@ -175,8 +179,9 @@ export default function DashboardPage() {
           </div>
           <p className="-mt-2 text-xs text-muted-foreground">{t("priorityHow")}</p>
           <ol className="divide-y overflow-hidden rounded-2xl border bg-card">
-            {thisTerm.map((c) => (
-              <li key={c.code} className="flex items-center gap-4 px-4 py-3.5">
+            {thisTerm.map((c, i) => (
+              // Rows come in one after another (same motion as the rest of the page).
+              <li key={c.code} className="flex items-center gap-4 px-4 py-3.5" style={rise(i)}>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{tr(c.name)}</p>
                   <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -204,9 +209,10 @@ export default function DashboardPage() {
           )}
           <ul className="space-y-3">
             {/* Calendar dates in the next 5 days, soonest first; redder as the day nears. */}
-            {reminders.map((r) => (
+            {reminders.map((r, i) => (
               <li
                 key={r.event.id}
+                style={rise(i)}
                 className={cn(
                   "flex gap-3 rounded-2xl border p-4",
                   r.urgency === 3 ? "border-destructive bg-destructive/10" : r.urgency === 2 ? "border-warning bg-warning-soft" : "border-warning/40 bg-warning-soft/40"
@@ -228,11 +234,11 @@ export default function DashboardPage() {
                 </div>
               </li>
             ))}
-            {alerts.map((a) => {
+            {alerts.map((a, i) => {
               const s = alertStyle[a.kind]
               const Icon = s.icon
               return (
-                <li key={a.id} className="flex gap-3 rounded-2xl border bg-card p-4">
+                <li key={a.id} className="flex gap-3 rounded-2xl border bg-card p-4" style={rise(reminders.length + i)}>
                   <span className={cn("grid size-9 shrink-0 place-items-center rounded-[10px]", s.cls)}>
                     <Icon className="size-[18px]" aria-hidden />
                   </span>

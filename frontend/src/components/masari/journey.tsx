@@ -29,7 +29,7 @@ const RISE = 76 // total climb from first node to graduation
 // Control-point offset as a share of STEP. The logo bends by ~0.65 of its rise; our rail climbs ~7px per step,
 // so a fixed share of the step keeps the same gentle S (out upward, in from below) without turning into loops.
 const BEND = 0.24
-const DRAW_SPEED = 320 // px per second the path draws itself at when the page opens
+const DRAW_SPEED = 560 // px per second the path draws itself at when the page opens
 
 type Node =
   | { kind: "done"; label: string; failed: boolean }
@@ -193,7 +193,7 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
 
         {nodes.map((n, i) => (
           // The semesters appear one after another along the route.
-          <g key={i} style={{ animation: `masari-fade .35s ease ${Math.max(0, at(i) - 0.1)}s both` }}>
+          <g key={i} style={{ animation: `masari-fade .25s ease ${Math.max(0, at(i) - 0.06)}s both` }}>
             {renderNode(n, i)}
           </g>
         ))}

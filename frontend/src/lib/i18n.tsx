@@ -88,6 +88,11 @@ const dict = {
   priorityNormal: { ar: "أولوية عادية", en: "Normal priority" },
   askMasari: { ar: "اسأل مساري", en: "Ask Masari" },
   estGraduation: { ar: "التخرج المتوقع", en: "Estimated graduation" },
+  gradShiftTerm: { ar: "ترم", en: "term" },
+  gradShiftTerms: { ar: "ترم", en: "terms" },
+  gradShiftSummer: { ar: "صيفي", en: "summer" },
+  gradShiftLater: { ar: "التخرج اتأخر", en: "Graduation moved later" },
+  gradShiftEarlier: { ar: "التخرج اتقدّم", en: "Graduation moved earlier" },
   of: { ar: "من", en: "of" },
 
   // Chat
