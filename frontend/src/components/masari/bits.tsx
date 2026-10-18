@@ -1,8 +1,60 @@
 "use client"
 
+import * as React from "react"
 import { cn } from "@/lib/utils"
 import { categoryLabels as categoryLabel, type Category } from "@/lib/aie-program"
 import { useI18n } from "@/lib/i18n"
+
+/** False on the first paint, true a moment later: lets a bar or ring grow from zero when the page opens. */
+function useEntered(on: boolean) {
+  const [entered, setEntered] = React.useState(!on)
+  React.useEffect(() => {
+    if (!on) return
+    const id = window.setTimeout(() => setEntered(true), 120)
+    return () => window.clearTimeout(id)
+  }, [on])
+  return entered
+}
+
+/**
+ * A number that counts up from zero when first shown, in step with a growing Ring or Bar
+ * (same 0.2s delay and 1.2s ease-out). Screen readers and reduced-motion users get the final value at once.
+ */
+export function CountUp({
+  value,
+  className,
+  decimals = 0,
+  format,
+}: {
+  value: number
+  className?: string
+  /** Decimal places while counting: 1 counts in steps of 0.1 (the GPA). The last value is always exact. */
+  decimals?: number
+  /** Number format for the shown value (e.g. keep "3.0" rather than "3"). */
+  format?: Intl.NumberFormatOptions
+}) {
+  const { num } = useI18n()
+  const [shown, setShown] = React.useState(0)
+  React.useEffect(() => {
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    let frame = 0
+    const start = performance.now() + 200
+    const tick = (now: number) => {
+      const p = still ? 1 : Math.min(1, Math.max(0, (now - start) / 1200))
+      const step = 10 ** decimals
+      setShown(p === 1 ? value : Math.round(value * (1 - Math.pow(1 - p, 3)) * step) / step)
+      if (p < 1) frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [value, decimals])
+  return (
+    <span className={className}>
+      <span aria-hidden>{num(shown, format)}</span>
+      <span className="sr-only">{num(value, format)}</span>
+    </span>
+  )
+}
 
 export function Bar({
   value,
@@ -10,14 +62,18 @@ export function Bar({
   className,
   barClassName,
   label,
+  grow = false,
 }: {
   value: number
   max?: number
   className?: string
   barClassName?: string
   label?: string
+  /** Grow from zero when first shown (dashboard entrance). */
+  grow?: boolean
 }) {
-  const pct = Math.max(0, Math.min(100, (value / max) * 100))
+  const entered = useEntered(grow)
+  const pct = entered ? Math.max(0, Math.min(100, (value / max) * 100)) : 0
   return (
     <div
       role="progressbar"
@@ -27,15 +83,32 @@ export function Bar({
       aria-label={label}
       className={cn("h-2 w-full overflow-hidden rounded-full bg-muted", className)}
     >
-      <div className={cn("h-full rounded-full bg-primary transition-[width] duration-500", barClassName)} style={{ width: `${pct}%` }} />
+      <div
+        className={cn("h-full rounded-full bg-primary transition-[width]", grow ? "delay-200 duration-1200 ease-out" : "duration-500", barClassName)}
+        style={{ width: `${pct}%` }}
+      />
     </div>
   )
 }
 
-export function Ring({ value, max, size = 72, children }: { value: number; max: number; size?: number; children?: React.ReactNode }) {
+export function Ring({
+  value,
+  max,
+  size = 72,
+  grow = false,
+  children,
+}: {
+  value: number
+  max: number
+  size?: number
+  /** Fill from zero when first shown (dashboard entrance). */
+  grow?: boolean
+  children?: React.ReactNode
+}) {
+  const entered = useEntered(grow)
   const r = (size - 8) / 2
   const c = 2 * Math.PI * r
-  const pct = Math.max(0, Math.min(1, value / max))
+  const pct = entered ? Math.max(0, Math.min(1, value / max)) : 0
   return (
     <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90" aria-hidden>
@@ -47,7 +120,7 @@ export function Ring({ value, max, size = 72, children }: { value: number; max: 
           fill="none"
           strokeWidth="7"
           strokeLinecap="round"
-          className="stroke-primary transition-[stroke-dashoffset] duration-700"
+          className={cn("stroke-primary transition-[stroke-dashoffset]", grow ? "delay-200 duration-1200 ease-out" : "duration-700")}
           strokeDasharray={c}
           strokeDashoffset={c * (1 - pct)}
         />

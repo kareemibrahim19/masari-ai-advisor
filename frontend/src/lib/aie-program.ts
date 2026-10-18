@@ -296,6 +296,20 @@ export function allDependentsOf(code: string): string[] {
   return [...seen]
 }
 
+/** Every course that must be passed before `code` (direct and indirect prerequisites). */
+export function allPrerequisitesOf(code: string): string[] {
+  const seen = new Set<string>()
+  const walk = (k: string) =>
+    (index.get(k)?.prereqs ?? []).forEach((p) => {
+      if (!seen.has(p)) {
+        seen.add(p)
+        walk(p)
+      }
+    })
+  walk(code)
+  return [...seen]
+}
+
 /** Length of the longest prerequisite chain that starts at this course (0 = nothing depends on it). */
 export function chainDepth(code: string): number {
   const deps = dependentsOf(code)

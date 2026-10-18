@@ -1,12 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronDown, Flower2, Leaf, Lock, RotateCcw, Search, Star, X } from "lucide-react"
+import { Check, ChevronDown, Flower2, Leaf, List, Lock, RotateCcw, Search, Star, Waypoints, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CategoryTag, Code, PageHeader } from "@/components/masari/bits"
+import { CourseMap } from "@/components/masari/course-map"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import {
   categoryLabels,
@@ -187,6 +188,7 @@ function CoursesCatalog() {
   const { t, tr, num } = useI18n()
   const [f, setF] = React.useState<Filters>(emptyFilters)
   const [open, setOpen] = React.useState<string | null>(null)
+  const [view, setView] = React.useState<"map" | "list">("map")
   const set = (k: keyof Filters) => (v: string) =>
     setF((p) => ({ ...p, [k]: v, ...(k === "level" ? { semester: "all" } : {}) }))
   const pick = (code: string) => {
@@ -244,77 +246,107 @@ function CoursesCatalog() {
         ))}
       </section>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-[minmax(0,2fr)_repeat(6,minmax(0,1fr))]">
-            <div className="col-span-2 min-w-0 space-y-1.5 md:col-span-4 xl:col-span-1">
-              <label htmlFor="catalog-search" className="text-xs font-medium text-muted-foreground">
-                {t("search")}
-              </label>
-              <div className="relative">
-                <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-                <Input
-                  id="catalog-search"
-                  name="q"
-                  type="search"
-                  autoComplete="off"
-                  spellCheck={false}
-                  value={f.q}
-                  onChange={(e) => set("q")(e.target.value)}
-                  placeholder={t("searchPlaceholder")}
-                  className="h-10 bg-card ps-9"
-                />
-              </div>
-            </div>
-            <FilterSelect label={t("levelLabel")} value={f.level} onChange={set("level")} options={[0, 1, 2, 3, 4].map((l) => ({ value: String(l), label: `${t("levelLabel")} ${l * 100}` }))} />
-            <FilterSelect label={t("semesterLabel")} value={f.semester} onChange={set("semester")} options={semOptions} />
-            <FilterSelect
-              label={t("departmentLabel")}
-              value={f.category}
-              onChange={set("category")}
-              options={(Object.keys(categoryLabels) as Category[]).map((c) => ({ value: c, label: `${c} – ${tr(categoryLabels[c])}` }))}
-            />
-            <FilterSelect label={t("typeLabel")} value={f.type} onChange={set("type")} options={(Object.keys(typeLabels) as CourseType[]).map((k) => ({ value: k, label: tr(typeLabels[k]) }))} />
-            <FilterSelect label={t("termLabel")} value={f.term} onChange={set("term")} options={[{ value: "fall", label: t("fall") }, { value: "spring", label: t("spring") }]} />
-            <FilterSelect label={t("statusLabel")} value={f.status} onChange={set("status")} options={(Object.keys(statusKey) as StatusKind[]).map((k) => ({ value: k, label: t(statusKey[k]) }))} />
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
-            <p className="text-sm text-muted-foreground" role="status">
-              {t("showing")} <span className="font-semibold text-foreground tabular-nums">{num(rows.length)}</span> {t("coursesWord")} ·{" "}
-              <span className="tabular-nums">{num(shownCredits)}</span> {t("creditHours")}
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                <VerifiedBadge />
-                <span className="hidden md:inline">{t("statusHint")}</span>
-              </span>
-              {active && (
-                <Button variant="ghost" className="h-9 gap-1.5" onClick={() => setF(emptyFilters)}>
-                  <RotateCcw className="size-4" />
-                  {t("resetFilters")}
-                </Button>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Map (default) or the filterable list */}
+      <div className="inline-flex rounded-xl border bg-muted p-1" role="group" aria-label={t("tabCatalogCourses")}>
+        {(
+          [
+            ["map", Waypoints, t("catViewMap")],
+            ["list", List, t("catViewList")],
+          ] as const
+        ).map(([key, Icon, label]) => (
+          <button
+            key={key}
+            type="button"
+            aria-pressed={view === key}
+            onClick={() => setView(key)}
+            className={cn(
+              "inline-flex h-9 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-colors focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none",
+              view === key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Icon className="size-4" aria-hidden />
+            {label}
+          </button>
+        ))}
+      </div>
 
-      {rows.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">{t("noResults")}</p>
+      {view === "map" ? (
+        <CourseMap />
       ) : (
-        <ul className="space-y-2" aria-label={t("tabCatalogCourses")}>
-          {rows.map((c) => (
-            <CourseRow
-              key={c.code}
-              course={c}
-              status={statuses.get(c.code)!}
-              open={open === c.code}
-              onToggle={() => setOpen((o) => (o === c.code ? null : c.code))}
-              onPick={pick}
-            />
-          ))}
-        </ul>
+        <>
+          {/* Filters */}
+          <Card>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-[minmax(0,2fr)_repeat(6,minmax(0,1fr))]">
+                <div className="col-span-2 min-w-0 space-y-1.5 md:col-span-4 xl:col-span-1">
+                  <label htmlFor="catalog-search" className="text-xs font-medium text-muted-foreground">
+                    {t("search")}
+                  </label>
+                  <div className="relative">
+                    <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+                    <Input
+                      id="catalog-search"
+                      name="q"
+                      type="search"
+                      autoComplete="off"
+                      spellCheck={false}
+                      value={f.q}
+                      onChange={(e) => set("q")(e.target.value)}
+                      placeholder={t("searchPlaceholder")}
+                      className="h-10 bg-card ps-9"
+                    />
+                  </div>
+                </div>
+                <FilterSelect label={t("levelLabel")} value={f.level} onChange={set("level")} options={[0, 1, 2, 3, 4].map((l) => ({ value: String(l), label: `${t("levelLabel")} ${l * 100}` }))} />
+                <FilterSelect label={t("semesterLabel")} value={f.semester} onChange={set("semester")} options={semOptions} />
+                <FilterSelect
+                  label={t("departmentLabel")}
+                  value={f.category}
+                  onChange={set("category")}
+                  options={(Object.keys(categoryLabels) as Category[]).map((c) => ({ value: c, label: `${c} – ${tr(categoryLabels[c])}` }))}
+                />
+                <FilterSelect label={t("typeLabel")} value={f.type} onChange={set("type")} options={(Object.keys(typeLabels) as CourseType[]).map((k) => ({ value: k, label: tr(typeLabels[k]) }))} />
+                <FilterSelect label={t("termLabel")} value={f.term} onChange={set("term")} options={[{ value: "fall", label: t("fall") }, { value: "spring", label: t("spring") }]} />
+                <FilterSelect label={t("statusLabel")} value={f.status} onChange={set("status")} options={(Object.keys(statusKey) as StatusKind[]).map((k) => ({ value: k, label: t(statusKey[k]) }))} />
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
+                <p className="text-sm text-muted-foreground" role="status">
+                  {t("showing")} <span className="font-semibold text-foreground tabular-nums">{num(rows.length)}</span> {t("coursesWord")} ·{" "}
+                  <span className="tabular-nums">{num(shownCredits)}</span> {t("creditHours")}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <VerifiedBadge />
+                    <span className="hidden md:inline">{t("statusHint")}</span>
+                  </span>
+                  {active && (
+                    <Button variant="ghost" className="h-9 gap-1.5" onClick={() => setF(emptyFilters)}>
+                      <RotateCcw className="size-4" />
+                      {t("resetFilters")}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {rows.length === 0 ? (
+            <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">{t("noResults")}</p>
+          ) : (
+            <ul className="space-y-2" aria-label={t("tabCatalogCourses")}>
+              {rows.map((c) => (
+                <CourseRow
+                  key={c.code}
+                  course={c}
+                  status={statuses.get(c.code)!}
+                  open={open === c.code}
+                  onToggle={() => setOpen((o) => (o === c.code ? null : c.code))}
+                  onPick={pick}
+                />
+              ))}
+            </ul>
+          )}
+        </>
       )}
       <SourceChip sourceId="catalog" />
     </div>
