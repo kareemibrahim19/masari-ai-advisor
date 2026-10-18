@@ -181,7 +181,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-30 border-b bg-background/88 backdrop-blur supports-backdrop-filter:bg-background/75">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-3 px-4 md:px-6 lg:gap-4 xl:gap-6">
           <Link href="/" aria-label={t("appName")} className="shrink-0 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring">
-            <Lockup size="sm" symbolOnlyOnMobile />
+            <Lockup size="sm" />
           </Link>
 
           <TopNav />

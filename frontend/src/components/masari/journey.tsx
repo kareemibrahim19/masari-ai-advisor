@@ -29,6 +29,7 @@ const RISE = 76 // total climb from first node to graduation
 // Control-point offset as a share of STEP. The logo bends by ~0.65 of its rise; our rail climbs ~7px per step,
 // so a fixed share of the step keeps the same gentle S (out upward, in from below) without turning into loops.
 const BEND = 0.24
+const DRAW_SPEED = 320 // px per second the path draws itself at when the page opens
 
 type Node =
   | { kind: "done"; label: string; failed: boolean }
@@ -132,7 +133,12 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
   const k = STEP * BEND
   const seg = (a: { x: number; y: number }, p: { x: number; y: number }) => `C${a.x} ${a.y - k} ${p.x} ${p.y + k} ${p.x} ${p.y}`
   const pathTo = (n: number) => pts.slice(0, n).map((p, i) => (i ? seg(pts[i - 1], p) : `M${p.x} ${p.y}`)).join(" ")
+  const pathFrom = (n: number) => pts.slice(n).map((p, i) => (i ? seg(pts[n + i - 1], p) : `M${p.x} ${p.y}`)).join(" ")
   const doneCount = completed
+  // Opening animation: one pen draws the route at a steady speed, the travelled part then the planned part,
+  // and each semester appears as the line reaches it. Times come from the distance along the route.
+  const at = (i: number) => (xs[i] - xs[0]) / DRAW_SPEED
+  const planFrom = Math.max(0, doneCount - 1)
   // "You are here" is the current term: the first planned node, right after the finished semesters.
   const current = doneCount < nodes.length ? doneCount : -1
 
@@ -165,94 +171,117 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
         role="img"
         aria-label={t("pathAria")}
       >
-        {/* whole route, then the part already travelled */}
-        <path d={pathTo(nodes.length)} fill="none" className="stroke-muted-foreground/25" strokeWidth="7" strokeLinecap="round" />
-        <path d={pathTo(doneCount)} fill="none" className="stroke-brand-ink" strokeWidth="7" strokeLinecap="round" />
+        {/* the part already travelled, then the planned rest of the route */}
+        <path
+          d={pathFrom(planFrom)}
+          pathLength={1}
+          fill="none"
+          className="stroke-muted-foreground/25"
+          strokeWidth="7"
+          strokeLinecap="round"
+          style={{ strokeDasharray: 1, animation: `masari-draw ${at(nodes.length - 1) - at(planFrom)}s linear ${at(planFrom)}s both` }}
+        />
+        <path
+          d={pathTo(doneCount)}
+          pathLength={1}
+          fill="none"
+          className="stroke-brand-ink"
+          strokeWidth="7"
+          strokeLinecap="round"
+          style={{ strokeDasharray: 1, animation: `masari-draw ${at(planFrom)}s linear both` }}
+        />
 
-        {nodes.map((n, i) => {
-          const p = pts[i]
-          if (n.kind === "done") {
-            return (
-              <g key={i}>
-                <circle cx={p.x} cy={p.y} r="8.5" className="fill-card stroke-brand-ink" strokeWidth="6.5" />
-                {n.failed && <circle cx={p.x + 9} cy={p.y - 9} r="4.5" className="fill-warning stroke-card" strokeWidth="2" />}
-                <text x={p.x} y={p.y + 38} textAnchor="middle" className="fill-muted-foreground text-[13px]">
-                  {n.label}
-                </text>
-              </g>
-            )
-          }
-          if (n.grad) {
-            return (
-              <g key={i} ref={i === current ? here : undefined}>
-                <circle cx={p.x} cy={p.y} r="15" className="fill-brand-accent" />
-                <text x={p.x} y={p.y - 32} textAnchor="middle" className="fill-foreground text-[14px] font-semibold">
-                  {t("graduation")}
-                </text>
-                <text x={p.x} y={p.y + 42} textAnchor="middle" className="fill-foreground text-[13px] font-medium">
-                  {n.label}
-                </text>
-                {n.sem && <SemNumber x={p.x} y={p.y + 57} sem={n.sem} />}
-                {i === current && <HereMark x={p.x} y={p.y + 74} />}
-              </g>
-            )
-          }
-          const isHere = i === current
-          if (n.summer) {
-            return (
-              <g key={i}>
-                {/* A diamond in the planned-semester grey: orange stays for "you are here" and graduation. */}
-                <rect
-                  x={p.x - 5.5}
-                  y={p.y - 5.5}
-                  width="11"
-                  height="11"
-                  rx="1.5"
-                  transform={`rotate(45 ${p.x} ${p.y})`}
-                  className="fill-card stroke-muted-foreground/60"
-                  strokeWidth="3.5"
-                />
-                <text x={p.x} y={p.y - 22} textAnchor="middle" className="fill-muted-foreground text-[11px] tabular">
-                  {num(n.credits)} {t("creditsShort")}
-                </text>
-                <text x={p.x} y={p.y + 30} textAnchor="middle" className="fill-muted-foreground text-[11.5px] italic">
-                  {n.label}
-                </text>
-              </g>
-            )
-          }
-          return (
-            <g key={i} ref={isHere ? here : undefined}>
-              {isHere && <circle cx={p.x} cy={p.y} r="16" className="fill-brand-accent/15" />}
-              <circle
-                cx={p.x}
-                cy={p.y}
-                r="8.5"
-                className={
-                  n.empty ? "fill-card stroke-warning" : isHere ? "fill-card stroke-brand-accent" : "fill-card stroke-muted-foreground/60"
-                }
-                strokeWidth={n.empty ? 3 : 6.5}
-                strokeDasharray={n.empty ? "4 3.5" : undefined}
-              />
-              <text
-                x={p.x}
-                y={p.y - 30}
-                textAnchor="middle"
-                className={n.empty ? "fill-warning text-[12px] font-medium" : "fill-muted-foreground text-[12px] tabular"}
-              >
-                {n.empty ? t("pathEmpty") : `${num(n.credits)} ${t("creditsShort")}`}
-              </text>
-              <text x={p.x} y={p.y + 40} textAnchor="middle" className={isHere ? "fill-foreground text-[13px] font-semibold" : "fill-foreground text-[13px]"}>
-                {n.label}
-              </text>
-              {n.sem && <SemNumber x={p.x} y={p.y + 55} sem={n.sem} />}
-              {isHere && <HereMark x={p.x} y={p.y + 72} />}
-            </g>
-          )
-        })}
+        {nodes.map((n, i) => (
+          // The semesters appear one after another along the route.
+          <g key={i} style={{ animation: `masari-fade .35s ease ${Math.max(0, at(i) - 0.1)}s both` }}>
+            {renderNode(n, i)}
+          </g>
+        ))}
       </svg>
     </div>
   )
+
+  function renderNode(n: Node, i: number) {
+    const p = pts[i]
+    if (n.kind === "done") {
+      return (
+        <g>
+          <circle cx={p.x} cy={p.y} r="8.5" className="fill-card stroke-brand-ink" strokeWidth="6.5" />
+          {n.failed && <circle cx={p.x + 9} cy={p.y - 9} r="4.5" className="fill-warning stroke-card" strokeWidth="2" />}
+          <text x={p.x} y={p.y + 38} textAnchor="middle" className="fill-muted-foreground text-[13px]">
+            {n.label}
+          </text>
+        </g>
+      )
+    }
+    if (n.grad) {
+      return (
+        <g ref={i === current ? here : undefined}>
+          <circle cx={p.x} cy={p.y} r="15" className="fill-brand-accent" />
+          <text x={p.x} y={p.y - 32} textAnchor="middle" className="fill-foreground text-[14px] font-semibold">
+            {t("graduation")}
+          </text>
+          <text x={p.x} y={p.y + 42} textAnchor="middle" className="fill-foreground text-[13px] font-medium">
+            {n.label}
+          </text>
+          {n.sem && <SemNumber x={p.x} y={p.y + 57} sem={n.sem} />}
+          {i === current && <HereMark x={p.x} y={p.y + 74} />}
+        </g>
+      )
+    }
+    const isHere = i === current
+    if (n.summer) {
+      return (
+        <g>
+          {/* A diamond in the planned-semester grey: orange stays for "you are here" and graduation. */}
+          <rect
+            x={p.x - 5.5}
+            y={p.y - 5.5}
+            width="11"
+            height="11"
+            rx="1.5"
+            transform={`rotate(45 ${p.x} ${p.y})`}
+            className="fill-card stroke-muted-foreground/60"
+            strokeWidth="3.5"
+          />
+          <text x={p.x} y={p.y - 22} textAnchor="middle" className="fill-muted-foreground text-[11px] tabular">
+            {num(n.credits)} {t("creditsShort")}
+          </text>
+          <text x={p.x} y={p.y + 30} textAnchor="middle" className="fill-muted-foreground text-[11.5px] italic">
+            {n.label}
+          </text>
+        </g>
+      )
+    }
+    return (
+      <g ref={isHere ? here : undefined}>
+        {isHere && <circle cx={p.x} cy={p.y} r="16" className="fill-brand-accent/15" />}
+        <circle
+          cx={p.x}
+          cy={p.y}
+          r="8.5"
+          className={
+            n.empty ? "fill-card stroke-warning" : isHere ? "fill-card stroke-brand-accent" : "fill-card stroke-muted-foreground/60"
+          }
+          strokeWidth={n.empty ? 3 : 6.5}
+          strokeDasharray={n.empty ? "4 3.5" : undefined}
+        />
+        <text
+          x={p.x}
+          y={p.y - 30}
+          textAnchor="middle"
+          className={n.empty ? "fill-warning text-[12px] font-medium" : "fill-muted-foreground text-[12px] tabular"}
+        >
+          {n.empty ? t("pathEmpty") : `${num(n.credits)} ${t("creditsShort")}`}
+        </text>
+        <text x={p.x} y={p.y + 40} textAnchor="middle" className={isHere ? "fill-foreground text-[13px] font-semibold" : "fill-foreground text-[13px]"}>
+          {n.label}
+        </text>
+        {n.sem && <SemNumber x={p.x} y={p.y + 55} sem={n.sem} />}
+        {isHere && <HereMark x={p.x} y={p.y + 72} />}
+      </g>
+    )
+  }
 }
 
 /** Plan semester number: small and quiet, for reference only. */

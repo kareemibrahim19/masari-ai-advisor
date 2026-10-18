@@ -4,7 +4,7 @@ import Link from "next/link"
 import { AlertTriangle, Armchair, BellRing, CalendarDays, CalendarRange, Info, MessageSquareText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { Bar, CategoryTag, Code, Ring } from "@/components/masari/bits"
+import { Bar, CategoryTag, Code, CountUp, Ring } from "@/components/masari/bits"
 import { JourneyRail } from "@/components/masari/journey"
 import { PriorityLevel } from "@/components/masari/priority-level"
 import { SeatRequestButton } from "@/components/masari/seat-request"
@@ -137,23 +137,27 @@ export default function DashboardPage() {
       <section aria-label={t("standing")} className="grid grid-cols-2 gap-y-6 border-y py-6 md:grid-cols-4 md:divide-x md:divide-border rtl:md:divide-x-reverse">
         <Stat label={t("gpa")}>
           <span className="flex items-center gap-3">
-            <Ring value={student.gpa ?? 0} max={4} size={44}>
+            <Ring value={student.gpa ?? 0} max={4} size={44} grow>
               <span className="sr-only">{student.gpa === null ? "—" : num(student.gpa)}</span>
             </Ring>
-            <span className="text-3xl font-semibold tabular">{student.gpa === null ? "—" : num(student.gpa, { minimumFractionDigits: 1 })}</span>
+            {student.gpa === null ? (
+              <span className="text-3xl font-semibold tabular">—</span>
+            ) : (
+              <CountUp value={student.gpa} decimals={1} format={{ minimumFractionDigits: 1 }} className="text-3xl font-semibold tabular" />
+            )}
             <span className="self-end pb-1 text-sm text-muted-foreground">/ {num(4, { minimumFractionDigits: 1 })}</span>
           </span>
         </Stat>
         <Stat label={t("earned")}>
-          <span className="text-3xl font-semibold tabular">{num(student.earned)}</span>
+          <CountUp value={student.earned} className="text-3xl font-semibold tabular" />
           <span className="ms-1.5 text-sm text-muted-foreground tabular">/ {num(student.total)}</span>
         </Stat>
         <Stat label={t("remaining")}>
-          <span className="text-3xl font-semibold tabular">{num(remaining)}</span>
+          <CountUp value={remaining} className="text-3xl font-semibold tabular" />
           <span className="ms-1.5 text-sm text-muted-foreground">{t("creditHours")}</span>
         </Stat>
         <Stat label={t("maxLoad")} hint={tr(student.maxLoadRule)}>
-          <span className="text-3xl font-semibold tabular">{num(student.maxLoad)}</span>
+          <CountUp value={student.maxLoad} className="text-3xl font-semibold tabular" />
           <span className="ms-1.5 text-sm text-muted-foreground">{t("creditHours")}</span>
         </Stat>
       </section>
@@ -268,7 +272,7 @@ export default function DashboardPage() {
                       {num(g.earned)}/{num(g.required)}
                     </span>
                   </div>
-                  <Bar value={g.earned} max={g.required} className="h-1.5" barClassName={done ? "bg-verified" : "bg-brand-ink"} label={tr(g.name)} />
+                  <Bar grow value={g.earned} max={g.required} className="h-1.5" barClassName={done ? "bg-verified" : "bg-brand-ink"} label={tr(g.name)} />
                 </li>
               )
             })}
