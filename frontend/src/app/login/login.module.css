@@ -1,137 +1,187 @@
-/* Login page: design "Concept A · Quiet card" (design-concepts/login/concept-a.html).
-   Colours are the app tokens from globals.css, so light/dark themes follow the rest of the site. */
+/* Sign in and first sign-in (design "Masari Sign-in"): the logo's path on one side fills in as the student types on
+   the other. Colours are the app tokens from globals.css, so light/dark follow the rest of the site. */
 
-.page { min-height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; }
+.page { min-height: 100dvh; display: flex; flex-direction: column; background: var(--background); color: var(--foreground); }
 
-.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; max-width: 1280px; margin: 0 auto; padding: 14px 24px; }
-.tools { display: flex; align-items: center; gap: 2px; }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; max-width: 1280px; margin: 0 auto; padding: 18px 28px; }
+.tools { display: flex; align-items: center; gap: 8px; }
 .tool {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  height: 40px; min-width: 40px; padding: 0 12px; border: 0; border-radius: 10px;
-  background: transparent; color: var(--foreground); font-size: 14px; font-weight: 500; cursor: pointer;
-  transition: background-color 0.15s;
+  height: 36px; min-width: 36px; padding: 0 14px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--card); color: var(--foreground); font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
 }
-.tool:hover { background: var(--muted); }
+.tool:hover { border-color: var(--input); background: var(--muted); }
 .toolIcon { padding: 0; }
+.icon { width: 16px; height: 16px; flex-shrink: 0; }
 
-.stage { position: relative; display: grid; place-items: center; padding: 16px 16px 48px; overflow: hidden; isolation: isolate; }
-/* The logo's path, drawn very large and very quietly behind the card. */
-.watermark { position: fixed; z-index: -1; height: min(92dvh, 860px); width: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
-:global([dir="rtl"]) .watermark { transform: translate(-50%, -50%) scaleX(-1); }
-.watermark path { stroke: var(--muted); }
-.watermark .node { fill: var(--background); stroke: var(--muted); }
-.watermark .dest { fill: var(--brand-accent); opacity: 0.16; }
+.main {
+  flex: 1; width: 100%; max-width: 1180px; margin: 0 auto; padding: 12px 28px 32px;
+  display: flex; flex-wrap: wrap-reverse; gap: 32px 48px; align-items: center; justify-content: center;
+}
 
+/* ---- The path ---- */
+.stage { position: relative; flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.stageBox { position: relative; width: min(100%, 380px, calc(100dvh - 240px)); aspect-ratio: 1; margin: 0 auto; }
+.stageSvg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.track { fill: none; stroke: var(--muted); stroke-width: 3.2; stroke-linecap: round; }
+.drawn { fill: none; stroke: var(--foreground); stroke-width: 3.2; stroke-linecap: round; transition: stroke-dashoffset 0.45s cubic-bezier(0.3, 0.7, 0.2, 1); }
+.node { fill: var(--background); stroke: var(--input); stroke-width: 3; transition: stroke 0.3s; }
+.node[data-on] { stroke: var(--foreground); }
+.goal { fill: var(--border); transition: fill 0.4s; }
+.goal[data-near] { fill: color-mix(in srgb, var(--brand-accent) 70%, var(--background)); }
+.goal[data-on] { fill: var(--brand-accent); }
+.pulse { fill: none; stroke: var(--brand-accent); stroke-width: 1.5; animation: pulse 1.6s ease-out infinite; }
+@keyframes pulse { 0% { r: 6; opacity: 0.6; } 100% { r: 16; opacity: 0; } }
+.stageLabel { position: absolute; transform: translateX(-50%); text-align: center; white-space: nowrap; }
+.stageLabel b { display: block; font-size: 15px; font-weight: 600; color: var(--muted-foreground); transition: color 0.3s; }
+.stageLabel span { display: block; font-size: 12px; color: var(--muted-foreground); opacity: 0.8; }
+.stageLabel[data-on] b { color: var(--foreground); }
+.stageLabel[data-goal][data-on] b { color: var(--brand-accent); }
+.stageLine { max-width: 420px; margin: 8px auto 0; text-align: center; font-size: 15px; line-height: 1.6; color: var(--muted-foreground); text-wrap: pretty; }
+
+/* ---- The card ---- */
 .card {
-  width: 100%; max-width: 440px; padding: 36px 32px 28px;
-  border: 1px solid var(--border); border-radius: 18px; background: var(--card);
-  box-shadow: 0 1px 2px rgb(20 22 31 / 0.04), 0 24px 48px -28px rgb(20 22 31 / 0.22);
+  flex: 0 1 420px; width: 100%; max-width: 440px; padding: 30px;
+  border: 1px solid var(--border); border-radius: 24px; background: var(--card);
+  box-shadow: 0 1px 2px rgb(20 22 31 / 0.04), 0 30px 60px -30px rgb(20 22 31 / 0.25);
 }
-:global(.dark) .card { box-shadow: none; }
-.head { text-align: center; }
-.appIcon { display: block; width: 52px; height: 52px; margin: 0 auto 18px; }
-.title { margin: 0; font-size: 26px; font-weight: 600; line-height: 1.3; letter-spacing: -0.02em; text-wrap: balance; }
-.sub { max-width: 34ch; margin: 8px auto 0; color: var(--muted-foreground); font-size: 15px; line-height: 1.6; text-wrap: pretty; }
+:global(.dark) .card { box-shadow: 0 30px 80px rgb(0 0 0 / 0.35); }
 
-.form { margin-top: 28px; }
-.label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; color: var(--muted-foreground); }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 24px; padding: 4px; border-radius: 12px; background: var(--background); }
+.tab {
+  height: 38px; padding: 0 8px; border: 0; border-radius: 9px; background: transparent; color: var(--muted-foreground);
+  font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background-color 0.15s, color 0.15s;
+}
+.tab[aria-selected="true"] { background: var(--muted); color: var(--foreground); }
+.tab:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 1px; }
+
+/* Every form sits in the same grid cell, so the card is as tall as the tallest one and never changes size
+   between "Sign in" and "First time? Activate". The hidden ones keep their space but can't be seen or reached. */
+.panes { display: grid; }
+.pane { grid-area: 1 / 1; display: flex; flex-direction: column; min-width: 0; }
+.pane[data-hidden] { visibility: hidden; pointer-events: none; }
+.pane:not([data-hidden]) { animation: paneIn 0.25s ease both; }
+@keyframes paneIn { from { opacity: 0; transform: translateY(4px); } }
+
+.title { margin: 0; font-size: 26px; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; }
+/* Two lines tall, because an error message takes this slot. */
+.sub { min-height: 3.1em; margin: 6px 0 18px; color: var(--muted-foreground); text-wrap: pretty; }
+
+.field { margin-bottom: 18px; }
+.labelRow { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.label { display: block; font-size: 13px; font-weight: 600; }
+.labelAlone { margin-bottom: 8px; }
+.count { font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); }
+
+/* Student ID: nine boxes, with the real input invisible on top of them. */
+.digits { position: relative; }
+.boxes { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
+.box {
+  height: 50px; display: grid; place-items: center; border-radius: 10px; background: var(--background);
+  border: 1.5px solid var(--border); font-family: var(--font-mono); font-size: 20px; font-weight: 500;
+  color: var(--brand-accent); transition: border-color 0.15s;
+}
+.box[data-filled] { border-color: color-mix(in srgb, var(--foreground) 22%, var(--border)); color: var(--foreground); }
+.box[data-current] { border-color: var(--brand-accent); }
+.digits[data-bad] .box { border-color: var(--destructive); }
+.digitsInput { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; cursor: text; font-size: 16px; }
+
 .input {
-  width: 100%; height: 58px; padding: 0 20px;
-  border: 1px solid var(--input); border-radius: 12px; background: var(--card); color: var(--foreground);
-  font-family: var(--font-jetbrains), ui-monospace, monospace; font-size: 22px; font-weight: 500;
-  letter-spacing: 0.2em; text-align: center; direction: ltr;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%; height: 50px; padding: 0 14px; border-radius: 12px; background: var(--background); color: var(--foreground);
+  border: 1.5px solid var(--border); outline: 0; transition: border-color 0.15s;
 }
-.input::placeholder { color: color-mix(in srgb, var(--muted-foreground) 55%, transparent); letter-spacing: 0.2em; }
-.input:focus { outline: none; border-color: var(--brand-accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-accent) 18%, transparent); }
+.input:focus { border-color: var(--brand-accent); }
 .input[aria-invalid="true"] { border-color: var(--destructive); }
-.input[aria-invalid="true"]:focus { box-shadow: 0 0 0 4px color-mix(in srgb, var(--destructive) 12%, transparent); }
-.shake { animation: shake 0.35s ease; }
-@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.nid { font-family: var(--font-mono); font-size: 18px; letter-spacing: 0.08em; text-align: center; }
+.nid::placeholder { color: color-mix(in srgb, var(--muted-foreground) 55%, transparent); }
+.nidHint { min-height: 18px; margin-top: 8px; font-size: 12px; }
+.nidHint[data-ok] { color: var(--verified); }
+.nidHint[data-bad] { color: var(--destructive); }
 
-.msg { display: flex; align-items: flex-start; gap: 6px; margin: 10px 0 0; font-size: 13px; line-height: 1.5; color: var(--destructive); }
-.msgIcon { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
-
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; height: 50px; margin-top: 16px; padding: 0 20px; border: 0; border-radius: 10px;
-  background: var(--primary); color: var(--primary-foreground); font-size: 15px; font-weight: 600; white-space: nowrap; cursor: pointer;
-  transition: background-color 0.15s, transform 0.15s, opacity 0.15s;
+.pwBox {
+  display: flex; align-items: center; height: 50px; border-radius: 12px; background: var(--background);
+  border: 1.5px solid var(--border); transition: border-color 0.15s;
 }
-.btn:hover:not(:disabled) { background: color-mix(in srgb, var(--primary) 88%, var(--background)); }
-.btn:active:not(:disabled) { transform: scale(0.98); }
-.btn[aria-busy="true"] { cursor: progress; opacity: 0.9; }
-.icon { width: 18px; height: 18px; flex-shrink: 0; }
-:global([dir="rtl"]) .flip { transform: scaleX(-1); }
-.spin { animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-
-.divider { height: 1px; margin: 24px 0 18px; background: var(--border); }
-.notes { display: grid; gap: 10px; font-size: 13px; color: var(--muted-foreground); }
-.notes p { display: flex; gap: 8px; align-items: flex-start; margin: 0; line-height: 1.55; }
-.noteIcon { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
-
-.success { text-align: center; animation: rise 0.35s ease both; }
-@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
-.okBadge { display: grid; place-items: center; width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 50%; background: var(--verified-soft); color: var(--verified); }
-.okIcon { width: 28px; height: 28px; }
-.okTitle { margin: 0; font-size: 22px; font-weight: 600; }
-.okSub { margin: 6px 0 0; color: var(--muted-foreground); }
-.okBar { height: 6px; margin: 20px auto 4px; max-width: 240px; overflow: hidden; border-radius: 999px; background: var(--muted); }
-.okBar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--verified); animation: fill 1.2s ease forwards; }
-@keyframes fill { to { width: 100%; } }
-
-/* Password with the show/hide eye at the end of the field (start side of the box in RTL). */
-.pwWrap { position: relative; }
-.pwInput { padding-inline: 52px; }
+.pwBox:focus-within { border-color: var(--brand-accent); }
+.pwBox[data-bad] { border-color: var(--destructive); }
+.pwBox[data-match] { border-color: color-mix(in srgb, var(--verified) 55%, var(--border)); }
+.pwInput { flex: 1; min-width: 0; height: 100%; padding: 0 14px; border: 0; outline: 0; background: none; color: inherit; font-size: 16px; }
+/* The eye shows or hides what was typed. */
 .pwToggle {
-  position: absolute; top: 50%; inset-inline-end: 8px; transform: translateY(-50%);
-  display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 10px;
+  display: grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px; margin: 0 5px; border: 0; border-radius: 10px;
   background: transparent; color: var(--muted-foreground); cursor: pointer; transition: background-color 0.15s, color 0.15s;
 }
 .pwToggle:hover { background: var(--muted); color: var(--foreground); }
+.eye { width: 18px; height: 18px; }
 .pwToggle:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 1px; }
+.mark { width: 40px; text-align: center; font-weight: 700; }
+.mark[data-ok] { color: var(--verified); }
+.mark[data-bad] { color: var(--destructive); }
+.caps { margin-top: 8px; font-size: 12px; color: var(--warning); }
 
-/* "First time here? Activate your account" under the form, and the way back on /activate. */
-.alt { margin: 16px 0 0; text-align: center; font-size: 14px; color: var(--muted-foreground); }
-.alt a { margin-inline-start: 4px; color: var(--brand-accent); font-weight: 600; text-decoration: none; }
-.alt a:hover { text-decoration: underline; }
-.hint { margin: 8px 0 0; font-size: 12px; color: var(--muted-foreground); }
-.gap { height: 16px; }
+.strength { margin: -6px 0 16px; }
+.bars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.bars i { height: 5px; border-radius: 5px; background: var(--muted); transition: background-color 0.2s; }
+.rules { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; }
+.rule { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted-foreground); white-space: nowrap; transition: color 0.2s; }
+.rule i {
+  display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--input);
+  color: var(--background); font-size: 10px; font-style: normal; font-weight: 700;
+}
+.rule[data-ok] { color: var(--foreground); }
+.rule[data-ok] i { background: var(--verified); }
 
-.foot { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; padding: 16px; font-size: 12px; color: var(--muted-foreground); }
-
-@media (max-width: 639px) {
-  .bar { padding: 10px 12px; }
-  .card { padding: 28px 20px 22px; border-radius: 16px; }
-  .title { font-size: 23px; }
-  .stage { align-items: start; padding-top: 8px; }
+.sub.error { display: flex; gap: 8px; align-items: flex-start; color: var(--destructive); font-size: 13px; font-weight: 500; }
+.error b {
+  display: grid; place-items: center; flex-shrink: 0; width: 18px; height: 18px; margin-top: 2px; border-radius: 50%;
+  background: color-mix(in srgb, var(--destructive) 18%, var(--card)); font-size: 11px; font-weight: 700;
 }
 
-/* Short screens (most laptops): tighter spacing so the whole page fits without scrolling. */
-@media (max-height: 820px) {
-  .bar { padding-block: 8px; }
-  .stage { padding-block: 4px; }
-  .card { padding: 24px 28px 20px; }
-  .appIcon { width: 40px; height: 40px; margin-bottom: 10px; }
+/* The button sits at the bottom of every form, so it stays put when switching tabs. */
+.cta {
+  width: 100%; height: 52px; margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 10px;
+  border: 0; border-radius: 14px; background: var(--brand-accent); color: #14161f; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: filter 0.2s, opacity 0.2s;
+}
+.cta:hover { filter: brightness(1.06); }
+.cta:focus-visible { outline: 2px solid var(--foreground); outline-offset: 2px; }
+.cta[aria-busy="true"] { cursor: progress; }
+.spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgb(20 22 31 / 0.3); border-top-color: #14161f; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.foot { padding: 16px 28px 22px; text-align: center; font-size: 12px; color: var(--muted-foreground); }
+
+/* Phones: the path goes small above the card, so it is still in view while typing. */
+@media (max-width: 719px) {
+  .bar { padding: 12px 16px; }
+  .main { flex-direction: column; flex-wrap: nowrap; justify-content: flex-start; gap: 12px; padding: 0 16px 20px; }
+  .stage { flex: none; width: 100%; }
+  .stageBox { width: min(56vw, 210px); }
+  .stageLabel b { font-size: 12px; }
+  .stageLabel span, .stageLine { display: none; }
+  .card { flex: none; padding: 22px 18px; border-radius: 20px; }
   .title { font-size: 22px; }
-  .sub { margin-top: 4px; font-size: 14px; }
-  .form { margin-top: 18px; }
-  .label { margin-bottom: 6px; }
-  .input { height: 48px; font-size: 19px; }
-  .btn { height: 46px; margin-top: 12px; }
-  .alt { margin-top: 10px; }
-  .gap { height: 10px; }
-  .divider { margin: 14px 0 10px; }
-  .foot { padding-block: 8px; }
+  .sub { margin-bottom: 14px; }
+  .boxes { gap: 4px; }
+  .box { height: 46px; font-size: 18px; }
 }
-@media (max-height: 640px) {
-  .appIcon { display: none; }
-  .divider, .notes { display: none; }
-  .input { height: 44px; }
+
+/* Short laptop screens: tighter, so the whole page fits without scrolling. */
+@media (min-width: 720px) and (max-height: 760px) {
+  .bar { padding-block: 10px; }
+  .main { padding-block: 0 12px; }
+  .card { padding: 22px 26px; }
+  .tabs { margin-bottom: 16px; }
+  .sub { margin-bottom: 14px; }
+  .field { margin-bottom: 12px; }
+  .box, .input, .pwBox { height: 44px; }
+  .cta { height: 46px; }
+  .foot { padding-block: 8px 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shake, .spin, .success, .okBar i { animation-duration: 0.01ms; animation-iteration-count: 1; }
+  .drawn, .node, .goal { transition: none; }
+  .pulse, .pane:not([data-hidden]) { animation: none; }
+  .spinner { animation-duration: 1.6s; }
 }
