@@ -1,4 +1,4 @@
-"""Shared data access for the Masari tools: courses, rules, students, instructors and teaching assistants, loaded once.
+"""Shared data access for the Masari tools: courses, rules, students and instructors, loaded once.
 
 Students, advisors and instructors come from the database when DATABASE_URL is set, else from ai/data
 (see ai/db/source.py); courses and rules always come from ai/data/courses.json.
@@ -48,9 +48,21 @@ def instructor_data() -> dict:
 
 
 @lru_cache(maxsize=1)
-def teaching_assistant_data() -> dict:
-    """Teaching assistants and the courses they teach this term (always from ai/data/teaching_assistants.json)."""
-    return _load("teaching_assistants.json")
+def history_rows() -> list[dict]:
+    """Which instructor each student took each past course with, and the grade."""
+    return _load("student_instructor_history.json")["rows"]
+
+
+@lru_cache(maxsize=1)
+def instructor_grades() -> dict:
+    """How students did in each course with its instructor, last 10 years, and who teaches it this term
+    (ai/data/instructor_grades.json)."""
+    return _load("instructor_grades.json")
+
+
+def current_term() -> str:
+    """"fall" or "spring": the term the student data is for (students.json generated_for_term)."""
+    return (_load("students.json").get("generated_for_term") or {}).get("term") or "fall"
 
 
 # ---------------------------------------------------------------- lookups

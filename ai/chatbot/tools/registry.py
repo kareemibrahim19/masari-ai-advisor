@@ -5,7 +5,6 @@ filled in automatically, so the model never has to guess it.
 """
 
 from . import advisor
-from . import assistants as tas
 from . import instructors as ins
 from . import planner
 from . import rules
@@ -69,15 +68,13 @@ TOOLS = [
         "course_code": {"type": "string", "description": "كود المشروع لـ project_allowance (ARI 381 أو ARI 481 أو ARI 482). اختياري."},
         "requested_hours": {"type": "number", "description": "عدد الساعات اللي الطالب عايزه لو قاله. اختياري."}},
        ["student_id"], rules.paper_registration, True),
-    # ---- who teaches, and the teaching assistants (Masari does not rank or recommend doctors)
-    _t("who_teaches", "مين الدكاترة والشعب اللي بيدرّسوا مادة معينة (معلومة بس، مساري مش بيرشح دكاترة).",
-       {"course_code": _COURSE, "term": {"type": "string", "enum": ["fall", "spring"]}},
-       ["course_code"], ins.who_teaches),
-    _t("teaching_assistants", "المعيدين: من غير course_code بترجع مواد الطالب المسجلة الترم ده اللي ليها أكتر من معيد "
-       "(ودي اللي في تاب التوصيات)، ومع course_code بترجع معيدين المادة دي. لكل معيد: سنه، سنة تعيينه، "
-       "وأول مرة يدرّس المادة ولا المرة الكام. اعرض المعلومات بس ومتفضّلش معيد على التاني.",
+    # ---- instructors: one tool, from how students did with each instructor (tools/instructors.py)
+    _t("recommend_instructor", "ترشيح الدكاترة من سجل درجات الطلاب معاهم آخر 10 سنين: متوسط الدرجات ونسبة النجاح وأعمال السنة "
+       "والمتوقع لطالب في مستوى معدله، ومعاه أولوية المادة في خطة تخرجه ونصيحة "
+       "(advice). من غير course_code بترجع كل مواد الطالب المسجلة الترم ده. نادِها في أي سؤال عن دكتور مادة، "
+       "مين أحسن دكتور، أو أسجل مع مين.",
        {**_STUDENT, "course_code": {"type": "string", "description": "كود المادة أو اسمها. اختياري."}},
-       [], tas.teaching_assistants, True),
+       [], ins.recommend_instructor, True),
 ]
 
 TOOLS += [

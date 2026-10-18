@@ -37,7 +37,7 @@ jobs:
       - run: python -m compileall -q ai/app.py ai/chatbot ai/db
       - name: Database round-trip (in-memory SQLite, no server needed)
         run: python ai/tests/test_db.py
-      - name: Tools (rules, advisor, teaching assistants) on the six mock students
+      - name: Tools (rules, advisor, instructors) on the six mock students
         run: python ai/tests/test_tools.py
       - name: Graduation planner, re-checked against the regulations
         run: python ai/tests/test_planner.py

@@ -22,13 +22,11 @@ def check(name, cond, got=None):
 
 NEW, EXC = "833603614", "883941655"
 
-r = c.get("/api/teaching-assistants", params={"student_id": NEW}).json()
-check("first-year student sees BAS 011, BAS 021 and BAS 031 with two assistants each",
-      [x["code"] for x in r["courses"]] == ["BAS 011", "BAS 021", "BAS 031"] and all(len(x["assistants"]) == 2 for x in r["courses"]), r)
-r = c.get("/api/teaching-assistants", params={"student_id": "839263318"}).json()
-check("final-year student: no recommendations", r["courses"] == [], r)
-check("unknown student 404", c.get("/api/teaching-assistants", params={"student_id": "x"}).status_code == 404)
-check("doctor ranking endpoint is gone", c.get("/api/instructors/recommend", params={"course_code": "ECE 321", "student_id": NEW}).status_code == 404)
+r = c.get("/api/instructors/recommendations", params={"student_id": NEW}).json()
+check("recommendations: this term's courses with their instructors and 10 years of history",
+      r["courses"] and all(x["instructors"] and len({h["academic_year"] for h in x["history"]}) == 10 for x in r["courses"]), r)
+check("unknown student 404", c.get("/api/instructors/recommendations", params={"student_id": "x"}).status_code == 404)
+check("teaching assistants endpoint is gone", c.get("/api/teaching-assistants", params={"student_id": NEW}).status_code == 404)
 
 r = c.post("/api/tools/credit_limit", json={"student_id": "897948891"}).json()
 check("generic tool endpoint", r["max_credits"] == 12, r)

@@ -3,7 +3,7 @@
  * course-name lookup, regulation sources (RAG citations), simulated section seats, the plan assumption and chat suggestions.
  *
  * Student data comes from src/data/demo/students.json through lib/data/student-source.ts.
- * When the backend is ready, seats should come from it too (teaching assistants already do: lib/data/assistants-source.ts).
+ * When the backend is ready, seats should come from it too (instructor recommendations already do: lib/data/instructor-grades-source.ts).
  */
 import { courseNameL } from "@/lib/aie-program"
 import type { L } from "@/lib/i18n"

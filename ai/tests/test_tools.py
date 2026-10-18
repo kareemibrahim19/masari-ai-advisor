@@ -100,29 +100,50 @@ check("new student blocked from project", not r["eligible"], r)
 r = call_tool("registration_eligibility", {"course_code": "BAS 011"}, EXC)
 check("already passed", not r["eligible"], r)
 
-# who teaches (no doctor ranking any more) and the teaching assistants
-r = call_tool("who_teaches", {"course_code": "ECE 321"})
-check("ECE 321 has 3 sections", len(r["sections"]) == 3, r)
-check("who_teaches shows no survey ratings", all("profile" not in x and "responses" not in x for x in r["sections"]), r)
-for gone in ("recommend_instructor", "instructor_profile", "compare_instructors", "student_preferences",
+# instructors: one tool, ranked by how students did with each instructor over 3 years
+for gone in ("who_teaches", "teaching_assistants", "instructor_profile", "compare_instructors", "student_preferences",
              "avoid_instructor", "restore_instructor", "set_instructor_preferences"):
     check(f"{gone} is removed", all(t["name"] != gone for t in TOOLS))
-MALAK, YOUSSEF, HANA, ZIAD = "833603614", "897948891", "883941655", "824548805"
-r = call_tool("teaching_assistants", {}, MALAK)
-check("first-year student: BAS 011, BAS 021 and BAS 031 have two assistants",
-      [c["code"] for c in r["courses"]] == ["BAS 011", "BAS 021", "BAS 031"]
-      and all(len(c["assistants"]) == 2 for c in r["courses"]), r)
-a = r["courses"][0]["assistants"][0]
-check("each assistant has age, appointment year and times taught",
-      all(k in a for k in ("age", "appointed_year", "times_taught", "first_time", "period")), a)
-check("second year: BAS 115, CSE 141, ECE 121 and CSE 251",
-      [c["code"] for c in call_tool("teaching_assistants", {}, YOUSSEF)["courses"]] == ["BAS 115", "CSE 141", "ECE 121", "CSE 251"])
-check("third year: CSE 251", [c["code"] for c in call_tool("teaching_assistants", {}, HANA)["courses"]] == ["CSE 251"])
-r = call_tool("teaching_assistants", {}, ZIAD)
-check("no course with two assistants -> no recommendations", r["found"] and r["courses"] == [], r)
-check("a course with one assistant is not a recommendation but can be asked about",
-      len(call_tool("teaching_assistants", {"course_code": "CSE 221"})["assistants"]) == 1)
-check("teaching_assistants unknown course", call_tool("teaching_assistants", {"course_code": "XXX 999"})["found"] is False)
+MALAK, YOUSSEF, HANA = "833603614", "897948891", "883941655"
+from tools import instructors as ins  # noqa: E402
+r = ins.recommendations_for(MALAK)
+check("every current course with an instructor this term is listed", [c["code"] for c in r["courses"]]
+      == ["BAS 011", "BAS 021", "BAS 031", "BAS 041", "PDE 052", "UNR 061"], [c["code"] for c in r["courses"]])
+check("one instructor per course this term, two only in BAS 011",
+      [c["code"] for c in r["courses"] if len(c["instructors"]) > 1] == ["BAS 011"], [len(c["instructors"]) for c in r["courses"]])
+c = r["courses"][0]
+check("two instructors: ranked by expected total, best first", c["instructors"][0]["best"] and c["instructors"][0]["expected_total"]
+      >= c["instructors"][1]["expected_total"], c["instructors"])
+check("one instructor: no 'best' label", all(not x["best"] for x in r["courses"][1]["instructors"]))
+check("a first-year student has no GPA band (all students' average)", r["gpa_band"] is None
+      and c["instructors"][0]["expected_total"] == c["instructors"][0]["mean"])
+years = sorted({h["academic_year"] for h in c["history"]})
+check("10 years of course history for the chart", len(years) == 10 and years[0] == "2016-2017" and years[-1] == "2025-2026", years)
+r = ins.recommendations_for(HANA)
+first = next(c for c in r["courses"] if c["code"] == "CSE 221")["instructors"][0]
+check("an instructor teaching the course for the first time has no record of their own",
+      first["first_time"] and first["expected_total"] is None and "أول فصل" in first["reasons"][0], first)
+r = ins.recommendations_for(YOUSSEF)
+check("GPA under 2 uses that band", r["gpa_band"] == "under_2")
+r = call_tool("recommend_instructor", {"course_code": "BAS 115"}, YOUSSEF)
+c = r["courses"][0]
+check("chat tool adds the course priority", c.get("priority") == "high", c.get("priority"))
+check("high priority, one instructor: register it this term",
+      len(c["instructors"]) == 1 and "يُنصح بتسجيله هذا الفصل" in c["instructors"][0].get("advice", ""), c["instructors"])
+check("a bonus is told as how often it happened, never as a rule",
+      all("قد يتكرر ذلك أو لا يتكرر" in t for x in ins.recommendations_for(MALAK)["courses"] for i in x["instructors"]
+          for t in i["reasons"] if "بونص" in t))
+check("the student's own past grade with the instructor is a reason",
+      any("سبق لك دراسة" in t and "مع هذا المحاضر" in t for x in c["instructors"] for t in x["reasons"]))
+check("chat result leaves out the chart data", "history" not in c)
+x = next(x for x in c["instructors"] if not x["first_time"])
+check("no attendance or added points in the record (they differ between instructors)",
+      "attendance_bonus" not in x and "curve_points" not in x and not any("الحضور" in t for t in x["reasons"]), x)
+check("coursework shown in marks out of the course's coursework marks",
+      x["coursework_max"] == 30 and 0 < x["coursework_avg"] <= 30 and any("من 30 درجة" in t for t in x["reasons"]), x)
+check("advice for a single high-priority instructor with low grades", "رغم انخفاض متوسط الدرجات" in
+      ins.advice("high", {"style": "strict", "best": False}, 1)[0])
+check("recommend_instructor unknown course", call_tool("recommend_instructor", {"course_code": "XXX 999"})["found"] is False)
 
 # find_courses / improvement_candidates
 r = call_tool("find_courses", {"query": "الذكاء الاصطناعي"})

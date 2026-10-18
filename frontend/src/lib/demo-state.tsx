@@ -197,7 +197,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
       apiFetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // student_id lets the service run its tools (credit limit, standing, GPA, teaching assistants...) on this student.
+        // student_id lets the service run its tools (credit limit, standing, GPA, instructors...) on this student.
         body: JSON.stringify({
           question: value,
           history,

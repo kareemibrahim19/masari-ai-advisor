@@ -34,8 +34,8 @@ const dict = {
   navPlan: { ar: "خطة التخرج", en: "Graduation plan" },
   demoData: { ar: "بيانات تجريبية", en: "Demo data" },
   demoDataHint: {
-    ar: "المقررات واللائحة من دليل برنامج AIE، لكن الطالب والمعيدين والمقاعد بيانات تجريبية. مش مربوط بنظام الجامعة.",
-    en: "Courses and regulations come from the AIE Program Guide; the student, teaching assistants and seats are simulated. Not connected to a university system.",
+    ar: "المقررات واللائحة من دليل برنامج AIE، لكن الطالب والدكاترة ودرجاتهم والمقاعد بيانات تجريبية. مش مربوط بنظام الجامعة.",
+    en: "Courses and regulations come from the AIE Program Guide; the student, instructors, their grade records and seats are simulated. Not connected to a university system.",
   },
   switchLang: { ar: "English", en: "العربية" },
   deadlineSoon: { ar: "ميعاد مهم قرّب", en: "An important date is near" },
@@ -135,8 +135,8 @@ const dict = {
   // Recommendations
   recTitle: { ar: "التوصيات", en: "Recommendations" },
   recSubtitle: {
-    ar: "المواد المسجلة معاك الترم ده اللي بيدرّسها أكتر من معيد، ومعلومات عن كل معيد عشان تختار.",
-    en: "Your courses this term taught by more than one teaching assistant, with facts about each so you can choose.",
+    ar: "محاضر كل مقرر من مقررات هذا الفصل وسجل درجات الطلاب معه خلال آخر 10 سنوات، مع أولوية المقرر في خطة تخرجك.",
+    en: "Each of this term's courses, its instructor and students' grades with them over 10 years, with the course's priority in your plan.",
   },
   coursesWord: { ar: "مقررات", en: "courses" },
   prereqsMet: { ar: "المتطلبات السابقة مستوفاة", en: "Prerequisites met" },
@@ -146,32 +146,112 @@ const dict = {
   seatRequested: { ar: "تم إرسال الطلب", en: "Request sent" },
   seatRequestFailed: { ar: "الطلب ماتبعتش، جرّب تاني", en: "Request not sent, try again" },
   forCourse: { ar: "المقرر", en: "Course" },
-  assistantCoursesHint: {
-    ar: "مقرراتك المسجلة الترم ده اللي ليها أكتر من معيد.",
-    en: "Your registered courses this term that have more than one teaching assistant.",
+  instructorCoursesHint: {
+    ar: "مقرراتك المسجلة في هذا الفصل، مرتبة حسب أهميتها في خطة تخرجك.",
+    en: "Your registered courses this term, the most important for your graduation plan first.",
   },
-  assistantsNote: {
-    ar: "تُعرض بيانات المعيدين بشكل محايد دون ترتيب أو تفضيل، لمساعدتك على اتخاذ القرار المناسب لك.",
-    en: "Teaching assistants are listed neutrally, without ranking or preference, to help you make the choice that suits you.",
-  },
-  noRecommendations: { ar: "لا يوجد توصيات لك", en: "No recommendations for you" },
-  noRecommendationsHint: {
-    ar: "التوصيات بتظهر لما يكون معاك مقرر مسجل الترم ده بيدرّسه أكتر من معيد.",
-    en: "Recommendations appear when a course you registered this term is taught by more than one teaching assistant.",
-  },
-  loadingAssistants: { ar: "بنجيب بيانات المعيدين...", en: "Loading teaching assistants..." },
-  assistantsUnavailable: {
+  loadingInstructors: { ar: "جارٍ تحميل سجل درجات المحاضرين...", en: "Loading the instructors' grade records..." },
+  instructorsUnavailable: {
     ar: "خدمة مساري مش متاحة دلوقتي، جرّب تاني كمان شوية.",
     en: "The Masari service is unreachable right now. Try again shortly.",
   },
-  taAge: { ar: "السن", en: "Age" },
-  years: { ar: "سنة", en: "years" },
-  taAppointed: { ar: "سنة التعيين", en: "Appointed in" },
-  taTimesTaught: { ar: "تدريسه للمقرر", en: "Teaching this course" },
-  taPeriod: { ar: "الفترة", en: "Period" },
-  taFirstTimeNote: {
-    ar: "أول مرة يدرّس المقرر ده، فمفيش ترمات سابقة ليه فيه.",
-    en: "First time teaching this course, so there are no earlier terms of it.",
+  noRecommendations: { ar: "لا يوجد توصيات لك", en: "No recommendations for you" },
+  noRecommendationsHint: {
+    ar: "لا يتوفر سجل درجات لمحاضري المقررات المسجلة لك في هذا الفصل.",
+    en: "There is no grade record for the instructors of your courses this term.",
+  },
+  coursePriorityHigh: {
+    ar: "أولويته عالية في خطة تخرجك، لأن تأجيله يؤخر موعد التخرج، ويُنصح بتسجيله هذا الفصل.",
+    en: "High priority in your graduation plan: postponing it delays graduation, so register it this term.",
+  },
+  coursePriorityMedium: {
+    ar: "أولويته متوسطة: قد يتطلب تأجيله فصلًا صيفيًا أو طلبًا للكلية حتى لا يتأخر التخرج.",
+    en: "Medium priority: postponing it may require a summer course or a college request to graduate on time.",
+  },
+  coursePriorityNormal: {
+    ar: "أولويته عادية في خطتك، واختيار المحاضر متروك لك.",
+    en: "Normal priority in your plan; the choice of instructor is yours.",
+  },
+  gradesChartTitle: {
+    ar: "متوسط درجات الطلاب في المقرر خلال آخر 10 سنوات",
+    en: "The course's average total over the last 10 years",
+  },
+  gradesChartDesc: {
+    ar: "كل عمود يمثل متوسط الطلاب مع المحاضر في تلك السنة، من 100.",
+    en: "Each column is the students' average with that year's instructor, out of 100.",
+  },
+  chartLegend: {
+    ar: "المحاضرون",
+    en: "Instructors",
+  },
+  chartAria: {
+    ar: "رسم بياني بالأعمدة لمتوسط درجات الطلاب في المقرر مع كل محاضر خلال آخر 10 سنوات",
+    en: "Column chart of the course's average total with each instructor over the last 10 years",
+  },
+  passMark: { ar: "النجاح 60", en: "Pass 60" },
+  chartTable: { ar: "عرض الأرقام كجدول", en: "Show as a table" },
+  instructorWord: {
+    ar: "المحاضر",
+    en: "Instructor",
+  },
+  yearWord: { ar: "السنة", en: "Year" },
+  studentsWord: { ar: "طالب", en: "students" },
+  passRate: { ar: "نسبة النجاح", en: "Pass rate" },
+  statMean: {
+    ar: "متوسط الدرجات",
+    en: "Average total",
+  },
+  statARate: {
+    ar: "نسبة تقدير A",
+    en: "A grades",
+  },
+  statCoursework: { ar: "متوسط أعمال السنة", en: "Average coursework" },
+  outOf: { ar: "من", en: "of" },
+  previousInstructors: { ar: "محاضرون سابقون", en: "Previous instructors" },
+  instructorThisTerm: { ar: "محاضر المقرر في هذا الفصل", en: "This term's instructor" },
+  instructorsThisTerm: { ar: "محاضرا المقرر في هذا الفصل", en: "This term's instructors" },
+  firstTimeTeaching: { ar: "يدرّس المقرر لأول مرة هذا الفصل", en: "Teaching this course for the first time" },
+  taughtFor: { ar: "درّس المقرر", en: "Taught it for" },
+  yearsWord: { ar: "سنوات", en: "years" },
+  adviceOneHighLow: {
+    ar: "هذا المقرر ذو أولوية عالية في خطة تخرجك، ويُنصح بتسجيله هذا الفصل رغم انخفاض متوسط الدرجات فيه، لأن تأجيله يؤخر موعد التخرج.",
+    en: "This course is high priority in your graduation plan; register it this term despite the lower average, as postponing it delays graduation.",
+  },
+  adviceOneHigh: {
+    ar: "هذا المقرر ذو أولوية عالية في خطة تخرجك، ويُنصح بتسجيله هذا الفصل.",
+    en: "This course is high priority in your graduation plan; register it this term.",
+  },
+  adviceOneLow: {
+    ar: "متوسط الدرجات في هذا المقرر مع هذا المحاضر أقل من المعتاد، ويُنصح بتخصيص وقت كافٍ للمذاكرة.",
+    en: "The average in this course with this instructor is lower than usual; plan enough study time for it.",
+  },
+  bestForYou: {
+    ar: "الأنسب لك",
+    en: "Best for you",
+  },
+  studentsIn3Years: {
+    ar: "طالبًا خلال 3 سنوات",
+    en: "students in 3 years",
+  },
+  expectedForYou: {
+    ar: "المتوسط المتوقع لمستواك",
+    en: "Expected for your level",
+  },
+  adviceHighTakeIt: {
+    ar: "هذا المقرر ذو أولوية عالية في خطة تخرجك، ويُنصح بتسجيله هذا الفصل مع هذا المحاضر إذا لزم الأمر، لأن تأجيله يؤخر موعد التخرج.",
+    en: "This course is high priority in your graduation plan; register it this term with this instructor if needed, as postponing it delays graduation.",
+  },
+  adviceHighBest: {
+    ar: "هذا المقرر ذو أولوية عالية في خطة تخرجك، وهذا المحاضر هو الخيار الأنسب لك فيه وفق سجل الدرجات.",
+    en: "High priority in your graduation plan, and this instructor is your best option by the grade record.",
+  },
+  adviceLowOther: {
+    ar: "أولوية هذا المقرر في خطتك ليست عالية، ويمكنك اختيار محاضر آخر إن أمكن.",
+    en: "This course is not a high priority in your plan; you may choose another instructor if possible.",
+  },
+  gradesDemoNote: {
+    ar: "المعلومات وفق درجات الطلاب خلال آخر 10 سنوات (بيانات تجريبية إلى حين توفر بيانات الكلية الفعلية).",
+    en: "Based on students' totals over the last 10 years (simulated until the faculty's records are available).",
   },
   section: { ar: "سكشن", en: "Section" },
 

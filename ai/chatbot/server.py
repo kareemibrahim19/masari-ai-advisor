@@ -29,7 +29,7 @@ from db import source as data_source  # noqa: E402  (students.py put ai/ on the 
 from tools.planner import build_graduation_plan, plan_options  # noqa: E402
 from tools import priorities  # noqa: E402
 from tools import call_tool, tool_names  # noqa: E402
-from tools import assistants as assistant_tools  # noqa: E402
+from tools import instructors as instructor_tools  # noqa: E402
 
 app = FastAPI(title="Masari AI Advisor")
 # Let the Next.js frontend (another origin) call the API from the browser. The known site domains are always
@@ -186,13 +186,14 @@ def graduation_delays(student_id: str, request: Request):
     return result
 
 
-@app.get("/api/teaching-assistants")
-def teaching_assistants(student_id: str, request: Request):
-    """The recommendations tab: the student's registered courses (this term) that have more than one teaching
-    assistant, with each assistant's age, appointment year and how many times they taught the course. Empty
-    `courses` means no recommendations for this student. Same result as the chat's teaching_assistants tool."""
+@app.get("/api/instructors/recommendations")
+def instructor_recommendations(student_id: str, request: Request):
+    """The recommendations page: each course the student is registered in this term, with its instructors ranked by
+    how students did with them over the last 10 years (expected total for the student's GPA band, pass rate,
+    the coursework average out of its marks) and the course's 10-year history for the column chart. Same model as the chat's
+    recommend_instructor tool; the page adds the course priority from the graduation plan itself."""
     auth.check(request, student_id)
-    result = assistant_tools.recommendations_for(student_id)
+    result = instructor_tools.recommendations_for(student_id)
     if not result.get("found"):
         raise HTTPException(404, "Student not found")
     return result

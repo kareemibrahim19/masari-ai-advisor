@@ -31,6 +31,9 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -105,6 +108,10 @@
   --chart-3: #f27a2e;
   --chart-4: #61657a;
   --chart-5: #a3a7b6;
+  /* Categorical series (one per instructor in a chart), validated for colour-blind separation on the card */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
   --radius: 10px;
   --sidebar: #ffffff;
   --sidebar-foreground: #14161f;
@@ -157,6 +164,9 @@
   --chart-3: #f27a2e;
   --chart-4: #a3a7b6;
   --chart-5: #61657a;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
   --sidebar: #1b1e28;
   --sidebar-foreground: #f2f2f0;
   --sidebar-primary: #f27a2e;

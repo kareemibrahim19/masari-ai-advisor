@@ -4,7 +4,7 @@ Next.js 16 · Tailwind CSS v4 · shadcn/ui (Base UI) · Arabic RTL by default wi
 
 > **Program data is real, student data is simulated.** Courses, prerequisites, elective pools and regulations for the
 > Mansoura University AI Engineering program come from the [AIE Program Guide](https://aieprogramguide.vercel.app/)
-> (an unofficial summary of the bylaws, so verify against the official ones). The six students, teaching assistants and seats are demo data.
+> (an unofficial summary of the bylaws, so verify against the official ones). The six students, instructors' grade records and seats are demo data.
 > No university system is connected.
 
 ## Data & rules
@@ -46,7 +46,7 @@ The chat needs the AI service running (see [`../ai/chatbot/README.md`](../ai/cha
 | `/login` | Sign in with an access code (the student ID). Every other page needs a signed-in student |
 | `/` | Student dashboard: GPA, graduation progress, alerts, this-semester proposal, electives |
 | `/chat` | Chat with Masari: answers come from the AI service (`ai/chatbot/`) with cited sources; text or voice input (recorded in the browser, transcribed by Whisper via `/api/transcribe`) |
-| `/recommendations` | Ranked courses with live credit-load validation; teaching assistants of registered courses that have more than one (age, appointment year, times taught), or "no recommendations" |
+| `/recommendations` | This term's courses with their instructor (usually one) and students' grades with them over 10 years, a column chart of the course's 10 years, and the course's priority in the graduation plan (register a high-priority course with any instructor) |
 | `/plan` | Multi-semester plan with what-if scenarios (computed by the planner) |
 | `/catalog` | Course catalog: all AIE courses with filters, prerequisites, "prerequisite for", elective pools, the student's status per course, plus a Regulations tab |
 
@@ -120,7 +120,7 @@ The frontend needs from the backend:
 1. **Login**: an endpoint that takes the access code and returns the student (or "invalid code"), plus how the session is kept (cookie or token).
 2. **Student record**: the full record in the shape of `students.json` (see `src/lib/data/types.ts`), or a note of any differences.
 3. **Courses and rules**: in the shape of `courses.json`.
-4. **Section seats** (now simulated in `src/lib/demo-content.ts`). Teaching assistants already come from the AI service (`GET /api/teaching-assistants`).
+4. **Section seats** (now simulated in `src/lib/demo-content.ts`). Instructor recommendations already come from the AI service (`GET /api/instructors/recommendations`).
 5. **Student preferences** (read and save).
 6. **Chat**: the chat request should include the student's ID so answers are about that student.
 7. **The API address**, set in `NEXT_PUBLIC_MASARI_API_URL`.
