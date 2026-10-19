@@ -135,8 +135,8 @@ const dict = {
   // Recommendations
   recTitle: { ar: "التوصيات", en: "Recommendations" },
   recSubtitle: {
-    ar: "محاضر كل مقرر من مقررات هذا الفصل وسجل درجات الطلاب معه خلال آخر 10 سنوات، مع أولوية المقرر في خطة تخرجك.",
-    en: "Each of this term's courses, its instructor and students' grades with them over 10 years, with the course's priority in your plan.",
+    ar: "محاضر كل مقرر من مقررات هذا الفصل وسجل درجات الطلاب معه، مقارنةً بالمحاضرين السابقين للمقرر خلال آخر 10 سنوات، مع أولوية المقرر في خطة تخرجك.",
+    en: "Each of this term's courses with its instructor and students' grades with them, compared with the course's previous instructors over 10 years, and the course's priority in your plan.",
   },
   coursesWord: { ar: "مقررات", en: "courses" },
   prereqsMet: { ar: "المتطلبات السابقة مستوفاة", en: "Prerequisites met" },
@@ -209,7 +209,6 @@ const dict = {
   outOf: { ar: "من", en: "of" },
   previousInstructors: { ar: "محاضرون سابقون", en: "Previous instructors" },
   instructorThisTerm: { ar: "محاضر المقرر في هذا الفصل", en: "This term's instructor" },
-  instructorsThisTerm: { ar: "محاضرا المقرر في هذا الفصل", en: "This term's instructors" },
   firstTimeTeaching: { ar: "يدرّس المقرر لأول مرة هذا الفصل", en: "Teaching this course for the first time" },
   taughtFor: { ar: "درّس المقرر", en: "Taught it for" },
   yearsWord: { ar: "سنوات", en: "years" },
@@ -225,10 +224,6 @@ const dict = {
     ar: "متوسط الدرجات في هذا المقرر مع هذا المحاضر أقل من المعتاد، ويُنصح بتخصيص وقت كافٍ للمذاكرة.",
     en: "The average in this course with this instructor is lower than usual; plan enough study time for it.",
   },
-  bestForYou: {
-    ar: "الأنسب لك",
-    en: "Best for you",
-  },
   studentsIn3Years: {
     ar: "طالبًا خلال 3 سنوات",
     en: "students in 3 years",
@@ -236,18 +231,6 @@ const dict = {
   expectedForYou: {
     ar: "المتوسط المتوقع لمستواك",
     en: "Expected for your level",
-  },
-  adviceHighTakeIt: {
-    ar: "هذا المقرر ذو أولوية عالية في خطة تخرجك، ويُنصح بتسجيله هذا الفصل مع هذا المحاضر إذا لزم الأمر، لأن تأجيله يؤخر موعد التخرج.",
-    en: "This course is high priority in your graduation plan; register it this term with this instructor if needed, as postponing it delays graduation.",
-  },
-  adviceHighBest: {
-    ar: "هذا المقرر ذو أولوية عالية في خطة تخرجك، وهذا المحاضر هو الخيار الأنسب لك فيه وفق سجل الدرجات.",
-    en: "High priority in your graduation plan, and this instructor is your best option by the grade record.",
-  },
-  adviceLowOther: {
-    ar: "أولوية هذا المقرر في خطتك ليست عالية، ويمكنك اختيار محاضر آخر إن أمكن.",
-    en: "This course is not a high priority in your plan; you may choose another instructor if possible.",
   },
   gradesDemoNote: {
     ar: "المعلومات وفق درجات الطلاب خلال آخر 10 سنوات (بيانات تجريبية إلى حين توفر بيانات الكلية الفعلية).",

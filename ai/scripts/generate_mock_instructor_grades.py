@@ -5,13 +5,12 @@ EVERYTHING HERE IS SIMULATED, in the shape the faculty's real grade sheets will 
              grade counts, coursework and final averages, the average total by the students' GPA band, and
              whether extra points (a bonus) were added that year. A bonus is not a rule: an instructor may add one in
              some years and not in others, so only whether it happened is kept, not how many points
-  this_term  who teaches each course this term. Usually one instructor teaches all of a course's sections; one big
-             first-year course has two. An instructor may be teaching the course for the first time
-             (no record of their own in it yet).
+  this_term  who teaches each course this term: one instructor teaches all of a course's sections. They may be
+             teaching it for the first time (no record of their own in it yet).
 
-Who taught a course changes over the years (an instructor teaches it for a few years, then another takes it), and the
-years the mock students took a course keep the instructor in student_instructor_history.json, so a student's own past
-grade with an instructor matches this file. When the real sheets arrive only this file is replaced.
+One instructor teaches a course in a year, and who it is changes over the years: an instructor teaches it for a few
+years, then another takes it (one instructor for all 10 years is rare). A student's own past grade with an instructor
+is found from the year they took the course. When the real sheets arrive only this file is replaced.
 
 Each instructor has a grading pattern, and each year is a noisy run of it:
   lenient      an easier exam and high coursework marks: higher totals
@@ -35,10 +34,7 @@ PASS = PROGRAM["rules"]["passing"]
 OFFERINGS = json.loads((DATA / "instructors.json").read_text(encoding="utf-8"))["offerings"]
 YEARS = [f"{y}-{y + 1}" for y in range(2016, 2026)]  # the last 10 academic years, oldest first
 STUDENTS = json.loads((DATA / "students.json").read_text(encoding="utf-8"))
-HISTORY = json.loads((DATA / "student_instructor_history.json").read_text(encoding="utf-8"))["rows"]
 TERM = STUDENTS["generated_for_term"]
-# The one big first-year course taught by two instructors this term; every other course has one.
-TWO_NOW = {"BAS 011"}
 # How often each grading pattern adds extra points in a year (it varies, it is never certain).
 BONUS_CHANCE = {"lenient": 0.6, "fair": 0.3, "moderate": 0.4, "strict": 0.1}
 # Courses whose instructor teaches them for the first time this term (no record of their own yet).
@@ -118,30 +114,19 @@ def year_record(o: dict, year: str, course_base: float) -> dict:
     }
 
 
-def teachers_by_year(code: str, now: list[str], candidates: list[str], others: list[str]) -> list[set[str]]:
-    """Who taught the course each year (oldest first): the current instructors for their last few years, earlier
-    instructors before them in blocks of a few years, plus whoever the mock students' history says taught it."""
-    tenure = {t: 0 if code in FIRST_TIME else rng.choice([2, 3, 4, 5, 6, 7, 10]) for t in now}
-    if len(now) == 2:  # the two current instructors took the course over together
-        tenure[now[1]] = tenure[now[0]]
-    years: list[set[str]] = [set() for _ in YEARS]
-    for i in range(len(YEARS)):
-        age = len(YEARS) - 1 - i  # 0 = last year
-        years[i] = {t for t in now if age < tenure[t]}
-    earlier = [c for c in candidates + others if c not in now]
-    i = len(YEARS) - 1
+def teachers_by_year(code: str, now: str, earlier: list[str]) -> list[str]:
+    """Who taught the course each year (oldest first), one instructor a year: this term's instructor for their last
+    few years (all 10 is rare; none when they teach it for the first time), earlier instructors in blocks before."""
+    tenure = 0 if code in FIRST_TIME else rng.choices(range(1, 11), weights=[8, 12, 14, 14, 12, 10, 8, 6, 4, 2])[0]
+    years: list[str | None] = [now if len(YEARS) - 1 - i < tenure else None for i in range(len(YEARS))]
+    i = len(YEARS) - 1 - tenure
+    last = None
     while i >= 0:
-        if years[i]:
-            i -= 1
-            continue
-        who, block = rng.choice(earlier), rng.randint(2, 5)
-        for j in range(i, max(-1, i - block), -1):
-            if not years[j]:
-                years[j] = {who}
-        i -= block
-    for h in HISTORY:
-        if h["course_code"] == code and h["academic_year"] in YEARS:
-            years[YEARS.index(h["academic_year"])].add(h["instructor_id"])
+        who = rng.choice([x for x in earlier if x != last] or earlier)
+        for j in range(i, max(-1, i - rng.randint(2, 5)), -1):
+            years[j] = who
+        i = j - 1
+        last = who
     return years
 
 
@@ -156,15 +141,11 @@ def main():
         candidates = list(dict.fromkeys(o["instructor_id"] for o in offers))
         dept = [x for x in everyone if any(o["instructor_id"] == x and o["course_code"][:3] == code[:3] for o in OFFERINGS)]
         others = [x for x in dept if x not in candidates][:2] or [x for x in everyone if x not in candidates][:2]
-        now = candidates[:2] if code in TWO_NOW and len(candidates) > 1 else candidates[:1]
-        if code in FIRST_TIME:  # someone who never taught it, not even in the mock students' history
-            taught = {h["instructor_id"] for h in HISTORY if h["course_code"] == code}
-            now = [next(x for x in candidates + others + everyone if x not in taught)]
+        now = candidates[0]
         if any(o["offered_term"] in (TERM["term"], "both") for o in offers):
-            this_term[code] = now
-        for i, who in enumerate(teachers_by_year(code, now, candidates, others)):
-            for t in sorted(who, key=lambda x: int(x[1:])):
-                records.append(year_record({"instructor_id": t, "course_code": code}, YEARS[i], base[code]))
+            this_term[code] = [now]
+        for i, who in enumerate(teachers_by_year(code, now, [x for x in candidates + others if x != now])):
+            records.append(year_record({"instructor_id": who, "course_code": code}, YEARS[i], base[code]))
     out = {
         "_note": "بيانات وهمية: درجات الطلاب في كل مادة مع الدكتور اللي درّسها، آخر 10 سنين (المتوسط، النجاح، التقديرات، "
                  "أعمال السنة، والمتوسط حسب معدل الطالب)، "
@@ -178,8 +159,7 @@ def main():
     lines = ",\n  ".join(json.dumps(r, ensure_ascii=False) for r in records)
     head = json.dumps({k: v for k, v in out.items() if k != "records"}, ensure_ascii=False, indent=1)[:-2]
     (DATA / "instructor_grades.json").write_text(f'{head},\n "records": [\n  {lines}\n ]\n}}\n', encoding="utf-8")
-    two = sum(len(v) > 1 for v in this_term.values())
-    print(f"{len(records)} records, {len(codes)} courses; this term {len(this_term)} courses, {two} with two instructors")
+    print(f"{len(records)} records, {len(codes)} courses; this term {len(this_term)} courses, one instructor each")
 
 
 if __name__ == "__main__":

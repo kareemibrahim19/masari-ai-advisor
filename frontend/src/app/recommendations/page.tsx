@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { AlertTriangle, CalendarClock, Check, GraduationCap, Info, Trophy, Users } from "lucide-react"
+import { AlertTriangle, CalendarClock, Check, GraduationCap, Info, Users } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Code, PageHeader } from "@/components/masari/bits"
 import { GradeChart } from "@/components/masari/grade-chart"
@@ -24,9 +24,9 @@ const styleClass: Record<GradingStyle, string> = {
 }
 
 /**
- * Instructors of this term's courses, ranked by how students did with them over the last 3 years (the AI service's
- * grading model), joined with each course's priority in the graduation plan: a high-priority course is registered
- * with whoever teaches it rather than postponed.
+ * This term's courses, each with the instructor teaching it and how students did with them (the AI service's grading
+ * model), the course's last 10 years compared with previous instructors, and the course's priority in the graduation
+ * plan: a high-priority course is registered this term even when the average is lower.
  */
 export default function RecommendationsPage() {
   const { t } = useI18n()
@@ -38,16 +38,10 @@ export default function RecommendationsPage() {
   )
 }
 
-/** What to do with this instructor given the course's priority (same rules as the chat tool's `advice`). */
-function adviceFor(level: "high" | "medium" | "normal", ins: RankedInstructor, count: number): { key: DictKey; tone: "high" | "good" | "soft" } | null {
+/** What to do, given the course's priority and the instructor's grade record (same rules as the chat tool's `advice`). */
+function adviceFor(level: "high" | "medium" | "normal", ins: RankedInstructor): { key: DictKey; tone: "high" | "soft" } | null {
   const low = ins.style === "strict"
-  if (count > 1) {
-    if (level === "high" && (low || !ins.best)) return { key: "adviceHighTakeIt", tone: "high" }
-    if (level === "high" && ins.best) return { key: "adviceHighBest", tone: "good" }
-    if (level === "normal" && low) return { key: "adviceLowOther", tone: "soft" }
-    return null
-  }
-  if (level === "high") return low ? { key: "adviceOneHighLow", tone: "high" } : { key: "adviceOneHigh", tone: "high" }
+  if (level === "high") return { key: low ? "adviceOneHighLow" : "adviceOneHigh", tone: "high" }
   return low ? { key: "adviceOneLow", tone: "soft" } : null
 }
 
@@ -140,11 +134,11 @@ function InstructorsTab() {
           </CardContent>
         </Card>
 
-        <h2 className="text-sm font-semibold">{t(course.instructors.length > 1 ? "instructorsThisTerm" : "instructorThisTerm")}</h2>
-        <ol className={cn("grid grid-cols-[minmax(0,1fr)] gap-3", course.instructors.length > 1 && "xl:grid-cols-2")}>
+        <h2 className="text-sm font-semibold">{t("instructorThisTerm")}</h2>
+        <ol className="grid grid-cols-[minmax(0,1fr)] gap-3">
           {course.instructors.map((ins, i) => (
             <li key={ins.id}>
-              <InstructorCard ins={ins} color={SERIES[i]} advice={adviceFor(level, ins, course.instructors.length)} />
+              <InstructorCard ins={ins} color={SERIES[i]} advice={adviceFor(level, ins)} />
             </li>
           ))}
         </ol>
@@ -165,7 +159,7 @@ function InstructorCard({
 }: {
   ins: RankedInstructor
   color?: string
-  advice: { key: DictKey; tone: "high" | "good" | "soft" } | null
+  advice: { key: DictKey; tone: "high" | "soft" } | null
 }) {
   const { t, tr, num } = useI18n()
   const pct = (v: number) => `${num(Math.round(v * 100))}%`
@@ -178,7 +172,7 @@ function InstructorCard({
       : []),
   ]
   return (
-    <Card className={cn("h-full", ins.best && "ring-primary/50")}>
+    <Card className="h-full">
       <CardContent className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -189,12 +183,6 @@ function InstructorCard({
             <div className="min-w-0">
               <p className="flex flex-wrap items-center gap-2 font-semibold">
                 {tr(ins.name)}
-                {ins.best && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground">
-                    <Trophy className="size-3" aria-hidden />
-                    {t("bestForYou")}
-                  </span>
-                )}
               </p>
               <p className="text-xs text-muted-foreground">
                 {ins.firstTime
@@ -241,7 +229,7 @@ function InstructorCard({
           <p
             className={cn(
               "flex items-start gap-1.5 rounded-lg px-3 py-2 text-xs font-medium",
-              advice.tone === "high" ? "bg-destructive/10 text-destructive" : advice.tone === "good" ? "bg-verified-soft text-verified" : "bg-muted text-muted-foreground"
+              advice.tone === "high" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"
             )}
           >
             <CalendarClock className="mt-px size-3.5 shrink-0" aria-hidden />

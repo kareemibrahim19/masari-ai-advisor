@@ -1,18 +1,19 @@
-"""Instructor recommendations from how students did with each instructor: the grading model and its one tool.
+"""Instructor information from how students did with the instructor: the grading model and its one tool.
 
-Data: ai/data/instructor_grades.json (simulated today): who teaches each course this term (`this_term`; one
-instructor, two only in one big first-year course), and one record per (course, academic year,
-instructor) for the last 10 years: average and median total, pass rate, grades, coursework and final averages,
-whether extra points were added that year (a possibility, never a rule), and the average total by the students' GPA band.
+Data: ai/data/instructor_grades.json (simulated today): who teaches each course this term (`this_term`, one instructor
+per course), and one record per (course, academic year) for the last 10 years with the instructor who taught it that
+year: average and median total, pass rate, grades, coursework and final averages, whether extra points were added that
+year (a possibility, never a rule), and the average total by the students' GPA band.
 
-The model, for each instructor teaching a course this term:
-  grade record      pooled over the years they taught it (weighted by students), compared with the course's average
-                    over 10 years with every instructor who taught it
+The model, for the instructor teaching a course this term:
+  grade record      pooled over the years they taught it (weighted by students); the course's earlier years with
+                    previous instructors are the comparison (the page's chart shows both)
   grade level       above average, average, or below average (pass rate under 75% or average under 68)
   expected total    what students in the student's GPA band got with this instructor (all students for a
-                    first-year student who has no GPA yet); with two instructors, the ranking is by it
+                    first-year student who has no GPA yet)
   first time        an instructor teaching the course for the first time has no record of their own in it; the
-                    course's own history is shown instead
+                    course's average with previous instructors is given instead
+  your record       courses the student took in a year this instructor taught them, with the grade
   priority advice   joined with how much the course matters for the graduation plan (tools/priorities.py)
 The wording is neutral and academic: numbers from the record, no judgement of the instructor.
 """
@@ -96,7 +97,7 @@ def coursework(p: dict) -> tuple[str, str]:
             f"Average coursework {p['coursework_avg']:.0f} of {p['coursework_max']} marks (the coursework part of the total)")
 
 
-def _reasons(p: dict, band: str | None, expected: float, history: list[dict]) -> list[tuple[str, str]]:
+def _reasons(p: dict, band: str | None, expected: float) -> list[tuple[str, str]]:
     """(Arabic, English) facts from the grade record, in neutral academic wording."""
     # The average itself, and how it compares with the course, are on the chart and the "average" tile.
     out = [(f"نسبة النجاح {p['pass_rate'] * 100:.0f}%، ونسبة الحاصلين على تقدير A {p['a_rate'] * 100:.0f}%",
@@ -110,20 +111,26 @@ def _reasons(p: dict, band: str | None, expected: float, history: list[dict]) ->
     if band:
         out.append((f"متوسط درجات الطلاب الذين {BAND_PHRASE_AR[band]} (مثل معدلك) مع هذا المحاضر: {expected:.0f} من 100",
                     f"Average with this instructor for students in your GPA band ({BAND_EN[band]}, like yours): {expected:.0f}/100"))
-    for h in history:
-        out.append((f"سبق لك دراسة {h['course_code']} مع هذا المحاضر وحصلت على تقدير {h['grade']}",
-                    f"You took {h['course_code']} with this instructor and received {h['grade']}"))
     return out
 
 
+def _taught_you(student: dict | None, instructor_id: str) -> list[dict]:
+    """The student's graded courses taken in a year this instructor taught them (from the course's yearly record)."""
+    if not student:
+        return []
+    teacher = {(r["course_code"], r["academic_year"]): r["instructor_id"] for r in d.instructor_grades()["records"]}
+    return [{"course_code": c["code"], "grade": c["grade"]}
+            for t in student["terms"] if t["status"] == "published"
+            for c in t["courses"] if c.get("grade") and teacher.get((c["code"], t["academic_year"])) == instructor_id]
+
+
 def course_ranking(course_code: str, student_id: str | None = None) -> dict:
-    """This term's instructor(s) of a course with their grade record for the student, and the course's history."""
+    """This term's instructor of a course with their grade record for the student, and the course's 10-year history."""
     c = d.find_course(course_code)
     if not c:
         return d.not_found("المادة", course_code)
     student = d.get_student(student_id) if student_id else None
     band = _band(student)
-    people = _people()
     history = _history(c["code"])
     base = {"found": True, "course": d.course_label(c["code"]), "code": c["code"], "name_ar": c["name_ar"],
             "name_en": c.get("name_en") or c["name_ar"], "gpa_band": band, "history": history}
@@ -131,45 +138,40 @@ def course_ranking(course_code: str, student_id: str | None = None) -> dict:
     if not now:
         return {**base, "course_mean": None, "instructors": [],
                 "explanation": "لا يتوفر محاضر مسجل لهذا المقرر في الفصل الحالي."}
-    every = [r for r in d.instructor_grades()["records"] if r["course_code"] == c["code"]]
-    course_mean = round(sum(r["mean"] * r["students"] for r in every) / sum(r["students"] for r in every), 1) if every else None
-    past = [h for h in d.history_rows() if student_id and h["student_id"] == str(student_id)]
-    out = []
-    for iid in now:
-        ins = people[iid]
-        rs = _records(iid, c["code"])
-        entry = {"instructor_id": iid, "name_ar": ins["name_ar"], "name_en": ins["name_en"], "first_time": not rs}
-        mine = [h for h in past if h["instructor_id"] == iid]
-        if not rs:
-            reasons = [("هذا الفصل هو أول فصل يدرّس فيه هذا المحاضر المقرر، لذلك لا يتوفر له سجل درجات فيه.",
-                        "This is the instructor's first term teaching this course, so there is no grade record for it yet.")]
-            if course_mean is not None:
-                reasons.append((f"متوسط درجات المقرر خلال 10 سنوات مع المحاضرين السابقين {course_mean:.0f} من 100",
-                                f"The course averaged {course_mean:.0f}/100 over 10 years with previous instructors"))
-            reasons += [(f"سبق لك دراسة {h['course_code']} مع هذا المحاضر وحصلت على تقدير {h['grade']}",
-                         f"You took {h['course_code']} with this instructor and received {h['grade']}") for h in mine]
-            entry.update(style=None, style_ar=None, style_en=None, expected_total=None,
-                         reasons=[a for a, _ in reasons], reasons_en=[e for _, e in reasons])
-            out.append(entry)
-            continue
+    iid = now[0]
+    ins = _people()[iid]
+    rs = _records(iid, c["code"])
+    before = [r for r in d.instructor_grades()["records"] if r["course_code"] == c["code"] and r["instructor_id"] != iid]
+    previous_mean = (round(sum(r["mean"] * r["students"] for r in before) / sum(r["students"] for r in before), 1)
+                     if before else None)
+    mine = [(f"سبق لك دراسة {h['course_code']} مع هذا المحاضر وحصلت على تقدير {h['grade']}",
+             f"You took {h['course_code']} with this instructor and received {h['grade']}") for h in _taught_you(student, iid)]
+    entry = {"instructor_id": iid, "name_ar": ins["name_ar"], "name_en": ins["name_en"], "first_time": not rs,
+             "only_instructor": bool(rs) and not before}
+    if not rs:
+        reasons = [("هذا الفصل هو أول فصل يدرّس فيه هذا المحاضر المقرر، لذلك لا يتوفر له سجل درجات فيه.",
+                    "This is the instructor's first term teaching this course, so there is no grade record for it yet.")]
+        if previous_mean is not None:
+            reasons.append((f"متوسط درجات المقرر خلال 10 سنوات مع المحاضرين السابقين {previous_mean:.0f} من 100",
+                            f"The course averaged {previous_mean:.0f}/100 over 10 years with previous instructors"))
+        entry.update(style=None, style_ar=None, style_en=None, expected_total=None)
+    else:
         p = _pooled(rs)
         a = c.get("assessment") or {}
         p["coursework_max"] = (a.get("coursework") or 0) + (a.get("practical") or 0)
         p["coursework_avg"] = round(p["coursework_avg_pct"] * p["coursework_max"] / 100, 1)
         expected = p["by_gpa_band"].get(band, p["mean"]) if band else p["mean"]
-        reasons = _reasons(p, band, expected, mine)
+        reasons = _reasons(p, band, expected)
+        if not before:
+            reasons.insert(0, ("درّس هذا المحاضر المقرر طوال السنوات العشر الماضية، لذلك لا توجد مقارنة مع محاضرين سابقين.",
+                               "This instructor taught the course for all of the last 10 years, so there is no "
+                               "comparison with previous instructors."))
         style = _style(p)
         entry.update(style=style, style_ar=STYLE_AR[style], style_en=STYLE_EN[style], expected_total=expected,
-                     **{k: v for k, v in p.items() if k != "by_gpa_band"},
-                     reasons=[a for a, _ in reasons], reasons_en=[e for _, e in reasons])
-        out.append(entry)
-    # With two instructors, the one whose students in this band did better comes first (a first-timer last).
-    out.sort(key=lambda x: (x["expected_total"] is None, -(x["expected_total"] or 0), -x.get("pass_rate", 0)))
-    ranked = len([x for x in out if not x["first_time"]]) > 1
-    for i, x in enumerate(out):
-        x["rank"] = i + 1
-        x["best"] = ranked and i == 0
-    return {**base, "course_mean": course_mean, "instructors": out}
+                     **{k: v for k, v in p.items() if k != "by_gpa_band"})
+    reasons += mine
+    entry.update(reasons=[a for a, _ in reasons], reasons_en=[e for _, e in reasons])
+    return {**base, "course_mean": previous_mean, "instructors": [entry]}
 
 
 # ---------------------------------------------------------------- priority (the graduation plan)
@@ -203,22 +205,9 @@ def priority_level(code: str, delay: int | None, needs_request: bool) -> str:
     return "high" if points >= 45 else "medium" if points >= 20 else "normal"
 
 
-def advice(level: str, instructor: dict, n: int) -> tuple[str, str] | None:
+def advice(level: str, instructor: dict) -> tuple[str, str] | None:
     """What to do, given how much the course matters for graduation and the instructor's grade record."""
     low = instructor.get("style") == "strict"
-    if n > 1:
-        if level == "high" and (low or not instructor["best"]):
-            return ("هذا المقرر ذو أولوية عالية في خطة تخرجك، ويُنصح بتسجيله هذا الفصل مع هذا المحاضر إذا لزم الأمر، "
-                    "لأن تأجيله يؤخر موعد التخرج.",
-                    "This course is high priority in your graduation plan; register it this term with this instructor if "
-                    "needed, as postponing it delays graduation.")
-        if level == "high" and instructor["best"]:
-            return ("هذا المقرر ذو أولوية عالية في خطة تخرجك، وهذا المحاضر هو الخيار الأنسب لك فيه وفق سجل الدرجات.",
-                    "High priority in your graduation plan, and this instructor is your best option by the grade record.")
-        if level == "normal" and low:
-            return ("أولوية هذا المقرر في خطتك ليست عالية، ويمكنك اختيار محاضر آخر إن أمكن.",
-                    "This course is not a high priority in your plan; you may choose another instructor if possible.")
-        return None
     if level == "high" and low:
         return ("هذا المقرر ذو أولوية عالية في خطة تخرجك، ويُنصح بتسجيله هذا الفصل رغم انخفاض متوسط الدرجات فيه، "
                 "لأن تأجيله يؤخر موعد التخرج.",
@@ -246,7 +235,7 @@ def recommendations_for(student_id: str) -> dict:
 
 
 def recommend_instructor(student_id: str | None = None, course_code: str | None = None) -> dict:
-    """Chat tool: the instructors of one course (or of every course the student is registered in), ranked by how
+    """Chat tool: the instructor of one course (or of every course the student is registered in), with how
     students did with them, with the course's priority in the student's graduation plan and what to do."""
     if not course_code and not student_id:
         return {"found": False, "error": "محتاج كود المادة أو طالب مختار."}
@@ -265,7 +254,7 @@ def recommend_instructor(student_id: str | None = None, course_code: str | None 
             level = priority_level(c["code"], delays["delays"][c["code"]], delays["needs_request"].get(c["code"], False))
             c["priority"] = level
             for x in c["instructors"]:
-                a = advice(level, x, len(c["instructors"]))
+                a = advice(level, x)
                 if a:
                     x["advice"], x["advice_en"] = a
         c.pop("history", None)  # the chart data is for the page; the chat does not need it

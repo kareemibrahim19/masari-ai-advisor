@@ -69,10 +69,10 @@ TOOLS = [
         "requested_hours": {"type": "number", "description": "عدد الساعات اللي الطالب عايزه لو قاله. اختياري."}},
        ["student_id"], rules.paper_registration, True),
     # ---- instructors: one tool, from how students did with each instructor (tools/instructors.py)
-    _t("recommend_instructor", "ترشيح الدكاترة من سجل درجات الطلاب معاهم آخر 10 سنين: متوسط الدرجات ونسبة النجاح وأعمال السنة "
+    _t("recommend_instructor", "معلومات دكتور المادة من سجل درجات الطلاب معاه آخر 10 سنين: متوسط الدرجات ونسبة النجاح وأعمال السنة "
        "والمتوقع لطالب في مستوى معدله، ومعاه أولوية المادة في خطة تخرجه ونصيحة "
        "(advice). من غير course_code بترجع كل مواد الطالب المسجلة الترم ده. نادِها في أي سؤال عن دكتور مادة، "
-       "مين أحسن دكتور، أو أسجل مع مين.",
+       "مين بيدرّس المادة، أو درجات الطلاب مع الدكتور عاملة إزاي.",
        {**_STUDENT, "course_code": {"type": "string", "description": "كود المادة أو اسمها. اختياري."}},
        [], ins.recommend_instructor, True),
 ]

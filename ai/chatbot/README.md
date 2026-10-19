@@ -94,7 +94,7 @@ Response:
 website stores the result and sends it back with the next question (`selected_courses` above).
 
 `tools_used` lists the tools the model called in this answer (empty when it answered from the regulations
-only). Instructor recommendations (`recommend_instructor`) rank by students' grades with each instructor and carry the course `priority` and an `advice` line.
+only). Instructor information (`recommend_instructor`) comes from students' grades with the course's instructor and carries the course `priority` and an `advice` line.
 
 ### Endpoints for the pages (no chat needed)
 
@@ -102,7 +102,7 @@ The recommendations page and the chat card show the same results as the chat too
 
 | Endpoint | Returns |
 |---|---|
-| `GET /api/instructors/recommendations?student_id=...` | the recommendations page: each course the student is registered in this term with its instructor(s) this term (usually one; `first_time` when they have no record in it yet), each with `expected_total` (what students in the student's GPA band got with them), `style` (above average / average / below average), `mean`, `pass_rate`, `a_rate`, `coursework_avg` of `coursework_max` (the course's coursework marks), `reasons` / `reasons_en`, `best` (only with two), and the course's `history` (every year of the last 10 with each instructor's average) for the chart |
+| `GET /api/instructors/recommendations?student_id=...` | the recommendations page: each course the student is registered in this term with its instructor this term (one per course; `first_time` when they have no record in it yet, `only_instructor` when they taught it all 10 years), each with `expected_total` (what students in the student's GPA band got with them), `style` (above average / average / below average), `mean`, `pass_rate`, `a_rate`, `coursework_avg` of `coursework_max` (the course's coursework marks), `reasons` / `reasons_en` and the course's `history` (every year of the last 10 with each instructor's average) for the chart |
 | `POST /api/tools/{name}` with `{ "args": {...}, "student_id": "..." }` | runs any tool from `tools/` directly (404 for an unknown tool or student) |
 
 

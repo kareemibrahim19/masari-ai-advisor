@@ -4,7 +4,7 @@
  * Instructor recommendations from how students did with each instructor over the last 10 years, from the Masari AI
  * service (ai/chatbot/tools/instructors.py, the same model as the chat's recommend_instructor tool):
  *   GET /api/instructors/recommendations?student_id   { gpa_band, courses: [{ code, name_ar, name_en, course_mean,
- *                                                      instructors: [...this term's, usually one], history: [...] }] }
+ *                                                      instructors: [this term's instructor], history: [...] }] }
  *
  * The page joins it with each course's priority in the graduation plan (student-view.ts rankCurrentCourses), the
  * same priority the dashboard shows.
@@ -36,8 +36,8 @@ export type RankedInstructor = {
   courseworkMax: number
   students: number
   reasons: L[]
-  rank: number
-  best: boolean
+  /** Taught the course for all of the last 10 years: nothing to compare with. */
+  onlyInstructor: boolean
 }
 
 export type InstructorCourse = { code: string; name: L; courseMean: number | null; instructors: RankedInstructor[]; history: CourseYear[] }
@@ -64,8 +64,7 @@ type ApiInstructor = {
   students?: number
   reasons: string[]
   reasons_en: string[]
-  rank: number
-  best: boolean
+  only_instructor?: boolean
 }
 
 type ApiCourse = { code: string; name_ar: string; name_en: string; course_mean: number | null; instructors: ApiInstructor[]; history: ApiYear[] }
@@ -85,8 +84,7 @@ const toInstructor = (x: ApiInstructor): RankedInstructor => ({
   courseworkMax: x.coursework_max ?? 0,
   students: x.students ?? 0,
   reasons: x.reasons.map((ar, i) => ({ ar, en: x.reasons_en[i] ?? ar })),
-  rank: x.rank,
-  best: x.best,
+  onlyInstructor: x.only_instructor ?? false,
 })
 
 const toYear = (y: ApiYear): CourseYear => ({

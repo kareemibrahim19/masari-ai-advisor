@@ -106,19 +106,25 @@ for gone in ("who_teaches", "teaching_assistants", "instructor_profile", "compar
     check(f"{gone} is removed", all(t["name"] != gone for t in TOOLS))
 MALAK, YOUSSEF, HANA = "833603614", "897948891", "883941655"
 from tools import instructors as ins  # noqa: E402
+from tools import _data as dd  # noqa: E402
 r = ins.recommendations_for(MALAK)
 check("every current course with an instructor this term is listed", [c["code"] for c in r["courses"]]
       == ["BAS 011", "BAS 021", "BAS 031", "BAS 041", "PDE 052", "UNR 061"], [c["code"] for c in r["courses"]])
-check("one instructor per course this term, two only in BAS 011",
-      [c["code"] for c in r["courses"] if len(c["instructors"]) > 1] == ["BAS 011"], [len(c["instructors"]) for c in r["courses"]])
+check("one instructor per course this term", all(len(c["instructors"]) == 1 for c in r["courses"]))
+check("no ranking between instructors", all("best" not in x and "rank" not in x for c in r["courses"] for x in c["instructors"]))
+recs = dd.instructor_grades()["records"]
+check("one instructor per course per year", len({(x["course_code"], x["academic_year"]) for x in recs}) == len(recs))
 c = r["courses"][0]
-check("two instructors: ranked by expected total, best first", c["instructors"][0]["best"] and c["instructors"][0]["expected_total"]
-      >= c["instructors"][1]["expected_total"], c["instructors"])
-check("one instructor: no 'best' label", all(not x["best"] for x in r["courses"][1]["instructors"]))
-check("a first-year student has no GPA band (all students' average)", r["gpa_band"] is None
-      and c["instructors"][0]["expected_total"] == c["instructors"][0]["mean"])
+x = c["instructors"][0]
+check("a first-year student has no GPA band (all students' average)", r["gpa_band"] is None and x["expected_total"] == x["mean"])
 years = sorted({h["academic_year"] for h in c["history"]})
 check("10 years of course history for the chart", len(years) == 10 and years[0] == "2016-2017" and years[-1] == "2025-2026", years)
+alone = [k for k, v in dd.instructor_grades()["this_term"]["teaching"].items()
+         if {r_["instructor_id"] for r_ in recs if r_["course_code"] == k} == set(v)]
+check("one instructor for all 10 years is rare", 0 < len(alone) <= 3, alone)
+one = ins.course_ranking(alone[0])["instructors"][0]
+check("the only instructor in 10 years says there is nothing to compare with", one["only_instructor"]
+      and "طوال السنوات العشر" in one["reasons"][0], one["reasons"])
 r = ins.recommendations_for(HANA)
 first = next(c for c in r["courses"] if c["code"] == "CSE 221")["instructors"][0]
 check("an instructor teaching the course for the first time has no record of their own",
@@ -128,21 +134,19 @@ check("GPA under 2 uses that band", r["gpa_band"] == "under_2")
 r = call_tool("recommend_instructor", {"course_code": "BAS 115"}, YOUSSEF)
 c = r["courses"][0]
 check("chat tool adds the course priority", c.get("priority") == "high", c.get("priority"))
-check("high priority, one instructor: register it this term",
-      len(c["instructors"]) == 1 and "يُنصح بتسجيله هذا الفصل" in c["instructors"][0].get("advice", ""), c["instructors"])
-check("a bonus is told as how often it happened, never as a rule",
-      all("قد يتكرر ذلك أو لا يتكرر" in t for x in ins.recommendations_for(MALAK)["courses"] for i in x["instructors"]
-          for t in i["reasons"] if "بونص" in t))
-check("the student's own past grade with the instructor is a reason",
-      any("سبق لك دراسة" in t and "مع هذا المحاضر" in t for x in c["instructors"] for t in x["reasons"]))
+check("high priority: register it this term", "يُنصح بتسجيله هذا الفصل" in c["instructors"][0].get("advice", ""), c["instructors"])
 check("chat result leaves out the chart data", "history" not in c)
-x = next(x for x in c["instructors"] if not x["first_time"])
-check("no attendance or added points in the record (they differ between instructors)",
+mine = [t for c in ins.recommendations_for(YOUSSEF)["courses"] for t in c["instructors"][0]["reasons"] if "سبق لك دراسة" in t]
+check("the student's own past grade is found from the year they took the course", mine, mine)
+x = next(i for c in ins.recommendations_for(MALAK)["courses"] for i in c["instructors"] if not i["first_time"])
+check("no attendance points (they differ between instructors)",
       "attendance_bonus" not in x and "curve_points" not in x and not any("الحضور" in t for t in x["reasons"]), x)
 check("coursework shown in marks out of the course's coursework marks",
       x["coursework_max"] == 30 and 0 < x["coursework_avg"] <= 30 and any("من 30 درجة" in t for t in x["reasons"]), x)
-check("advice for a single high-priority instructor with low grades", "رغم انخفاض متوسط الدرجات" in
-      ins.advice("high", {"style": "strict", "best": False}, 1)[0])
+check("a bonus is told as how often it happened, never as a rule",
+      all("قد يتكرر ذلك أو لا يتكرر" in t for c in ins.recommendations_for(MALAK)["courses"] for i in c["instructors"]
+          for t in i["reasons"] if "بونص" in t))
+check("advice: high priority with a lower average", "رغم انخفاض متوسط الدرجات" in ins.advice("high", {"style": "strict"})[0])
 check("recommend_instructor unknown course", call_tool("recommend_instructor", {"course_code": "XXX 999"})["found"] is False)
 
 # find_courses / improvement_candidates
