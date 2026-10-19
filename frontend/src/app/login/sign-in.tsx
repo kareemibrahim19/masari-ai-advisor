@@ -11,10 +11,12 @@
 import { useRouter } from "next/navigation"
 import * as React from "react"
 import { Eye, EyeOff, Moon, Sun } from "lucide-react"
+import { Bot, type BotMood } from "@/components/masari/bot"
 import { Lockup } from "@/components/masari/brand"
 import { useTheme } from "@/components/masari/app-shell"
 import { activateCheck } from "@/lib/auth"
 import { type DictKey, useI18n } from "@/lib/i18n"
+import { greetOnDashboard } from "@/components/masari/welcome-bot"
 import { useStudent } from "@/lib/student-context"
 import s from "./login.module.css"
 
@@ -109,9 +111,11 @@ export function SignIn({ initial }: { initial: SignInMode }) {
     if (!password) return fail("loginErrNoPassword", loginPw)
     setError(null)
     setBusy(true)
+    greetOnDashboard("login") // before signing in: the dashboard opens as soon as the student is set
     const result = await signIn(code, password)
     setBusy(false)
     if (!result.ok) {
+      greetOnDashboard(null)
       setPassword("")
       const key = result.reason === "wrong" ? "loginErrWrong" : result.reason === "too_many" ? "loginErrTooMany" : "loginErrUnavailable"
       return fail(key, result.reason === "wrong" ? loginPw : loginCode)
@@ -147,9 +151,11 @@ export function SignIn({ initial }: { initial: SignInMode }) {
     if (again !== password) return fail("actErrMismatch", againPw)
     setError(null)
     setBusy(true)
+    greetOnDashboard("activated")
     const result = await activate(step.token, password)
     setBusy(false)
     if (!result.ok) {
+      greetOnDashboard(null)
       if (result.reason === "expired") {
         setPassword("")
         setAgain("")
@@ -333,6 +339,7 @@ export function SignIn({ initial }: { initial: SignInMode }) {
               <circle className={s.goal} cx="76" cy="24" r="6.4" data-on={on(done)} data-near={on(p2 >= 1)} />
               {done && <circle className={s.pulse} cx="76" cy="24" r="6" />}
             </svg>
+            <PathBot p1={p1} p2={p2} error={!!error} done={done} />
             {labels.map(([title, sub], i) => (
               <div key={title} className={s.stageLabel} style={labelAt[i]} data-on={on(i === activeLabel)} data-goal={on(i === 2)}>
                 <b>{t(title)}</b>
@@ -452,5 +459,52 @@ export function SignIn({ initial }: { initial: SignInMode }) {
 
       <footer className={s.foot}>{t("loginFooter")}</footer>
     </div>
+  )
+}
+
+// ---- Masari walking the path ----
+
+type Pt = [number, number]
+/** The two halves of the path, as drawn above (cubic Béziers in the stage's 10..90 coordinates). */
+const HALVES: [Pt, Pt, Pt, Pt][] = [
+  [[24, 76], [24, 58], [50, 66], [50, 50]],
+  [[50, 50], [50, 34], [76, 42], [76, 24]],
+]
+const bezier = ([a, b, c, d]: [Pt, Pt, Pt, Pt], u: number): Pt => {
+  const v = 1 - u
+  const f = (i: 0 | 1) => v * v * v * a[i] + 3 * v * v * u * b[i] + 3 * v * u * u * c[i] + u * u * u * d[i]
+  return [f(0), f(1)]
+}
+/** For each half, points at equal distances along it, so the bot keeps pace with the drawn line. */
+const EVEN = HALVES.map((h) => {
+  const raw = Array.from({ length: 201 }, (_, i) => bezier(h, i / 200))
+  const len = raw.reduce<number[]>((acc, p, i) => [...acc, i ? acc[i - 1] + Math.hypot(p[0] - raw[i - 1][0], p[1] - raw[i - 1][1]) : 0], [])
+  const total = len[len.length - 1]
+  return Array.from({ length: 101 }, (_, k) => raw[Math.max(0, len.findIndex((l) => l >= (total * k) / 100))])
+})
+
+/**
+ * Masari stands at the tip of the drawn line and walks with it as the student types, looks confused at an error,
+ * and celebrates on arrival. Feet on the line: anchored at its feet (88% down its box).
+ */
+function PathBot({ p1, p2, error, done }: { p1: number; p2: number; error: boolean; done: boolean }) {
+  const [moving, setMoving] = React.useState(false)
+  const last = React.useRef([p1, p2])
+  React.useEffect(() => {
+    if (last.current[0] === p1 && last.current[1] === p2) return
+    last.current = [p1, p2]
+    setMoving(true) // walks for a moment after each change
+    const stop = setTimeout(() => setMoving(false), 650)
+    return () => clearTimeout(stop)
+  }, [p1, p2])
+  const [x, y] = p1 < 1 || p2 <= 0 ? EVEN[0][Math.round(Math.min(1, p1) * 100)] : EVEN[1][Math.round(Math.min(1, p2) * 100)]
+  const mood: BotMood = done ? "celebrate" : error ? "confused" : moving ? "walk" : p2 >= 1 ? "happy" : "idle"
+  return (
+    <Bot
+      mood={mood}
+      enter
+      className={s.pathBot}
+      style={{ left: `${((x - 10) / 80) * 100}%`, top: `${((y - 10) / 80) * 100 - 6}%` }}
+    />
   )
 }

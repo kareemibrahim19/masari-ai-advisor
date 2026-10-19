@@ -414,6 +414,18 @@ const dict = {
   standing: { ar: "موقفك الأكاديمي", en: "Academic standing" },
   studentProfile: { ar: "ملف الطالب", en: "Student profile" },
   signOut: { ar: "تسجيل الخروج", en: "Sign out" },
+  botHide: { ar: "إخفاء مساري", en: "Hide Masari" },
+  botShow: { ar: "إظهار مساري", en: "Show Masari" },
+  botBye: { ar: "مع السلامة!", en: "Goodbye!" },
+  botWelcome: { ar: "أهلاً يا {name}! فاضلك {hours} ساعة على التخرج.", en: "Hi {name}! {hours} credit hours to go until graduation." },
+  botActivated: { ar: "حسابك اتفعّل يا {name}، يلا نبدأ!", en: "Your account is active, {name}. Let's start!" },
+  botClose: { ar: "قفل", en: "Close" },
+  notFoundTitle: { ar: "الصفحة دي مش موجودة", en: "This page doesn't exist" },
+  notFoundSub: { ar: "يمكن اللينك اتغيّر أو فيه حرف غلط.", en: "The link may have changed, or there's a typo." },
+  notFoundBack: { ar: "ارجع للرئيسية", en: "Back to the dashboard" },
+  botDeadline: { ar: "مساري بيشاور على الميعاد", en: "Masari pointing at the date" },
+  botChat: { ar: "مساري، مرشدك الأكاديمي", en: "Masari, your academic advisor" },
+  botOnPath: { ar: "مساري واقف عند الترم الحالي", en: "Masari standing on your current term" },
 
   // Sign in and first sign-in (/login and /activate share one screen: design "Masari Sign-in")
   signTabLogin: { ar: "تسجيل الدخول", en: "Sign in" },

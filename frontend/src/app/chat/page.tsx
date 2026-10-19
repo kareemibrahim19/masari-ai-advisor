@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 import { AppIcon } from "@/components/masari/brand"
+import { Bot, type BotElement, type BotMood } from "@/components/masari/bot"
 import { AiBadge, RagSourceChip } from "@/components/masari/trust"
 import { chatSuggestions } from "@/lib/demo-content"
 import { RATE_LIMITED, useDemoState, type AdvisorEmail, type ChatMessage, type RagSource } from "@/lib/demo-state"
@@ -23,6 +24,35 @@ export default function ChatPage() {
   const voice = useVoiceInput(React.useCallback((text: string) => setDraft((d) => (d.trim() ? `${d.trim()} ${text}` : text)), []))
   const listening = voice.state === "recording"
   const endRef = React.useRef<HTMLDivElement>(null)
+
+  // Masari above the composer: listens while you record, thinks while the answer is on its way, talks for a moment
+  // when it arrives (longer answers, longer talk), looks confused at an error, and dozes off after 2 minutes alone.
+  // Typing or clicking it wakes it up.
+  const bot = React.useRef<BotElement | null>(null)
+  const [reaction, setReaction] = React.useState<BotMood | null>(null)
+  // Only a reply that ends a wait counts, not a conversation loaded from history.
+  const wasThinking = React.useRef(false)
+  React.useEffect(() => {
+    const ended = wasThinking.current && !thinking
+    wasThinking.current = thinking
+    const last = messages[messages.length - 1]
+    if (!ended || last?.role !== "assistant") return
+    const error = last.kind === "error"
+    const ms = error ? 4000 : Math.min(7000, Math.max(2000, last.text.length * 30))
+    setReaction(error ? "confused" : "talking")
+    const done = setTimeout(() => setReaction(null), ms)
+    return () => {
+      clearTimeout(done)
+      setReaction(null) // e.g. a new chat started meanwhile
+    }
+  }, [thinking, messages])
+  const botMood: BotMood = listening ? "listening" : thinking ? "thinking" : (reaction ?? "idle")
+  const nudgeBot = () => {
+    const b = bot.current
+    if (!b || typeof b.wake !== "function") return
+    if (b.mood === "sleep") b.wake()
+    else b.lastAct = performance.now()
+  }
 
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
@@ -62,8 +92,15 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Composer */}
-        <div className="border-t bg-background/90 backdrop-blur">
+        {/* Composer, with Masari standing on its top edge */}
+        <div className="relative border-t bg-background/90 backdrop-blur">
+          <Bot
+            ref={bot}
+            mood={botMood}
+            sleepAfter={120}
+            label={t("botChat")}
+            className="masari-chat-bot"
+          />
           <div className="mx-auto w-full max-w-3xl space-y-3 px-4 py-3 md:px-6">
             {listening && (
               <div className="flex items-center gap-2 rounded-lg bg-primary/8 px-3 py-2 text-sm text-primary" role="status">
@@ -115,7 +152,9 @@ export default function ChatPage() {
                 rows={1}
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
+                onFocus={nudgeBot}
                 onKeyDown={(e) => {
+                  nudgeBot()
                   if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                     e.preventDefault()
                     send(draft)

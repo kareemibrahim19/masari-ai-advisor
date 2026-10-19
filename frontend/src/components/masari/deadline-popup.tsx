@@ -10,6 +10,7 @@ import * as React from "react"
 import { AlertDialog } from "@base-ui/react/alert-dialog"
 import { BellRing } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Bot } from "@/components/masari/bot"
 import { useI18n } from "@/lib/i18n"
 import { dismiss, isDismissed, POPUP_DAYS, upcomingReminders, useNow, type Reminder } from "@/lib/reminders"
 import { cn } from "@/lib/utils"
@@ -51,10 +52,12 @@ export function DeadlinePopup() {
             >
               <BellRing className="size-5" aria-hidden />
             </span>
-            <div className="min-w-0 space-y-1">
+            <div className="min-w-0 flex-1 space-y-1">
               <AlertDialog.Title className="text-base font-semibold">{t("deadlineSoon")}</AlertDialog.Title>
               <AlertDialog.Description className="text-sm text-muted-foreground">{t("deadlineSoonHint")}</AlertDialog.Description>
             </div>
+            {/* Masari points at the dates below. */}
+            <Bot mood="point" enter label={t("botDeadline")} className="-my-2 w-12 shrink-0" />
           </div>
           <ul className="space-y-2">
             {shown?.map((r) => (

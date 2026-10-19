@@ -3,8 +3,9 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import * as React from "react"
-import { CalendarClock, CalendarRange, Languages, LayoutDashboard, Library, LogOut, MessageSquareText, Moon, Sparkles, Sun } from "lucide-react"
+import { Bot as BotIcon, BotOff, CalendarClock, CalendarRange, Languages, LayoutDashboard, Library, LogOut, MessageSquareText, Moon, Sparkles, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Bot, useBotSetting } from "@/components/masari/bot"
 import { CalendarButton } from "@/components/masari/calendar-sheet"
 import { DeadlinePopup } from "@/components/masari/deadline-popup"
 import { Lockup } from "@/components/masari/brand"
@@ -217,6 +218,22 @@ function Shell({ children }: { children: React.ReactNode }) {
   const { signOut } = useStudent()
   const router = useRouter()
   const pathname = usePathname()
+  const [bot, setBot] = useBotSetting()
+  // Signing out: the bot waves goodbye and walks off first (when it is on), then the login page opens.
+  const [leaving, setLeaving] = React.useState(false)
+  const leave = React.useCallback(() => {
+    signOut()
+    router.replace("/login")
+  }, [signOut, router])
+  React.useEffect(() => {
+    if (!leaving) return
+    const done = setTimeout(leave, 4600) // in case masari-gone never comes
+    window.addEventListener("masari-gone", leave)
+    return () => {
+      clearTimeout(done)
+      window.removeEventListener("masari-gone", leave)
+    }
+  }, [leaving, leave])
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -251,14 +268,27 @@ function Shell({ children }: { children: React.ReactNode }) {
             <Button variant="ghost" size="icon-lg" className="size-10" onClick={toggle} aria-label={t("toggleTheme")}>
               {dark ? <Sun className="size-[18px]" aria-hidden /> : <Moon className="size-[18px]" aria-hidden />}
             </Button>
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              className="size-10"
+              onClick={() => setBot(bot === "on" ? "off" : "on")}
+              aria-pressed={bot === "on"}
+              aria-label={t(bot === "on" ? "botHide" : "botShow")}
+              title={t(bot === "on" ? "botHide" : "botShow")}
+            >
+              {bot === "on" ? <BotIcon className="size-[18px]" aria-hidden /> : <BotOff className="size-[18px]" aria-hidden />}
+            </Button>
             <StudentChip />
             <Button
               variant="ghost"
               size="icon-lg"
               className="size-10"
+              disabled={leaving}
               onClick={() => {
-                signOut()
-                router.replace("/login")
+                const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                if (bot === "off" || still) leave()
+                else setLeaving(true)
               }}
               aria-label={t("signOut")}
               title={t("signOut")}
@@ -281,6 +311,12 @@ function Shell({ children }: { children: React.ReactNode }) {
 
       <BottomNav />
       <DeadlinePopup />
+      {leaving && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-50 flex justify-center lg:bottom-8" role="status">
+          <span className="sr-only">{t("botBye")}</span>
+          <Bot mood="bye" once className="w-28 md:w-36" />
+        </div>
+      )}
     </div>
   )
 }

@@ -23,6 +23,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Bar, Code, FlipText, PageHeader } from "@/components/masari/bits"
+import { Bot, type BotMood } from "@/components/masari/bot"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
 import { courseNames } from "@/lib/demo-content"
 import { useI18n } from "@/lib/i18n"
@@ -265,7 +266,7 @@ export default function PlanPage() {
         </p>
       ) : (
         <div className={cn("space-y-4 transition-opacity", loading && "opacity-60")} aria-busy={loading}>
-          <PlanSummary plan={plan} />
+          <PlanSummary plan={plan} loading={loading} />
 
           {plan.terms.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("graduateThisTerm")}</p>
@@ -417,7 +418,31 @@ function WhatIfResult({ plan, baseline }: { plan: GraduationPlan; baseline: Grad
   )
 }
 
-function PlanSummary({ plan }: { plan: GraduationPlan }) {
+/**
+ * Masari next to the verdict: thinks while the plan is computing, points at a GPA warning, and when the target
+ * works it celebrates and throws its cap, then stands there in its graduation outfit.
+ */
+function PlanBot({ status, gpaWarning, loading }: { status: string; gpaWarning: boolean; loading: boolean }) {
+  const { t } = useI18n()
+  const [cheer, setCheer] = React.useState<"celebrate" | "toss" | null>(null)
+  const feasible = status === "feasible" && !gpaWarning
+  React.useEffect(() => {
+    if (!feasible || loading) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- a short celebration each time the verdict turns good
+    setCheer("celebrate")
+    const toss = setTimeout(() => setCheer("toss"), 3200)
+    const done = setTimeout(() => setCheer(null), 6400)
+    return () => {
+      clearTimeout(toss)
+      clearTimeout(done)
+      setCheer(null)
+    }
+  }, [feasible, loading])
+  const mood: BotMood = loading ? "thinking" : gpaWarning ? "point" : (cheer ?? "idle")
+  return <Bot mood={mood} outfit={feasible ? "grad" : "none"} label={t("botChat")} className="w-16 shrink-0 self-center sm:w-20" />
+}
+
+function PlanSummary({ plan, loading }: { plan: GraduationPlan; loading: boolean }) {
   const { t, tr, num, lang } = useI18n()
   const target = t(TARGETS.find((x) => x.years === plan.target_years)!.key)
   const grad = plan.graduation_term ? tr(plan.graduation_term) : "—"
@@ -494,13 +519,16 @@ function PlanSummary({ plan }: { plan: GraduationPlan }) {
             )}
           </div>
         </div>
-        <div className="flex shrink-0 flex-wrap gap-2 text-xs">
-          <span className="rounded-full bg-background px-2.5 py-1">
-            {t("summerCoursesCount")}: <span className="font-semibold tabular-nums">{num(summer)}</span>
-          </span>
-          <span className="rounded-full bg-background px-2.5 py-1">
-            {t("collegeRequestsCount")}: <span className="font-semibold tabular-nums">{num(requests)}</span>
-          </span>
+        <div className="flex shrink-0 items-start gap-3">
+          <div className="flex flex-wrap gap-2 text-xs">
+            <span className="rounded-full bg-background px-2.5 py-1">
+              {t("summerCoursesCount")}: <span className="font-semibold tabular-nums">{num(summer)}</span>
+            </span>
+            <span className="rounded-full bg-background px-2.5 py-1">
+              {t("collegeRequestsCount")}: <span className="font-semibold tabular-nums">{num(requests)}</span>
+            </span>
+          </div>
+          <PlanBot status={status} gpaWarning={!!plan.gpa_warning} loading={loading} />
         </div>
       </div>
       <GpaLadder plan={plan} />

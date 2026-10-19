@@ -238,6 +238,18 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
     timetable: buildTimetable(s, studyLevel(currentSemester)),
   }
 
+  // The last fall or spring with published results, and the one before it (summers hold mostly the pass/fail
+  // training, so they are left out). The bot on "you are here" takes its mood from it.
+  const mainTerms = s.terms.filter((x) => x.status === "published" && x.term !== "summer")
+  const lastMain = mainTerms[mainTerms.length - 1]
+  const lastTerm = lastMain
+    ? {
+        failed: lastMain.courses.some((c) => c.grade === "F"),
+        gpa: lastMain.summary?.term_gpa ?? null,
+        previousGpa: mainTerms[mainTerms.length - 2]?.summary?.term_gpa ?? null,
+      }
+    : null
+
   // -------------------------------------------------------------- progress
 
   const order: Category[] = ["UNR", "BAS", "ENG", "PDE", "ELE", "ECE", "CSE", "ARI"]
@@ -551,6 +563,7 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
   return {
     record,
     student,
+    lastTerm,
     earned,
     minLoad: MIN_LOAD,
     currentSemester,

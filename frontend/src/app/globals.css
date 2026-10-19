@@ -322,3 +322,54 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Masari the bot (components/masari/bot.tsx): dizzy after five quick clicks, the head wobbles round. */
+@keyframes masari-dizzy {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  20% {
+    rotate: -14deg;
+  }
+  45% {
+    rotate: 12deg;
+  }
+  70% {
+    rotate: -8deg;
+  }
+  85% {
+    rotate: 5deg;
+  }
+}
+.masari-bot-dizzy {
+  animation: masari-dizzy 0.7s ease-in-out 3;
+  transform-origin: 50% 85%;
+}
+/* The chat's bot stands on the composer's top edge (feet at 89% of its height). */
+.masari-chat-bot {
+  position: absolute;
+  inset-inline-end: 1rem;
+  z-index: 10;
+  width: 80px;
+  top: calc(80px * -280 / 240 * 0.893);
+}
+@media (min-width: 768px) {
+  .masari-chat-bot {
+    inset-inline-end: 2rem;
+    width: 96px;
+    top: calc(96px * -280 / 240 * 0.893);
+  }
+}
+/* The bot's speech bubble pops in. */
+@keyframes masari-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.92);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .masari-bot-dizzy {
+    animation: none;
+  }
+}
