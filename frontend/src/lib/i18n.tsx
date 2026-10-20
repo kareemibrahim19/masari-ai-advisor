@@ -127,6 +127,10 @@ const dict = {
     en: "Opens Gmail with the message ready. Review it, attach what is needed, then send, or copy it and send it anywhere.",
   },
   chatTooMany: { ar: "أسئلة كتير ورا بعض، استنى دقيقة وجرّب تاني.", en: "Too many questions in a row. Wait a minute and try again." },
+  chatBusy: {
+    ar: "سيرفرات Gemini عليها ضغط دلوقتي ومساري مقدرش يرد في الوقت. جرّب تاني كمان شوية.",
+    en: "Gemini's servers are busy right now, so Masari couldn't answer in time. Try again shortly.",
+  },
   chatError: {
     ar: "مساري مش قادر يرد دلوقتي. اتأكد إن خدمة الـ AI شغالة وجرب تاني كمان شوية.",
     en: "Masari can't answer right now. Make sure the AI service is running and try again shortly.",

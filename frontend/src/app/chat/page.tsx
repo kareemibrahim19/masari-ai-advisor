@@ -9,7 +9,7 @@ import { AppIcon } from "@/components/masari/brand"
 import { Bot, type BotElement, type BotMood } from "@/components/masari/bot"
 import { AiBadge, RagSourceChip } from "@/components/masari/trust"
 import { chatSuggestions } from "@/lib/demo-content"
-import { RATE_LIMITED, useDemoState, type AdvisorEmail, type ChatMessage, type RagSource } from "@/lib/demo-state"
+import { MODEL_BUSY, RATE_LIMITED, useDemoState, type AdvisorEmail, type ChatMessage, type RagSource } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
 import { useStudentView } from "@/lib/student-context"
 import { useVoiceInput } from "@/lib/use-voice-input"
@@ -467,6 +467,8 @@ function ErrorReply({ detail }: { detail: string }) {
       <div className="rounded-xl border border-destructive/30 bg-destructive/8 px-3.5 py-3 text-sm text-destructive" role="alert">
         {detail === RATE_LIMITED ? (
           <p className="font-medium">{t("chatTooMany")}</p>
+        ) : detail === MODEL_BUSY ? (
+          <p className="font-medium">{t("chatBusy")}</p>
         ) : (
           <>
             <p className="font-medium">{t("chatError")}</p>

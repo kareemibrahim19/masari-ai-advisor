@@ -9,6 +9,7 @@ import os
 import sys
 from pathlib import Path
 
+import httpx
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -53,6 +54,7 @@ app.include_router(chat_history.router)  # recent chats saved per student (datab
 app.include_router(student_choices.router)  # chosen courses per student (database)
 app.include_router(seats.router)  # seats per section, and seat requests for full sections
 bot = Masari()  # builds / loads the search index once at startup
+MODEL_BUSY = "model_busy"  # chat error detail when Gemini is too slow or overloaded right now
 priorities.warm_up()  # the graduation delays behind the dashboard's course priorities, in the background
 
 # Every chat question and recording costs a model call, so one student (or one address) gets a fair share.
@@ -100,10 +102,13 @@ def chat(req: ChatRequest, request: Request):
         session = {"selected_courses": req.selected_courses, "eligible_courses": req.eligible_courses,
                    "max_load": req.max_load, "plan_target": req.plan_target, "plan_summer": req.plan_summer}
         return bot.answer(req.question.strip(), [m.model_dump() for m in req.history], req.student_id, session)
-    except errors.APIError as e:
-        if e.code == 429:  # the model quota is used up for now
+    except (errors.APIError, httpx.TimeoutException) as e:
+        code = getattr(e, "code", "timeout")
+        if code == 429:  # the model quota is used up for now
             raise HTTPException(503, "مساري مشغول دلوقتي بسبب كتر الطلبات، جرّب تاني بعد دقيقة.")
-        raise HTTPException(502, f"Gemini error {e.code}: {e.message}")
+        if code in (500, 503, 504, "timeout"):  # every model was slow or overloaded; the chat page has its own message
+            raise HTTPException(503, MODEL_BUSY)
+        raise HTTPException(502, f"Gemini error {code}: {e.message}")
 
 
 class PlanRequest(BaseModel):

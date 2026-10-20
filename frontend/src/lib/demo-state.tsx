@@ -13,6 +13,8 @@ import { apiFetch } from "@/lib/auth"
 
 /** Error detail of a chat answer refused for too many questions in a row (HTTP 429). */
 export const RATE_LIMITED = "rate_limited"
+/** Error detail the AI service sends when Gemini is too slow or overloaded right now. */
+export const MODEL_BUSY = "model_busy"
 import type { L } from "@/lib/i18n"
 import { usePlanChoice } from "@/lib/plan-api"
 import { chatTitle, dropChat, loadChats, pushChat, saveChats, syncChats, upsertChat, type SavedChat } from "@/lib/chat-history"
