@@ -685,17 +685,29 @@ def _route(proj, cap, current, main_now, last_main, allow_summer, gpa_lever):
     return ("conditional", routes) if routes else ("impossible", [])
 
 
-def _risk(proj, current, main_now, last_main, allow_summer) -> dict:
-    """What happens to the target if the cumulative GPA falls below 2.00 (14 hours, or 12 on academic warning)."""
-    low, _ = _load_cap(1.99, main_now)
-    on_warning = low == d.rules()["probation_max_credits"]
+def _risk(proj, current, main_now, last_main, allow_summer, now_gpa: float | None) -> dict:
+    """What happens to the target if the GPA drops one band this term, from where it is now: from 3.00+ to under
+    3.00 (18 hours); from 2.00-2.99 to under 2.00 (12 hours on academic warning, article 25, or 14 in the first term);
+    already under 2.00 and staying there (12 hours on warning)."""
+    r = d.rules()
+    cgpa = now_gpa if now_gpa is not None else proj["cgpa"]
+    if cgpa is not None and cgpa >= 3:
+        low = next(b["max_credits"] for b in r["max_credits_by_gpa"] if b["gpa_min"] <= 2.99 < b["gpa_max"])
+        on_warning = False
+        if_ar, if_en = "لو معدلك التراكمي نزل تحت 3.00", "If your cumulative GPA falls below 3.00"
+    else:
+        low, _ = _load_cap(1.99, main_now)
+        on_warning = low == r["probation_max_credits"]
+        if cgpa is not None and cgpa < 2:
+            if_ar, if_en = "لو معدلك التراكمي فضل تحت 2.00 الترم ده", "If your cumulative GPA stays below 2.00 this term"
+        else:
+            if_ar, if_en = "لو معدلك التراكمي نزل تحت 2.00", "If your cumulative GPA falls below 2.00"
     terms, placed = _plan_for(proj, low, current, main_now, last_main, allow_summer, True, True)
     ok = placed is not None
     warn_ar, warn_en = (" وهتبقى تحت الإنذار", " and you would be on academic warning") if on_warning else ("", "")
     return {"cap": low, "still_possible": ok,
-            "ar": f"لو معدلك التراكمي نزل تحت 2.00 حدك هيبقى {low} ساعة{warn_ar}، "
-                  + ("والهدف ده هيفضل ممكن." if ok else "والهدف ده مش هيلحق."),
-            "en": f"If your cumulative GPA falls below 2.00 your limit becomes {low} hours{warn_en}, "
+            "ar": f"{if_ar} حدك هيبقى {low} ساعة{warn_ar}، " + ("والهدف ده هيفضل ممكن." if ok else "والهدف ده مش هيلحق."),
+            "en": f"{if_en} your limit becomes {low} hours{warn_en}, "
                   + ("and this target stays possible." if ok else "and this target would no longer be reachable.")}
 
 
@@ -1032,7 +1044,7 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
     else:
         out["feasible"] = True
         if with_risk:
-            out["risk"] = _risk(proj, current, main_now, last_main, allow_summer)
+            out["risk"] = _risk(proj, current, main_now, last_main, allow_summer, s["academic_status"]["cumulative_gpa"])
 
     caps = _caps(terms, cap, _top_cap(), hi_from)
     rows = []

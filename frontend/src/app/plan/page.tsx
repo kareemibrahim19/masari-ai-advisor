@@ -537,20 +537,40 @@ function PlanSummary({ plan, loading }: { plan: GraduationPlan; loading: boolean
 }
 
 /**
- * The three GPA bands and the hours each allows (article 13): where the student will be after this semester,
- * and, when a route needs it, where they need to get to.
+ * The three GPA bands and the hours each allows (article 13), shown only when they help:
+ *   - the plan needs a higher GPA (a route has a GPA condition): where the student is, and where they must get to;
+ *   - the GPA after this term sits just above a band edge (within 0.10): the band they would fall into is flagged;
+ *   - the GPA is under 2.00: marked as academic warning when article 25 applies, with 2.00 as the way back.
+ * A student comfortably inside a band does not see it; the summary already says their limit.
  */
+const NEAR_EDGE = 0.1
+
 function GpaLadder({ plan }: { plan: GraduationPlan }) {
   const { t, num } = useI18n()
+  const { student } = useStudentView()
   const gpa = plan.after_this_term.cumulative_gpa
   const cap = plan.after_this_term.max_credits
+  // Under 2.00 the table says 14, but article 25 puts a student under academic warning (12 hours) when the
+  // cumulative GPA is under 2.00 at the end of their 2nd main semester or any later one: everyone after this term
+  // except a student in their very first term.
+  const warningApplies = cap === 12 || student.completedSemesters >= 1
   const bands = [
-    { key: "low", label: "< 2.00", hours: cap === 12 ? 12 : 14 },
-    { key: "mid", label: "2.00 – 2.99", hours: 18 },
-    { key: "top", label: "3.00 +", hours: 21 },
+    { key: "low", label: "< 2.00", hours: warningApplies ? 12 : 14, from: 0 },
+    { key: "mid", label: "2.00 – 2.99", hours: 18, from: 2 },
+    { key: "top", label: "3.00 +", hours: 21, from: 3 },
   ] as const
-  const here = cap >= 21 ? "top" : cap === 18 ? "mid" : "low"
+  type Band = (typeof bands)[number]["key"]
+  const here: Band = gpa !== null ? (gpa < 2 ? "low" : gpa < 3 ? "mid" : "top") : cap >= 21 ? "top" : cap === 18 ? "mid" : "low"
+  const underTwo = gpa !== null && gpa < 2
+  const onWarning = underTwo && warningApplies
   const needsTop = plan.status === "conditional" && (plan.routes ?? []).some((r) => r.conditions.some((c) => c.kind === "gpa"))
+  // Just above the edge of its band: how far it is from dropping into the one below.
+  const hereFrom = bands.find((b) => b.key === here)!.from
+  const margin = gpa !== null && hereFrom > 0 && gpa - hereFrom < NEAR_EDGE ? gpa - hereFrom + 0.01 : null
+  const below: Band | null = margin !== null ? (here === "top" ? "mid" : "low") : null
+  const goal: Band | null = needsTop && here !== "top" ? "top" : underTwo ? "mid" : null
+
+  if (!needsTop && margin === null && !underTwo) return null
   return (
     <div className="space-y-1.5">
       <p className="text-xs font-medium text-muted-foreground">
@@ -560,14 +580,18 @@ function GpaLadder({ plan }: { plan: GraduationPlan }) {
       <ol className="grid grid-cols-3 gap-1.5 text-center text-xs">
         {bands.map((b) => {
           const isHere = b.key === here
-          const isGoal = needsTop && b.key === "top" && !isHere
+          const warned = isHere && onWarning
+          const isGoal = b.key === goal
+          const isBelow = b.key === below
           return (
             <li
               key={b.key}
               className={cn(
                 "rounded-lg border bg-background/70 px-2 py-1.5",
                 isHere && "border-primary bg-primary/10",
-                isGoal && "border-2 border-dashed border-warning"
+                warned && "border-destructive bg-destructive/10",
+                isGoal && "border-2 border-dashed border-warning",
+                isBelow && "border-warning/60"
               )}
             >
               <span className="block font-semibold tabular-nums" dir="ltr">
@@ -576,8 +600,18 @@ function GpaLadder({ plan }: { plan: GraduationPlan }) {
               <span className="block text-muted-foreground tabular-nums">
                 {num(b.hours)} {t("creditsShort")}
               </span>
-              {isHere && <span className="mt-0.5 block text-[11px] font-semibold text-primary">{t("youAreHere")}</span>}
+              {warned && (
+                <span className="mx-auto mt-1 block w-fit rounded-full bg-destructive px-2 py-px text-[11px] font-semibold text-white">
+                  {t("ladderOnWarning")}
+                </span>
+              )}
+              {isHere && <span className={cn("mt-0.5 block text-[11px] font-semibold", warned ? "text-destructive" : "text-primary")}>{t("youAreHere")}</span>}
               {isGoal && <span className="mt-0.5 block text-[11px] font-semibold text-warning">{t("gpaGoal")}</span>}
+              {isBelow && margin !== null && (
+                <span className="mt-0.5 block text-[11px] font-semibold text-warning">
+                  {t("ladderMargin").replace("{n}", num(margin, { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}
+                </span>
+              )}
             </li>
           )
         })}

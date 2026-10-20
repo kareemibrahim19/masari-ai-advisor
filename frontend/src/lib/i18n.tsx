@@ -290,6 +290,8 @@ const dict = {
   routeShownBelow: { ar: "الخطة اللي تحت ماشية عليه", en: "the plan below follows it" },
   gpaLadder: { ar: "حد الساعات حسب معدلك التراكمي", en: "Hour limit by cumulative GPA" },
   gpaGoal: { ar: "محتاج توصل هنا", en: "Get here" },
+  ladderOnWarning: { ar: "تحت الإنذار", en: "On warning" },
+  ladderMargin: { ar: "على بُعد {n}", en: "{n} away" },
   whyShort: { ar: "ليه؟", en: "Why?" },
   notPossible: { ar: "مش ممكن", en: "Not possible" },
   earliestShort: { ar: "أقرب تخرج", en: "Earliest" },
