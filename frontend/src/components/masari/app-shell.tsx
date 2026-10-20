@@ -48,95 +48,137 @@ export function useTheme() {
   return { dark, toggle: () => setTheme(dark ? "light" : "dark") }
 }
 
-type Rule = { x: number; w: number; slide: boolean }
+// ---- The active-tab indicator ----
+// It moves the moment a tab is clicked (not when the new page has loaded), gliding smoothly; the back edge trails
+// the front one by a hair, so it reads as one soft motion rather than a jump.
 
-/**
- * Places one orange rule under the active tab of a nav, so it slides to the new tab instead of jumping. `place` turns
- * the active link's box into the rule's left edge and width. It slides only when the page changes; a resize, a
- * language switch or the first paint just moves it. `place` must be a stable function (declared at module level).
- */
-function useActiveRule(pathname: string, place: (link: HTMLElement) => { x: number; w: number }) {
+/** The tab the student just clicked, until its page is the current one. */
+let pendingHref: string | null = null
+const pendingListeners = new Set<() => void>()
+const setPending = (href: string | null) => {
+  pendingHref = href
+  pendingListeners.forEach((l) => l())
+}
+function useShownPath(pathname: string) {
+  const pending = React.useSyncExternalStore(
+    (cb) => {
+      pendingListeners.add(cb)
+      return () => pendingListeners.delete(cb)
+    },
+    () => pendingHref,
+    () => null
+  )
+  React.useEffect(() => {
+    if (pending && isActive(pending, pathname)) setPending(null)
+  }, [pending, pathname])
+  return pending ?? pathname
+}
+/** Link onClick: a plain click starts the move at once (a new-tab click does not). */
+const choose = (href: string) => (e: React.MouseEvent) => {
+  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+  setPending(href)
+}
+
+/** The shown tab's box inside its nav (px from the nav's left edge), the nav's width, and which way it just moved. */
+type TabBox = { x: number; w: number; nav: number; move: -1 | 0 | 1 }
+
+function useTabBox(shownPath: string) {
   const navRef = React.useRef<HTMLElement>(null)
-  const [rule, setRule] = React.useState<Rule | null>(null)
-  const lastPath = React.useRef<string | null>(null)
-
+  const [box, setBox] = React.useState<TabBox | null>(null)
   React.useLayoutEffect(() => {
     const navEl = navRef.current
     if (!navEl) return
-    const measure = (slide: boolean) => {
-      const link = navEl.querySelector<HTMLElement>('[aria-current="page"]')
-      // A hidden nav (the other screen size) has no box; leave the rule where it is.
+    const measure = (animate: boolean) => {
+      const href = nav.find((n) => isActive(n.href, shownPath))?.href
+      const link = href ? navEl.querySelector<HTMLElement>(`[data-href="${href}"]`) : null
+      // A hidden nav (the other screen size) has no box; leave it where it is.
       if (link && !link.offsetWidth) return
-      setRule((prev) => (link ? { ...place(link), slide: slide && prev !== null } : null))
+      setBox((prev) => {
+        if (!link) return null
+        const x = link.offsetLeft
+        const w = link.offsetWidth
+        const width = navEl.clientWidth
+        // The observer also fires right after a click: nothing moved, so keep the slide that is under way.
+        if (prev && prev.x === x && prev.w === w && prev.nav === width) return prev
+        const move = animate && prev && x !== prev.x ? (x > prev.x ? 1 : -1) : 0
+        return { x, w, nav: width, move }
+      })
     }
-    measure(lastPath.current !== null && lastPath.current !== pathname)
-    lastPath.current = pathname
+    measure(true)
     const ro = new ResizeObserver(() => measure(false))
     ro.observe(navEl)
     return () => ro.disconnect()
-  }, [pathname, place])
-
-  return { navRef, rule }
+  }, [shownPath])
+  return { navRef, box }
 }
 
-// Top bar: the rule spans the tab minus 12px each side, as the old per-tab underline did.
-const placeTopRule = (link: HTMLElement) => ({ x: link.offsetLeft + 12, w: link.offsetWidth - 24 })
-// Bottom bar: a 32px rule centred over the active tab's column.
-const placeBottomRule = (link: HTMLElement) => ({ x: link.offsetLeft + (link.offsetWidth - 32) / 2, w: 32 })
+/**
+ * Something drawn over the shown tab, `inset` px in from each side, positioned by its left and right edges so each can
+ * be timed on its own: the edge on the side it is heading to leads very slightly, the other follows just behind.
+ */
+function Stretchy({ box, inset, className }: { box: TabBox | null; inset: (w: number) => number; className?: string }) {
+  if (!box) return <span aria-hidden className={cn("pointer-events-none absolute opacity-0", className)} />
+  const i = inset(box.w)
+  const lead = box.move > 0 ? "right" : "left"
+  const trail = box.move > 0 ? "left" : "right"
+  const ease = "cubic-bezier(0.45, 0, 0.2, 1)" // eases in and out: no snap at the start
+  return (
+    <span
+      aria-hidden
+      className={cn("pointer-events-none absolute", className)}
+      style={{
+        left: box.x + i,
+        right: box.nav - (box.x + box.w) + i,
+        transition: box.move ? `${lead} 230ms ${ease}, ${trail} 260ms ${ease} 15ms` : "none",
+      }}
+    />
+  )
+}
 
-/** Desktop: horizontal tabs in the top bar. The active tab is marked by an orange rule, like the logo's destination dot. */
+/** Desktop: horizontal tabs in the top bar. The active tab is marked by a soft box and an orange rule under it. */
 function TopNav() {
   const pathname = usePathname()
+  const shown = useShownPath(pathname)
   const { t, lang } = useI18n()
-  const { navRef, rule } = useActiveRule(pathname, placeTopRule)
+  const { navRef, box } = useTabBox(shown)
   // Full tab names only where every tab still fits on one line: Arabic on 2xl screens. The English names are longer,
   // so English keeps the short ones and the bar never scrolls sideways.
   const longNames = lang === "ar"
   return (
     <nav ref={navRef} aria-label={t("mainNav")} className="relative hidden h-full items-stretch gap-1 lg:flex">
       {nav.map(({ href, key, short, icon: Icon }) => {
-        const active = isActive(href, pathname)
+        const on = isActive(href, shown)
         return (
           <Link
             key={href}
             href={href}
-            aria-current={active ? "page" : undefined}
+            data-href={href}
+            onClick={choose(href)}
+            aria-current={isActive(href, pathname) ? "page" : undefined}
             className={cn(
-              "relative flex items-center gap-1.5 rounded-lg px-2 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring xl:gap-2 xl:px-2.5",
-              active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+              "group relative z-10 flex items-center gap-1.5 rounded-lg px-2 text-sm font-medium whitespace-nowrap transition-colors duration-200 outline-none focus-visible:ring-3 focus-visible:ring-ring xl:gap-2 xl:px-2.5",
+              on ? "text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <Icon className="size-[17px]" aria-hidden />
+            {/* Re-keyed when the tab becomes the shown one, so its icon pops once. */}
+            <Icon key={on ? "on" : "off"} className={cn("masari-tab-icon size-[17px]", on && "masari-tab-pop")} aria-hidden />
             <span className={cn(longNames && "2xl:hidden")}>{t(short)}</span>
             {longNames && <span className="hidden 2xl:inline">{t(key)}</span>}
           </Link>
         )
       })}
-      <ActiveRule rule={rule} className="-bottom-px rounded-full" />
+      <Stretchy box={box} inset={() => 0} className="top-1/2 h-9 -translate-y-1/2 rounded-lg bg-muted" />
+      <Stretchy box={box} inset={() => 10} className="-bottom-px h-0.5 rounded-full bg-brand-accent" />
     </nav>
   )
 }
 
-function ActiveRule({ rule, className }: { rule: Rule | null; className?: string }) {
-  return (
-    <span
-      aria-hidden
-      className={cn(
-        "pointer-events-none absolute left-0 h-0.5 bg-brand-accent transition-opacity",
-        rule?.slide && "transition-[transform,width,opacity] duration-300 ease-out",
-        rule ? "opacity-100" : "opacity-0",
-        className
-      )}
-      style={rule ? { width: rule.w, transform: `translateX(${rule.x}px)` } : undefined}
-    />
-  )
-}
-
-/** Mobile: bottom tab bar (5 items), thumb-reachable on a phone. */
+/** Mobile: bottom tab bar, thumb-reachable on a phone. A 32px rule over the shown tab. */
 function BottomNav() {
   const pathname = usePathname()
+  const shown = useShownPath(pathname)
   const { t } = useI18n()
-  const { navRef, rule } = useActiveRule(pathname, placeBottomRule)
+  const { navRef, box } = useTabBox(shown)
   return (
     <nav
       ref={navRef}
@@ -145,25 +187,27 @@ function BottomNav() {
     >
       <ul className="mx-auto grid h-16 max-w-xl grid-flow-col auto-cols-fr">
         {nav.map(({ href, short, icon: Icon }) => {
-          const active = isActive(href, pathname)
+          const on = isActive(href, shown)
           return (
             <li key={href}>
               <Link
                 href={href}
-                aria-current={active ? "page" : undefined}
+                data-href={href}
+                onClick={choose(href)}
+                aria-current={isActive(href, pathname) ? "page" : undefined}
                 className={cn(
-                  "relative flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium outline-none focus-visible:bg-muted",
-                  active ? "text-foreground" : "text-muted-foreground"
+                  "relative flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors duration-200 outline-none focus-visible:bg-muted",
+                  on ? "text-foreground" : "text-muted-foreground"
                 )}
               >
-                <Icon className="size-5" aria-hidden />
+                <Icon key={on ? "on" : "off"} className={cn("masari-tab-icon size-5", on && "masari-tab-pop")} aria-hidden />
                 <span className="max-w-full truncate px-1">{t(short)}</span>
               </Link>
             </li>
           )
         })}
       </ul>
-      <ActiveRule rule={rule} className="top-0 rounded-b-full" />
+      <Stretchy box={box} inset={(w) => (w - 32) / 2} className="top-0 h-0.5 rounded-b-full bg-brand-accent" />
     </nav>
   )
 }
@@ -213,13 +257,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
-  const { t, lang, setLang } = useI18n()
+  const { t, lang, setLang, dir } = useI18n()
   const { dark, toggle } = useTheme()
   const { signOut } = useStudent()
   const router = useRouter()
   const pathname = usePathname()
   // Signing out: a full screen where the bot says goodbye and walks off, then the login page opens.
   const [leaving, setLeaving] = React.useState(false)
+
+  // The new page slides in from the side of the tab you came from (a later tab is further along: left in Arabic).
+  const mainRef = React.useRef<HTMLElement>(null)
+  const lastTab = React.useRef(-1)
+  React.useLayoutEffect(() => {
+    const tab = nav.findIndex((n) => isActive(n.href, pathname))
+    const step = lastTab.current < 0 || tab < 0 ? 0 : Math.sign(tab - lastTab.current)
+    mainRef.current?.style.setProperty("--page-from", `${step * (dir === "rtl" ? -24 : 24)}px`)
+    lastTab.current = tab
+  }, [pathname, dir])
   const leave = React.useCallback(() => {
     signOut()
     router.replace("/login")
@@ -278,8 +332,9 @@ function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Keyed by page, so each page fades in lightly as it arrives. */}
+      {/* Keyed by page, so each page arrives with a short fade and slide (see .masari-page). */}
       <main
+        ref={mainRef}
         key={pathname}
         id="main"
         tabIndex={-1}

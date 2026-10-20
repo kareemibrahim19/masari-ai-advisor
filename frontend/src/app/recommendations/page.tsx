@@ -79,14 +79,15 @@ function InstructorsTab() {
   const level = priorityLevel(score)
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
       <Card className="lg:sticky lg:top-20 lg:self-start">
         <CardHeader>
           <CardTitle className="font-semibold">{t("forCourse")}</CardTitle>
           <CardDescription>{t("instructorCoursesHint")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-2" role="radiogroup" aria-label={t("forCourse")}>
+          {/* One column the card's width: long (English) names wrap instead of pushing the priority out of view. */}
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2" role="radiogroup" aria-label={t("forCourse")}>
             {ordered.map((c) => (
               <button
                 key={c.code}
@@ -99,8 +100,8 @@ function InstructorsTab() {
                   course.code === c.code ? "border-primary bg-primary/8 text-foreground" : "text-muted-foreground hover:bg-muted"
                 )}
               >
-                <span className="min-w-0">
-                  <span className="block truncate">{tr(c.name)}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block leading-snug text-pretty">{tr(c.name)}</span>
                   <Code className="text-xs">{c.code}</Code>
                 </span>
                 <PriorityLevel score={priority.get(c.code) ?? 0} className="shrink-0" />
