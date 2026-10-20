@@ -31,7 +31,7 @@ load_dotenv(REPO_ROOT / ".env")
 CHAT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 REWRITE_MODEL = os.getenv("GEMINI_REWRITE_MODEL", "gemini-3.5-flash-lite")
 FALLBACK_MODELS = ["gemini-3.5-flash", "gemini-flash-latest", "gemini-3.5-flash-lite"]
-MODEL_TIMEOUT_MS = 20_000
+MODEL_TIMEOUT_MS = 30_000  # also sent to Gemini as its server deadline: too short and a slow model returns 504
 EMBED_MODEL = os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001")
 TOP_K = 8
 RETRY_DELAYS = [3, 8, 20]
