@@ -14,6 +14,7 @@ export type PlanFlag =
   | "college_request"
   | "graduation_request"
   | "open_request"
+  | "late_request"
   | "improvement"
 
 export type PlanCourse = {

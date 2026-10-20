@@ -52,6 +52,7 @@ const flagStyle: Record<Exclude<PlanFlag, "regular">, { key: Parameters<ReturnTy
   college_request: { key: "flagCollegeRequest", cls: "bg-primary/10 text-primary" },
   graduation_request: { key: "flagGraduationRequest", cls: "bg-primary/10 text-primary" },
   open_request: { key: "flagOpenRequest", cls: "bg-primary/10 text-primary" },
+  late_request: { key: "flagLateRequest", cls: "bg-primary/10 text-primary" },
   improvement: { key: "flagImprovement", cls: "bg-verified-soft text-verified" },
 }
 
@@ -266,7 +267,7 @@ export default function PlanPage() {
         </p>
       ) : (
         <div className={cn("space-y-4 transition-opacity", loading && "opacity-60")} aria-busy={loading}>
-          <PlanSummary plan={plan} loading={loading} />
+          <PlanSummary plan={plan} loading={loading} failedNow={failed} whatIfGpa={gpa} />
 
           {plan.terms.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("graduateThisTerm")}</p>
@@ -442,7 +443,12 @@ function PlanBot({ status, gpaWarning, loading }: { status: string; gpaWarning: 
   return <Bot mood={mood} outfit={feasible ? "grad" : "none"} label={t("botChat")} className="shrink-0 self-center" style={{ width: 92 }} />
 }
 
-function PlanSummary({ plan, loading }: { plan: GraduationPlan; loading: boolean }) {
+function PlanSummary({ plan, loading, failedNow, whatIfGpa }: {
+  plan: GraduationPlan
+  loading: boolean
+  failedNow: string[]
+  whatIfGpa: number | null
+}) {
   const { t, tr, num, lang } = useI18n()
   const target = t(TARGETS.find((x) => x.years === plan.target_years)!.key)
   const grad = plan.graduation_term ? tr(plan.graduation_term) : "—"
@@ -531,7 +537,7 @@ function PlanSummary({ plan, loading }: { plan: GraduationPlan; loading: boolean
           <PlanBot status={status} gpaWarning={!!plan.gpa_warning} loading={loading} />
         </div>
       </div>
-      <GpaLadder plan={plan} />
+      <GpaLadder plan={plan} failedNow={failedNow} whatIfGpa={whatIfGpa} />
     </div>
   )
 }
@@ -539,43 +545,59 @@ function PlanSummary({ plan, loading }: { plan: GraduationPlan; loading: boolean
 /**
  * The three GPA bands and the hours each allows (article 13), shown only when they help:
  *   - the plan needs a higher GPA (a route has a GPA condition): where the student is, and where they must get to;
- *   - the GPA after this term sits just above a band edge (within 0.10): the band they would fall into is flagged;
- *   - the GPA is under 2.00: marked as academic warning when article 25 applies, with 2.00 as the way back.
+ *   - the GPA sits just above a band edge (within 0.10): the band they would fall into is flagged;
+ *   - the GPA is under 2.00 (now, or expected after this term): marked as academic warning when it applies, with
+ *     2.00 as the way back.
+ * "You are here" is the cumulative GPA the student has now, not an estimate. The plan's GPA after this term is an
+ * estimate (the term GPA it assumes, with the what-if failures, and a retaken course replacing its F): a line under
+ * the bands says what it would be and how it was estimated.
  * A student comfortably inside a band does not see it; the summary already says their limit.
  */
 const NEAR_EDGE = 0.1
 
-function GpaLadder({ plan }: { plan: GraduationPlan }) {
+function GpaLadder({ plan, failedNow, whatIfGpa }: { plan: GraduationPlan; failedNow: string[]; whatIfGpa: number | null }) {
   const { t, num } = useI18n()
-  const { student } = useStudentView()
-  const gpa = plan.after_this_term.cumulative_gpa
+  const { student, record } = useStudentView()
+  const now = student.gpa
+  const after = plan.after_this_term.cumulative_gpa
+  const termGpa = plan.after_this_term.term_gpa
   const cap = plan.after_this_term.max_credits
-  // Under 2.00 the table says 14, but article 25 puts a student under academic warning (12 hours) when the
-  // cumulative GPA is under 2.00 at the end of their 2nd main semester or any later one: everyone after this term
-  // except a student in their very first term.
-  const warningApplies = cap === 12 || student.completedSemesters >= 1
+  const bandOf = (g: number) => (g < 2 ? "low" : g < 3 ? "mid" : "top") as "low" | "mid" | "top"
+  const here = now !== null ? bandOf(now) : after !== null ? bandOf(after) : cap >= 21 ? "top" : cap === 18 ? "mid" : "low"
+  // Under 2.00 the hours are the student's limit now (14 on a first warning, 12 from the second in a row); when only
+  // the estimate is under 2.00, the plan's cap after this term.
   const bands = [
-    { key: "low", label: "< 2.00", hours: warningApplies ? 12 : 14, from: 0 },
+    { key: "low", label: "< 2.00", hours: here === "low" ? student.maxLoad : cap === 12 ? 12 : 14, from: 0 },
     { key: "mid", label: "2.00 – 2.99", hours: 18, from: 2 },
     { key: "top", label: "3.00 +", hours: 21, from: 3 },
   ] as const
   type Band = (typeof bands)[number]["key"]
-  const here: Band = gpa !== null ? (gpa < 2 ? "low" : gpa < 3 ? "mid" : "top") : cap >= 21 ? "top" : cap === 18 ? "mid" : "low"
-  const underTwo = gpa !== null && gpa < 2
-  const onWarning = underTwo && warningApplies
+  const underTwo = (now !== null && now < 2) || (after !== null && after < 2)
+  const onWarning = here === "low" && !!record.onProbation
   const needsTop = plan.status === "conditional" && (plan.routes ?? []).some((r) => r.conditions.some((c) => c.kind === "gpa"))
   // Just above the edge of its band: how far it is from dropping into the one below.
   const hereFrom = bands.find((b) => b.key === here)!.from
-  const margin = gpa !== null && hereFrom > 0 && gpa - hereFrom < NEAR_EDGE ? gpa - hereFrom + 0.01 : null
+  const margin = now !== null && hereFrom > 0 && now - hereFrom < NEAR_EDGE ? now - hereFrom + 0.01 : null
   const below: Band | null = margin !== null ? (here === "top" ? "mid" : "low") : null
-  const goal: Band | null = needsTop && here !== "top" ? "top" : underTwo ? "mid" : null
+  const goal: Band | null = needsTop && here !== "top" ? "top" : underTwo && here === "low" ? "mid" : null
+  // How the estimate after this term was made: the term GPA it assumes (the current level, or the what-if's), passing
+  // everything (unless the what-if fails some), and a failed course retaken this term replacing its F. The retake is
+  // only spelled out when the GPA rises without a higher term GPA, the case that looks wrong without it.
+  const retaken = record.failed.filter((c) => student.registeredNow.includes(c) && !failedNow.includes(c))
+  const estimate =
+    after !== null && termGpa !== null && after !== now
+      ? (failedNow.length ? t("ladderEstimateWhatIf") : whatIfGpa !== null ? t("ladderEstimateGpa") : t("ladderEstimate"))
+          .replace("{term}", num(termGpa, { minimumFractionDigits: 2 }))
+          .replace("{gpa}", num(after, { minimumFractionDigits: 2 })) +
+        (retaken.length && now !== null && after > now && termGpa <= now ? " " + t(retaken.length > 1 ? "ladderEstimateRetakes" : "ladderEstimateRetake") : "")
+      : null
 
   if (!needsTop && margin === null && !underTwo) return null
   return (
     <div className="space-y-1.5">
       <p className="text-xs font-medium text-muted-foreground">
         {t("gpaLadder")}
-        {gpa !== null && ` · ${t("afterThisTerm")}: ${num(gpa, { minimumFractionDigits: 2 })}`}
+        {now !== null && ` · ${t("ladderNowHere")}: ${num(now, { minimumFractionDigits: 2 })}`}
       </p>
       <ol className="grid grid-cols-3 gap-1.5 text-center text-xs">
         {bands.map((b) => {
@@ -616,6 +638,7 @@ function GpaLadder({ plan }: { plan: GraduationPlan }) {
           )
         })}
       </ol>
+      {estimate && <p className="text-xs text-muted-foreground">{estimate}</p>}
     </div>
   )
 }
@@ -736,6 +759,7 @@ function Legend({ improvement }: { improvement: boolean }) {
     { flag: "college_request", hint: t("flagCollegeRequestHint") },
     { flag: "graduation_request", hint: t("flagGraduationRequestHint") },
     { flag: "open_request", hint: t("flagOpenRequestHint") },
+    { flag: "late_request", hint: t("flagLateRequestHint") },
     // Only when this plan has improvement courses: most students never need it.
     ...(improvement ? [{ flag: "improvement" as const, hint: t("flagImprovementHint") }] : []),
   ]

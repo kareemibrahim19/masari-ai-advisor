@@ -34,6 +34,8 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
     # The semester right before graduation may also have a course opened by request (decided 2026-10-20).
     before_last = max((i for i, t in enumerate(plan["terms"]) if t["term"] != "summer" and i < last_main), default=-1)
     for i, t in enumerate(plan["terms"]):
+        if t.get("frozen"):  # the semester the student froze: shown first, nothing in it
+            continue
         codes = [c["code"] for c in t["courses"]]
         if t["term"] != "summer" and not codes and i < len(plan["terms"]) - 1:
             out.append(f"empty semester {t['en']} before graduation")
@@ -46,7 +48,7 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
             need, least = d.hours_needed(course)
             if earned < least:
                 out.append(f"{c['code']} needs {least} hours (with tolerance), has {earned}")
-            if c["flag"] in ("graduation_request", "open_request") and not c.get("paper_registration"):
+            if c["flag"] in ("graduation_request", "open_request", "late_request") and not c.get("paper_registration"):
                 out.append(f"{c['code']} opened by request but not marked as paper registration")
             if (earned < need) != bool(c.get("paper_registration") and not c.get("paper_opened")):
                 out.append(f"{c['code']} paper registration flag wrong at {earned}/{need}")
@@ -57,10 +59,12 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
             # semester where nothing else runs for the student (the college opens it).
             if not summer and course["type"] == "mandatory":
                 in_term = (course["planned_semester"] % 2 == 1) == (t["term"] == "fall")
-                if not in_term and c["flag"] not in ("graduation_request", "open_request"):
+                if not in_term and c["flag"] not in ("graduation_request", "open_request", "late_request"):
                     out.append(f"{c['code']} outside its term without a request ({t['en']})")
                 if not in_term and c["flag"] == "graduation_request" and i not in (last_main, before_last):
                     out.append(f"graduation request {c['code']} not in the last two semesters")
+                if not in_term and c["flag"] == "late_request" and t["main_semester"] <= course["planned_semester"]:
+                    out.append(f"late request {c['code']} but the student is not behind on it ({t['en']})")
                 if not in_term and c["flag"] == "open_request" and len(t["courses"]) != 1:
                     out.append(f"opened course {c['code']} is not alone in {t['en']}")
             if c["code"] in seen:
@@ -119,12 +123,19 @@ check("excellent 4y blocked by the project chain 381 -> 481 -> 482 (project 1 ne
       p["why"]["code"] == "course" and p["why"]["root"] == "ARI 381"
       and p["why"]["chain"] == ["ARI 381", "ARI 481", "ARI 482"] and "92" in p["why"]["ar"] and "96" in p["why"]["en"],
       p.get("why"))
-p = build_graduation_plan(EXC, 4.5, failed_courses=["BAS 216"])  # 5 years works since the summer after semester 10 counts
+# A course the student is behind on can be opened outside its term by college request, in any semester (2026-10-20).
+p = build_graduation_plan(EXC, 4.5, failed_courses=["BAS 216"])
+late = [(t["term"], c["flag"]) for t in p["terms"] for c in t["courses"] if c["code"] == "BAS 216"]
+check("failed BAS 216 (a fall course) retaken right away in spring by college request", p["status"] == "feasible"
+      and late == [("spring", "late_request")] and not violations(EXC, p, ["BAS 216"]), (p["status"], late))
+p = build_graduation_plan(EXC, 4.5, False, failed_courses=["BAS 216"])  # without a summer the chain does not fit
 check("what-if failure named in the reason (by name)", "الإحصاء وتحليل البيانات" in p["why"]["ar"]
       and "سقطت" in p["why"]["ar"] and "BAS" not in p["why"]["ar"], p.get("why"))
 p = build_graduation_plan(PROB, 4.5)  # 5 years works since the summer after semester 10 counts
-check("retake this term named in the reason (by name)", "الجبر الخطي" in p["why"]["ar"] and "بتعيدها" in p["why"]["ar"],
-      p.get("why"))
+# The course being retaken this term no longer blocks (a course the student is behind on can be opened by request in
+# any semester), so the reason is the projects' hours chain.
+check("probation 4.5y: the reason is the projects' hours (the retake can be opened by request)",
+      p["why"]["code"] == "course" and p["why"]["root"] == "ARI 381" and "96" in p["why"]["ar"], p.get("why"))
 p = build_graduation_plan(NEW, 4.5)
 paper = [c["code"] for t in p["terms"] for c in t["courses"] if c.get("paper_registration")]
 check("new student 4.5y waits for the hours instead of paper registration", p["feasible"] and not paper, paper)
@@ -142,10 +153,22 @@ check("project 1 at 91 hours: not even with paper registration",
 
 # What-if: failing a prerequisite chain course delays graduation.
 base = build_graduation_plan(EXC, 5)
-p = build_graduation_plan(EXC, 4.5, failed_courses=["BAS 216"])  # 5 years works since the summer after semester 10 counts
+p = build_graduation_plan(EXC, 4.5, False, failed_courses=["BAS 216"])  # without a summer
 check("excellent on track for 5y", base["feasible"], base["explanation"])
 check("failing BAS 216 breaks the 4.5y target", not p["feasible"] and not violations(EXC, p, ["BAS 216"]), p["explanation"])
 check("failed course is retaken", any(c["code"] == "BAS 216" for t in p["terms"] for c in t["courses"]))
+# A what-if built against the plan without it moves no more courses than one built from scratch (equal-cost layouts
+# would otherwise reshuffle courses the what-if has nothing to do with).
+def _moved(a, b):
+    at = lambda q: {c["code"]: (t["term"], t["academic_year"]) for t in q["terms"] for c in t["courses"]}
+    x, y = at(a), at(b)
+    return sum(1 for k in x if k in y and x[k] != y[k])
+base45 = build_graduation_plan(EXC, 4.5, False)
+loose = build_graduation_plan(EXC, 4.5, False, failed_courses=["BAS 216"])
+kept = build_graduation_plan(EXC, 4.5, False, failed_courses=["BAS 216"], anchor_plan=base45)
+check("what-if anchored to the plan moves no more courses than from scratch",
+      kept["feasible"] == loose["feasible"] and _moved(base45, kept) <= _moved(base45, loose),
+      (_moved(base45, kept), _moved(base45, loose)))
 
 # What-if: term GPA moves the hour cap.
 p = build_graduation_plan(PROB, 5, expected_term_gpa=0.5)
@@ -193,11 +216,18 @@ for name, sid in BY.items():
             seq = [at[c] for c in ("ARI 381", "ARI 481", "ARI 482") if c in at]
             check(f"projects in order, one per semester ({name} {years}y summer={summer})", seq == sorted(set(seq)), at)
 
-# GPA under 2.00, not on warning: 14 hours (15 on paper, five 3-credit courses), then 12 once on warning.
+# GPA under 2.00: 14 hours (15 on paper, five 3-credit courses) through the first academic warning, 12 from the
+# second warning in a row (the team's rule); warnings start at the end of main semester 2.
+terms = P._terms_after({"term": "fall", "academic_year": "2026-2027"}, 2, 6)
+mains = [t for t in terms if t["term"] != "summer"]
+caps = [c for c in P._caps(terms, 14, 21, None, 0) if c is not None]
+check("low GPA, no warning yet: 14, 14 on the first warning, then 12", caps[:3] == [14, 14, 12] and set(caps[2:]) == {12}, caps)
+caps = [c for c in P._caps(terms, 14, 21, None, 1) if c is not None]
+check("low GPA on a first warning: 14, then 12 from the second", caps[0] == 14 and set(caps[1:]) == {12}, caps)
 p = build_graduation_plan(NEW, 5, True, [], 1.5)
 main_caps = [t["max_credits"] for t in p["terms"] if t["term"] != "summer"]
-check("low GPA: 14 next semester, then 12 on warning", main_caps[0] == 14 and set(main_caps[1:]) == {12}, main_caps)
-check("low GPA reason explains 14 then 12", "12" in p["why"]["ar"] and "الإنذار" in p["why"]["ar"], p.get("why"))
+check("low GPA, recoverable: 14 next semester, then 18 (never 12 to the end)", main_caps[0] == 14 and 12 not in main_caps
+      and 18 in main_caps, main_caps)
 two_term = P._terms_after({"term": "fall", "academic_year": "2026-2027"}, 2, 2)  # one main semester: spring, semester 2
 five_threes = {c for c in d.courses()} - {"BAS 012", "BAS 022", "BAS 032", "CSE 042", "PDE 051"}
 placed = P._solve(five_threes, 145, 14, two_term, 2, False)
@@ -211,7 +241,7 @@ for name, sid in BY.items():
         for summer in (True, False):
             p = build_graduation_plan(sid, years, summer)
             mains = [t for t in p.get("terms", []) if t["term"] != "summer"]
-            bad = [t["en"] for t in mains[:-1] if t["credits"] < 12 and not t.get("warning")]
+            bad = [t["en"] for t in mains[:-1] if t["credits"] < 12 and not t.get("warning") and not t.get("frozen")]
             last = mains[-1] if mains else None
             ok = not bad and (not last or last["credits"] >= 12 or last.get("below_minimum_paper"))
             check(f"12-hour minimum except the graduation semester ({name} {years}y summer={summer})", ok, (bad, last and last["credits"]))
@@ -327,8 +357,32 @@ sid = near_end("test-under-2", set(c for c in allc if (allc[c]["planned_semester
                grade="D+", streak=1)
 p = build_graduation_plan(sid, 5, True)
 w = p.get("gpa_warning") or {}
-check("under 2.00: warning with 2.00 for graduation and one semester left before dismissal",
-      w.get("semesters_left") == 1 and "2.00" in w.get("ar", "") and "هتتفصل" in w.get("ar", ""), w)
+# Two semesters in a row under 2.00 after this one (1 before + this term): the rest of article 25's run is left.
+limit = d.rules()["dismissal_after_consecutive_low_semesters"]
+check("under 2.00: warning with 2.00 for graduation and the semesters left before dismissal",
+      w.get("semesters_left") == limit - 2 and "2.00" in w.get("ar", "") and "هتتفصل" in w.get("ar", ""), w)
+caps = [t["max_credits"] for t in p.get("terms") or [] if t["term"] != "summer"]
+# Even 4.00 cannot bring it back before the limit, and under 80% of the hours: dismissal, no graduation plan.
+check("under 2.00, cannot recover in time, under 80% of the hours: dismissal, no plan (article 25)",
+      p["status"] == "impossible" and p.get("why", {}).get("code") == "dismissal" and not p["terms"]
+      and w.get("recover_after") is None, (p["status"], p.get("why"), w.get("recover_after")))
+# Recoverable: the warning cap only until 2.00 can be reached, then 18 (not 12 to the end).
+sid = near_end("test-under-2-rec", set(c for c in allc if (allc[c]["planned_semester"] or 9) > 6), ["ECE 332"], "fall", 6,
+               grade="C-", streak=0)
+p = build_graduation_plan(sid, 5, True)
+w = p.get("gpa_warning") or {}
+k = w.get("recover_after") or 0
+caps = [t["max_credits"] for t in p.get("terms") or [] if t["term"] != "summer"]
+check("under 2.00, recoverable: 14 on the first warning until 2.00, then 18",
+      k and caps and caps[0] == 14 and all(c <= 14 for c in caps[:k]) and all(c == 18 for c in caps[k:]) and 18 in caps,
+      (caps, k, w))
+from tools.rules import credit_limit  # noqa: E402
+r = credit_limit(sid)  # warned once before (streak 0, then this term): registering now is still the low band
+check("credit limit under 2.00 before a second warning: 14", r["max_credits"] == 14, r)
+d.get_student(sid)["academic_status"]["consecutive_warning_semesters"] = 1
+r = credit_limit(sid)
+check("credit limit on a first warning: 14", r["max_credits"] == 14 and r["on_warning"], r)
+d.get_student(sid)["academic_status"]["consecutive_warning_semesters"] = 0
 
 # W is not a pass and not an attempt; DN counts in the GPA as 0 and is not a pass.
 s = d.get_student(sid)

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import * as React from "react"
 import { CalendarClock, CalendarRange, Languages, LayoutDashboard, Library, LogOut, MessageSquareText, Moon, Sparkles, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { GoodbyeSplash, WelcomeSplash } from "@/components/masari/welcome-bot"
+import { GoodbyeSplash, useSplashDone, WelcomeSplash } from "@/components/masari/welcome-bot"
 import { CalendarButton } from "@/components/masari/calendar-sheet"
 import { DeadlinePopup } from "@/components/masari/deadline-popup"
 import { Lockup } from "@/components/masari/brand"
@@ -241,6 +241,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { ready, view } = useStudent()
   const isLogin = pathname === "/login" || pathname === "/activate"
+  // Right after signing in, the hello screen comes on its own: the app (and its entrance animations) only mounts
+  // once Masari has said hello and gone.
+  const helloDone = useSplashDone()
 
   React.useEffect(() => {
     if (ready && !view && !isLogin) router.replace("/login")
@@ -248,6 +251,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (isLogin) return <>{children}</>
   if (!ready || !view) return null
+  if (!helloDone) return <WelcomeSplash />
   return (
     // Keyed by student, so selections, chat and scenarios start fresh for each student who signs in.
     <DemoStateProvider key={view.student.id}>
@@ -279,11 +283,15 @@ function Shell({ children }: { children: React.ReactNode }) {
     router.replace("/login")
   }, [signOut, router])
 
+  // Signing out: the goodbye screen replaces the app (nothing keeps running behind it), then the login page opens.
+  if (leaving) return <GoodbyeSplash onGone={leave} />
   return (
-    <div className="flex min-h-dvh flex-col">
+    // overflow-x-clip: the page's entrance slide (24px) and hidden helpers never widen the page, so phones can't pan
+    // it sideways (clip, unlike hidden, keeps the sticky header working).
+    <div className="flex min-h-dvh flex-col overflow-x-clip">
       <a
         href="#main"
-        className="sr-only z-50 rounded-lg bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:start-4 focus:top-3"
+        className="sr-only z-50 rounded-lg bg-primary focus:px-4 focus:py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:start-4 focus:top-3"
       >
         {t("skipToContent")}
       </a>
@@ -345,8 +353,6 @@ function Shell({ children }: { children: React.ReactNode }) {
 
       <BottomNav />
       <DeadlinePopup />
-      <WelcomeSplash />
-      {leaving && <GoodbyeSplash onGone={leave} />}
     </div>
   )
 }

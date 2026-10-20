@@ -302,6 +302,27 @@ const dict = {
   termGpaHint: { ar: "من 0 لـ 4. بيحدد حد الساعات في الترمات الجاية.", en: "0 to 4. It sets your credit limit for the coming semesters." },
   termGpaPlaceholder: { ar: "مثلًا 2.8", en: "e.g. 2.8" },
   afterThisTerm: { ar: "بعد الترم ده", en: "After this semester" },
+  ladderNowHere: { ar: "معدلك دلوقتي", en: "Your GPA now" },
+  ladderEstimate: {
+    ar: "لو كمّلت الترم ده بنفس مستواك (معدل ترم {term}) ونجحت في كل المواد، معدلك التراكمي هيبقى {gpa}.",
+    en: "If you keep your current level this term (a term GPA of {term}) and pass every course, your cumulative GPA becomes {gpa}.",
+  },
+  ladderEstimateGpa: {
+    ar: "لو جبت معدل ترم {term} ونجحت في كل المواد، معدلك التراكمي هيبقى {gpa}.",
+    en: "With a term GPA of {term} and every course passed, your cumulative GPA becomes {gpa}.",
+  },
+  ladderEstimateWhatIf: {
+    ar: "مع المواد اللي اخترت إنك تسقط فيها ومعدل ترم {term}، معدلك التراكمي هيبقى {gpa}.",
+    en: "With the courses you chose to fail and a term GPA of {term}, your cumulative GPA becomes {gpa}.",
+  },
+  ladderEstimateRetakes: {
+    ar: "بيعلى مع إن معدل الترم مش أعلى، لأن الـ F في المواد اللي بتعيدها بتتشال من المعدل وتاخد مكانها الدرجة الجديدة.",
+    en: "It rises even though the term GPA is not higher, because the Fs of the courses you are retaking leave the GPA and the new grades take their place.",
+  },
+  ladderEstimateRetake: {
+    ar: "بيعلى مع إن معدل الترم مش أعلى، لأن الـ F في المادة اللي بتعيدها بتتشال من المعدل وتاخد مكانها الدرجة الجديدة.",
+    en: "It rises even though the term GPA is not higher, because the F of the course you are retaking leaves the GPA and the new grade takes its place.",
+  },
   cumulativeGpa: { ar: "المعدل التراكمي", en: "Cumulative GPA" },
   creditCap: { ar: "حد الساعات", en: "Credit limit" },
   probationCap: { ar: "تحت الإنذار", en: "Academic warning" },
@@ -314,6 +335,7 @@ const dict = {
   flagCollegeRequest: { ar: "بموافقة الكلية", en: "College approval" },
   flagGraduationRequest: { ar: "طلب تخرج للكلية", en: "Graduation request" },
   flagOpenRequest: { ar: "الكلية بتفتحهالك", en: "Opened for you" },
+  flagLateRequest: { ar: "بطلب من الكلية", en: "College request" },
   frozenTerm: { ar: "موقف قيدك الترم ده (مش متحسب من سنين الهدف)", en: "Enrollment frozen this semester (not counted in the target)" },
   flagImprovement: { ar: "تحسين", en: "Improvement" },
   flagImprovementWas: { ar: "تقديرك دلوقتي", en: "now" },
@@ -330,8 +352,12 @@ const dict = {
     en: "Training belongs in summer; the college can allow it in a main semester.",
   },
   flagGraduationRequestHint: {
-    ar: "المادة مش في ترمها، بس الكلية بتفتحها لطالب محتاجها عشان يتخرج الترم ده.",
-    en: "Not this course's semester, but the college opens it for a student who needs it to graduate this semester.",
+    ar: "المادة مش في ترمها، بس في آخر ترمين الكلية بتفتحها بطلب للطالب اللي محتاجها عشان يتخرج في معاده.",
+    en: "Not this course's semester, but in the last two semesters the college opens it on request for a student who needs it to graduate on time.",
+  },
+  flagLateRequestHint: {
+    ar: "مادة إنت متأخر فيها ومش في ترمها: الكلية ممكن تفتحهالك بطلب في أي ترم، وبتتسجل ورقي.",
+    en: "A course you are behind on, outside its semester: the college can open it for you on request in any semester; it is registered on paper.",
   },
   flagOpenRequestHint: {
     ar: "مفيش مواد متاحة ليك الترم ده، ومينفعش يبقى فاضي، فالكلية بتفتحلك المادة دي بطلب مخصوص.",

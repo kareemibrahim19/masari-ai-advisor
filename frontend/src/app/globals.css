@@ -199,6 +199,13 @@
     @apply font-sans;
     color-scheme: light;
     -webkit-tap-highlight-color: transparent;
+    /* The page never scrolls sideways (wide content, like the path or a table, scrolls in its own box). */
+    overflow-x: clip;
+  }
+  /* Base UI's hidden checkbox behind a switch or checkbox sits at the top-left with an inline margin of -1px, one
+     pixel off the screen, which let phones pan the page sideways. Keep it on the screen (it stays invisible). */
+  input[aria-hidden="true"][tabindex="-1"] {
+    margin: 0 !important;
   }
   html.dark {
     color-scheme: dark;

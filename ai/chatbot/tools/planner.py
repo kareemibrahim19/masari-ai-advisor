@@ -64,6 +64,7 @@ FLAG_AR = {
     "college_request": "التدريب في ترم أساسي: بموافقة الكلية",
     "graduation_request": "مادة في غير ترمها عشان التخرج: بطلب للكلية",
     "open_request": "مادة في غير ترمها بطلب للكلية: مفيش مواد متاحة ليك الترم ده",
+    "late_request": "مادة متأخر فيها في غير ترمها: بطلب من الكلية",
 }
 PAPER_AR = "تسجيل ورقي: الساعات أقل من المطلوب بس جوه السماحية"
 # A course the college opens for the student outside its semester is not on the registration system: it goes on paper.
@@ -128,13 +129,31 @@ def _projection(s: dict, failed: list[str], term_gpa: float | None) -> dict:
             "graded_hours": new_hours, "points": new_points}
 
 
-def _load_cap(cgpa: float | None, main_done: int) -> tuple[int, str]:
-    """Max hours per main term for a GPA (article 13), assumed to hold for the rest of the plan."""
+def _streak_after(s: dict, cgpa: float | None, current: dict) -> int:
+    """Academic warnings in a row once the current term ends with this cumulative GPA: a main semester under 2.00
+    from the warning start adds one, a summer or a frozen semester changes nothing (article 25)."""
+    r = d.rules()
+    if cgpa is None or cgpa >= r["warning_gpa_threshold"]:
+        return 0
+    st = s["academic_status"]
+    streak = st.get("consecutive_warning_semesters") or 0
+    if current["term"] != "summer" and current["status"] != "frozen":
+        streak = streak + 1 if st["main_semesters_completed"] + 1 >= r["warning_starts_after_main_semester"] else 0
+    return streak
+
+
+def _load_cap(cgpa: float | None, main_done: int, warned: int = 0) -> tuple[int, str]:
+    """Max hours per main term for a GPA (article 13). Under 2.00 the first academic warning keeps the 14 of the
+    lowest band; from the second warning in a row the cap is 12 (the team's reading of article 25)."""
     r = d.rules()
     if cgpa is None:
         return 21, "مفيش معدل تراكمي، فالحد 21 ساعة."
-    if _on_warning(cgpa, main_done):
-        return r["probation_max_credits"], f"معدلك هيبقى {cgpa} (أقل من 2.00) فهتبقى تحت الإنذار: الحد {r['probation_max_credits']} ساعة."
+    if _on_warning(cgpa, main_done) and warned >= 2:
+        return r["probation_max_credits"], (f"معدلك هيبقى {cgpa} (أقل من 2.00) وده إنذار تاني ورا بعض: "
+                                            f"الحد {r['probation_max_credits']} ساعة.")
+    if _on_warning(cgpa, main_done) and warned == 1:
+        return _low_band_cap(), (f"معدلك هيبقى {cgpa} (أقل من 2.00) وده أول إنذار: الحد {_low_band_cap()} ساعة، "
+                                 f"ولو فضل تحت 2.00 الترم الجاي يبقى إنذار تاني والحد {r['probation_max_credits']}.")
     band = next(b for b in r["max_credits_by_gpa"] if b["gpa_min"] <= cgpa < b["gpa_max"])
     return band["max_credits"], f"معدلك هيبقى {cgpa} فالحد {band['max_credits']} ساعة في الترم."
 
@@ -206,12 +225,13 @@ def _options(course: dict, term: dict, planned: int, allow_summer: bool, request
 
 # ---------------------------------------------------------------- the integer program
 
-def _caps(terms: list[dict], cap: int, hi: int, hi_from: int | None) -> list[int | None]:
+def _caps(terms: list[dict], cap: int, hi: int, hi_from: int | None, warned: int = 0) -> list[int | None]:
     """Hour cap of each term: `cap`, or `hi` from main semester number `hi_from` (counted among these terms) on.
     Summers get None (they have their own limit).
 
-    The low band (GPA under 2.00, 14 hours) lasts only until academic warning starts: with the GPA unchanged,
-    from the main semester after the second one the student is on warning and the cap is 12 (article 25).
+    The low band (GPA under 2.00, 14 hours) holds through the first academic warning: with the GPA unchanged, each
+    main semester from the warning start adds a warning (`warned`: warnings in a row before the first of these
+    terms), and from the second in a row the cap is 12.
     """
     r = d.rules()
     out, mains = [], 0
@@ -220,22 +240,29 @@ def _caps(terms: list[dict], cap: int, hi: int, hi_from: int | None) -> list[int
             out.append(None)
             continue
         c = cap
-        if cap == _low_band_cap() and t["main"] - 1 >= r["warning_starts_after_main_semester"]:
+        if cap == _low_band_cap() and warned >= 2:
             c = r["probation_max_credits"]
         out.append(hi if hi_from is not None and mains >= hi_from else c)
         mains += 1
+        warned = warned + 1 if t["main"] >= r["warning_starts_after_main_semester"] else 0
     return out
 
 
 def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main: int, allow_summer: bool,
-           paper: bool = True, request: bool = True, hi: int = 21, hi_from: int | None = None):
+           paper: bool = True, request: bool = True, hi: int = 21, hi_from: int | None = None, warned: int = 0,
+           anchor: frozenset = frozenset()):
     """Place every remaining course in a term. Returns {code: (term index, flag)} or None if infeasible.
+
+    `anchor`: (code, term, academic year) placements of an earlier plan (the plan without a what-if). Many layouts
+    cost the same, so without it a what-if could reshuffle courses it has nothing to do with; a course away from its
+    anchored term costs a tiny bit more (all of them together less than the smallest real cost difference, 0.5), so
+    among equally good plans the one closest to the earlier plan wins.
 
     Levers: `paper` lets projects use their hours tolerance (paper registration), `request` allows a course outside
     its semester in the last two semesters (the graduation one and the one right before it, by a request to the
     college so the student graduates on time), and `hi_from` raises the cap to `hi` from that main semester.
     """
-    caps = _caps(terms, cap, hi, hi_from)
+    caps = _caps(terms, cap, hi, hi_from, warned)
     allc = d.courses()
     required, pools = _to_place(passed)
     if not terms:  # no term left in this horizon
@@ -246,6 +273,7 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
 
     var = []  # (item index, term index, flag)
     cost = []
+    nudge = 0.4 / (len(items) + 1) if anchor else 0.0
     for ii, (c, planned, _) in enumerate(items):
         for ti, t in enumerate(terms):
             flag = _options(c, t, planned, allow_summer, request)
@@ -255,7 +283,11 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
             cost.append(abs(t["pos"] - planned) + {"summer_on_demand": COST_SUMMER_COURSE,
                                                    "college_request": COST_TRAINING_IN_MAIN,
                                                    "graduation_request": COST_GRADUATION_REQUEST}.get(flag, 0)
-                        + (COST_SUMMER_AFTER_LAST if flag == "summer_on_demand" and t["pos"] > last_main else 0))
+                        + (COST_SUMMER_AFTER_LAST if t["pos"] > last_main and (
+                            flag == "summer_on_demand"
+                            # a training too, unless that summer is its own place (ARI 371 after semester 8 in 4 years)
+                            or (flag == "training_summer" and t["pos"] > planned + 0.5)) else 0)
+                        + (nudge if (c["code"], t["term"], t["academic_year"]) not in anchor else 0))
     summers = [ti for ti, t in enumerate(terms) if t["term"] == "summer"]
     mains = [ti for ti, t in enumerate(terms) if t["term"] != "summer"]
     n_x = len(var)
@@ -374,9 +406,9 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     if mains:
         add({n_w + i: 1 for i in range(len(mains))}, -np.inf, 1)
 
-    # A course outside its semester only in the last two semesters (the graduation semester, or the one right before
-    # it when the course holds up graduating on time: the college opens it on request, decided 2026-10-20), or in a
-    # semester the college opens for the student because nothing else runs (then it is the only course).
+    # A course outside its semester, by a request to the college: in the last two semesters (the graduation one and
+    # the one right before it, decided 2026-10-20); in any semester for a course the student is behind on (past its
+    # plan semester, decided 2026-10-20); or alone in a semester where nothing else runs.
     for i, ti in enumerate(mains):
         ks = [k for k in range(n_x) if var[k][1] == ti]
         reqs = [k for k in ks if var[k][2] == "graduation_request"]
@@ -385,6 +417,8 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
         add({k: 1 for k in reqs}, 0, MAX_GRADUATION_REQUESTS)
         next_is_grad = {n_w + i + 1: -1} if i + 1 < len(mains) else {}
         for k in reqs:
+            if terms[ti]["main"] > items[var[k][0]][1]:
+                continue  # behind on it: the college can open it in any semester
             add({k: 1, n_w + i: -1, **next_is_grad, n_o + i: -1}, -np.inf, 0)
         for k in ks:
             if var[k][2] != "graduation_request":
@@ -454,7 +488,7 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
 
     # The most hours the student can have earned before term i.
     before, total = [], proj["earned"]
-    for t, c in zip(terms, _caps(terms, cap, _top_cap(), None)):
+    for t, c in zip(terms, _caps(terms, cap, _top_cap(), None, proj.get("warned", 0))):
         before.append(total)
         total += ((_summer_hours() if allow_summer else 0) if c is None
                   else PAPER_MAX_LOW_GPA if c == _low_band_cap() else c)
@@ -482,7 +516,9 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
         planned = c["planned_semester"] or 7
         short_of = None  # (term index, hours) of the last term it ran in but the hours were not enough
         for i in range(lower, len(terms)):
-            if not _options(c, terms[i], planned, allow_summer, terms[i]["main"] in (last_main - 1, last_main)):
+            main = terms[i]["main"]
+            if not _options(c, terms[i], planned, allow_summer,
+                            main is not None and (main in (last_main - 1, last_main) or main > planned)):
                 continue
             if before[i] < need:
                 short_of = (i, before[i])
@@ -555,13 +591,13 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
     room = before[deadline + 1] - proj["earned"] if deadline + 1 < len(before) else total - proj["earned"]
     summer_ar = " مع الصيفي" if allow_summer else " من غير صيفي"
     summer_en = " with summers" if allow_summer else " without summers"
-    # The hour limit in words: with a GPA under 2.00 it is 14 (15 on paper) only until academic warning starts.
+    # The hour limit in words: with a GPA under 2.00 it is 14 (15 on paper) until the second academic warning.
     r = d.rules()
     if cap == _low_band_cap():
-        lim_ar = (f"حد {cap} ساعة الترم الجاي (أو {PAPER_MAX_LOW_GPA} ورقي)، وبعد كده {r['probation_max_credits']} "
-                  f"لأنك هتبقى تحت الإنذار لو المعدل فضل تحت 2.00")
-        lim_en = (f"{cap} hours next semester ({PAPER_MAX_LOW_GPA} on paper), then {r['probation_max_credits']} on academic "
-                  f"warning if the GPA stays under 2.00")
+        lim_ar = (f"حد {cap} ساعة (أو {PAPER_MAX_LOW_GPA} ورقي)، ومن تاني إنذار ورا بعض {r['probation_max_credits']} "
+                  f"لو المعدل فضل تحت 2.00")
+        lim_en = (f"{cap} hours ({PAPER_MAX_LOW_GPA} on paper), then {r['probation_max_credits']} from the second academic "
+                  f"warning in a row if the GPA stays under 2.00")
     else:
         lim_ar, lim_en = f"حد {cap} ساعة في الترم", f"{cap} per semester"
     if left > room:
@@ -585,18 +621,32 @@ def _term_label(t: dict) -> dict:
     return {"ar": f"{TERM_AR[t['term']]} {t['academic_year']}", "en": f"{TERM_EN[t['term']]} {t['academic_year']}"}
 
 
+def _raise(proj: dict, cap: int, hi_from: int | None) -> tuple[int, int | None]:
+    """(cap the plan rises to, from which main semester). A route's GPA condition raises it to the top band; a student
+    on academic warning cannot stay under 2.00 for good (article 25: dismissal after a run of main semesters under
+    2.00), so the plan keeps the warning cap (14, then 12) only until the GPA can reach 2.00, then the 2.00-2.99
+    band."""
+    if hi_from is None and proj.get("recover_from") is not None and cap <= _low_band_cap():
+        return _mid_cap(), proj["recover_from"]
+    return _top_cap(), hi_from
+
+
 def _plan_for(proj: dict, cap: int, current: dict, main_now: int, last_main: int, allow_summer: bool,
               paper: bool = True, request: bool = True, hi_from: int | None = None, last_summer: bool | str = True):
+    hi, hi_from = _raise(proj, cap, hi_from)
     return _plan_cached(frozenset(proj["passed"]), proj["earned"], cap, current["term"], current["academic_year"],
-                        main_now, last_main, allow_summer, paper, request, hi_from, last_summer)
+                        main_now, last_main, allow_summer, paper, request, hi_from, last_summer, hi,
+                        proj.get("warned", 0), proj.get("anchor", frozenset()))
 
 
 @lru_cache(maxsize=2048)
 def _plan_cached(passed: frozenset, earned: int, cap: int, term: str, year: str, main_now: int, last_main: int,
-                 allow_summer: bool, paper: bool, request: bool, hi_from: int | None, last_summer: bool | str = True):
+                 allow_summer: bool, paper: bool, request: bool, hi_from: int | None, last_summer: bool | str = True,
+                 hi: int | None = None, warned: int = 0, anchor: frozenset = frozenset()):
     """Same inputs, same plan: switching targets back and forth on the page reuses earlier solves."""
     terms = _terms_after({"term": term, "academic_year": year}, main_now + 1, last_main, last_summer)
-    placed = _solve(set(passed), earned, cap, terms, last_main, allow_summer, paper, request, _top_cap(), hi_from)
+    placed = _solve(set(passed), earned, cap, terms, last_main, allow_summer, paper, request, hi or _top_cap(), hi_from,
+                    warned, anchor)
     return terms, placed
 
 
@@ -607,6 +657,11 @@ def _low_band_cap() -> int:
 
 def _top_cap() -> int:
     return max(b["max_credits"] for b in d.rules()["max_credits_by_gpa"])
+
+
+def _mid_cap() -> int:
+    """The cap of the band that starts at 2.00 (2.00-2.99): 18."""
+    return next(b["max_credits"] for b in d.rules()["max_credits_by_gpa"] if b["gpa_min"] == d.rules()["warning_gpa_threshold"])
 
 
 # ---------------------------------------------------------------- routes to a target
@@ -695,8 +750,8 @@ def _route(proj, cap, current, main_now, last_main, allow_summer, gpa_lever):
 
 def _risk(proj, current, main_now, last_main, allow_summer, now_gpa: float | None) -> dict:
     """What happens to the target if the GPA drops one band this term, from where it is now: from 3.00+ to under
-    3.00 (18 hours); from 2.00-2.99 to under 2.00 (12 hours on academic warning, article 25, or 14 in the first term);
-    already under 2.00 and staying there (12 hours on warning)."""
+    3.00 (18 hours); from 2.00-2.99 to under 2.00 (14 hours, a first academic warning at most); already under 2.00
+    and staying there (14 on a first warning, 12 from the second in a row)."""
     r = d.rules()
     cgpa = now_gpa if now_gpa is not None else proj["cgpa"]
     if cgpa is not None and cgpa >= 3:
@@ -704,8 +759,9 @@ def _risk(proj, current, main_now, last_main, allow_summer, now_gpa: float | Non
         on_warning = False
         if_ar, if_en = "لو معدلك التراكمي نزل تحت 3.00", "If your cumulative GPA falls below 3.00"
     else:
-        low, _ = _load_cap(1.99, main_now)
-        on_warning = low == r["probation_max_credits"]
+        proj = {**proj, "warned": proj["streak_if_low"]}
+        low, _ = _load_cap(1.99, main_now, proj["warned"])
+        on_warning = _on_warning(1.99, main_now)
         if cgpa is not None and cgpa < 2:
             if_ar, if_en = "لو معدلك التراكمي فضل تحت 2.00 الترم ده", "If your cumulative GPA stays below 2.00 this term"
         else:
@@ -742,44 +798,53 @@ def _earliest(proj, cap, current, main_now, allow_summer, start: int):
 
 def _gpa_below_2(s: dict, proj: dict, cap: int, current: dict) -> dict | None:
     """With a cumulative GPA under 2.00 after this term the plan's graduation date only holds if the GPA comes up:
-    graduation needs 2.00 (article 26), and three main semesters in a row under 2.00 mean dismissal (article 25).
-    How many semesters are left before that, and the semester GPA that gets back to 2.00."""
+    graduation needs 2.00 (article 26), and a run of main semesters in a row under 2.00 (rules:
+    dismissal_after_consecutive_low_semesters, article 25) means dismissal. How many semesters are left before that,
+    the semester GPA that gets back to 2.00, and `recover_after`: how many semesters the plan keeps the warning
+    cap before it may assume 2.00 (None when 2.00 cannot be reached before the limit)."""
     r = d.rules()
     need = r["graduation"]["min_cgpa"]
     cgpa = proj["cgpa"]
     if cgpa is None or cgpa >= need:
         return None
-    main_done = s["academic_status"]["main_semesters_completed"]
-    streak = s["academic_status"].get("consecutive_warning_semesters") or 0
-    if current["term"] != "summer" and current["status"] != "frozen":  # this main semester ends under 2.00
-        streak = streak + 1 if main_done + 1 >= r["warning_starts_after_main_semester"] else 0
+    streak = _streak_after(s, cgpa, current)
     limit = r["dismissal_after_consecutive_low_semesters"]
     left = limit - streak
     graded, pts = proj["graded_hours"], proj["points"]
     up = lambda x: math.ceil(x * 100 - 1e-9) / 100
-    ar = [f"معدلك هيبقى {cgpa}، والتخرج محتاج {need:.2f} على الأقل (مادة 26)، فميعاد التخرج ده بشرط إن معدلك يوصل {need:.2f}."]
-    en = [f"Your GPA will be {cgpa}, and graduation needs at least {need:.2f} (article 26), so this date holds only "
+    ar = [f"معدلك هيبقى {cgpa}، والتخرج محتاج {need:.2f} على الأقل، فميعاد التخرج ده بشرط إن معدلك يوصل {need:.2f}."]
+    en = [f"Your GPA will be {cgpa}, and graduation needs at least {need:.2f}, so this date holds only "
           f"if your GPA reaches {need:.2f}."]
-    out = {"cgpa": cgpa, "semesters_left": max(0, left), "dismissal_reached": left <= 0}
+    out = {"cgpa": cgpa, "semesters_left": max(0, left), "dismissal_reached": left <= 0, "recover_after": None}
     if left <= 0:
-        ar.append(f"وإنت وصلت لحد الفصل ({limit} ترمات أساسية ورا بعض تحت {need:.2f}): القرار لمجلس الكلية "
-                  f"(فرصة أخيرة لفصلين، مادة 25)، فكلّم مرشدك.")
-        en.append(f"You have reached the dismissal limit ({limit} main semesters in a row under {need:.2f}): the Faculty "
-                  f"Council decides (a last chance of two semesters, article 25), so talk to your advisor.")
+        ar.append(f"وإنت وصلت لحد الفصل ({_warnings(limit)} ورا بعض): القرار لمجلس الكلية "
+                  f"(فرصة أخيرة لفصلين)، فكلّم مرشدك.")
+        en.append(f"You have reached the dismissal limit ({limit} academic warnings in a row): the Faculty "
+                  f"Council decides (a last chance of two semesters), so talk to your advisor.")
     else:
         next_gpa = up((need * (graded + cap) - pts) / cap)
         out["next_term_gpa"] = next_gpa
-        word = {1: "ترم أساسي واحد", 2: "ترمين أساسيين"}.get(left, f"{left} ترمات أساسية")
-        ar.append(f"ولو فضل أقل من {need:.2f} {word} كمان ورا بعض هتتفصل (مادة 25).")
-        en.append(f"If it stays under {need:.2f} for {left} more main semester{'s' if left > 1 else ''} in a row, "
-                  f"you will be dismissed (article 25).")
+        if streak:
+            had = "وبكده ده هيبقى أول إنذار ليك" if streak == 1 else f"وبكده هتبقى واخد {_warnings(streak)} ورا بعض"
+            ar.append(f"{had}، ولو خدت {_warnings(left)} كمان هتتفصل من البرنامج. "
+                      f"فلازم تعلّي معدلك الترم الجاي عشان الإنذار ميوصلكش للفصل.")
+            en.append(f"That makes {streak} academic warning{'s' if streak > 1 else ''} in a row, and {left} more "
+                      f"would mean dismissal from the program. Raise your GPA next semester so the warning does not "
+                      f"lead to dismissal.")
+        else:
+            ar.append(f"لسه مفيش إنذار، بس لو فضل أقل من {need:.2f} هتاخد إنذار، و{_warnings(limit)} ورا بعض "
+                      f"يعني هتتفصل من البرنامج. فعلّي معدلك بدري.")
+            en.append(f"There is no warning yet, but if it stays under {need:.2f} you will get one, and {limit} "
+                      f"warnings in a row mean dismissal from the program. Raise your GPA early.")
         if next_gpa <= 4.0:
+            out["recover_after"] = 1
             ar.append(f"عشان توصل {need:.2f} الترم الجاي محتاج معدل ترم {next_gpa:.2f} أو أكتر في {cap} ساعة.")
             en.append(f"To reach {need:.2f} next semester you need a semester GPA of {next_gpa:.2f} or more over {cap} hours.")
         else:
             avg = up((need * (graded + left * cap) - pts) / (left * cap))
             out["average_term_gpa"] = avg
             if avg <= 4.0:
+                out["recover_after"] = left
                 ar.append(f"مش هتلحق توصل {need:.2f} في ترم واحد، بس توصلها لو متوسط معدلك {avg:.2f} أو أكتر "
                           f"في الـ {left} ترمات الجاية ({cap} ساعة في كل ترم).")
                 en.append(f"You cannot reach {need:.2f} in one semester, but you can with an average of {avg:.2f} or more "
@@ -790,6 +855,10 @@ def _gpa_below_2(s: dict, proj: dict, cap: int, current: dict) -> dict | None:
                           f"about a last chance from the Faculty Council.")
     out.update({"ar": " ".join(ar), "en": " ".join(en)})
     return out
+
+
+def _warnings(n: int) -> str:
+    return {1: "إنذار واحد", 2: "إنذارين"}.get(n, f"{n} إنذارات")
 
 
 IMPROVE_GRADE = "B"  # the grade assumed in a course retaken to raise the GPA (the last grade counts, article 30)
@@ -822,9 +891,9 @@ def _improvement_plan(s: dict, proj: dict, current: dict, main_now: int, last_ma
         picks.append((code, gain))
     gpa_after = round((points + sum(g for _, g in picks)) / hours, 2)
     why = {"code": "gpa_below_2",
-           "ar": f"خلّصت كل المواد، بس معدلك التراكمي هيبقى {proj['cgpa']} والتخرج محتاج {need:.2f} على الأقل (مادة 26).",
+           "ar": f"خلّصت كل المواد، بس معدلك التراكمي هيبقى {proj['cgpa']} والتخرج محتاج {need:.2f} على الأقل.",
            "en": f"Every course is done, but your cumulative GPA will be {proj['cgpa']} and graduation needs at least "
-                 f"{need:.2f} (article 26)."}
+                 f"{need:.2f}."}
     base = {"feasible": False, "status": "impossible", "reason": why["ar"], "reason_code": "gpa_below_2", "why": why,
             "summer_courses": [], "college_requests": []}
     if gpa_after < need:
@@ -914,15 +983,17 @@ def current_or_frozen(s: dict) -> dict | None:
 
 def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer: bool = True,
                           failed_courses: list[str] | None = None, expected_term_gpa: float | None = None,
-                          with_risk: bool = True) -> dict:
+                          with_risk: bool = True, anchor_plan: dict | None = None) -> dict:
     """A term-by-term plan to graduate within `target_years` (4, 4.5 or 5) of enrollment.
 
-    What-if inputs: `failed_courses` (current-term courses the student fails) and `expected_term_gpa`.
+    What-if inputs: `failed_courses` (current-term courses the student fails) and `expected_term_gpa`; `anchor_plan`
+    is the plan without the what-if, which the what-if keeps to wherever it does not have to differ.
     A frozen semester (وقف قيد) does not count: the target is 8 / 9 / 10 semesters of study. A student frozen now gets
     the plan from the semester they return, worked out from the last semester they studied, with the frozen
     semester shown first.
     """
-    out = _build_graduation_plan(student_id, target_years, allow_summer, failed_courses, expected_term_gpa, with_risk)
+    out = _build_graduation_plan(student_id, target_years, allow_summer, failed_courses, expected_term_gpa, with_risk,
+                                 anchor_plan)
     if out.get("found") and out.get("frozen") and out.get("terms"):
         f = out["frozen"]
         out["terms"] = [{"ar": f["term"]["ar"], "en": f["term"]["en"], "term": f["term_kind"],
@@ -934,7 +1005,7 @@ def build_graduation_plan(student_id: str, target_years: float = 5, allow_summer
 
 def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summer: bool = True,
                            failed_courses: list[str] | None = None, expected_term_gpa: float | None = None,
-                           with_risk: bool = True) -> dict:
+                           with_risk: bool = True, anchor_plan: dict | None = None) -> dict:
     s = d.get_student(student_id)
     if not s:
         return d.not_found("الطالب", student_id)
@@ -961,8 +1032,15 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
         return {"found": False, **proj}
     # Main semesters done once the current term ends: a summer is not a main semester, and neither is a frozen one.
     main_now = s["academic_status"]["main_semesters_completed"] + (0 if current["term"] == "summer" or frozen else 1)
-    cap, cap_why = _load_cap(proj["cgpa"], main_now)
+    proj["warned"] = _streak_after(s, proj["cgpa"], current)
+    # A what-if keeps every course it does not have to move where the plan without it put it.
+    proj["anchor"] = frozenset((c["code"], t["term"], t["academic_year"])
+                               for t in (anchor_plan or {}).get("terms") or [] for c in t["courses"])
+    proj["streak_if_low"] = _streak_after(s, 1.99, current)
+    cap, cap_why = _load_cap(proj["cgpa"], main_now, proj["warned"])
     last_main = TARGETS[target_years]
+    gpa_warning = _gpa_below_2(s, proj, cap, current)
+    proj["recover_from"] = (gpa_warning or {}).get("recover_after")
 
     out = {
         "found": True, "student_id": s["student_id"], "target_years": target_years, "allow_summer": allow_summer,
@@ -974,7 +1052,9 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
                             "earned_hours": proj["earned"], "max_credits": cap, "why": cap_why},
         "assumptions": [a for a in (
             proj["assumption"],
-            "حد الساعات محسوب من معدلك بعد الترم ده، ومفترض إنه هيفضل كده لحد التخرج.",
+            "حد الساعات محسوب من معدلك بعد الترم ده، ومفترض إنه هيفضل كده لحد التخرج." if proj["recover_from"] is None
+            else (f"إنت تحت الإنذار، والمعدل مينفعش يفضل تحت 2.00، فالخطة حاطة {cap} ساعة في أول "
+                  f"{_count(proj['recover_from'], 'ترم', 'ترمين', 'ترمات', 'ترم')} لحد ما معدلك يوصل 2.00، وبعدها {_mid_cap()} ساعة."),
             "كل مادة بتتدرّس في ترمها حسب الخطة، والاختياري في الترمين.",
             "الصيفي: أي مادة غير المشاريع ممكن تتفتح لو الطلاب طلبوها، بحد أقصى 6 ساعات." if allow_summer else
             "من غير صيفي (غير التدريب).",
@@ -1007,6 +1087,34 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
                           "en": f"You are in semester {main_now} now, and the {target_years}-year target ends with semester {last_main}."}
             out["reason"] = out["why"]["ar"]
         return out
+
+    # Article 25: under 2.00 the GPA has to come back before the run of main semesters under 2.00 reaches the
+    # dismissal limit. When it cannot (even 4.00 is too late) or the limit is already reached, there is no ordinary
+    # plan: with 80% of the hours the Faculty Council may give one last chance of two main semesters (item 5), so the
+    # plan must finish within them; without those hours the student is dismissed and there is no graduation plan.
+    if gpa_warning and (gpa_warning["dismissal_reached"] or gpa_warning["recover_after"] is None):
+        need80 = math.ceil(d.program()["program"]["total_credits"] * 0.8)
+        out["articles"].append(ARTICLES["warning"])
+        if proj["earned"] < need80:
+            why = {"code": "dismissal",
+                   "ar": f"معدلك مش هيلحق يوصل 2.00 قبل حد الفصل ({d.rules()['dismissal_after_consecutive_low_semesters']} "
+                         f"إنذارات ورا بعض)، والفرصة الأخيرة من مجلس الكلية محتاجة {need80} ساعة "
+                         f"ناجحة ومعاك {proj['earned']}، فمفيش خطة تخرج. كلّم مرشدك.",
+                   "en": f"Your GPA cannot reach 2.00 before the dismissal limit "
+                         f"({d.rules()['dismissal_after_consecutive_low_semesters']} in a row, "
+                         f"academic warnings), and the Faculty Council's last chance needs {need80} passed hours (you have "
+                         f"{proj['earned']}), so there is no graduation plan. Talk to your advisor."}
+            return {**out, "feasible": False, "status": "impossible", "graduation_term": None, "terms": [],
+                    "reason_code": "dismissal", "why": why, "reason": why["ar"],
+                    "explanation": why["ar"] + " " + gpa_warning["ar"], "gpa_warning": gpa_warning}
+        last_main = min(last_main, main_now + 2)
+        out["last_chance"] = {
+            "ar": f"إنت عدّيت {need80} ساعة (80%)، فمجلس الكلية ممكن يديك فرصة أخيرة لترمين أساسيين ترفع فيهم معدلك "
+                  f"لـ 2.00 وتخلّص متطلبات التخرج، فالخطة لازم تخلص في الترمين دول.",
+            "en": f"You have passed {need80} hours (80%), so the Faculty Council may give you a last chance of two main "
+                  f"semesters to raise your GPA to 2.00 and finish the graduation requirements: the plan "
+                  f"has to finish within them."}
+        out["assumptions"].append(out["last_chance"]["ar"])
 
     if not _terms_after(current, main_now + 1, last_main):  # courses are left, and the target has no term left
         feasible, terms, placed, reason_code = False, None, None, "past"
@@ -1054,7 +1162,7 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
         if with_risk:
             out["risk"] = _risk(proj, current, main_now, last_main, allow_summer, s["academic_status"]["cumulative_gpa"])
 
-    caps = _caps(terms, cap, _top_cap(), hi_from)
+    caps = _caps(terms, cap, *_raise(proj, cap, hi_from), proj.get("warned", 0))
     rows = []
     for ti, t in enumerate(terms):
         cs = [code for code, (k, _) in placed.items() if k == ti]
@@ -1098,23 +1206,23 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
             r["warning"] = (f"أقل من الحد الأدنى ({min_load} ساعة) لأن مفيش مواد متاحة كفاية في الترم ده، "
                             f"فمحتاج موافقة المجلس.")
 
-    # A course outside its semester in the last two semesters is a graduation request; earlier, the college opens
-    # it because nothing runs.
+    # A course outside its semester in the last two semesters is a graduation request; earlier, a request for a course
+    # the student is behind on, otherwise the college opens it because nothing runs.
     before_last = max((i for i, r in enumerate(rows) if r["term"] != "summer" and i < last_main_row), default=-1)
     for i, r in enumerate(rows):
         for c in r["courses"]:
             if c["flag"] == "graduation_request" and i not in (last_main_row, before_last):
-                c["flag"], c["flag_ar"] = "open_request", FLAG_AR["open_request"]
-            if c["flag"] in ("graduation_request", "open_request"):
+                kind = "late_request" if r["main_semester"] > (c["planned_semester"] or 0) else "open_request"
+                c["flag"], c["flag_ar"] = kind, FLAG_AR[kind]
+            if c["flag"] in ("graduation_request", "open_request", "late_request"):
                 c["paper_registration"], c["paper_opened"], c["paper_note_ar"] = True, True, OPENED_PAPER_AR
     summer_courses = [c["code"] for r in rows if r["term"] == "summer" for c in r["courses"]
                       if c["flag"] == "summer_on_demand"]
     requests = [c["code"] for r in rows for c in r["courses"]
-                if c["flag"] in ("college_request", "graduation_request", "open_request")]
+                if c["flag"] in ("college_request", "graduation_request", "open_request", "late_request")]
     out.update({"graduation_term": {"ar": grad["ar"], "en": grad["en"]} if grad else None, "terms": rows,
                 "summer_courses": summer_courses, "college_requests": requests})
 
-    gpa_warning = _gpa_below_2(s, proj, cap, current)
     if gpa_warning:
         out["gpa_warning"] = gpa_warning
     grad_txt = grad["ar"] if grad else ""

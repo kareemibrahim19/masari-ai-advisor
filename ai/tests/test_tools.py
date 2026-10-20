@@ -3,6 +3,7 @@
 No API key or network needed: the tools are plain Python over ai/data.
 """
 
+import copy
 import sys
 from pathlib import Path
 
@@ -35,7 +36,13 @@ check("ARI 381 within the 4-hour tolerance is paper registration (93 of 96)",
 # standing
 r = call_tool("academic_standing", {}, PROB)
 check("probation on warning", r["on_warning"] and r["terms_left_before_dismissal"] >= 1, r)
-r = call_tool("academic_standing", {}, PROB)
+# One semester before article 25's dismissal limit: the council's last chance is shown.
+near = copy.deepcopy(d.students()[PROB])
+near["student_id"] = "test-near"
+near["academic_status"]["consecutive_warning_semesters"] = d.rules()["dismissal_after_consecutive_low_semesters"] - 1
+d.students()["test-near"] = near
+r = call_tool("academic_standing", {}, "test-near")
+del d.students()["test-near"]
 lc = r.get("last_chance")
 check("last chance shown for a student near dismissal", bool(lc) and lc["required_earned_hours"] == 128
       and lc["meets_hours_condition"] is False, r)
@@ -277,10 +284,10 @@ check("paper: 8 hours left in the last term -> paper below 12, go to student aff
       r["cases"][0]["applies"] and r["paper_needed"] and "شئون الطلاب" in r["cases"][0]["explanation"], r)
 del d.students()["test-low"], d.students()["test-last"]
 
-# Three warning semesters in a row: dismissal reached is said plainly (not "0 more semesters").
+# Article 25's limit of main semesters in a row under 2.00 reached: said plainly (not "0 more semesters").
 gone = copy.deepcopy(d.students()[PROB])
 gone["student_id"] = "test-gone"
-gone["academic_status"]["consecutive_warning_semesters"] = 3
+gone["academic_status"]["consecutive_warning_semesters"] = d.rules()["dismissal_after_consecutive_low_semesters"]
 d.students()["test-gone"] = gone
 r = call_tool("academic_standing", {}, "test-gone")
 check("dismissal reached: says so, not '0 more semesters'",

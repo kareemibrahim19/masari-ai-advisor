@@ -63,6 +63,7 @@ export function toStudentRecord(s: StudentFileEntry): StudentRecord {
   return {
     gpa: s.academic_status.cumulative_gpa,
     onProbation: s.academic_status.academic_standing.includes("إنذار"),
+    warnings: s.academic_status.consecutive_warning_semesters,
     passed,
     failed,
     electiveChoices,

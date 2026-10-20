@@ -1035,7 +1035,7 @@ def deviate_plan(rec: dict, pj: dict) -> dict:
             st["consecutive_warning_semesters"] = (st.get("consecutive_warning_semesters", 0) + 1
                                                    if low and st["main_semesters_completed"] >= 2 else 0)
             if st["consecutive_warning_semesters"] >= R["dismissal_after_consecutive_low_semesters"]:
-                outcome = "وصل لحد الفصل (3 ترمات إنذار)"
+                outcome = f"وصل لحد الفصل ({R['dismissal_after_consecutive_low_semesters']} ترمات إنذار)"
                 break
         passed = {c for c, a in best_attempts(rec["terms"]).items() if is_pass(a["grade"])}
         req, pools = remaining(passed)
@@ -1211,7 +1211,7 @@ def gpa_path(rec: dict, pj: dict) -> dict:
             st["consecutive_warning_semesters"] = (st.get("consecutive_warning_semesters", 0) + 1
                                                    if under and st["main_semesters_completed"] >= 2 else 0)
             if st["consecutive_warning_semesters"] >= R["dismissal_after_consecutive_low_semesters"]:
-                outcome = "وصل لحد الفصل (3 ترمات إنذار)"
+                outcome = f"وصل لحد الفصل ({R['dismissal_after_consecutive_low_semesters']} ترمات إنذار)"
                 break
         passed = {c for c, a in best_attempts(rec["terms"]).items() if is_pass(a["grade"])}
         req, pools = remaining(passed)

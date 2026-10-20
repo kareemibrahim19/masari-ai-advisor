@@ -125,14 +125,16 @@ def plan(req: PlanRequest, request: Request):
     """Graduation plan for the plan page: the plan, the plan without the what-if (to compare), and which
     targets are reachable with / without summer."""
     auth.check(request, req.student_id)
+    what_if = bool(req.failed_courses) or req.expected_term_gpa is not None
+    # The what-if is built against the plan without it, so courses it does not have to move stay where they were.
+    baseline = build_graduation_plan(req.student_id, req.target_years, req.allow_summer) if what_if else None
     result = build_graduation_plan(req.student_id, req.target_years, req.allow_summer,
-                                   req.failed_courses, req.expected_term_gpa)
+                                   req.failed_courses, req.expected_term_gpa, anchor_plan=baseline)
     if not result.get("found"):
         raise HTTPException(404 if "الطالب" in result.get("error", "") else 400, result.get("error"))
-    what_if = bool(req.failed_courses) or req.expected_term_gpa is not None
     return {
         "plan": result,
-        "baseline": build_graduation_plan(req.student_id, req.target_years, req.allow_summer) if what_if else None,
+        "baseline": baseline,
         "options": plan_options(req.student_id, req.failed_courses, req.expected_term_gpa)["options"],
     }
 

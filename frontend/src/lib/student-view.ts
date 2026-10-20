@@ -24,6 +24,8 @@ import {
   LOAD_BANDS,
   maxLoad,
   MIN_LOAD,
+  PROBATION_MAX_LOAD,
+  DISMISSAL_AFTER_WARNINGS,
   coursePriority,
   planGraduation,
   remainingItems,
@@ -181,7 +183,13 @@ function termNames(start: { term: Term; academicYear: number }): L[] {
 function loadRule(r: StudentRecord, limit: number): L {
   if (r.gpa === null)
     return { ar: `أول ترم (لسه مفيش معدل) ← حد أقصى ${FIRST_TERM_MAX_LOAD} ساعة`, en: `First semester (no GPA yet) → up to ${FIRST_TERM_MAX_LOAD} credit hours` }
-  if (r.onProbation) return { ar: `إنذار أكاديمي ← حد أقصى ${limit} ساعة`, en: `Academic warning → up to ${limit} credit hours` }
+  if (r.onProbation && limit === PROBATION_MAX_LOAD)
+    return { ar: `تاني إنذار أكاديمي ورا بعض ← حد أقصى ${limit} ساعة`, en: `Second academic warning in a row → up to ${limit} credit hours` }
+  if (r.onProbation)
+    return {
+      ar: `أول إنذار أكاديمي ← حد أقصى ${limit} ساعة (ولو جالك إنذار تاني ورا بعض ${PROBATION_MAX_LOAD})`,
+      en: `First academic warning → up to ${limit} credit hours (${PROBATION_MAX_LOAD} after a second warning in a row)`,
+    }
   const b = LOAD_BANDS.find((x) => x.max_credits === limit)!
   if (b.gpa_min === 0) return { ar: `معدل أقل من ${fmt(b.gpa_max)} ← حد أقصى ${limit} ساعة`, en: `GPA < ${fmt(b.gpa_max)} → up to ${limit} credit hours` }
   if (b.gpa_max > 4) return { ar: `معدل ${fmt(b.gpa_min)} أو أكتر ← حد أقصى ${limit} ساعة`, en: `GPA ≥ ${fmt(b.gpa_min)} → up to ${limit} credit hours` }
@@ -206,7 +214,7 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
   const startTerm = now.term
   const currentSemester = st.main_semesters_completed + 1
   const earned = earnedCredits(record)
-  const limit = maxLoad(record.gpa, record.onProbation)
+  const limit = maxLoad(record.gpa, record.onProbation, record.warnings)
   const semesterNames = termNames(now)
   /** First term index ≥ `from` that falls in `term`. */
   const nextIndexOf = (term: Term, from = 0) => semesterNames.findIndex((n, i) => i >= from && (i + (startTerm === "spring" ? 1 : 0)) % 2 === (term === "fall" ? 0 : 1))
@@ -377,13 +385,49 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
 
   const alerts: Alert[] = []
   if (record.onProbation && record.gpa !== null) {
+    // Warnings in a row so far, and how many more mean dismissal.
+    const warnings = Math.max(1, record.warnings ?? 1)
+    const left = Math.max(0, DISMISSAL_AFTER_WARNINGS - warnings)
+    const warningsAr = (n: number) => (n === 1 ? "إنذار واحد" : n === 2 ? "إنذارين" : `${n} إنذارات`)
     alerts.push({
       id: "probation",
       kind: "warning",
       title: { ar: "إنذار أكاديمي", en: "Academic warning" },
       body: {
-        ar: `معدلك التراكمي ${fmt(record.gpa)} أقل من 2.00، فالحد الأقصى للتسجيل ${limit} ساعة لحد ما المعدل يتحسن.`,
-        en: `Your cumulative GPA (${fmt(record.gpa)}) is below 2.00, so you can register up to ${limit} credit hours until it improves.`,
+        ar:
+          `معدلك التراكمي ${fmt(record.gpa)} أقل من 2.00، ` +
+          (warnings === 1 ? `وده أول إنذار ليك` : `وإنت واخد ${warningsAr(warnings)} ورا بعض`) +
+          (left > 0
+            ? `، ولو خدت ${warningsAr(left)} كمان هتتفصل من البرنامج. فلازم تعلّي معدلك لـ 2.00 الترم ده عشان الإنذار ميوصلكش للفصل.`
+            : `، وده حد الفصل: القرار لمجلس الكلية، فكلّم مرشدك.`) +
+          ` الحد الأقصى للتسجيل ${limit} ساعة.`,
+        en:
+          `Your cumulative GPA (${fmt(record.gpa)}) is below 2.00, with ${warnings} academic warning${warnings > 1 ? "s" : ""} in a row` +
+          (left > 0
+            ? `; ${left} more would mean dismissal from the program. Raise your GPA to 2.00 this semester so the warning does not lead to dismissal.`
+            : `, which is the dismissal limit: the Faculty Council decides, so talk to your advisor.`) +
+          ` You can register up to ${limit} credit hours.`,
+      },
+      sourceId: "load",
+    })
+  } else if (record.gpa !== null && record.gpa < 2) {
+    // Under 2.00 with no warning yet: warning starts at the end of the 2nd main semester, so it may come with this one.
+    const comesNow = st.main_semesters_completed + 1 >= 2
+    alerts.push({
+      id: "low-gpa",
+      kind: "warning",
+      title: { ar: "معدلك أقل من 2.00", en: "GPA below 2.00" },
+      body: {
+        ar:
+          `معدلك التراكمي ${fmt(record.gpa)} أقل من 2.00. لسه مفيش إنذار، بس لو فضل تحت 2.00 ` +
+          (comesNow ? `في آخر الترم ده هتاخد أول إنذار` : `هتاخد إنذار`) +
+          `، و${DISMISSAL_AFTER_WARNINGS} إنذارات ورا بعض يعني الفصل من البرنامج. فلازم تعلّي معدلك لـ 2.00 الترم ده عشان متاخدش إنذار. ` +
+          `الحد الأقصى للتسجيل ${limit} ساعة.`,
+        en:
+          `Your cumulative GPA (${fmt(record.gpa)}) is below 2.00. There is no warning yet, but if it stays under 2.00 ` +
+          (comesNow ? `at the end of this semester you will get your first academic warning` : `you will get an academic warning`) +
+          `, and ${DISMISSAL_AFTER_WARNINGS} warnings in a row mean dismissal from the program. Raise your GPA to 2.00 this semester ` +
+          `to avoid the warning. You can register up to ${limit} credit hours.`,
       },
       sourceId: "load",
     })
