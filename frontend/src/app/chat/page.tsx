@@ -15,8 +15,17 @@ import { useStudentView } from "@/lib/student-context"
 import { useVoiceInput } from "@/lib/use-voice-input"
 import { cn } from "@/lib/utils"
 
+const READ_SWAP_MS = 2600 // waiting: thinking, then reading the regulations, then thinking again
+const BORED_AFTER_MS = 30_000 // left alone: gets bored and moves about
+const SLEEP_AFTER_MS = 60_000 // then goes home, dozes off and sleeps
+const WALK_LEG_MS = 1600
+const HOP_MS = 900
+const HOME_MS = 800
+/** What it does standing still when bored. */
+const BORED_MOVES: BotMood[] = ["wave", "nod", "happy", "celebrate", "point", "thinking"]
+
 export default function ChatPage() {
-  const { t, tr } = useI18n()
+  const { t, tr, dir } = useI18n()
   // Chat history lives in the shared demo state, so it survives switching pages.
   const { messages, thinking, sendMessage } = useDemoState()
   const [draft, setDraft] = React.useState("")
@@ -25,11 +34,13 @@ export default function ChatPage() {
   const listening = voice.state === "recording"
   const endRef = React.useRef<HTMLDivElement>(null)
 
-  // Masari above the composer: listens while you record, thinks while the answer is on its way, talks for a moment
-  // when it arrives (longer answers, longer talk), looks confused at an error, and dozes off after 2 minutes alone.
-  // Typing or clicking it wakes it up.
+  // Masari above the composer. Waiting for an answer it thinks, then reads the regulations, then thinks again;
+  // the answer types itself out while it talks, and it stops talking when the text stops. An error confuses it.
+  // Left alone for 30 seconds it gets bored: walks about, hops, waves, nods… a mix. At a minute it goes back,
+  // yawns, nods off and falls asleep. Typing or a click wakes it up (a mouse move only ends the boredom).
   const bot = React.useRef<BotElement | null>(null)
-  const [reaction, setReaction] = React.useState<BotMood | null>(null)
+  const [typingId, setTypingId] = React.useState<string | null>(null)
+  const [confused, setConfused] = React.useState(false)
   // Only a reply that ends a wait counts, not a conversation loaded from history.
   const wasThinking = React.useRef(false)
   React.useEffect(() => {
@@ -37,22 +48,145 @@ export default function ChatPage() {
     wasThinking.current = thinking
     const last = messages[messages.length - 1]
     if (!ended || last?.role !== "assistant") return
-    const error = last.kind === "error"
-    const ms = error ? 4000 : Math.min(7000, Math.max(2000, last.text.length * 30))
-    setReaction(error ? "confused" : "talking")
-    const done = setTimeout(() => setReaction(null), ms)
-    return () => {
-      clearTimeout(done)
-      setReaction(null) // e.g. a new chat started meanwhile
+    if (last.kind === "ai") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reacting to a reply that just arrived
+      setTypingId(last.id)
+      return
     }
+    setConfused(true)
+    const done = setTimeout(() => setConfused(false), 4000)
+    return () => clearTimeout(done)
   }, [thinking, messages])
-  const botMood: BotMood = listening ? "listening" : thinking ? "thinking" : (reaction ?? "idle")
-  const nudgeBot = () => {
+
+  const [reading, setReading] = React.useState(false)
+  React.useEffect(() => {
+    if (!thinking) return
+    const swap = setInterval(() => setReading((r) => !r), READ_SWAP_MS)
+    return () => {
+      clearInterval(swap)
+      setReading(false)
+    }
+  }, [thinking])
+
+  const [rest, setRest] = React.useState<"awake" | "bored" | "drowsy" | "asleep">("awake")
+  const restRef = React.useRef(rest)
+  React.useEffect(() => {
+    restRef.current = rest
+  }, [rest])
+  const busy = thinking || listening || typingId !== null || confused
+  const lastActive = React.useRef(0)
+  React.useEffect(() => {
+    lastActive.current = performance.now()
+    const onActive = (e: Event) => {
+      lastActive.current = performance.now()
+      const b = bot.current
+      const now = restRef.current
+      if (now === "bored") setRest("awake")
+      // Nodding off: any sign of life keeps it up (a poke cancels the doze).
+      if (now === "drowsy") {
+        if (b && typeof b.poke === "function") b.poke()
+        setRest("awake")
+      }
+      // Asleep: only typing or a click wakes it (back to awake on masari-awake).
+      if (now === "asleep" && e.type !== "pointermove" && e.type !== "wheel" && b && typeof b.wake === "function") b.wake()
+    }
+    const onAwake = () => {
+      lastActive.current = performance.now()
+      setRest("awake")
+    }
+    const onAsleep = () => setRest("asleep")
+    const events = ["pointermove", "pointerdown", "keydown", "wheel"] as const
+    events.forEach((ev) => window.addEventListener(ev, onActive, { passive: true }))
+    window.addEventListener("masari-awake", onAwake)
+    window.addEventListener("masari-asleep", onAsleep)
+    return () => {
+      events.forEach((ev) => window.removeEventListener(ev, onActive))
+      window.removeEventListener("masari-awake", onAwake)
+      window.removeEventListener("masari-asleep", onAsleep)
+    }
+  }, [])
+  React.useEffect(() => {
+    const tick = setInterval(() => {
+      if (busy) {
+        lastActive.current = performance.now()
+        return
+      }
+      const alone = performance.now() - lastActive.current
+      if (restRef.current === "awake" && alone >= BORED_AFTER_MS) setRest("bored")
+      else if (restRef.current === "bored" && alone >= SLEEP_AFTER_MS) setRest("drowsy")
+    }, 1000)
+    return () => clearInterval(tick)
+  }, [busy])
+
+  // Bored: a random mix along the top of the composer — walk somewhere, hop somewhere, or stand and do something
+  // (wave, nod, a little dance…). When it ends it walks home.
+  React.useEffect(() => {
     const b = bot.current
-    if (!b || typeof b.wake !== "function") return
-    if (b.mood === "sleep") b.wake()
-    else b.lastAct = performance.now()
-  }
+    if (rest !== "bored" || !b || typeof b.hopAlong !== "function") return
+    const span = Math.min(260, window.innerWidth / 3) * (dir === "rtl" ? 1 : -1)
+    let at = 0
+    let next: ReturnType<typeof setTimeout>
+    const somewhere = () => {
+      let to = at
+      while (Math.abs(to - at) < 0.25) to = Math.random()
+      at = to
+      return [[to * span, 0]] as [number, number][]
+    }
+    const act = () => {
+      const r = Math.random()
+      if (r < 0.35) b.walkAlong(somewhere(), WALK_LEG_MS)
+      else if (r < 0.65) b.hopAlong(somewhere(), HOP_MS)
+      else {
+        b.setAttribute("mood", BORED_MOVES[Math.floor(Math.random() * BORED_MOVES.length)])
+        next = setTimeout(() => {
+          b.setAttribute("mood", "idle")
+          next = setTimeout(act, 500)
+        }, 1900)
+      }
+    }
+    const onArrive = () => {
+      next = setTimeout(act, 600)
+    }
+    b.addEventListener("masari-arrived", onArrive)
+    next = setTimeout(act, 300)
+    return () => {
+      clearTimeout(next)
+      b.removeEventListener("masari-arrived", onArrive)
+      b.walkAlong([[0, 0]], HOME_MS) // home; there it takes the `arrive` mood
+    }
+  }, [rest, dir])
+
+  // Sleepy: once home, it yawns, nods off and falls asleep (masari-asleep).
+  React.useEffect(() => {
+    const b = bot.current
+    if (rest !== "drowsy" || !b || typeof b.doze !== "function") return
+    const doze = setTimeout(() => b.doze(), HOME_MS + 200)
+    return () => clearTimeout(doze)
+  }, [rest])
+
+  const botMood: BotMood = listening
+    ? "listening"
+    : thinking
+      ? reading
+        ? "reading"
+        : "thinking"
+      : typingId
+        ? "talking"
+        : confused
+          ? "confused"
+          : rest === "asleep"
+            ? "sleep"
+            : "idle"
+
+  // While an answer types itself out, keep its end in view.
+  const lastScroll = React.useRef(0)
+  const followTyping = React.useCallback(() => {
+    const now = performance.now()
+    if (now - lastScroll.current < 120) return
+    lastScroll.current = now
+    endRef.current?.scrollIntoView({ block: "end" })
+  }, [])
+  const doneTyping = React.useCallback(() => setTypingId(null), [])
 
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
@@ -84,7 +218,11 @@ export default function ChatPage() {
               m.role === "user" ? (
                 <UserBubble key={m.id} text={typeof m.text === "string" ? m.text : tr(m.text)} />
               ) : (
-                <AssistantMessage key={m.id} message={m} />
+                <AssistantMessage
+                  key={m.id}
+                  message={m}
+                  typing={m.id === typingId ? { onTick: followTyping, onDone: doneTyping } : undefined}
+                />
               )
             )}
             {thinking && <Typing />}
@@ -97,7 +235,7 @@ export default function ChatPage() {
           <Bot
             ref={bot}
             mood={botMood}
-            sleepAfter={120}
+            arrive={botMood}
             label={t("botChat")}
             className="masari-chat-bot"
           />
@@ -152,9 +290,7 @@ export default function ChatPage() {
                 rows={1}
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                onFocus={nudgeBot}
                 onKeyDown={(e) => {
-                  nudgeBot()
                   if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                     e.preventDefault()
                     send(draft)
@@ -179,7 +315,7 @@ export default function ChatPage() {
 function UserBubble({ text }: { text: string }) {
   return (
     <div className="flex justify-end">
-      <p className="max-w-[85%] rounded-2xl rounded-se-md bg-primary px-4 py-2.5 text-[15px] leading-relaxed text-primary-foreground">{text}</p>
+      <p className="masari-sent max-w-[85%] rounded-2xl rounded-se-md bg-primary px-4 py-2.5 text-[15px] leading-relaxed text-primary-foreground">{text}</p>
     </div>
   )
 }
@@ -201,21 +337,63 @@ function AssistantShell({ children }: { children: React.ReactNode }) {
   )
 }
 
-function AssistantMessage({ message }: { message: Extract<ChatMessage, { role: "assistant" }> }) {
+type Typing = { onTick: () => void; onDone: () => void }
+
+function AssistantMessage({ message, typing }: { message: Extract<ChatMessage, { role: "assistant" }>; typing?: Typing }) {
   if (message.kind === "error") return <ErrorReply detail={message.detail} />
-  return <AiReply text={message.text} sources={message.sources} advisorEmail={message.advisorEmail} />
+  return <AiReply text={message.text} sources={message.sources} advisorEmail={message.advisorEmail} typing={typing} />
+}
+
+/** How long a fresh answer takes to type itself out: quick for short ones, never more than 6 s. */
+const typeDuration = (chars: number) => Math.min(6000, Math.max(900, chars * 18))
+
+/** The answer appearing as if typed. Calls onDone once it is all there (the bot stops talking then). */
+function TypedText({ text, onTick, onDone }: { text: string } & Typing) {
+  const [shown, setShown] = React.useState(0)
+  const cb = React.useRef({ onTick, onDone })
+  React.useEffect(() => {
+    cb.current = { onTick, onDone }
+  }, [onTick, onDone])
+  React.useEffect(() => {
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const total = still ? 0 : typeDuration(text.length)
+    const start = performance.now()
+    let raf = 0
+    const step = (now: number) => {
+      const k = total ? Math.min(1, (now - start) / total) : 1
+      setShown(Math.round(text.length * k))
+      cb.current.onTick()
+      if (k < 1) raf = requestAnimationFrame(step)
+      else cb.current.onDone()
+    }
+    raf = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf)
+  }, [text])
+  return (
+    <>
+      <SimpleMarkdown text={text.slice(0, shown)} />
+      {shown < text.length && <span className="masari-caret" aria-hidden />}
+    </>
+  )
 }
 
 /** An answer from the Masari AI service (RAG over the regulations + the rule tools + Gemini). */
-function AiReply({ text, sources, advisorEmail }: { text: string; sources: RagSource[]; advisorEmail?: AdvisorEmail }) {
+function AiReply({ text, sources, advisorEmail, typing }: { text: string; sources: RagSource[]; advisorEmail?: AdvisorEmail; typing?: Typing }) {
   const { t } = useI18n()
+  // The extras (email, sources) come once the text has finished typing.
+  const [typed, setTyped] = React.useState(!typing)
+  const onDone = typing?.onDone
+  const finish = React.useCallback(() => {
+    setTyped(true)
+    onDone?.()
+  }, [onDone])
   return (
     <AssistantShell>
       <div className="max-w-[70ch] text-[15px] leading-7 text-foreground/90 text-pretty">
-        <SimpleMarkdown text={text} />
+        {typing && !typed ? <TypedText text={text} onTick={typing.onTick} onDone={finish} /> : <SimpleMarkdown text={text} />}
       </div>
-      {advisorEmail && <AdvisorEmailActions email={advisorEmail} />}
-      {sources.length > 0 && (
+      {typed && advisorEmail && <AdvisorEmailActions email={advisorEmail} />}
+      {typed && sources.length > 0 && (
         <details className="group text-xs text-muted-foreground">
           <summary className="cursor-pointer select-none hover:text-foreground">{t("ragSources")}</summary>
           <div className="mt-2 flex flex-wrap gap-2">

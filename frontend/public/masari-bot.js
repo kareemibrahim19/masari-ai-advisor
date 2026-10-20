@@ -1,7 +1,7 @@
 /* Masari Bot — <masari-bot> web component. No dependencies.
    Attributes:
      theme      "light" | "dark"  (dark = same colors + white outer outline)
-     mood       idle wave happy thinking talking celebrate sleep sad worried proud listening reading walk peek bye confused point nod toss
+     mood       idle hop wave happy thinking talking celebrate sleep sad worried proud listening reading walk peek bye confused point nod toss
      outfit     "none" | "grad" | "chat"
      progress   0-2 lit plan dots on the chest
      track      "false" disables eye tracking
@@ -14,8 +14,8 @@
      edge       peek edge: "bottom" (default) | "left" | "right"
      level      0-1 voice level for "listening" (or set el.level = 0.6 every frame); simulated if absent
      once       with mood="bye": play once, stay hidden, fire "masari-gone"
-   Methods: el.poke(), el.wake(), el.enter(), el.setMood(m), el.walkAlong([[x,y],...], msPerStep), el.resetWalk()
-   Events: masari-poke, masari-awake, masari-arrived, masari-gone */
+   Methods: el.poke(), el.wake(), el.doze(), el.hopAlong([[x,y],...], msPerHop), el.enter(), el.setMood(m), el.walkAlong([[x,y],...], msPerStep), el.resetWalk()
+   Events: masari-poke, masari-awake, masari-asleep, masari-arrived, masari-gone */
 (() => {
   const O = '#F27A2E';
   const BASE = { C: '#1E2230', W: '#FFFFFF', S: '#1E2230', H: '#FFFFFF', BAND: '#2A2F40' };
@@ -140,7 +140,7 @@
     happy: 'M110 102 Q120 118 130 102 Z', wave: 'M110 102 Q120 118 130 102 Z', celebrate: 'M108 100 Q120 120 132 100 Z', toss: 'M108 100 Q120 120 132 100 Z',
     proud: 'M111 103 Q120 114 129 103 Z', bye: 'M110 102 Q120 118 130 102 Z',
     sad: 'M111 111 Q120 102 129 111', worried: 'M109 107 Q114.5 111 120 107 Q125.5 111 131 107',
-    listening: 'M115 107 Q120 111 125 107', reading: 'M114 108 L126 108', peek: 'M114 106 Q120 111 126 106', walk: 'M112 105 Q120 112 128 105',
+    hop: 'M111 103 Q120 114 129 103', listening: 'M115 107 Q120 111 125 107', reading: 'M114 108 L126 108', peek: 'M114 106 Q120 111 126 106', walk: 'M112 105 Q120 112 128 105',
     confused: 'M110 108 Q115 103 120 108 Q125 113 130 108', point: 'M112 105 Q120 113 128 105', nod: 'M111 104 Q120 114 129 104'
   };
   const HAPPY = ['happy', 'celebrate', 'wave', 'toss', 'proud', 'bye'];
@@ -182,6 +182,7 @@
     get mood() { return this.getAttribute('mood') || 'idle'; }
     setMood(m) { this.setAttribute('mood', m); }
     poke() {
+      if (this.act && this.act.type === 'doze') { this.act = null; this.lastAct = performance.now(); this.apply(); }
       if (this.mood === 'sleep') return this.wake();
       if (this.act && this.act.type === 'wake') return;
       this.act = { type: 'poke', t0: performance.now() };
@@ -192,6 +193,11 @@
       if (this.mood !== 'sleep') this.setAttribute('mood', 'sleep');
       this.act = { type: 'wake', t0: performance.now() };
     }
+    doze() {
+      if (this.mood === 'sleep' || (this.act && this.act.type === 'doze')) return;
+      this.prevMood = this.mood; this.act = { type: 'doze', t0: performance.now() };
+    }
+    hopAlong(points, seg = 950) { this.walkAlong(points, seg); this.path.hop = true; this.setAttribute('mood', 'hop'); }
     enter() { this.popT = performance.now(); }
     walkAlong(points, seg = 800) {
       const cur = this.path ? this.path.pos : (this.walkPos || [0, 0]);
@@ -201,6 +207,10 @@
     resetWalk() { this.path = null; this.walkPos = [0, 0]; this.style.translate = ''; this.wdir = 0; }
     endAct() {
       const a = this.act; this.act = null; this.lastAct = performance.now();
+      if (a.type === 'doze') {
+        this.setAttribute('mood', 'sleep');
+        this.dispatchEvent(new CustomEvent('masari-asleep', { bubbles: true }));
+      }
       if (a.type === 'wake') {
         this.setAttribute('mood', this.getAttribute('wake-to') || this.prevMood || 'wave');
         this.dispatchEvent(new CustomEvent('masari-awake', { bubbles: true }));
@@ -246,7 +256,9 @@
           this.setAttribute('mood', this.getAttribute('arrive') || 'wave');
           this.dispatchEvent(new CustomEvent('masari-arrived', { bubbles: true }));
         } else {
-          const a = P.pts[i], b = P.pts[i + 1], f = ease(e - i);
+          const a = P.pts[i], b = P.pts[i + 1], f0 = e - i;
+          this.hopF = f0;
+          const f = P.hop ? (f0 < 0.2 ? 0 : f0 > 0.82 ? 1 : ease((f0 - 0.2) / 0.62)) : ease(f0);
           P.pos = [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
           this.style.translate = `${P.pos[0]}px ${P.pos[1]}px`;
           this.wdir = Math.sign(b[0] - a[0]);
@@ -283,7 +295,7 @@
       if (this.blinkT > 0) { const b = (now - this.blinkT) / 170; if (b < 1) s = Math.max(0.08, Math.abs(1 - 2 * b)); }
       if (mood === 'listening') s *= 1 + lvl * 0.22;
       const sa = parseFloat(this.getAttribute('sleep-after'));
-      if (sa > 0 && !this.act && !this.path && mood !== 'sleep' && now - this.lastAct > sa * 1000) { this.prevMood = mood; this.setAttribute('mood', 'sleep'); }
+      if (sa > 0 && !this.act && !this.path && mood !== 'sleep' && now - this.lastAct > sa * 1000) this.doze();
 
       let y = 0, bx = 0, hr = 0, hy = 0, aL = 0, aR = 0, capY = 0, capR = 0, ax = 1, ay = 1, lL = 0, lR = 0, op = 1, pkT = 0;
       const walk = (ph) => { y = -Math.abs(Math.sin(ph)) * 4 * k; lL = Math.max(0, Math.sin(ph)) * 7; lR = Math.max(0, -Math.sin(ph)) * 7; aL = Math.sin(ph) * 24; aR = Math.sin(ph) * 24; hr = 3 * (this.wdir || 1); };
@@ -300,6 +312,13 @@
         case 'listening': y = Math.sin(t * 1.8) * 2 * k; hr = 7 + lvl * 3; aL = 4; aR = -140; break;
         case 'reading': y = Math.sin(t * 1.4) * 1.5 * k; hr = 3; hy = 3; aL = -40; aR = 40; break;
         case 'walk': walk(t * 9); break;
+        case 'hop': {
+          const f0 = this.path && this.path.hop ? this.hopF : ((now - this.moodT) / 950) % 1, d = this.wdir || 0;
+          if (f0 < 0.2) { const c = Math.sin(f0 / 0.2 * Math.PI / 2); ax = 1 + 0.12 * c; ay = 1 - 0.17 * c; y = 4 * c; aL = -22 * c; aR = 22 * c; hr = -d * 3 * c; }
+          else if (f0 < 0.82) { const q = (f0 - 0.2) / 0.62, st = Math.max(0, 1 - q * 2.5); ax = 1 - 0.06 * st; ay = 1 + 0.1 * st; y = -48 * 4 * q * (1 - q); aL = 125 - q * 70; aR = -125 + q * 70; hr = d * (4 - q * 8); lL = 6; lR = 6; }
+          else { const v = (f0 - 0.82) / 0.18, c = Math.sin(v * Math.PI); ax = 1 + 0.15 * c; ay = 1 - 0.19 * c; y = 4 * c; aL = 35 * (1 - v); aR = -35 * (1 - v); }
+          break;
+        }
         case 'peek': pkT = 98 + Math.sin(t * 1.3) * 5 * k; hr = Math.sin(t * 0.7) * 10 * k; break;
         case 'bye': {
           const u = (now - this.moodT) / 4200, once = this.hasAttribute('once'), v = once ? Math.min(u, 1) : u % 1;
@@ -334,6 +353,20 @@
             else if (u < 0.62) { const v = (u - 0.15) / 0.47, j = Math.sin(Math.PI * v); y = -40 * j; ax = 1 - 0.05 * j; ay = 1 + 0.08 * j; aL = 135; aR = -135; hr = Math.sin(v * Math.PI * 2) * 7; }
             else { const v = (u - 0.62) / 0.38, c = Math.sin(Math.min(1, v * 2) * Math.PI) * (1 - v); y = c * 5; ax = 1 + 0.1 * c; ay = 1 - 0.12 * c; aL = 20 * (1 - v); aR = -20 * (1 - v); hr = 0; }
           }
+        } else if (this.act.type === 'doze') {
+          const u = e / 3800;
+          if (u >= 1) this.endAct();
+          else {
+            armK = 0.12; fm = 'open'; glow = 1 - u * 0.7; direct = false;
+            if (u < 0.3) { const v = u / 0.3, st = Math.sin(v * Math.PI); fm = v > 0.15 && v < 0.85 ? 'sleep' : 'open'; yawn = st; aL = 150 * st; aR = -150 * st; ay = 1 + 0.08 * st; ax = 1 - 0.04 * st; y = -4 * st; hr = 0; hy = 0; }
+            else if (u < 0.8) {
+              const v = (u - 0.3) / 0.5, nod = Math.max(0, Math.sin(v * Math.PI * 2.5));
+              hy = nod * 9 + v * 3; hr = nod * 7; aL = 4 + nod * 6; aR = -4 - nod * 6; y = Math.sin(t * 1.2) * 1.5;
+              s *= Math.max(0.1, 0.65 - v * 0.5 - nod * 0.3);
+              if (v > 0.48 && v < 0.56) { hy = -5; hr = -4; s = 1; aL = -14; aR = 14; }
+            }
+            else { const v = (u - 0.8) / 0.2; fm = 'sleep'; hr = 9 * v; hy = 0; aL = 4; aR = -4; zzzOn = v > 0.35; ay = 1 - 0.03 * Math.sin(v * Math.PI); glow = 0.3; }
+          }
         } else {
           const u = e / 3000;
           if (u >= 1) this.endAct();
@@ -356,7 +389,7 @@
       this.show('burst', burst >= 0);
       if (burst >= 0) { r.burst.setAttribute('transform', `translate(120 90) scale(${0.7 + burst * 0.5}) translate(-120 -90)`); r.burst.setAttribute('opacity', 1 - burst); }
 
-      if (direct) this.by = y; else this.by += (y - this.by) * 0.25;
+      if (direct || mood === 'hop') this.by = y; else this.by += (y - this.by) * 0.25;
       this.bx += (bx - this.bx) * (mood === 'worried' ? 1 : 0.2);
       this.hr += (hr - this.hr) * 0.12; this.hy += (hy - this.hy) * 0.3;
       this.aL += (aL - this.aL) * armK; this.aR += (aR - this.aR) * armK;

@@ -7,15 +7,13 @@
  *     must not assign it);
  *   - follows the site's light/dark theme (dark = a white outline so the charcoal body stays visible);
  *   - goes back to the page's mood after waking up (the bot wakes into a wave first);
- *   - makes it dizzy after 5 quick clicks;
- *   - hides every bot when the student turns it off from the header (stored as masari.bot).
+ *   - makes it dizzy after 5 quick clicks.
  */
 import * as React from "react"
-import { createStoredValue } from "@/lib/use-stored"
 import { cn } from "@/lib/utils"
 
 export type BotMood =
-  | "idle" | "wave" | "happy" | "thinking" | "talking" | "celebrate" | "sleep" | "sad" | "worried" | "proud"
+  | "idle" | "hop" | "wave" | "happy" | "thinking" | "talking" | "celebrate" | "sleep" | "sad" | "worried" | "proud"
   | "listening" | "reading" | "walk" | "peek" | "bye" | "confused" | "point" | "nod" | "toss"
 
 /** The element's own methods and the fields the wrapper touches (see public/masari-bot.js). */
@@ -26,6 +24,10 @@ export type BotElement = HTMLElement & {
   wake(): void
   enter(): void
   walkAlong(points: [number, number][], msPerStep?: number): void
+  /** Like walkAlong, but hops from point to point. */
+  hopAlong(points: [number, number][], msPerHop?: number): void
+  /** Yawns, nods off, then sleeps (fires masari-asleep). */
+  doze(): void
   resetWalk(): void
   walkPos: [number, number]
   lastAct: number
@@ -49,15 +51,13 @@ export function loadBot(): Promise<void> {
   if (customElements.get("masari-bot")) return Promise.resolve()
   loading ??= new Promise<void>((resolve) => {
     const s = document.createElement("script")
-    s.src = "/masari-bot.js?v=2" // bump when the file changes, so browsers drop the cached copy
+    s.src = "/masari-bot.js?v=3" // bump when the file changes, so browsers drop the cached copy
     s.async = true
     document.head.appendChild(s)
     customElements.whenDefined("masari-bot").then(() => resolve())
   })
   return loading
 }
-
-export const useBotSetting = createStoredValue<"on" | "off">("masari.bot", "on", (v): v is "on" | "off" => v === "on" || v === "off")
 
 /** true while <html> has the .dark class (the theme switch in the header). */
 function useDarkClass() {
@@ -97,7 +97,6 @@ export const Bot = React.forwardRef<BotElement | null, Props>(function Bot(
   ref
 ) {
   const el = React.useRef<BotElement | null>(null)
-  const [setting] = useBotSetting()
   const dark = useDarkClass()
   const [ready, setReady] = React.useState(false)
   const [dizzy, setDizzy] = React.useState(false)
@@ -126,7 +125,7 @@ export const Bot = React.forwardRef<BotElement | null, Props>(function Bot(
     set("once", once)
     set("track", track ? undefined : "false")
     set("wake-to", "wave")
-  }, [dark, outfit, sleepAfter, arrive, edge, once, track, setting])
+  }, [dark, outfit, sleepAfter, arrive, edge, once, track])
 
   const peeked = React.useRef(false)
   React.useLayoutEffect(() => {
@@ -140,7 +139,7 @@ export const Bot = React.forwardRef<BotElement | null, Props>(function Bot(
       peeked.current = true
       b.pk = 240
     }
-  }, [mood, dizzy, setting, ready])
+  }, [mood, dizzy, ready])
 
   // The element reads `enter` when it connects, which can be before this runs: then ask it directly.
   React.useLayoutEffect(() => {
@@ -148,7 +147,7 @@ export const Bot = React.forwardRef<BotElement | null, Props>(function Bot(
     if (!enter || !b) return
     b.setAttribute("enter", "")
     if (typeof b.enter === "function") b.enter()
-  }, [enter, setting, ready])
+  }, [enter, ready])
 
   // After waking (into a wave), back to whatever the page wants. Five clicks within 2.5 s: dizzy for a moment.
   React.useEffect(() => {
@@ -178,9 +177,8 @@ export const Bot = React.forwardRef<BotElement | null, Props>(function Bot(
       b.removeEventListener("masari-awake", onAwake)
       b.removeEventListener("masari-poke", onPoke)
     }
-  }, [ready, setting])
+  }, [ready])
 
-  if (setting === "off") return null
   return (
     <masari-bot
       ref={(n: HTMLElement | null) => {

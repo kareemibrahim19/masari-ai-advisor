@@ -57,7 +57,7 @@ export function DeadlinePopup() {
               <AlertDialog.Description className="text-sm text-muted-foreground">{t("deadlineSoonHint")}</AlertDialog.Description>
             </div>
             {/* Masari points at the dates below. */}
-            <Bot mood="point" enter label={t("botDeadline")} className="-my-2 w-12 shrink-0" />
+            <Bot mood="point" enter label={t("botDeadline")} className="-my-3 shrink-0" style={{ width: 60 }} />
           </div>
           <ul className="space-y-2">
             {shown?.map((r) => (

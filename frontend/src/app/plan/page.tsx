@@ -439,7 +439,7 @@ function PlanBot({ status, gpaWarning, loading }: { status: string; gpaWarning: 
     }
   }, [feasible, loading])
   const mood: BotMood = loading ? "thinking" : gpaWarning ? "point" : (cheer ?? "idle")
-  return <Bot mood={mood} outfit={feasible ? "grad" : "none"} label={t("botChat")} className="w-16 shrink-0 self-center sm:w-20" />
+  return <Bot mood={mood} outfit={feasible ? "grad" : "none"} label={t("botChat")} className="shrink-0 self-center" style={{ width: 92 }} />
 }
 
 function PlanSummary({ plan, loading }: { plan: GraduationPlan; loading: boolean }) {

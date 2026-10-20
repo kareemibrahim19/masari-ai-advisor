@@ -124,6 +124,15 @@ def _taught_you(student: dict | None, instructor_id: str) -> list[dict]:
             for c in t["courses"] if c.get("grade") and teacher.get((c["code"], t["academic_year"])) == instructor_id]
 
 
+def _took(h: dict) -> tuple[str, str]:
+    """A course the student already took with this instructor, named (not coded) so the line reads plainly."""
+    c = d.find_course(h["course_code"]) or {}
+    ar = c.get("name_ar") or h["course_code"]
+    en = c.get("name_en") or ar
+    return (f"سبق لك دراسة {ar} مع هذا المحاضر وحصلت على تقدير {h['grade']}",
+            f"You took {en} with this instructor and received {h['grade']}")
+
+
 def course_ranking(course_code: str, student_id: str | None = None) -> dict:
     """This term's instructor of a course with their grade record for the student, and the course's 10-year history."""
     c = d.find_course(course_code)
@@ -144,8 +153,7 @@ def course_ranking(course_code: str, student_id: str | None = None) -> dict:
     before = [r for r in d.instructor_grades()["records"] if r["course_code"] == c["code"] and r["instructor_id"] != iid]
     previous_mean = (round(sum(r["mean"] * r["students"] for r in before) / sum(r["students"] for r in before), 1)
                      if before else None)
-    mine = [(f"سبق لك دراسة {h['course_code']} مع هذا المحاضر وحصلت على تقدير {h['grade']}",
-             f"You took {h['course_code']} with this instructor and received {h['grade']}") for h in _taught_you(student, iid)]
+    mine = [_took(h) for h in _taught_you(student, iid)]
     entry = {"instructor_id": iid, "name_ar": ins["name_ar"], "name_en": ins["name_en"], "first_time": not rs,
              "only_instructor": bool(rs) and not before}
     if not rs:

@@ -351,14 +351,77 @@
   position: absolute;
   inset-inline-end: 1rem;
   z-index: 10;
-  width: 80px;
-  top: calc(80px * -280 / 240 * 0.893);
+  width: 96px;
+  top: calc(96px * -280 / 240 * 0.893);
 }
 @media (min-width: 768px) {
   .masari-chat-bot {
     inset-inline-end: 2rem;
-    width: 96px;
-    top: calc(96px * -280 / 240 * 0.893);
+    width: 124px;
+    top: calc(124px * -280 / 240 * 0.893);
+  }
+}
+/* Full-screen hello / goodbye (components/masari/welcome-bot.tsx): nothing but Masari, big, and one line. */
+.masari-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  overflow: hidden;
+  background: var(--background);
+  transition: opacity 0.45s ease;
+}
+.masari-splash-bot {
+  width: min(62vw, 42vh, 360px);
+}
+.masari-splash-line {
+  margin: 0;
+  padding: 0 1rem;
+  text-align: center;
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition: opacity 0.35s ease;
+  animation: masari-in 0.5s ease 0.35s both;
+}
+.masari-splash-out {
+  opacity: 0;
+}
+/* Chat: a sent message rises into place from the composer; a typing answer shows a blinking caret. */
+.masari-sent {
+  transform-origin: 100% 100%;
+  animation: masari-send 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+[dir="rtl"] .masari-sent {
+  transform-origin: 0% 100%;
+}
+@keyframes masari-send {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.94);
+  }
+}
+.masari-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-inline-start: 2px;
+  vertical-align: -0.2em;
+  background: var(--brand-accent);
+  animation: masari-blink 0.9s steps(2, start) infinite;
+}
+@keyframes masari-blink {
+  to {
+    visibility: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .masari-sent {
+    animation: none;
   }
 }
 /* The bot's speech bubble pops in. */

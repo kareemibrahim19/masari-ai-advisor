@@ -10,7 +10,6 @@ import { JourneyRail } from "@/components/masari/journey"
 import { PriorityLevel } from "@/components/masari/priority-level"
 import { SeatRequestButton } from "@/components/masari/seat-request"
 import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
-import { WelcomeBot } from "@/components/masari/welcome-bot"
 import { useI18n } from "@/lib/i18n"
 import { semesterLabel, useGraduationPlan, usePlanChoice } from "@/lib/plan-api"
 import { formatLongDate, upcomingReminders, useNow, useToday } from "@/lib/reminders"
@@ -58,7 +57,6 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-10 px-4 py-6 md:px-6 md:py-10">
-      <WelcomeBot />
       {/* Hero: greeting + the path. The path is the one memorable element of the page. */}
       <section aria-labelledby="hero-title" className="space-y-6">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">

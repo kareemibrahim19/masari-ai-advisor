@@ -14,7 +14,8 @@
  */
 import * as React from "react"
 import { MoveHorizontal } from "lucide-react"
-import { Bot, useBotSetting, type BotElement, type BotMood } from "@/components/masari/bot"
+import { Bot, type BotElement, type BotMood } from "@/components/masari/bot"
+import { useSplashDone } from "@/components/masari/welcome-bot"
 import { findCourse } from "@/lib/aie-program"
 import { useI18n } from "@/lib/i18n"
 import { semesterLabel, type GraduationPlan } from "@/lib/plan-api"
@@ -31,10 +32,12 @@ const RISE = 76 // total climb from first node to graduation
 // so a fixed share of the step keeps the same gentle S (out upward, in from below) without turning into loops.
 const BEND = 0.24
 const DRAW_SPEED = 560 // px per second the path draws itself at when the page opens
-const BOT_W = 60 // px: the bot standing on "you are here"
+const BOT_W = 78 // px: the bot standing on "you are here"
+const BOT_ROOM = 30 // px of headroom above the drawing, so a tall bot near graduation is not cut off
 const BOT_H = (BOT_W * 280) / 240
 const BOT_FEET = 250 / 280 // where its feet are, as a share of its height (public/masari-bot.js viewBox)
 const BOT_STEP_MS = 480 // walking time from one semester to the next
+const BOT_HOP_MS = 650 // or hopping there
 const BOT_MOOD_MS = 6000 // how long the mood from last term's results shows before it stands quietly
 
 type Node =
@@ -80,8 +83,6 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
   const scroller = React.useRef<HTMLDivElement>(null)
   const here = React.useRef<SVGGElement>(null)
   const { baselineGraduationIndex, baselinePlan, lastTerm, record, semesterNames, student } = useStudentView()
-  const [botSetting] = useBotSetting()
-  const withBot = botSetting === "on"
 
   const semOf = (code: string) => (findCourse(code) as { semester?: number })?.semester ?? 0
   // Main (non-summer) semesters already finished, as recorded in the student file.
@@ -170,6 +171,12 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
   const bot = React.useRef<BotElement | null>(null)
   const [scale, setScale] = React.useState(0)
   const [botPhase, setBotPhase] = React.useState<"wait" | "walk" | "calm">("wait")
+  // After sign-in the hello screen comes first: the walk waits for it to go.
+  const splashDone = useSplashDone()
+  const mountedAt = React.useRef(0)
+  React.useEffect(() => {
+    mountedAt.current = performance.now()
+  }, [])
   React.useEffect(() => {
     const svg = svgRef.current
     if (!svg) return
@@ -180,10 +187,11 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
   // Start once the drawing has reached "you are here". Positions are offsets from that node, in screen px.
   const walked = React.useRef(false)
   React.useEffect(() => {
-    if (walked.current || !withBot || current < 0 || scale <= 0) return
+    if (walked.current || !splashDone || current < 0 || scale <= 0) return
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     const offsets = pts.slice(0, current + 1).map((p) => [(p.x - pts[current].x) * scale, (p.y - pts[current].y) * scale] as [number, number])
     let calm: ReturnType<typeof setTimeout>
+    const elapsed = window.performance.now() - mountedAt.current
     const start = setTimeout(() => {
       walked.current = true
       const b = bot.current
@@ -195,24 +203,40 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
       b.resetWalk()
       b.walkPos = offsets[0]
       b.style.translate = `${offsets[0][0]}px ${offsets[0][1]}px`
-      b.walkAlong(offsets.slice(1), BOT_STEP_MS)
       setBotPhase("walk")
+      // A mix on the way: walk to one semester, hop to the next, walk, hop… Each leg starts when the last arrives.
+      const legs = offsets.slice(1)
+      const hops = (i: number) => i % 2 === 1
+      let leg = 0
+      const step = () => {
+        if (leg >= legs.length) return land()
+        const last = leg === legs.length - 1
+        // The mood it takes on arriving: the next leg's, so there is no flicker; at the end, last term's mood.
+        b.setAttribute("arrive", last ? gradeMood : hops(leg + 1) ? "hop" : "walk")
+        if (hops(leg)) b.hopAlong([legs[leg]], BOT_HOP_MS)
+        else b.walkAlong([legs[leg]], BOT_STEP_MS)
+        leg++
+      }
       // However the walk goes (or if it is cut short), it ends standing exactly on the node.
       const land = () => {
         clearTimeout(late)
+        b.removeEventListener("masari-arrived", step)
         b.resetWalk()
         calm = setTimeout(() => setBotPhase("calm"), BOT_MOOD_MS)
       }
-      const late = setTimeout(land, offsets.length * BOT_STEP_MS + 400)
-      b.addEventListener("masari-arrived", land, { once: true })
-    }, still ? 0 : at(Math.max(0, current - 1)) * 1000 + 200)
+      const total = legs.reduce((sum, _, i) => sum + (hops(i) ? BOT_HOP_MS : BOT_STEP_MS), 0)
+      const late = setTimeout(land, total + 800)
+      b.addEventListener("masari-arrived", step)
+      step()
+      // Starts once the line has been drawn up to it (it may already be, behind the hello screen).
+    }, still ? 0 : Math.max(300, at(Math.max(0, current - 1)) * 1000 + 200 - elapsed))
     return () => {
       clearTimeout(start)
       clearTimeout(calm)
     }
     // Runs once, when the drawing's size is first known.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [withBot, current, scale > 0])
+  }, [splashDone, current, scale > 0])
 
   // Phones: open on "you are here" instead of semester 1. The scroller carries its own dir (below), so its
   // scroll direction is already right here even before the provider updates <html dir>.
@@ -233,7 +257,7 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
       role="region"
       aria-label={t("pathTitle")}
     >
-      <div className="relative w-max sm:w-full">
+      <div className="relative w-max sm:w-full" style={{ paddingTop: BOT_ROOM }}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${W} ${H}`}
@@ -272,7 +296,7 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
           </g>
         ))}
       </svg>
-      {withBot && current >= 0 && scale > 0 && (
+      {current >= 0 && scale > 0 && (
         <Bot
           ref={bot}
           mood={botPhase === "calm" ? "idle" : gradeMood}
@@ -283,7 +307,7 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
           style={{
             width: BOT_W,
             left: pts[current].x * scale - BOT_W / 2,
-            top: (pts[current].y - 11) * scale - BOT_FEET * BOT_H,
+            top: BOT_ROOM + (pts[current].y - 11) * scale - BOT_FEET * BOT_H,
             opacity: botPhase === "wait" ? 0 : 1,
           }}
         />
@@ -309,7 +333,7 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
       return (
         <g ref={i === current ? here : undefined}>
           <circle cx={p.x} cy={p.y} r="15" className="fill-brand-accent" />
-          {!(i === current && withBot) && (
+          {i !== current && (
             <text x={p.x} y={p.y - 32} textAnchor="middle" className="fill-foreground text-[14px] font-semibold">
               {t("graduation")}
             </text>
@@ -360,7 +384,7 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
           strokeDasharray={n.empty ? "4 3.5" : undefined}
         />
         {/* The bot stands on "you are here", so that node's credits go down next to its semester number. */}
-        {!(isHere && withBot) && (
+        {!isHere && (
           <text
             x={p.x}
             y={p.y - 30}
@@ -374,7 +398,7 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
           {n.label}
         </text>
         {n.sem && (
-          <SemNumber x={p.x} y={p.y + 55} sem={n.sem} extra={isHere && withBot && !n.empty ? `${num(n.credits)} ${t("creditsShort")}` : undefined} />
+          <SemNumber x={p.x} y={p.y + 55} sem={n.sem} extra={isHere && !n.empty ? `${num(n.credits)} ${t("creditsShort")}` : undefined} />
         )}
         {isHere && <HereMark x={p.x} y={p.y + 72} />}
       </g>
