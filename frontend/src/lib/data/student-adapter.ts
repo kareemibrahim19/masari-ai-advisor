@@ -8,18 +8,22 @@ import { electivePools, type ElectiveGroup } from "@/lib/aie-program"
 import type { StudentRecord } from "@/lib/rules"
 import type { StudentFileEntry } from "@/lib/data/types"
 
-const FAIL = "F"
+/** Not a pass: F, a failed pass/fail course (FP), or deprived for absence (DN, counts as 0). As in ai/chatbot/tools/_data.py. */
+const FAILING = new Set(["F", "FP", "DN"])
+/** A withdrawal (article 15) is not an attempt: no grade, not passed, and it does not replace an earlier result. */
+const WITHDRAWN = "W"
+export const isFailing = (grade: string | undefined) => !!grade && FAILING.has(grade)
 const SLOTS: Record<ElectiveGroup, string[]> = { L300: ["ELEC E1", "ELEC E2"], L400: ["ELEC E3", "ELEC E4", "ELEC E5"] }
 const poolGroup = new Map<string, ElectiveGroup>(
   (Object.keys(electivePools) as ElectiveGroup[]).flatMap((g) => electivePools[g].map((p) => [p.code, g] as const))
 )
 
-/** Latest published grade per course code, in term order (a retake overrides the earlier attempt). */
+/** Latest published grade per course code, in term order (a retake overrides the earlier attempt; a withdrawal does not). */
 export function latestGrades(s: StudentFileEntry): Map<string, string> {
   const out = new Map<string, string>()
   for (const term of s.terms) {
     if (term.status !== "published") continue
-    for (const c of term.courses) if (c.grade) out.set(c.code, c.grade)
+    for (const c of term.courses) if (c.grade && c.grade !== WITHDRAWN) out.set(c.code, c.grade)
   }
   return out
 }
@@ -44,8 +48,8 @@ export function assumePassed(r: StudentRecord, codes: string[]): StudentRecord {
 
 export function toStudentRecord(s: StudentFileEntry): StudentRecord {
   const grades = latestGrades(s)
-  const passed = [...grades].filter(([, g]) => g !== FAIL).map(([code]) => code)
-  const failed = [...grades].filter(([, g]) => g === FAIL).map(([code]) => code)
+  const passed = [...grades].filter(([, g]) => !isFailing(g)).map(([code]) => code)
+  const failed = [...grades].filter(([, g]) => isFailing(g)).map(([code]) => code)
 
   // Passed pool courses fill the elective slots of their level in the order they were taken.
   const electiveChoices: Record<string, string> = {}

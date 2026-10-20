@@ -35,7 +35,7 @@ import {
   type StudentRecord,
 } from "@/lib/rules"
 import { sectionsFor, type Section } from "@/lib/demo-content"
-import { assumePassed, registeredNow, toStudentRecord } from "@/lib/data/student-adapter"
+import { assumePassed, isFailing, registeredNow, toStudentRecord } from "@/lib/data/student-adapter"
 import { buildTimetable } from "@/lib/timetable"
 import { dataTerm } from "@/lib/data/student-source"
 import type { StudentFileEntry } from "@/lib/data/types"
@@ -244,7 +244,7 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
   const lastMain = mainTerms[mainTerms.length - 1]
   const lastTerm = lastMain
     ? {
-        failed: lastMain.courses.some((c) => c.grade === "F"),
+        failed: lastMain.courses.some((c) => isFailing(c.grade)),
         gpa: lastMain.summary?.term_gpa ?? null,
         previousGpa: mainTerms[mainTerms.length - 2]?.summary?.term_gpa ?? null,
       }
