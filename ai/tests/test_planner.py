@@ -31,6 +31,8 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
     earned = sum(allc[c]["credits"] for c in passed if c in allc)
     out, seen = [], set(passed)
     last_main = max((i for i, t in enumerate(plan["terms"]) if t["term"] != "summer" and t["courses"]), default=-1)
+    # The semester right before graduation may also have a course opened by request (decided 2026-10-20).
+    before_last = max((i for i, t in enumerate(plan["terms"]) if t["term"] != "summer" and i < last_main), default=-1)
     for i, t in enumerate(plan["terms"]):
         codes = [c["code"] for c in t["courses"]]
         if t["term"] != "summer" and not codes and i < len(plan["terms"]) - 1:
@@ -51,14 +53,14 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
             if summer and course["type"] == "project":
                 out.append(f"project {c['code']} in summer")
             # Mandatory courses run in their plan semester; projects can be in fall or spring (in order). Outside its
-            # semester only by request: in the graduation semester (the last one with courses), or alone in a
+            # semester only by request: in the last two semesters (graduation and the one before), or alone in a
             # semester where nothing else runs for the student (the college opens it).
             if not summer and course["type"] == "mandatory":
                 in_term = (course["planned_semester"] % 2 == 1) == (t["term"] == "fall")
                 if not in_term and c["flag"] not in ("graduation_request", "open_request"):
                     out.append(f"{c['code']} outside its term without a request ({t['en']})")
-                if not in_term and c["flag"] == "graduation_request" and i != last_main:
-                    out.append(f"graduation request {c['code']} not in the graduation semester")
+                if not in_term and c["flag"] == "graduation_request" and i not in (last_main, before_last):
+                    out.append(f"graduation request {c['code']} not in the last two semesters")
                 if not in_term and c["flag"] == "open_request" and len(t["courses"]) != 1:
                     out.append(f"opened course {c['code']} is not alone in {t['en']}")
             if c["code"] in seen:
@@ -155,11 +157,18 @@ check("impossible term GPA rejected", not p["found"] and p["max_term_gpa"] == 0.
 check("failing a course not in this term rejected", not build_graduation_plan(EXC, 5, failed_courses=["CSE 351"])["found"])
 check("bad target rejected", not build_graduation_plan(EXC, 3)["found"])
 
-# Routes: when the target is out of reach as things stand, what would make it possible.
+# Off-term courses only in the last two semesters (the graduation one and the one right before it), by request.
 p = build_graduation_plan(NEW, 4.5, False)
+mains = [i for i, t in enumerate(p.get("terms") or []) if t["term"] != "summer"]
+req_rows = [i for i, t in enumerate(p.get("terms") or []) for c in t["courses"] if c["flag"] == "graduation_request"]
+check("new student 4.5y without summer: on time, requests only in the last two semesters", p["status"] == "feasible"
+      and req_rows and set(req_rows) <= set(mains[-2:]) and not violations(NEW, p), (p.get("status"), req_rows, mains[-2:]))
+
+# Routes: when the target is out of reach as things stand, what would make it possible.
+p = build_graduation_plan(NEW, 4.5, False, failed_courses=["BAS 021"])
 kinds = sorted(c["kind"] for r in p.get("routes", []) for c in r["conditions"])
-check("new student 4.5y without summer: possible with a summer or with a 3.00 GPA", p["status"] == "conditional"
-      and kinds == ["gpa", "summer"] and not violations(NEW, p), (p.get("status"), kinds))
+check("new student 4.5y without summer, failing BAS 021: possible with a summer or with a 3.00 GPA",
+      p["status"] == "conditional" and kinds == ["gpa", "summer"] and not violations(NEW, p, ["BAS 021"]), (p.get("status"), kinds))
 check("GPA route says the semester GPA needed", p["gpa_needed"]["term_gpa"] == 3.0 if "gpa_needed" in p else
       any("3.00" in c["ar"] for r in p["routes"] for c in r["conditions"] if c["kind"] == "gpa"), p.get("routes"))
 p = build_graduation_plan(NEW, 4, True)
@@ -293,11 +302,12 @@ check("... and that course is registered on paper (not on the system)",
 check("... and 4.5 years too (a longer target is never harder)", build_graduation_plan(sid, 4.5, True)["status"] == "feasible")
 
 # Two spring courses left after a spring term, no summer: the fall cannot stay empty, so the college opens one.
+# That fall is the semester right before graduation, so it is a graduation request (decided 2026-10-20).
 sid = near_end("test-two-spring", {"CSE 451", "CSE 452"}, ["ENG 312"], "spring", 11)
 p = build_graduation_plan(sid, 5, False)
 rows = [(t["term"], [c["flag"] for c in t["courses"]]) for t in p["terms"] if t["courses"]]
 check("two spring courses left, no summer: a plan (not 'no plan'), the fall opened by request",
-      p["graduation_term"] is not None and rows and rows[0] == ("fall", ["open_request"]), rows)
+      p["graduation_term"] is not None and rows and rows[0] == ("fall", ["graduation_request"]), rows)
 
 # The summer after the last semester counts: only the third training left in spring of semester 10.
 sid = near_end("test-summer-counts", {"ARI 371"}, ["CSE 452"], "spring", 9)

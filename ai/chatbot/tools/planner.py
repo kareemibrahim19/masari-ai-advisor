@@ -44,6 +44,10 @@ COST_SUMMER_TERM = 40
 COST_SUMMER_COURSE = 20
 COST_TRAINING_IN_MAIN = 25
 COST_GRADUATION_REQUEST = 60
+# A course in the summer right after the target's last semester is the last resort (decided 2026-10-20): the target
+# should end in its last main semester, with an earlier summer and requests to the college if needed. It costs more
+# than those together (a summer 60 + two requests 120), so it is used only when nothing else works.
+COST_SUMMER_AFTER_LAST = 300
 COST_PAPER_REGISTRATION = 15  # a project registered within its hours tolerance (paper registration)
 COST_PAPER_LOAD = 15  # 15 hours on paper with a GPA under 2.00 (five 3-credit courses)
 COST_UNDER_MIN_HOUR = 30  # per hour a semester before graduation falls below 12 (council approval, avoided)
@@ -227,8 +231,9 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
            paper: bool = True, request: bool = True, hi: int = 21, hi_from: int | None = None):
     """Place every remaining course in a term. Returns {code: (term index, flag)} or None if infeasible.
 
-    Levers: `paper` lets projects use their hours tolerance (paper registration), `request` allows one course
-    outside its semester in the graduation term, and `hi_from` raises the cap to `hi` from that main semester.
+    Levers: `paper` lets projects use their hours tolerance (paper registration), `request` allows a course outside
+    its semester in the last two semesters (the graduation one and the one right before it, by a request to the
+    college so the student graduates on time), and `hi_from` raises the cap to `hi` from that main semester.
     """
     caps = _caps(terms, cap, hi, hi_from)
     allc = d.courses()
@@ -249,7 +254,8 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
             var.append((ii, ti, flag))
             cost.append(abs(t["pos"] - planned) + {"summer_on_demand": COST_SUMMER_COURSE,
                                                    "college_request": COST_TRAINING_IN_MAIN,
-                                                   "graduation_request": COST_GRADUATION_REQUEST}.get(flag, 0))
+                                                   "graduation_request": COST_GRADUATION_REQUEST}.get(flag, 0)
+                        + (COST_SUMMER_AFTER_LAST if flag == "summer_on_demand" and t["pos"] > last_main else 0))
     summers = [ti for ti, t in enumerate(terms) if t["term"] == "summer"]
     mains = [ti for ti, t in enumerate(terms) if t["term"] != "summer"]
     n_x = len(var)
@@ -368,16 +374,18 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     if mains:
         add({n_w + i: 1 for i in range(len(mains))}, -np.inf, 1)
 
-    # A course outside its semester only in the graduation semester, or in a semester the college opens for the
-    # student because nothing else runs (then it is the only course); one per semester.
+    # A course outside its semester only in the last two semesters (the graduation semester, or the one right before
+    # it when the course holds up graduating on time: the college opens it on request, decided 2026-10-20), or in a
+    # semester the college opens for the student because nothing else runs (then it is the only course).
     for i, ti in enumerate(mains):
         ks = [k for k in range(n_x) if var[k][1] == ti]
         reqs = [k for k in ks if var[k][2] == "graduation_request"]
         if not reqs:
             continue
         add({k: 1 for k in reqs}, 0, MAX_GRADUATION_REQUESTS)
+        next_is_grad = {n_w + i + 1: -1} if i + 1 < len(mains) else {}
         for k in reqs:
-            add({k: 1, n_w + i: -1, n_o + i: -1}, -np.inf, 0)
+            add({k: 1, n_w + i: -1, **next_is_grad, n_o + i: -1}, -np.inf, 0)
         for k in ks:
             if var[k][2] != "graduation_request":
                 add({k: 1, n_o + i: 1}, -np.inf, 1)
@@ -474,7 +482,7 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
         planned = c["planned_semester"] or 7
         short_of = None  # (term index, hours) of the last term it ran in but the hours were not enough
         for i in range(lower, len(terms)):
-            if not _options(c, terms[i], planned, allow_summer, terms[i]["main"] == last_main):
+            if not _options(c, terms[i], planned, allow_summer, terms[i]["main"] in (last_main - 1, last_main)):
                 continue
             if before[i] < need:
                 short_of = (i, before[i])
@@ -1090,10 +1098,12 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
             r["warning"] = (f"أقل من الحد الأدنى ({min_load} ساعة) لأن مفيش مواد متاحة كفاية في الترم ده، "
                             f"فمحتاج موافقة المجلس.")
 
-    # A course outside its semester before the graduation semester: the college opens it because nothing runs.
+    # A course outside its semester in the last two semesters is a graduation request; earlier, the college opens
+    # it because nothing runs.
+    before_last = max((i for i, r in enumerate(rows) if r["term"] != "summer" and i < last_main_row), default=-1)
     for i, r in enumerate(rows):
         for c in r["courses"]:
-            if c["flag"] == "graduation_request" and i != last_main_row:
+            if c["flag"] == "graduation_request" and i not in (last_main_row, before_last):
                 c["flag"], c["flag_ar"] = "open_request", FLAG_AR["open_request"]
             if c["flag"] in ("graduation_request", "open_request"):
                 c["paper_registration"], c["paper_opened"], c["paper_note_ar"] = True, True, OPENED_PAPER_AR
