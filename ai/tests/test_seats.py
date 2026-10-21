@@ -32,9 +32,9 @@ source._database = lambda: None  # always the ai/data files, even where .env poi
 A, B = "883941655", "897948891"  # two of the mock students
 sections = source.load("sections.json")["sections"]
 offerings = source.load("instructors.json")["offerings"]
-check("one seats entry per section in instructors.json",
+check("one seats entry per section in instructors.json (university requirements have none)",
       [(x["course_code"], x["section"], x["offered_term"]) for x in sections]
-      == [(o["course_code"], o["section"], o["offered_term"]) for o in offerings])
+      == [(o["course_code"], o["section"], o["offered_term"]) for o in offerings if not o["course_code"].startswith("UNR")])
 check("seats are sane", all(0 <= x["enrolled"] <= x["capacity"] for x in sections))
 check("some sections are full (for the demo)", any(x["enrolled"] == x["capacity"] for x in sections))
 
