@@ -61,6 +61,9 @@ $env:DISABLE_SQLALCHEMY_CEXT = "1"
 - **Grades and "who taught it" are one table.** `course_results` holds every course a student registered, per term,
   with marks and grade. `instructor_id` / `section` on the same row replace `student_instructor_history.json`
   (every row of that file matches a course result). They are empty for the current term, trainings and projects.
+- **Instructor grades over the years** (`instructor_grades.json`) are the `instructor_course_years` table, one row
+  per course, year and instructor. Who teaches each course this term, the years covered and the GPA band names are
+  in `meta`. After changing that file, run `seed.py --reset` like for the students.
 - **Course names are not copied into grades.** A course result points at `courses`, and the export adds the name
   and credits back. The six mock students' names and credits match the catalog exactly.
 - **Some fields stay JSON documents** where their shape differs per row or is read as a whole:

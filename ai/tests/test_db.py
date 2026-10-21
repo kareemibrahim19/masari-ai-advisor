@@ -81,6 +81,9 @@ with Session(engine) as s:
     f, d = load("sections.json"), export.sections_file(s)
     check("sections.json round-trips", (x := first_diff(f, d)) is None, x)
 
+    f, d = load("instructor_grades.json"), export.instructor_grades_file(s)
+    check("instructor_grades.json round-trips", (x := first_diff(f, d)) is None, x)
+
     sid = load("students.json")["students"][1]["student_id"]
     one = next(st for st in load("students.json")["students"] if st["student_id"] == sid)
     check("student_record returns one student", first_diff(one, export.student_record(s, sid)) is None)

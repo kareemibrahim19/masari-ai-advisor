@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from db.models import (  # noqa: E402
     AcademicStatus, Advisor, Base, Course, CoursePrerequisite, CourseResult, ElectivePool, ElectivePoolCourse,
-    ElectivePoolSlot, ElectiveSlot, Guardian, Instructor, Meta, Offering, PreviousQualification, Program,
+    ElectivePoolSlot, ElectiveSlot, Guardian, Instructor, InstructorCourseYear, Meta, Offering, PreviousQualification, Program,
     SectionSeats, Student, StudentTerm)
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -43,15 +43,19 @@ def seed(session: Session, data_dir: Path = DATA_DIR) -> dict[str, int]:
     students_file = load_json("students.json", data_dir)
     history_file = load_json("student_instructor_history.json", data_dir)
     sections_file = load_json("sections.json", data_dir)
+    grades_file = load_json("instructor_grades.json", data_dir)
 
     # meta: the facts that sit next to the lists in each file
     session.add_all([
         Meta(key="generated_for_term", value=students_file["generated_for_term"]),
         Meta(key="instructor_dimensions", value=instructors_file["dimensions"]),
+        Meta(key="instructor_grade_years", value=grades_file["years"]),
+        Meta(key="gpa_bands", value=grades_file["gpa_bands"]),
+        Meta(key="teaching_this_term", value=grades_file["this_term"]),
         Meta(key="notes", value={f: d["_note"] for f, d in (
             ("students.json", students_file), ("instructors.json", instructors_file),
             ("advisors.json", advisors_file), ("student_instructor_history.json", history_file),
-            ("sections.json", sections_file)) if "_note" in d}),
+            ("sections.json", sections_file), ("instructor_grades.json", grades_file)) if "_note" in d}),
     ])
 
     # program, courses, prerequisites, electives
@@ -90,6 +94,8 @@ def seed(session: Session, data_dir: Path = DATA_DIR) -> dict[str, int]:
     for o in instructors_file["offerings"]:
         session.add(Offering(course_code=o["course_code"], section=o["section"], instructor_id=o["instructor_id"],
                              offered_term=o["offered_term"], responses=o["responses"], profile=o["profile"]))
+    for pos, r in enumerate(grades_file["records"]):
+        session.add(InstructorCourseYear(position=pos, **r))
     for pos, x in enumerate(sections_file["sections"]):
         session.add(SectionSeats(course_code=x["course_code"], section=x["section"], offered_term=x["offered_term"],
                                  position=pos, capacity=x["capacity"], enrolled=x["enrolled"]))

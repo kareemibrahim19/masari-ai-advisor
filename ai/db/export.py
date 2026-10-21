@@ -10,6 +10,7 @@ the database by calling these functions instead of reading the files, with nothi
     advisors_file(s)        == json.load("advisors.json")
     history_file(s)         == json.load("student_instructor_history.json")
     sections_file(s)        == json.load("sections.json")
+    instructor_grades_file(s) == json.load("instructor_grades.json")
 
 `s` is an open Session. tests/test_db.py checks that each one matches its file.
 """
@@ -17,8 +18,8 @@ the database by calling these functions instead of reading the files, with nothi
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from db.models import (Advisor, Course, CourseResult, ElectivePool, ElectiveSlot, Instructor, Meta, Offering,
-                       Program, SectionSeats, Student, StudentTerm)
+from db.models import (Advisor, Course, CourseResult, ElectivePool, ElectiveSlot, Instructor, InstructorCourseYear,
+                       Meta, Offering, Program, SectionSeats, Student, StudentTerm)
 from db.seed import SUMMARY_FIELDS
 
 
@@ -184,6 +185,20 @@ def instructors_file(s: Session) -> dict:
         "offerings": [{"course_code": o.course_code, "section": o.section, "instructor_id": o.instructor_id,
                        "offered_term": o.offered_term, "responses": o.responses, "profile": o.profile}
                       for o in s.scalars(select(Offering).order_by(Offering.id))],
+    })
+
+
+def instructor_grades_file(s: Session) -> dict:
+    rows = s.scalars(select(InstructorCourseYear).order_by(InstructorCourseYear.position))
+    return _with_note(s, "instructor_grades.json", {
+        "years": _meta(s, "instructor_grade_years", []),
+        "gpa_bands": _meta(s, "gpa_bands", {}),
+        "this_term": _meta(s, "teaching_this_term", {}),
+        "records": [{"instructor_id": r.instructor_id, "course_code": r.course_code, "academic_year": r.academic_year,
+                     "students": r.students, "mean": r.mean, "median": r.median, "pass_rate": r.pass_rate,
+                     "grades": r.grades, "coursework_avg_pct": r.coursework_avg_pct,
+                     "final_avg_pct": r.final_avg_pct, "bonus_added": r.bonus_added, "by_gpa_band": r.by_gpa_band}
+                    for r in rows],
     })
 
 

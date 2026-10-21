@@ -9,6 +9,7 @@ database without changing the shape they read (export.py rebuilds the files' exa
     advisors ─< students ─┬─ guardians, previous_qualifications, academic_status   (one row each)
                           └─< student_terms ─< course_results >─ courses, instructors
     instructors ─< offerings >─ courses          (survey profiles per section)
+    instructors ─< instructor_course_years >─ courses   (students' grades with the instructor, per year)
     section_seats >─ courses                     (capacity and enrolled per section, same key as offerings)
     meta         ─ small key/value facts (current term, survey dimensions, data notes)
     chats ─< chat_messages                       (a student's recent chats with Masari, saved by the website)
@@ -301,6 +302,29 @@ class Offering(Base):
     offered_term: Mapped[str] = mapped_column(String(16))
     responses: Mapped[int] = mapped_column(default=0)
     profile: Mapped[dict] = mapped_column(JSON)
+
+
+class InstructorCourseYear(Base):
+    """How the students of one course did with its instructor in one academic year (was instructor_grades.json),
+    for recommending instructors by their students' grades. Who teaches each course this term, the years covered
+    and the GPA band names are in meta."""
+    __tablename__ = "instructor_course_years"
+    __table_args__ = (UniqueConstraint("course_code", "academic_year", "instructor_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    instructor_id: Mapped[str] = mapped_column(ForeignKey("instructors.id"), index=True)
+    course_code: Mapped[str] = mapped_column(ForeignKey("courses.code"), index=True)
+    academic_year: Mapped[str] = mapped_column(String(16))
+    position: Mapped[int] = mapped_column(default=0)  # order in instructor_grades.json
+    students: Mapped[int]
+    mean: Mapped[float] = mapped_column(Float)
+    median: Mapped[float] = mapped_column(Float)
+    pass_rate: Mapped[float] = mapped_column(Float)
+    grades: Mapped[dict] = mapped_column(JSON)  # {"A+": 1, "A": 4, ..., "F": 25}
+    coursework_avg_pct: Mapped[float] = mapped_column(Float)
+    final_avg_pct: Mapped[float] = mapped_column(Float)
+    bonus_added: Mapped[bool] = mapped_column(Boolean)
+    by_gpa_band: Mapped[dict] = mapped_column(JSON)  # mean total per band of student GPA (keys in meta["gpa_bands"])
 
 
 class SectionSeats(Base):

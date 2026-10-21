@@ -4,7 +4,7 @@
     active()                "database" or "files", for /api/health
 
 From the database: the people data the backend owns (students and their grades, advisors, instructors, who taught
-whom) and the seats per section. Always from the files: courses.json (the program and the regulation rules change together with the planner
+whom, and how their students did over the years) and the seats per section. Always from the files: courses.json (the program and the regulation rules change together with the planner
 code, in the same commit) and regulations_chunks.json (the RAG text, with its embedding cache keyed to the file).
 
 The database is read once per process, like the files were. If it cannot be read (no connection, tables missing,
@@ -19,7 +19,8 @@ from functools import lru_cache
 from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
-FROM_DB = ("students.json", "advisors.json", "instructors.json", "student_instructor_history.json", "sections.json")
+FROM_DB = ("students.json", "advisors.json", "instructors.json", "student_instructor_history.json", "sections.json",
+           "instructor_grades.json")
 
 log = logging.getLogger("masari.data")
 
@@ -42,7 +43,7 @@ def _database() -> dict[str, dict] | None:
         return None
     readers = {"students.json": export.students_file, "advisors.json": export.advisors_file,
                "instructors.json": export.instructors_file, "student_instructor_history.json": export.history_file,
-               "sections.json": export.sections_file}
+               "sections.json": export.sections_file, "instructor_grades.json": export.instructor_grades_file}
     try:
         with SessionLocal() as s:
             out = {name: read(s) for name, read in readers.items()}
