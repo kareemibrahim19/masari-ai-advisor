@@ -463,6 +463,10 @@ const dict = {
   // First sign-in: the student proves who they are with the national ID, then picks a password
   actTitle: { ar: "فعّل حسابك", en: "Activate your account" },
   actSub: { ar: "هنتأكد إنه انت بكود الطالب والرقم القومي.", en: "We'll verify you with your student ID and national ID." },
+  actFromLogin: {
+    ar: "دي أول مرة تدخل، فلسه معندكش باسورد. اكتب رقمك القومي عشان تعمل واحد.",
+    en: "This is your first sign-in, so you don't have a password yet. Enter your national ID to set one.",
+  },
   actNationalId: { ar: "الرقم القومي", en: "National ID" },
   actCheckCta: { ar: "تحقق", en: "Verify" },
   actErrNoNid: { ar: "اكتب الرقم القومي.", en: "Enter your national ID." },

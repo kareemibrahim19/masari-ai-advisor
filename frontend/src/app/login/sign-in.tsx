@@ -6,6 +6,7 @@
  *
  * Sign in: student ID + password (POST /api/auth/login). First time: student ID + national ID
  * (POST /api/auth/activate/check), then a new password typed twice (POST /api/auth/activate), which also signs in.
+ * A student who signs in before ever setting a password is moved to the first-time tab, with the ID kept.
  * Once signed in the dashboard opens straight away. The logo's path beside the card fills in as the student types.
  */
 import { useRouter } from "next/navigation"
@@ -59,6 +60,8 @@ export function SignIn({ initial }: { initial: SignInMode }) {
   const [caps, setCaps] = React.useState(false)
   const [focus, setFocus] = React.useState<"code" | "nid" | "pw" | null>(null)
   const [error, setError] = React.useState<DictKey | null>(null)
+  /** A friendly line in the subtitle's place (not an error), e.g. why the first-time tab opened. */
+  const [notice, setNotice] = React.useState<DictKey | null>(null)
   const [busy, setBusy] = React.useState(false)
 
   const card = React.useRef<HTMLElement>(null)
@@ -80,7 +83,8 @@ export function SignIn({ initial }: { initial: SignInMode }) {
 
   // The form in front gets the focus whenever it changes.
   React.useEffect(() => {
-    ;(isLogin ? (code.length === CODE_LENGTH ? loginPw : loginCode) : choosing ? newPw : actCode).current?.focus()
+    const full = code.length === CODE_LENGTH
+    ;(isLogin ? (full ? loginPw : loginCode) : choosing ? newPw : full ? actNid : actCode).current?.focus()
     // Only when the form changes, not on every keystroke.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLogin, choosing])
@@ -90,6 +94,7 @@ export function SignIn({ initial }: { initial: SignInMode }) {
     setMode(m)
     setStep({ kind: "identity" })
     setError(null)
+    setNotice(null)
     setPassword("")
     setAgain("")
     setNid("")
@@ -117,6 +122,10 @@ export function SignIn({ initial }: { initial: SignInMode }) {
     if (!result.ok) {
       greetOnDashboard(null)
       setPassword("")
+      if (result.reason === "not_activated") {
+        switchTo("activate") // keeps the ID; the national ID field gets the focus
+        return setNotice("actFromLogin")
+      }
       const key = result.reason === "wrong" ? "loginErrWrong" : result.reason === "too_many" ? "loginErrTooMany" : "loginErrUnavailable"
       return fail(key, result.reason === "wrong" ? loginPw : loginCode)
     }
@@ -141,6 +150,7 @@ export function SignIn({ initial }: { initial: SignInMode }) {
       return fail(key, actNid)
     }
     setNid("") // not needed any more
+    setNotice(null)
     setStep({ kind: "password", token: result.activationToken, name: result.name })
   }
 
@@ -171,6 +181,7 @@ export function SignIn({ initial }: { initial: SignInMode }) {
   const onCode = (v: string) => {
     setCode(v.replace(/\D/g, "").slice(0, CODE_LENGTH))
     setError(null)
+    setNotice(null)
   }
 
   // ---- How far along the path is (0..1 for each half) ----
@@ -205,7 +216,7 @@ export function SignIn({ initial }: { initial: SignInMode }) {
         <span>{t(error)}</span>
       </p>
     ) : (
-      <p className={s.sub}>{t(key)}</p>
+      <p className={s.sub}>{t(active && notice ? notice : key)}</p>
     )
 
   const cta = (idle: DictKey, working: DictKey) => (

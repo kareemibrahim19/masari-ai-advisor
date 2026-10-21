@@ -2,7 +2,8 @@
  * Password sign-in with the AI service (ai/chatbot/auth.py) and the token every request carries.
  *
  *   POST /api/auth/login { student_id, password } -> { token, expires_at, student }
- *   401 wrong student ID or password · 429 too many tries (Retry-After) · 503 sign-in not set up on the server
+ *   401 wrong student ID or password · 409 no password yet (first sign-in) · 429 too many tries (Retry-After) ·
+ *   503 sign-in not set up on the server
  *
  * The token lives in sessionStorage next to the student id (closing the tab signs out). apiFetch() adds
  * "Authorization: Bearer <token>" to every request; a 401 on any of them means the token is no longer
@@ -99,7 +100,7 @@ const retryAfterOf = (res: Response) => {
 
 export type LoginResult =
   | { ok: true; student: StudentFileEntry }
-  | { ok: false; reason: "wrong" | "too_many" | "unavailable"; retryAfter?: number | null }
+  | { ok: false; reason: "wrong" | "not_activated" | "too_many" | "unavailable"; retryAfter?: number | null }
 
 /** Signs in on the server (never from the offline copy of the data). */
 export async function login(studentId: string, password: string): Promise<LoginResult> {
@@ -115,6 +116,7 @@ export async function login(studentId: string, password: string): Promise<LoginR
     return { ok: false, reason: "unavailable" }
   }
   if (res.status === 401) return { ok: false, reason: "wrong" }
+  if (res.status === 409) return { ok: false, reason: "not_activated" }
   if (res.status === 429) return { ok: false, reason: "too_many", retryAfter: retryAfterOf(res) }
   if (!res.ok) return { ok: false, reason: "unavailable" }
   const data = (await res.json()) as { token: string; expires_at: number; student: StudentFileEntry }

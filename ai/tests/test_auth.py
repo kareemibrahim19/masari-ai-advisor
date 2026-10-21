@@ -142,7 +142,10 @@ else:
     r = api.post("/api/auth/login", json={"student_id": A, "password": "wrong password"})
     check("wrong password is 401", r.status_code == 401, r.text)
     r = api.post("/api/auth/login", json={"student_id": B, "password": "a new password"})
-    check("student with no password is the same 401", r.status_code == 401 and r.json()["detail"] ==
+    check("student with no password yet is 409, to activate", r.status_code == 409 and r.json()["detail"] ==
+          auth.NOT_ACTIVATED, r.text)
+    r = api.post("/api/auth/login", json={"student_id": "999999999", "password": "a new password"})
+    check("unknown student is the wrong-password 401", r.status_code == 401 and r.json()["detail"] ==
           "Wrong student ID or password", r.text)
 
     # Protection off (the default): everything answers as before, with or without a token.

@@ -1,6 +1,7 @@
 """Signing in with a password, and keeping each student's data to that student.
 
     POST /api/auth/login   {"student_id": "...", "password": "..."}  ->  {"token", "expires_at", "student"}
+                           409 "Not activated" for a student with no password yet (the website opens /activate)
     GET  /api/auth/me      who the token belongs to
 
 A student with no password yet sets one themself, in two steps (the website's /activate page):
@@ -51,6 +52,7 @@ activate_per_student = security.RateLimiter(limit=5, window=15 * 60)
 
 ACTIVATE = "activate"  # the purpose signed into an activation token
 ACTIVATE_SECONDS = 10 * 60  # time to choose the password after the national ID was accepted
+NOT_ACTIVATED = "Not activated"  # login's answer for a student with no password yet
 
 
 def required() -> bool:
@@ -117,9 +119,12 @@ def login(body: LoginBody, request: Request, s: Session = Depends(get_session)):
     try:
         _ensure_tables(s)
         ok = accounts.check_password(s, sid, body.password)
+        first_time = not ok and not accounts.has_password(s, sid)
     except SQLAlchemyError as e:
         raise HTTPException(503, "Sign-in is not available right now") from e
-    student = students.get_student(sid) if ok else None
+    student = students.get_student(sid) if ok or first_time else None
+    if student and first_time:  # a real student who never set a password: the website sends them to activate
+        raise HTTPException(409, NOT_ACTIVATED)
     if not student:  # one answer for a wrong id and a wrong password
         raise HTTPException(401, "Wrong student ID or password")
     login_per_student.reset(sid)
