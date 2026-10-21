@@ -8,10 +8,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Bar, CategoryTag, Code, CountUp, FlipText, Ring } from "@/components/masari/bits"
 import { JourneyRail } from "@/components/masari/journey"
 import { PriorityLevel } from "@/components/masari/priority-level"
-import { SeatRequestButton } from "@/components/masari/seat-request"
 import { useI18n } from "@/lib/i18n"
 import { semesterLabel, useGraduationPlan, usePlanChoice } from "@/lib/plan-api"
 import { formatLongDate, upcomingReminders, useNow, useToday } from "@/lib/reminders"
+import { useRegistrationOpen } from "@/lib/registration"
 import { useSeatRequests } from "@/lib/seat-requests"
 import { useGraduationDelays } from "@/lib/graduation-delays"
 import { useStudentView } from "@/lib/student-context"
@@ -32,6 +32,7 @@ export default function DashboardPage() {
   const { alerts, currentCourses, electiveCategories, requirementGroups, student } = useStudentView()
   const remaining = student.total - student.earned
   const seats = useSeatRequests(student.id)
+  const registrationOpen = useRegistrationOpen()
   // What the rules-engine planner would register this term (prerequisites, credit thresholds and load limit checked).
   const delays = useGraduationDelays(student.id)
   const thisTerm = rankCurrentCourses(currentCourses, delays)
@@ -243,8 +244,17 @@ export default function DashboardPage() {
                   <div className="min-w-0 space-y-2">
                     <p className="font-medium">{tr(a.title)}</p>
                     <p className="text-sm leading-relaxed text-muted-foreground">{tr(a.body)}</p>
-                    {a.seat && (
-                      <SeatRequestButton seats={seats} code={a.seat.code} section={a.seat.section} size="sm" className="h-8" />
+                    {/* The seat request goes to the advisor from the timetable page, once for all full courses. */}
+                    {a.seat && seats.loaded && (
+                      <Link href="/schedule" className="inline-block text-sm font-medium text-primary underline-offset-4 hover:underline">
+                        {t(
+                          seats.isSent(a.seat.code, a.seat.section)
+                            ? "seatGoSent"
+                            : registrationOpen === false
+                              ? "seatGoClosed"
+                              : "seatGoSend"
+                        )}
+                      </Link>
                     )}
                   </div>
                 </li>

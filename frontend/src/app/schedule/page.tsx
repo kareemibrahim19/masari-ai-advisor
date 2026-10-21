@@ -1,7 +1,8 @@
 "use client"
 
 /**
- * The student's weekly timetable for the current term (lib/timetable.ts), next to "Ask Masari".
+ * The student's weekly timetable for the current term (lib/timetable.ts), next to "Ask Masari", and above it the
+ * courses still to register whose section is full, with the one request to the advisor (unregistered-courses.tsx).
  * One table on every screen: the days down the side, the six periods across, a day off as one short row. On phones
  * the table scrolls sideways inside its card while the day column stays put.
  */
@@ -9,7 +10,10 @@ import * as React from "react"
 import { CalendarOff, FlaskConical, MapPin, PencilRuler, Presentation } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Code, PageHeader } from "@/components/masari/bits"
+import { UnregisteredCourses } from "@/components/masari/unregistered-courses"
 import { type DictKey, useI18n } from "@/lib/i18n"
+import { useRegistrationOpen } from "@/lib/registration"
+import { useSeatRequests } from "@/lib/seat-requests"
 import { useStudentView } from "@/lib/student-context"
 import { DAYS, PERIODS, dayNames, type Day, type Session, type SessionKind } from "@/lib/timetable"
 import { cn } from "@/lib/utils"
@@ -36,8 +40,11 @@ const clock = (hhmm: string) => {
 
 export default function SchedulePage() {
   const { t, tr } = useI18n()
-  const { student } = useStudentView()
+  const view = useStudentView()
+  const { student } = view
   const tt = student.timetable
+  const seats = useSeatRequests(student.id)
+  const registrationOpen = useRegistrationOpen()
 
   const at = (d: Day, period: number) => tt.sessions.find((s) => s.day === d && s.period === period)
   const hours = (tt.sessions.length * 90) / 60
@@ -49,6 +56,8 @@ export default function SchedulePage() {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-5 p-4 md:p-6">
       <PageHeader title={t("ttTitle")} subtitle={`${tr(student.level)} · ${t("ttSection")} ${tt.section}`} />
+
+      {registrationOpen !== null && <UnregisteredCourses view={view} seats={seats} open={registrationOpen} />}
 
       {tt.sessions.length === 0 ? (
         <Card>

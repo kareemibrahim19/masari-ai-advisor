@@ -44,6 +44,7 @@ export type StudentFileEntry = {
   persona: string
   persona_note: string
   personal: { name_ar: string; name_en: string; gender: string; [key: string]: unknown }
+  contact?: { university_email?: string; mobile?: string; [key: string]: unknown }
   enrollment: { university: string; faculty: string; program: string; enrollment_year: string }
   academic_status: {
     level: number

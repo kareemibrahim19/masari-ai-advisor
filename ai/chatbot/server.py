@@ -29,6 +29,7 @@ import security  # noqa: E402
 from db import source as data_source  # noqa: E402  (students.py put ai/ on the path)
 from tools.planner import build_graduation_plan, plan_options  # noqa: E402
 from tools import priorities  # noqa: E402
+from tools import advisor as advisor_tools  # noqa: E402
 from tools import call_tool, tool_names  # noqa: E402
 from tools import instructors as instructor_tools  # noqa: E402
 
@@ -191,6 +192,17 @@ def graduation_delays(student_id: str, request: Request):
     if not result.get("found"):
         raise HTTPException(404, result.get("error", "Student not found"))
     return result
+
+
+@app.get("/api/students/{student_id}/advisor")
+def student_advisor(student_id: str, request: Request):
+    """The student's academic advisor (name, title, email, office, office hours), for the website's email to the
+    advisor. 404 when the student has none on file."""
+    auth.check(request, student_id)
+    result = advisor_tools.my_advisor(student_id)
+    if not result.get("found"):
+        raise HTTPException(404, result.get("error", "Student not found"))
+    return result["advisor"]
 
 
 @app.get("/api/instructors/recommendations")

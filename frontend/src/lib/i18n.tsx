@@ -26,6 +26,43 @@ const dict = {
   ttDay: { ar: "اليوم", en: "Day" },
   ttEmpty: { ar: "مفيش مواد مسجلة الترم ده، فمفيش جدول.", en: "You aren't registered in any course this term, so there's no timetable." },
   ttFree: { ar: "فاضي", en: "Free" },
+
+  // Timetable page: courses to register whose section is full, and the one email to the advisor about them
+  regTitle: { ar: "مقررات لسه مسجلتهاش الترم ده", en: "Courses you haven't registered this term" },
+  regOpenSub: {
+    ar: "السكاشن دي مكتملة على سيستم الجامعة. التسجيل والإضافة والحذف شغالين لحد",
+    en: "These sections are full on the university system. Registration and add/drop are open until",
+  },
+  regSend: { ar: "ارسل طلب للمرشد الأكاديمي", en: "Send a request to your advisor" },
+  regSendHint: {
+    ar: "هيفتحلك إيميل جاهز فيه بياناتك والمواد دي، راجعه واضغط إرسال. الطلب ده بيتبعت مرة واحدة بس.",
+    en: "Opens a ready email with your details and these courses; review it and press send. You can send this request once.",
+  },
+  regSent: { ar: "اتبعت طلبك للمرشد الأكاديمي", en: "Your request was sent to your advisor" },
+  regSentHint: {
+    ar: "مرشدك هيراجع الطلب ويرد عليك. لو اتأخر، روحله في ساعاته المكتبية.",
+    en: "Your advisor will review it and reply. If it takes long, visit them in office hours.",
+  },
+  regReopen: { ar: "مبعتّش الإيميل؟ افتحه تاني", en: "Didn't send the email? Open it again" },
+  regSendFailed: {
+    ar: "الإيميل اتفتح بس الطلب ماتسجلش عندنا، دوس تاني.",
+    en: "The email opened but the request wasn't saved here; press again.",
+  },
+  regClosed: { ar: "التسجيل قفل على سيستم الجامعة.", en: "Registration is closed on the university system." },
+  regClosedPaper: {
+    ar: "ينفع تسجل ورقي بس في الحالات الضرورية، من شؤون الطلاب.",
+    en: "Paper registration at Student Affairs is possible only in necessary cases.",
+  },
+  regFull: { ar: "مكتمل", en: "full" },
+  regAllFull: { ar: "كل السكاشن مكتملة", en: "All sections full" },
+  regSeatsLeft: { ar: "مقاعد متاحة", en: "seats left" },
+  regTo: { ar: "لـ", en: "To" },
+  seatGoSent: { ar: "توجّه لجدولي لتتحقق من الطلب المرسل للمرشد", en: "Go to My timetable to check the request sent to your advisor" },
+  seatGoSend: { ar: "ارسل طلب لمرشدك من خانة جدولي", en: "Send a request to your advisor from My timetable" },
+  seatGoClosed: {
+    ar: "التسجيل قفل على السيستم، وينفع تسجل ورقي بس في الحالات الضرورية.",
+    en: "Registration is closed on the system; paper registration only in necessary cases.",
+  },
   ttKindLecture: { ar: "محاضرة", en: "Lecture" },
   ttKindTutorial: { ar: "تمارين", en: "Tutorial" },
   ttKindLab: { ar: "معمل", en: "Lab" },
@@ -139,9 +176,6 @@ const dict = {
   prereqsMet: { ar: "المتطلبات السابقة مستوفاة", en: "Prerequisites met" },
   whyRecommended: { ar: "ليه بنرشحه؟", en: "Why recommended?" },
   missingPrereq: { ar: "متطلب ناقص", en: "Missing prerequisite" },
-  requestSeat: { ar: "طلب فتح مقعد", en: "Request a seat" },
-  seatRequested: { ar: "تم إرسال الطلب", en: "Request sent" },
-  seatRequestFailed: { ar: "الطلب ماتبعتش، جرّب تاني", en: "Request not sent, try again" },
   forCourse: { ar: "المقرر", en: "Course" },
   instructorCoursesHint: {
     ar: "مقرراتك المسجلة في هذا الفصل، مرتبة حسب أهميتها في خطة تخرجك.",

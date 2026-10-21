@@ -10,6 +10,7 @@
 import {
   allDependentsOf,
   categoryLabels,
+  courseNameIn,
   courseNameL,
   courses,
   dependentsOf,
@@ -57,9 +58,13 @@ export type Alert = {
   kind: "warning" | "info" | "seat"
   title: L
   body: L
-  /** For a "seat" alert: the full section the student can request a seat in. */
+  /** For a "seat" alert: the full section; the request goes to the advisor from the timetable page. */
   seat?: { code: string; section: string }
 }
+
+/** A course the student can and should register this term but has not, whose section is full (the timetable page's
+ *  "not registered yet" card and the dashboard's seat alerts). `open`: another section with seats, if any. */
+export type SeatCourse = { code: string; name: L; credits: number; full: string; open?: { id: string; seatsLeft: number } }
 
 export type RecommendedCourse = {
   code: string
@@ -244,6 +249,7 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
     completed: record.passed,
     completedSemesters: st.main_semesters_completed,
     registeredNow: registeredNow(s),
+    email: s.contact?.university_email ?? "",
     /** Graduating at the end of this term (all that is left is registered now): the target they finish in (8 → 4 years,
      *  9 → 4.5, 10 or later → 5), the one the plan page starts on. */
     finishTarget: graduatingNow ? ((currentSemester <= 8 ? 4 : currentSemester === 9 ? 4.5 : 5) as TargetYears) : null,
@@ -471,20 +477,25 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
       },
     })
   }
-  for (const c of recommendedCourses) {
+  // A student whose enrollment is frozen this term registers nothing, so there is no seat to ask for.
+  const frozenNow = s.terms[s.terms.length - 1]?.status === "frozen"
+  const seatCourses: SeatCourse[] = (frozenNow ? [] : recommendedCourses).flatMap((c) => {
     const full = c.sections.find((x) => x.seatsLeft === 0)
     const open = c.sections.find((x) => x.seatsLeft > 0)
-    if (!full || !open) continue
+    if (!full || student.registeredNow.includes(c.code)) return []
+    const name = { ar: courseNameIn(c.code, "ar"), en: courseNameIn(c.code, "en") }
+    return [{ code: c.code, name, credits: c.credits, full: full.id, open: open && { id: open.id, seatsLeft: open.seatsLeft } }]
+  })
+  for (const c of seatCourses) {
     const name = nameEn(c.code)
     alerts.push({
       id: `seat-${c.code}`,
       kind: "seat",
-      title: { ar: `سكشن ${full.id} في ${name} مكتمل`, en: `${name} section ${full.id} is full` },
-      body: {
-        ar: `سكشن ${open.id} فيه ${open.seatsLeft} مقاعد متاحة. لو محتاج سكشن ${full.id} تقدر تبعت طلب فتح مقعد.`,
-        en: `Section ${open.id} has ${open.seatsLeft} seats left. If you need section ${full.id}, you can send a seat request.`,
-      },
-      seat: { code: c.code, section: full.id },
+      title: { ar: `سكشن ${c.full} في ${name} مكتمل`, en: `${name} section ${c.full} is full` },
+      body: c.open
+        ? { ar: `سكشن ${c.open.id} فيه ${c.open.seatsLeft} مقاعد متاحة.`, en: `Section ${c.open.id} has ${c.open.seatsLeft} seats left.` }
+        : { ar: "كل سكاشن المادة دي مكتملة.", en: "Every section of this course is full." },
+      seat: { code: c.code, section: c.full },
     })
   }
 
@@ -608,6 +619,7 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
     electiveCategories,
     alerts,
     recommendedCourses,
+    seatCourses,
     proposedNow,
     currentCourses,
     ineligibleCourses,
