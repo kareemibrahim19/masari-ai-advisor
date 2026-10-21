@@ -9,8 +9,10 @@ Offering rules (confirmed by the team):
 - Summer can open any course if enough students ask, so a summer course is marked "if the college opens it".
 - Training is a summer activity; the college can also let a student register it in fall / spring.
 - Projects never run in summer.
-- The graduation term has no extra hours, but the college can open one course outside its term for a
-  student who needs it to graduate (a request to the college).
+- The college can open one course outside its term for a student who needs it to graduate (a request to the
+  college).
+- The graduation term can go over the hour limit (a graduation allowance, on paper): a final summer holding a
+  single course is folded into the last main semester instead (confirmed by the team 2026-10-21).
 - No main semester is left empty before graduation: when a student has nothing that runs in a semester, the
   college opens a course for them (one, by request). Confirmed by the team 2026-10-17.
 - A target ends with the summer after its last semester: graduating in the summer of year 4 is "4 years"
@@ -67,7 +69,10 @@ FLAG_AR = {
     "graduation_request": "بطلب من الكلية",
     "open_request": "بطلب من الكلية",
     "late_request": "بطلب من الكلية",
+    "graduation_allowance": "سماحية تخرج: فوق حد الساعات في آخر ترم، ورقي",
 }
+ALLOWANCE_AR = ("تسجيل ورقي بسماحية تخرج: المادة دي بتتضاف لآخر ترم فوق حد الساعات بدل ما يبقى فاضلك صيفي "
+                "عشان مادة واحدة. اطلبها من مرشدك وشئون الطلاب.")
 PAPER_AR = "تسجيل ورقي: الساعات أقل من المطلوب بس جوه السماحية"
 # A course the college opens for the student outside its semester is not on the registration system: it goes on paper.
 OPENED_PAPER_AR = ("تسجيل ورقي: المادة مش في ترمها والكلية بتفتحهالك بطلب، فمش هتلاقيها على السيستم. "
@@ -1179,6 +1184,7 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
                      "main_semester": t["main"], "credits": sum(c["credits"] for c in courses),
                      "max_credits": caps[ti] if t["term"] != "summer" else None, "courses": courses})
     _number_electives(rows, proj["passed"])
+    _last_summer_allowance(rows, proj["passed"])
     earned_before = proj["earned"]
     for r in rows:
         for c in r["courses"]:
@@ -1190,7 +1196,7 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
                 c["hours_needed"] = need
         earned_before += r["credits"]
     for r in rows:
-        if r["max_credits"] is not None and r["credits"] > r["max_credits"]:
+        if r["max_credits"] is not None and r["credits"] > r["max_credits"] and not r.get("allowance"):
             r["paper_load"] = True
             r["paper_load_ar"] = (f"تسجيل ورقي: {r['credits']} ساعة ({r['credits'] // PAPER_COURSE_CREDITS} مواد كل مادة "
                                   f"{PAPER_COURSE_CREDITS} ساعات) فوق حد السيستم {r['max_credits']}.")
@@ -1209,7 +1215,7 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
         else:
             r["warning"] = (f"أقل من الحد الأدنى ({min_load} ساعة) لأن مفيش مواد متاحة كفاية في الترم ده، "
                             f"فمحتاج موافقة المجلس.")
-    _frozen_term_hints(s, rows, proj["passed"])
+    _short_term_hints(s, rows, proj["passed"])
 
     # A course outside its semester in the last two semesters is a graduation request; earlier, a request for a course
     # the student is behind on, otherwise the college opens it because nothing runs.
@@ -1254,35 +1260,74 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
     return out
 
 
-def _frozen_term_hints(s: dict, rows: list[dict], passed: set[str]) -> None:
-    """A student who froze a semester may come back to a main semester with too few courses (under the minimum):
-    the courses of the frozen semester's kind (fall or spring) were left behind and run only in that kind. Rarely
-    the college opens one of them in the other semester too, so such a short semester says so and names every one
-    the student could take then (prerequisites passed by then). Only a hint: the advisor or the college confirms."""
+def _short_term_hints(s: dict, rows: list[dict], passed: set[str]) -> None:
+    """A main semester under the minimum load: the courses that run only in the other semester kind are what is
+    missing, and rarely the college opens one of them in this semester too. So such a semester says so (on paper if
+    it opens) and names every one the student could take then (prerequisites passed). For a student who froze a
+    semester of that other kind, the note says it is the frozen semester's courses. Only a hint: the advisor or the
+    college confirms."""
     frozen = [t["term"] for t in s["terms"] if t["status"] == "frozen" and t["term"] != "summer"]
-    if not frozen:
-        return
-    kind = frozen[-1]  # the most recent frozen semester
     allc = d.courses()
     done = set(passed)
-    for r in rows:
-        if r.get("warning") and r["term"] != "summer" and r["term"] != kind:
-            later = {c["code"] for r2 in rows[rows.index(r):] for c in r2["courses"]}
+    for i, r in enumerate(rows):
+        if r.get("warning") and r["term"] != "summer":
+            kind = "fall" if r["term"] == "spring" else "spring"
+            later = {c["code"] for r2 in rows[i:] for c in r2["courses"]}
             fits = [c for c in allc.values()
                     if c["type"] == "mandatory" and c["code"] not in done and c["code"] in later
                     and c["planned_semester"] and (c["planned_semester"] % 2 == 1) == (kind == "fall")
                     and all(p in done for p in d.prereqs(c))]
             fits.sort(key=lambda c: (c["planned_semester"], c["code"]))
             if fits:
-                word_ar, word_en = ("الخريف", "fall") if kind == "fall" else ("الربيع", "spring")
+                word_ar = "الخريف" if kind == "fall" else "الربيع"
                 here_ar = "الربيع" if r["term"] == "spring" else "الخريف"
-                r["frozen_hint"] = {
-                    "ar": f"ممكن تكون مادة من الترم اللي إنت وقفت فيه قيدك ({word_ar}) مفتوحة في {here_ar}! "
-                          f"اتأكد من المرشد بتاعك أو من الإدارة.",
-                    "en": f"A course from the semester you froze ({word_en}) might be open this {r['term']}! "
-                          f"Check with your advisor or the administration.",
-                    "courses": [c["code"] for c in fits]}
+                was_frozen = bool(frozen) and frozen[-1] == kind
+                head_ar = (f"ممكن تكون مادة من الترم اللي إنت وقفت فيه قيدك ({word_ar}) مفتوحة في {here_ar}!"
+                           if was_frozen else f"ممكن تكون مادة من مواد ترم {word_ar} مفتوحة في {here_ar}!")
+                head_en = (f"A course from the semester you froze ({kind}) might be open this {r['term']}!"
+                           if was_frozen else f"A {kind} course might be open this {r['term']}!")
+                r["short_hint"] = {
+                    "ar": f"{head_ar} اتأكد من المرشد بتاعك أو من الإدارة، ولو اتفتحت ممكن تسجلها ورقي.",
+                    "en": f"{head_en} Check with your advisor or the administration; if it opens you can register it on paper.",
+                    "frozen": was_frozen, "courses": [c["code"] for c in fits]}
         done |= {c["code"] for c in r["courses"]}
+
+
+def _last_summer_allowance(rows: list[dict], passed: set[str]) -> None:
+    """No summer left at the very end for one course: when the plan ends with a summer holding a single course,
+    that course goes to the last main semester instead, if it runs then and its prerequisites are passed before
+    it. Over the hour limit it is a graduation allowance on paper (the student asks the advisor and student
+    affairs); within the limit it is an ordinary registration. The student graduates a summer earlier."""
+    filled = [i for i, r in enumerate(rows) if r["courses"]]
+    if not filled:
+        return
+    last = filled[-1]
+    summer = rows[last]
+    if summer["term"] != "summer" or len(summer["courses"]) != 1:
+        return
+    c = summer["courses"][0]
+    if c["type"] in ("training", "project") or not c["credits"]:
+        return
+    mains = [i for i in filled if rows[i]["term"] != "summer" and i < last]
+    if not mains:
+        return
+    j = mains[-1]
+    target = rows[j]
+    if c["type"] == "mandatory" and c["planned_semester"] and (c["planned_semester"] % 2 == 1) != (target["term"] == "fall"):
+        return  # it does not run in that semester
+    before = set(passed) | {x["code"] for r in rows[:j] for x in r["courses"]}
+    if not all(p in before for p in d.prereqs(d.courses()[c["code"]])):
+        return
+    over = target["max_credits"] is not None and target["credits"] + c["credits"] > target["max_credits"]
+    moved = dict(c, flag="graduation_allowance" if over else "regular",
+                 flag_ar=FLAG_AR["graduation_allowance" if over else "regular"])
+    if over:
+        moved["paper_note_ar"] = ALLOWANCE_AR  # its flag already says paper; no second paper tag
+        target["allowance"] = True
+        target["allowance_ar"] = ALLOWANCE_AR
+    target["courses"].append(moved)
+    target["credits"] += c["credits"]
+    summer["courses"], summer["credits"] = [], 0
 
 
 def _number_electives(rows: list[dict], passed: set[str]) -> None:

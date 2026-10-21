@@ -391,6 +391,12 @@ const dict = {
   flagLateRequest: { ar: "بطلب من الكلية", en: "College request" },
   frozenTerm: { ar: "موقف قيدك الترم ده (مش متحسب من سنين الهدف)", en: "Enrollment frozen this semester (not counted in the target)" },
   flagImprovement: { ar: "تحسين", en: "Improvement" },
+  flagAllowance: { ar: "سماحية تخرج · ورقي", en: "Graduation allowance · paper" },
+  flagAllowanceHint: {
+    ar: "بدل ما يفضلك صيفي في الآخر عشان مادة واحدة، المادة بتتضاف لآخر ترم فوق حد الساعات بسماحية تخرج، وبتتسجل ورقي بموافقة المرشد وشئون الطلاب.",
+    en: "Instead of a final summer for one course, it is added to your last semester over the hour limit as a graduation allowance, registered on paper with your advisor's and student affairs' approval.",
+  },
+  allowanceTermNote: { ar: "فوق الحد بسماحية تخرج · ورقي", en: "Over the limit by graduation allowance · paper" },
   flagImprovementWas: { ar: "تقديرك دلوقتي", en: "now" },
   flagImprovementHint: {
     ar: "خلّصت كل المواد بس معدلك أقل من 2.00، فبتعيد مواد ناجح فيها عشان المعدل يوصل 2.00 (مادة 30). التقدير الأخير هو اللي بيتحسب.",

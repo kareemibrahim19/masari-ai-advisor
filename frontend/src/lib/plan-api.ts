@@ -16,6 +16,7 @@ export type PlanFlag =
   | "open_request"
   | "late_request"
   | "improvement"
+  | "graduation_allowance"
 
 export type PlanCourse = {
   code: string
@@ -50,9 +51,13 @@ export type PlanTerm = {
   max_credits: number | null
   courses: PlanCourse[]
   warning?: string
-  /** A short semester after a frozen one: a course of the frozen semester's kind might be open now (ask the
-   *  advisor), with the ones the student could take then. */
-  frozen_hint?: { ar: string; en: string; courses: string[] }
+  /** A semester under the minimum load: a course of the other semester kind might be open now (ask the advisor;
+   *  on paper if it opens), with the ones the student could take then. `frozen`: that kind is the semester the
+   *  student froze, and the note says so. */
+  short_hint?: { ar: string; en: string; frozen: boolean; courses: string[] }
+  /** The last semester takes the course that would have been alone in a final summer, over the hour limit: a
+   *  graduation allowance on paper. */
+  allowance?: boolean
   /** 15 hours on paper with a GPA under 2.00 (five 3-credit courses). */
   paper_load?: boolean
   /** The graduation semester under 12 hours, registered on paper. */

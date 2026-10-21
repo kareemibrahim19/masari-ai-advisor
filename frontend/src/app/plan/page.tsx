@@ -56,6 +56,7 @@ const flagStyle: Record<Exclude<PlanFlag, "regular">, { key: Parameters<ReturnTy
   open_request: { key: "flagLateRequest", cls: "bg-primary/10 text-primary" },
   late_request: { key: "flagLateRequest", cls: "bg-primary/10 text-primary" },
   improvement: { key: "flagImprovement", cls: "bg-verified-soft text-verified" },
+  graduation_allowance: { key: "flagAllowance", cls: "bg-highlight-soft text-highlight-ink" },
 }
 
 /** Projects registered within the hours tolerance must be registered on paper at the faculty. */
@@ -695,7 +696,7 @@ function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduat
   const summer = term.term === "summer"
   const order = termOrder(term)
   // Over the cap only counts when it is not the 15-hour paper registration.
-  const over = term.max_credits !== null && term.credits > term.max_credits && !term.paper_load
+  const over = term.max_credits !== null && term.credits > term.max_credits && !term.paper_load && !term.allowance
 
   return (
     <Card className={cn((summer || term.frozen) && "border-dashed bg-muted/30", term.courses.length === 0 && "opacity-70")}>
@@ -739,14 +740,21 @@ function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduat
                 {t("underMinLoad")}
               </p>
             )}
-            {term.frozen_hint && (
+            {term.allowance && (
+              <p className="pt-1">
+                <span className="inline-block rounded bg-highlight-soft px-1.5 py-px text-[11px] font-medium text-highlight-ink">
+                  {t("allowanceTermNote")}
+                </span>
+              </p>
+            )}
+            {term.short_hint && (
               <div className="mt-1 space-y-1 rounded-md border border-primary/30 bg-primary/5 p-2 text-[11px]">
                 <p className="flex items-start gap-1 font-medium">
                   <Info className="mt-px size-3 shrink-0 text-primary" aria-hidden />
-                  {tr(term.frozen_hint)}
+                  {tr(term.short_hint)}
                 </p>
                 <p className="text-muted-foreground">
-                  {t("frozenHintCourses")} {term.frozen_hint.courses.map((code) => courseNameIn(code, lang)).join("، ")}
+                  {t("frozenHintCourses")} {term.short_hint.courses.map((code) => courseNameIn(code, lang)).join("، ")}
                 </p>
               </div>
             )}
@@ -822,6 +830,7 @@ function Legend({ improvement }: { improvement: boolean }) {
     { flag: "summer_on_demand", hint: t("flagSummerHint") },
     { flag: "college_request", hint: t("flagCollegeRequestHint") },
     { flag: "late_request", hint: t("flagLateRequestHint") },
+    { flag: "graduation_allowance", hint: t("flagAllowanceHint") },
     // Only when this plan has improvement courses: most students never need it.
     ...(improvement ? [{ flag: "improvement" as const, hint: t("flagImprovementHint") }] : []),
   ]

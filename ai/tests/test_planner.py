@@ -454,22 +454,47 @@ for sid in d.students():
                   not g["reachable"] and g["next_term_gpa"] == gn["next_term_gpa"]
                   and all(c["grade"] == "A" for c in g["courses"]), (gn, g.get("next_term_gpa")))
 
-# A short semester after a frozen one says a course of the frozen semester's kind might be open (general rule)
-hints = 0
+# A semester under the minimum says a course of the other kind might be open (any student; frozen wording for a
+# student who froze that kind), on paper if it opens
+hints = {"frozen": 0, "normal": 0}
+allc = d.courses()
 for sid, st in d.students().items():
     frozen = [t["term"] for t in st["terms"] if t["status"] == "frozen" and t["term"] != "summer"]
-    for years in (4, 4.5, 5):
-        for t in build_graduation_plan(sid, years, True).get("terms", []):
-            h = t.get("frozen_hint")
+    cur = P.current_or_frozen(st)
+    whatifs = [None] + ([[c["code"]] for c in cur["courses"]] if cur and cur["status"] != "frozen" else [])
+    for failed in whatifs:
+        for t in build_graduation_plan(sid, 5, True, failed_courses=failed).get("terms", []):
+            h = t.get("short_hint")
             if not h:
                 continue
-            hints += 1
-            allc = d.courses()
-            check(f"{sid} {years}y: a hint only for a frozen student, on a short semester of the other kind",
-                  frozen and t.get("warning") and t["term"] != frozen[-1], (frozen, t["term"]))
-            check(f"{sid} {years}y: the hint's courses run in the frozen semester's kind",
-                  all((allc[c]["planned_semester"] % 2 == 1) == (frozen[-1] == "fall") for c in h["courses"]), h["courses"])
-check("some student gets the frozen-semester hint", hints > 0, hints)
+            other = "fall" if t["term"] == "spring" else "spring"
+            hints["frozen" if h["frozen"] else "normal"] += 1
+            check(f"{sid} {failed}: a hint only on a semester under the minimum", t.get("warning"), t["term"])
+            check(f"{sid} {failed}: frozen wording only for a student who froze the other kind",
+                  h["frozen"] == (bool(frozen) and frozen[-1] == other), (frozen, t["term"]))
+            check(f"{sid} {failed}: the hint's courses run only in the other kind, and it says paper",
+                  all((allc[c]["planned_semester"] % 2 == 1) == (other == "fall") for c in h["courses"]) and "ورقي" in h["ar"],
+                  h["courses"])
+check("both hint wordings show up for some student", hints["frozen"] and hints["normal"], hints)
+
+# No final summer for one course: it goes to the last semester (over the limit: a graduation allowance on paper)
+moved = 0
+for sid, st in d.students().items():
+    goal = P.grades_needed(sid)
+    gpas = [None] + ([goal["term_gpa"]] if goal.get("reachable") else [])
+    for gpa in gpas:
+        for years in (4, 4.5, 5):
+            pl = build_graduation_plan(sid, years, True, expected_term_gpa=gpa)
+            rows = pl.get("terms", [])
+            for i, t in enumerate(rows):
+                for c in t["courses"]:
+                    if c["flag"] != "graduation_allowance":
+                        continue
+                    moved += 1
+                    check(f"{sid} {years}y gpa={gpa}: the allowance is in the last semester, over the limit by that course only",
+                          i == len(rows) - 1 and t["credits"] > t["max_credits"] >= t["credits"] - c["credits"] and t.get("allowance"),
+                          (i, len(rows), t["credits"], t["max_credits"]))
+check("the last-summer allowance shows up for some student", moved > 0, moved)
 
 # Electives in a plan are shown by slot: each a different slot, in its pool
 slots = {sl: p for p in d.program()["elective_pools"] for sl in p["slots"]}
