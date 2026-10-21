@@ -454,6 +454,23 @@ for sid in d.students():
                   not g["reachable"] and g["next_term_gpa"] == gn["next_term_gpa"]
                   and all(c["grade"] == "A" for c in g["courses"]), (gn, g.get("next_term_gpa")))
 
+# A short semester after a frozen one says a course of the frozen semester's kind might be open (general rule)
+hints = 0
+for sid, st in d.students().items():
+    frozen = [t["term"] for t in st["terms"] if t["status"] == "frozen" and t["term"] != "summer"]
+    for years in (4, 4.5, 5):
+        for t in build_graduation_plan(sid, years, True).get("terms", []):
+            h = t.get("frozen_hint")
+            if not h:
+                continue
+            hints += 1
+            allc = d.courses()
+            check(f"{sid} {years}y: a hint only for a frozen student, on a short semester of the other kind",
+                  frozen and t.get("warning") and t["term"] != frozen[-1], (frozen, t["term"]))
+            check(f"{sid} {years}y: the hint's courses run in the frozen semester's kind",
+                  all((allc[c]["planned_semester"] % 2 == 1) == (frozen[-1] == "fall") for c in h["courses"]), h["courses"])
+check("some student gets the frozen-semester hint", hints > 0, hints)
+
 # Electives in a plan are shown by slot: each a different slot, in its pool
 slots = {sl: p for p in d.program()["elective_pools"] for sl in p["slots"]}
 for sid in d.students():

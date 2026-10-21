@@ -1209,6 +1209,7 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
         else:
             r["warning"] = (f"أقل من الحد الأدنى ({min_load} ساعة) لأن مفيش مواد متاحة كفاية في الترم ده، "
                             f"فمحتاج موافقة المجلس.")
+    _frozen_term_hints(s, rows, proj["passed"])
 
     # A course outside its semester in the last two semesters is a graduation request; earlier, a request for a course
     # the student is behind on, otherwise the college opens it because nothing runs.
@@ -1251,6 +1252,37 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
     if gpa_warning:
         out["explanation"] += " " + gpa_warning["ar"]
     return out
+
+
+def _frozen_term_hints(s: dict, rows: list[dict], passed: set[str]) -> None:
+    """A student who froze a semester may come back to a main semester with too few courses (under the minimum):
+    the courses of the frozen semester's kind (fall or spring) were left behind and run only in that kind. Rarely
+    the college opens one of them in the other semester too, so such a short semester says so and names every one
+    the student could take then (prerequisites passed by then). Only a hint: the advisor or the college confirms."""
+    frozen = [t["term"] for t in s["terms"] if t["status"] == "frozen" and t["term"] != "summer"]
+    if not frozen:
+        return
+    kind = frozen[-1]  # the most recent frozen semester
+    allc = d.courses()
+    done = set(passed)
+    for r in rows:
+        if r.get("warning") and r["term"] != "summer" and r["term"] != kind:
+            later = {c["code"] for r2 in rows[rows.index(r):] for c in r2["courses"]}
+            fits = [c for c in allc.values()
+                    if c["type"] == "mandatory" and c["code"] not in done and c["code"] in later
+                    and c["planned_semester"] and (c["planned_semester"] % 2 == 1) == (kind == "fall")
+                    and all(p in done for p in d.prereqs(c))]
+            fits.sort(key=lambda c: (c["planned_semester"], c["code"]))
+            if fits:
+                word_ar, word_en = ("الخريف", "fall") if kind == "fall" else ("الربيع", "spring")
+                here_ar = "الربيع" if r["term"] == "spring" else "الخريف"
+                r["frozen_hint"] = {
+                    "ar": f"ممكن تكون مادة من الترم اللي إنت وقفت فيه قيدك ({word_ar}) مفتوحة في {here_ar}! "
+                          f"اتأكد من المرشد بتاعك أو من الإدارة.",
+                    "en": f"A course from the semester you froze ({word_en}) might be open this {r['term']}! "
+                          f"Check with your advisor or the administration.",
+                    "courses": [c["code"] for c in fits]}
+        done |= {c["code"] for c in r["courses"]}
 
 
 def _number_electives(rows: list[dict], passed: set[str]) -> None:

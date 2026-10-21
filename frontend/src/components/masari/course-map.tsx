@@ -16,6 +16,7 @@ import {
   allPrerequisitesOf,
   chainDepth,
   courseNameIn,
+  electiveLabel,
   courses,
   dependentsOf,
   electivePools,
@@ -113,12 +114,11 @@ export function CourseMap() {
     (code: string): Kind => {
       const s = statusOf(code, record)
       if (s.kind !== "passed") {
-        const chosen = record.electiveChoices[code]
-        if (registered.has(code) || (chosen && registered.has(chosen))) return "registered"
+        if (registered.has(code) || student.electiveSlots[code]?.registered) return "registered"
       }
       return s.kind
     },
-    [record, registered]
+    [record, registered, student.electiveSlots]
   )
 
   // ---------------------------------------------------------------- focus
@@ -253,7 +253,7 @@ export function CourseMap() {
               const related = !focus || c.code === focus || ups.has(c.code) || downs.has(c.code)
               const lit = related
               const isSlot = c.type === "elective"
-              const name = courseNameIn(c.code, lang)
+              const name = isSlot ? electiveLabel(c.code, student.electiveSlots[c.code]?.code, lang) : courseNameIn(c.code, lang)
               return (
                 // Outer box carries the entrance animation; the button's own opacity does the dimming.
                 <div
@@ -322,7 +322,7 @@ function Details({
   onClear: () => void
 }) {
   const { t, num, lang } = useI18n()
-  const { record } = useStudentView()
+  const { record, student } = useStudentView()
   const c = code ? findCourse(code) : undefined
 
   if (!c || !code) {
@@ -365,7 +365,9 @@ function Details({
       <div className="min-w-0 space-y-2 pe-8 md:pe-0">
         <div>
           <Code className="text-xs text-muted-foreground">{isSlot ? code.replace("ELEC ", "") : code}</Code>
-          <p className="text-lg leading-snug font-semibold">{courseNameIn(code, lang)}</p>
+          <p className="text-lg leading-snug font-semibold">
+            {isSlot ? electiveLabel(code, student.electiveSlots[code]?.code, lang) : courseNameIn(code, lang)}
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
           <span className={cn("inline-flex h-6 items-center rounded-full px-2 text-xs font-medium", pill[kind])}>{t(kindLabel[kind])}</span>

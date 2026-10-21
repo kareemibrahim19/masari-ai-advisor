@@ -355,6 +355,7 @@ const dict = {
     ar: "المفروض تقديراتي تكون إيه في كل مادة الترم ده عشان معدلي التراكمي يوصل {target}؟",
     en: "What grades do I need in each course this term for my cumulative GPA to reach {target}?",
   },
+  frozenHintCourses: { ar: "زي:", en: "For example:" },
   electiveSlot: { ar: "مقرر اختياري ({n})", en: "Elective ({n})" },
   electivePick: { ar: "تختاره من اختياريات المستوى {level}", en: "your pick from the level {level} electives" },
   ladderEstimate: {

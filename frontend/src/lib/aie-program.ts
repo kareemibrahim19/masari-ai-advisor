@@ -270,8 +270,13 @@ const namesAr: Record<string, string> = {
 export const courseNameIn = (code: string, lang: "ar" | "en") => {
   if (lang === "en") return courseName(code)
   const slot = code.match(/^ELEC E(\d)$/)
-  return slot ? `اختياري (${slot[1]})` : (namesAr[code] ?? courseName(code))
+  return slot ? `مقرر اختياري (${slot[1]})` : (namesAr[code] ?? courseName(code))
 }
+
+/** An elective slot as the pages show it: "مقرر اختياري (3)", and with the course in brackets once the student
+ *  passed or registered one in it, "مقرر اختياري (3) (تعلم الآلة)". */
+export const electiveLabel = (slot: string, chosen: string | undefined, lang: "ar" | "en") =>
+  chosen ? `${courseNameIn(slot, lang)} (${courseNameIn(chosen, lang)})` : courseNameIn(slot, lang)
 
 /** Every course or pool course that lists `code` as a direct prerequisite. */
 export function dependentsOf(code: string): string[] {

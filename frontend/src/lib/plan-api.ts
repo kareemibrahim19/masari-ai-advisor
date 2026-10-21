@@ -50,6 +50,9 @@ export type PlanTerm = {
   max_credits: number | null
   courses: PlanCourse[]
   warning?: string
+  /** A short semester after a frozen one: a course of the frozen semester's kind might be open now (ask the
+   *  advisor), with the ones the student could take then. */
+  frozen_hint?: { ar: string; en: string; courses: string[] }
   /** 15 hours on paper with a GPA under 2.00 (five 3-credit courses). */
   paper_load?: boolean
   /** The graduation semester under 12 hours, registered on paper. */

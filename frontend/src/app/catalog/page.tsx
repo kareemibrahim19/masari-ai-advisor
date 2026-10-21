@@ -11,6 +11,7 @@ import { CourseMap } from "@/components/masari/course-map"
 import {
   categoryLabels,
   courseNameIn,
+  electiveLabel,
   courses,
   dependentsOf,
   electivePools,
@@ -360,10 +361,11 @@ function CourseRow({
   onPick: (code: string) => void
 }) {
   const { t, tr, num, lang } = useI18n()
-  const { record } = useStudentView()
+  const { student } = useStudentView()
   const isSlot = c.type === "elective"
   const deps = dependentsOf(c.code)
-  const chosen = isSlot ? record.electiveChoices[c.code] : undefined
+  // The pool course the student passed or registered in this slot.
+  const chosen = isSlot ? student.electiveSlots[c.code]?.code : undefined
   const panelId = `row-${c.code.replace(" ", "-")}`
 
   return (
@@ -385,13 +387,13 @@ function CourseRow({
             <Code className="text-xs text-muted-foreground">{isSlot ? c.code.replace("ELEC ", "") : c.code}</Code>
             <CategoryTag category={c.category} />
           </span>
-          <span className="block font-medium">{isSlot ? `${courseNameIn(c.code, lang)} · ${c.electiveGroup}` : courseNameIn(c.code, lang)}</span>
+          <span className="block font-medium">{isSlot ? electiveLabel(c.code, chosen, lang) : courseNameIn(c.code, lang)}</span>
           <span className="text-xs text-muted-foreground">
             {tr(typeLabels[c.type])}
             {chosen && (
               <>
                 {" · "}
-                {t("yourPick")}: <Code>{chosen}</Code>
+                <Code>{chosen}</Code>
               </>
             )}
             <span className="md:hidden">

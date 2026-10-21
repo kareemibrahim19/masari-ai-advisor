@@ -691,7 +691,7 @@ function TermGoal({ plan }: { plan: GraduationPlan }) {
 }
 
 function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduation: boolean; movedFrom: Map<string, number> | null }) {
-  const { t, tr, num } = useI18n()
+  const { t, tr, num, lang } = useI18n()
   const summer = term.term === "summer"
   const order = termOrder(term)
   // Over the cap only counts when it is not the 15-hour paper registration.
@@ -738,6 +738,17 @@ function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduat
                 <TriangleAlert className="mt-px size-3 shrink-0" aria-hidden />
                 {t("underMinLoad")}
               </p>
+            )}
+            {term.frozen_hint && (
+              <div className="mt-1 space-y-1 rounded-md border border-primary/30 bg-primary/5 p-2 text-[11px]">
+                <p className="flex items-start gap-1 font-medium">
+                  <Info className="mt-px size-3 shrink-0 text-primary" aria-hidden />
+                  {tr(term.frozen_hint)}
+                </p>
+                <p className="text-muted-foreground">
+                  {t("frozenHintCourses")} {term.frozen_hint.courses.map((code) => courseNameIn(code, lang)).join("، ")}
+                </p>
+              </div>
             )}
           </div>
         )}

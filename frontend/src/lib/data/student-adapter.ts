@@ -18,6 +18,23 @@ const poolGroup = new Map<string, ElectiveGroup>(
   (Object.keys(electivePools) as ElectiveGroup[]).flatMap((g) => electivePools[g].map((p) => [p.code, g] as const))
 )
 
+/** Each elective slot ("ELEC E1".."ELEC E5") and the pool course in it: the passed ones first (electiveChoices), then
+ *  the ones registered this term in the free slots of their level, in order. The plan numbers them the same way. */
+export function electiveSlots(r: StudentRecord, registered: string[]): Record<string, { code: string; registered: boolean }> {
+  const out: Record<string, { code: string; registered: boolean }> = {}
+  for (const [slot, code] of Object.entries(r.electiveChoices)) out[slot] = { code, registered: false }
+  const taken = new Set(Object.values(r.electiveChoices))
+  for (const code of registered) {
+    const g = poolGroup.get(code)
+    const slot = g && !taken.has(code) ? SLOTS[g].find((x) => !out[x]) : undefined
+    if (slot) {
+      out[slot] = { code, registered: true }
+      taken.add(code)
+    }
+  }
+  return out
+}
+
 /** Latest published grade per course code, in term order (a retake overrides the earlier attempt; a withdrawal does not). */
 export function latestGrades(s: StudentFileEntry): Map<string, string> {
   const out = new Map<string, string>()

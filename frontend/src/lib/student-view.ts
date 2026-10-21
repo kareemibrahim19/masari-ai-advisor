@@ -12,6 +12,7 @@ import {
   categoryLabels,
   courseNameIn,
   courseNameL,
+  electiveLabel,
   courses,
   dependentsOf,
   findCourse,
@@ -38,7 +39,7 @@ import {
   type StudentRecord,
 } from "@/lib/rules"
 import { sectionsFor, type Section } from "@/lib/demo-content"
-import { assumePassed, isFailing, registeredNow, toStudentRecord } from "@/lib/data/student-adapter"
+import { assumePassed, electiveSlots, isFailing, registeredNow, toStudentRecord } from "@/lib/data/student-adapter"
 import { buildTimetable } from "@/lib/timetable"
 import { dataTerm } from "@/lib/data/student-source"
 import type { StudentFileEntry } from "@/lib/data/types"
@@ -250,6 +251,8 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
     completedSemesters: st.main_semesters_completed,
     registeredNow: registeredNow(s),
     email: s.contact?.university_email ?? "",
+    /** Elective slot -> the pool course the student passed or registered in it (catalog and dashboard). */
+    electiveSlots: electiveSlots(record, registeredNow(s)),
     /** Graduating at the end of this term (all that is left is registered now): the target they finish in (8 → 4 years,
      *  9 → 4.5, 10 or later → 5), the one the plan page starts on. */
     finishTarget: graduatingNow ? ((currentSemester <= 8 ? 4 : currentSemester === 9 ? 4.5 : 5) as TargetYears) : null,
@@ -360,11 +363,14 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
   const nextOpts: PlanOptions = { ...planOpts, startTerm: startTerm === "fall" ? "spring" : "fall", currentSemester: currentSemester + 1 }
   const registered = s.terms.filter((t) => t.status === "in_progress").flatMap((t) => t.courses)
   const allPassedIdx = graduationOf(assumePassed(record, registered.map((c) => c.code)), nextOpts)
+  // An elective registered now is shown by its slot: "مقرر اختياري (2) (its name)".
+  const slotOf = new Map(Object.entries(student.electiveSlots).map(([slot, x]) => [x.code, slot]))
   const currentCourses: CurrentCourse[] = registered.map((c) => {
     const others = registered.filter((x) => x.code !== c.code).map((x) => x.code)
+    const slot = slotOf.get(c.code)
     return {
       code: c.code,
-      name: { ar: c.name_ar, en: c.name_en },
+      name: slot ? { ar: electiveLabel(slot, c.code, "ar"), en: electiveLabel(slot, c.code, "en") } : { ar: c.name_ar, en: c.name_en },
       credits: c.credits,
       category: c.code.split(" ")[0] as Category,
       estimatedDelay: graduationOf(assumePassed(record, others), nextOpts) - allPassedIdx,
