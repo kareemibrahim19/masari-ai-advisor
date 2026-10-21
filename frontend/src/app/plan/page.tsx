@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Bar, Code, FlipText, PageHeader } from "@/components/masari/bits"
 import { Bot, type BotMood } from "@/components/masari/bot"
-import { courseNames } from "@/lib/demo-content"
+import { courseNameIn } from "@/lib/aie-program"
 import { useI18n } from "@/lib/i18n"
 import {
   PlanError,
@@ -297,8 +297,9 @@ export default function PlanPage() {
 }
 
 function FailedPicker({ courses, selected, onChange }: { courses: string[]; selected: string[]; onChange: (codes: string[]) => void }) {
-  const { t, tr, num } = useI18n()
-  const name = (code: string) => (courseNames[code] ? tr(courseNames[code]) : code)
+  const { t, tr, num, lang } = useI18n()
+  // Arabic names when the site is in Arabic, the official English names in English.
+  const name = (code: string) => courseNameIn(code, lang)
   const toggle = (code: string, on: boolean) =>
     onChange(on ? [...selected, code].filter((c, i, a) => a.indexOf(c) === i) : selected.filter((c) => c !== code))
 
@@ -754,13 +755,13 @@ function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduat
 }
 
 function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined; here: number }) {
-  const { t, tr, num } = useI18n()
+  const { t, num, lang } = useI18n()
   const moved = from !== undefined && from !== here
   const later = moved && here > from
   const flag = c.flag !== "regular" ? flagStyle[c.flag] : null
   // An elective is shown by its slot: the student picks which course of the pool to take.
   const elective = c.type === "elective" && c.elective_slot
-  const name = elective ? t("electiveSlot").replace("{n}", c.elective_slot!.replace("E", "")) : tr(courseNames[c.code])
+  const name = elective ? t("electiveSlot").replace("{n}", c.elective_slot!.replace("E", "")) : courseNameIn(c.code, lang)
 
   return (
     <li className={cn("space-y-1.5 rounded-lg border bg-background/60 p-2.5", moved && "border-warning/60 bg-warning-soft/60")}>
