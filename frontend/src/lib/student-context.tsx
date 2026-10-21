@@ -21,6 +21,7 @@ import { fetchSections } from "@/lib/data/sections-source"
 import type { StudentFileEntry } from "@/lib/data/types"
 import { sectionsFor, type Section } from "@/lib/demo-content"
 import { buildStudentView, type StudentView } from "@/lib/student-view"
+import { setGraduateBot } from "@/components/masari/bot"
 
 type StudentContextValue = {
   /** false until the saved session has been checked (avoids flashing the login page on refresh). */
@@ -80,6 +81,10 @@ export function StudentProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const view = React.useMemo(() => (entry ? buildStudentView(entry, sections) : null), [entry, sections])
+  // In their last semester (everything left registered now): the bot wears its graduation outfit on every page.
+  React.useEffect(() => {
+    setGraduateBot(view !== null && view.student.finishTarget !== null)
+  }, [view])
   const value = React.useMemo(
     () => ({ ready, view, signIn, activate, signOut }),
     [ready, view, signIn, activate, signOut]

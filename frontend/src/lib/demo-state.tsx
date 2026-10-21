@@ -123,7 +123,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
     [studentId]
   )
   const [thinking, setThinking] = React.useState(false)
-  const [planChoice] = usePlanChoice(view.student.id)
+  const [planChoice] = usePlanChoice(view.student.id, view.student.finishTarget)
   const pending = React.useRef<AbortController>(undefined)
 
   const toggleCourse = React.useCallback((code: string) => {

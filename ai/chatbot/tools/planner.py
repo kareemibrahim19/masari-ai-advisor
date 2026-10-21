@@ -21,7 +21,7 @@ training and graduation requests only when the target needs them.
 """
 
 import math
-import threading
+from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 
 import numpy as np
@@ -54,17 +54,19 @@ COST_UNDER_MIN_HOUR = 30  # per hour a semester before graduation falls below 12
 COST_GRAD_UNDER_MIN_HOUR = 5  # per hour the graduation semester falls below 12 (paper registration)
 MAX_GRADUATION_REQUESTS = 1
 
-# HiGHS can deadlock when several web requests solve at the same time, so solves run one at a time.
-_SOLVE_LOCK = threading.Lock()
+# HiGHS can deadlock when it is called from more than one thread (its worker threads pile up per calling thread; the
+# web server answers requests from a pool of threads), which freezes the whole service. So every solve runs on one
+# dedicated thread, one at a time.
+_SOLVER = ThreadPoolExecutor(max_workers=1, thread_name_prefix="highs")
 
 FLAG_AR = {
     "regular": "في ميعادها حسب اللائحة",
     "summer_on_demand": "صيفي: لو الكلية فتحتها (حسب طلب الطلاب)",
     "training_summer": "التدريب في الإجازة الصيفية",
     "college_request": "التدريب في ترم أساسي: بموافقة الكلية",
-    "graduation_request": "مادة في غير ترمها عشان التخرج: بطلب للكلية",
-    "open_request": "مادة في غير ترمها بطلب للكلية: مفيش مواد متاحة ليك الترم ده",
-    "late_request": "مادة متأخر فيها في غير ترمها: بطلب من الكلية",
+    "graduation_request": "بطلب من الكلية",
+    "open_request": "بطلب من الكلية",
+    "late_request": "بطلب من الكلية",
 }
 PAPER_AR = "تسجيل ورقي: الساعات أقل من المطلوب بس جوه السماحية"
 # A course the college opens for the student outside its semester is not on the registration system: it goes on paper.
@@ -438,9 +440,9 @@ def _solve(passed: set[str], earned: int, cap: int, terms: list[dict], last_main
     for i in range(len(mains)):
         upper[n_s + 2 * i + 1] = min_load  # the shortfall variables count hours
         upper[n_g + i] = min_load
-    with _SOLVE_LOCK:
-        res = milp(np.array(cost, dtype=float), integrality=np.ones(n), bounds=Bounds(0, upper),
-                   constraints=LinearConstraint(A, lo, hi), options={"time_limit": 10, "mip_rel_gap": 0.02})
+    res = _SOLVER.submit(milp, np.array(cost, dtype=float), integrality=np.ones(n), bounds=Bounds(0, upper),
+                         constraints=LinearConstraint(A, lo, hi),
+                         options={"time_limit": 10, "mip_rel_gap": 0.02}).result()
     if res.x is None or res.status not in (0, 1):
         return None
     return {code_of[ii]: (ti, flag) for k, (ii, ti, flag) in enumerate(var) if res.x[k] > 0.5}
@@ -968,9 +970,9 @@ def _improvement_plan(s: dict, proj: dict, current: dict, main_now: int, last_ma
 
 
 FROZEN_AR = ("إنت موقف قيدك الترم ده، فمش متحسب من سنين الهدف، والخطة من أول ترم هترجع فيه. "
-             "وقف القيد بيتطلب من شئون الطلاب وليه رسوم إدارية (مادة 12).")
+             "وقف القيد بيتطلب من شئون الطلاب وليه رسوم إدارية.")
 FROZEN_EN = ("Your enrollment is frozen this semester, so it does not count in the target, and the plan starts with the "
-             "semester you return. A freeze is requested from student affairs and has an administrative fee (article 12).")
+             "semester you return. A freeze is requested from student affairs and has an administrative fee.")
 
 
 def current_or_frozen(s: dict) -> dict | None:

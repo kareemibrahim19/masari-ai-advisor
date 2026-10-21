@@ -41,6 +41,7 @@ import { assumePassed, isFailing, registeredNow, toStudentRecord } from "@/lib/d
 import { buildTimetable } from "@/lib/timetable"
 import { dataTerm } from "@/lib/data/student-source"
 import type { StudentFileEntry } from "@/lib/data/types"
+import type { TargetYears } from "@/lib/plan-api"
 
 export type { Category }
 
@@ -213,6 +214,8 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
   const now = currentTerm(s)
   const startTerm = now.term
   const currentSemester = st.main_semesters_completed + 1
+  const registeredCredits = registeredNow(s).reduce((sum, code) => sum + ((findCourse(code) as { credits?: number })?.credits ?? 0), 0)
+  const graduatingNow = st.earned_hours < st.required_hours && st.required_hours - st.earned_hours <= registeredCredits
   const earned = earnedCredits(record)
   const limit = maxLoad(record.gpa, record.onProbation, record.warnings)
   const semesterNames = termNames(now)
@@ -242,6 +245,9 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
     completed: record.passed,
     completedSemesters: st.main_semesters_completed,
     registeredNow: registeredNow(s),
+    /** Graduating at the end of this term (all that is left is registered now): the target they finish in (8 → 4 years,
+     *  9 → 4.5, 10 or later → 5), the one the plan page starts on. */
+    finishTarget: graduatingNow ? ((currentSemester <= 8 ? 4 : currentSemester === 9 ? 4.5 : 5) as TargetYears) : null,
     /** This term's weekly classes (simulated, see lib/timetable.ts). */
     timetable: buildTimetable(s, studyLevel(currentSemester)),
   }
@@ -249,6 +255,11 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
   // The last fall or spring with published results, and the one before it (summers hold mostly the pass/fail
   // training, so they are left out). The bot on "you are here" takes its mood from it.
   const mainTerms = s.terms.filter((x) => x.status === "published" && x.term !== "summer")
+  // The fall and spring semesters behind the student, in order, for the journey: the finished ones and any frozen
+  // in the past (the semester frozen now is the current one, so it is left out).
+  const pastTerms: { term: "fall" | "spring"; academicYear: string; frozen: boolean }[] = s.terms
+    .filter((x, i) => x.term !== "summer" && (x.status === "published" || (x.status === "frozen" && i < s.terms.length - 1)))
+    .map((x) => ({ term: x.term as "fall" | "spring", academicYear: x.academic_year, frozen: x.status === "frozen" }))
   const lastMain = mainTerms[mainTerms.length - 1]
   const lastTerm = lastMain
     ? {
@@ -466,21 +477,6 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
       sourceId: "retake",
     })
   }
-  const nextGate = courses
-    .filter((c) => c.minCredits && !record.passed.includes(c.code) && c.minCredits > earned)
-    .sort((a, b) => a.minCredits! - b.minCredits!)[0]
-  if (nextGate?.minCredits) {
-    alerts.push({
-      id: "gate",
-      kind: "info",
-      title: { ar: `${nextGate.name} لسه مقفول`, en: `${nextGate.name} is still locked` },
-      body: {
-        ar: `محتاج ${nextGate.minCredits} ساعة مكتسبة، ومعاك ${earned}. فاضلك ${nextGate.minCredits - earned} ساعة.`,
-        en: `It requires ${nextGate.minCredits} earned credits and you have ${earned}, so ${nextGate.minCredits - earned} to go.`,
-      },
-      sourceId: "training",
-    })
-  }
   for (const c of recommendedCourses) {
     const full = c.sections.find((x) => x.seatsLeft === 0)
     const open = c.sections.find((x) => x.seatsLeft > 0)
@@ -608,6 +604,7 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
     record,
     student,
     lastTerm,
+    pastTerms,
     earned,
     minLoad: MIN_LOAD,
     currentSemester,

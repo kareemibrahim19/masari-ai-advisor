@@ -41,8 +41,8 @@ const BOT_HOP_MS = 650 // or hopping there
 const BOT_MOOD_MS = 6000 // how long the mood from last term's results shows before it stands quietly
 
 type Node =
-  | { kind: "done"; label: string; failed: boolean }
-  | { kind: "term"; label: string; sem: number | null; summer: boolean; credits: number; empty: boolean; grad: boolean }
+  | { kind: "done"; label: string; sem: number | null; failed: boolean; frozen?: boolean }
+  | { kind: "term"; label: string; sem: number | null; summer: boolean; credits: number; empty: boolean; grad: boolean; frozen?: boolean }
 
 /**
  * `plan`: the graduation plan for the target the student picked on the plan page (from the AI service).
@@ -82,26 +82,41 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
   const { t, tr, num, dir, lang } = useI18n()
   const scroller = React.useRef<HTMLDivElement>(null)
   const here = React.useRef<SVGGElement>(null)
-  const { baselineGraduationIndex, baselinePlan, lastTerm, record, semesterNames, student } = useStudentView()
+  const { baselineGraduationIndex, baselinePlan, lastTerm, pastTerms, record, semesterNames, student } = useStudentView()
 
   const semOf = (code: string) => (findCourse(code) as { semester?: number })?.semester ?? 0
   // Main (non-summer) semesters already finished, as recorded in the student file.
   const completed = student.completedSemesters
-  const nodes: Node[] = [
-    ...Array.from({ length: completed }, (_, i) => ({
-      kind: "done" as const,
-      label: `${t("semShort")} ${num(i + 1)}`,
-      failed: record.failed.some((f) => semOf(f) === i + 1),
-    })),
-    ...(plan ? planNodes(plan) : localNodes()),
-  ]
+  // Finished semesters, named like the planned ones (term and year, semester number under it), with any semester
+  // frozen in the past in its place (it is not counted as a semester). Without term records, just the numbers.
+  const doneNodes: Node[] = []
+  if (pastTerms.filter((x) => !x.frozen).length === completed) {
+    let sem = 0
+    for (const x of pastTerms) {
+      if (!x.frozen) sem++
+      const s = sem
+      doneNodes.push(
+        x.frozen
+          ? { kind: "done", label: semesterLabel(x.term, x.academicYear, lang), sem: null, failed: false, frozen: true }
+          : { kind: "done", label: semesterLabel(x.term, x.academicYear, lang), sem: s, failed: record.failed.some((f) => semOf(f) === s) }
+      )
+    }
+  } else {
+    for (let i = 0; i < completed; i++)
+      doneNodes.push({ kind: "done", label: `${t("semShort")} ${num(i + 1)}`, sem: null, failed: record.failed.some((f) => semOf(f) === i + 1) })
+  }
+  const nodes: Node[] = [...doneNodes, ...(plan ? planNodes(plan) : localNodes())]
 
   // The current semester, then the AI service's plan. Summers that hold only the routine training are left out.
   function planNodes(p: GraduationPlan): Node[] {
     const registered = student.registeredNow.reduce((s, code) => s + ((findCourse(code) as { credits?: number })?.credits ?? 0), 0)
-    const ahead = p.terms.filter((x) => x.term !== "summer" || x.courses.some((c) => c.type !== "training"))
+    // A semester frozen now is "you are here" itself (not counted, nothing registered), so the plan's row for it is
+    // left out instead of showing it twice.
+    const ahead = p.terms.filter((x) => !x.frozen && (x.term !== "summer" || x.courses.some((c) => c.type !== "training")))
     const out: Node[] = [
-      { kind: "term", label: tr(semesterNames[0]), sem: p.current_main_semester, summer: false, credits: registered, empty: false, grad: false },
+      p.frozen
+        ? { kind: "term", label: tr(semesterNames[0]), sem: null, summer: false, credits: 0, empty: false, grad: false, frozen: true }
+        : { kind: "term", label: tr(semesterNames[0]), sem: p.current_main_semester, summer: false, credits: registered, empty: false, grad: false },
       ...ahead.map((x) => ({
         kind: "term" as const,
         // A summer's year is clear from its neighbours, so it is just "Summer" (keeps the labels apart).
@@ -143,7 +158,7 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
   const seg = (a: { x: number; y: number }, p: { x: number; y: number }) => `C${a.x} ${a.y - k} ${p.x} ${p.y + k} ${p.x} ${p.y}`
   const pathTo = (n: number) => pts.slice(0, n).map((p, i) => (i ? seg(pts[i - 1], p) : `M${p.x} ${p.y}`)).join(" ")
   const pathFrom = (n: number) => pts.slice(n).map((p, i) => (i ? seg(pts[n + i - 1], p) : `M${p.x} ${p.y}`)).join(" ")
-  const doneCount = completed
+  const doneCount = doneNodes.length
   // Opening animation: one pen draws the route at a steady speed, the travelled part then the planned part,
   // and each semester appears as the line reaches it. Times come from the distance along the route.
   const at = (i: number) => (xs[i] - xs[0]) / DRAW_SPEED
@@ -153,14 +168,13 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
   const current = doneCount < nodes.length ? doneCount : -1
 
   // ---- Masari on "you are here": walks there along the path from semester 1, then shows how last term went.
-  // Worried on academic warning (or a GPA under 2.00), sad if a course was failed, proud if the term GPA went up.
-  // After a few seconds it just stands there quietly.
-  const gradeMood: BotMood =
-    record.onProbation || (student.gpa !== null && student.gpa < 2)
+  // Sad if a course was failed last term, else worried on academic warning (or a GPA under 2.00), proud if the term
+  // GPA went up. After a few seconds it just stands there quietly.
+  const gradeMood: BotMood = lastTerm?.failed
+    ? "sad"
+    : record.onProbation || (student.gpa !== null && student.gpa < 2)
       ? "worried"
-      : lastTerm?.failed
-        ? "sad"
-        : lastTerm && lastTerm.gpa !== null && lastTerm.previousGpa !== null && lastTerm.gpa > lastTerm.previousGpa
+      : lastTerm && lastTerm.gpa !== null && lastTerm.previousGpa !== null && lastTerm.gpa > lastTerm.previousGpa
           ? "proud"
           : lastTerm
             ? "happy"
@@ -318,14 +332,28 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
 
   function renderNode(n: Node, i: number) {
     const p = pts[i]
+    if (n.kind === "done" && n.frozen) {
+      return (
+        <g>
+          <circle cx={p.x} cy={p.y} r="8.5" className="fill-card stroke-muted-foreground/60" strokeWidth="3" strokeDasharray="4 3.5" />
+          <text x={p.x} y={p.y + 40} textAnchor="middle" className="fill-foreground text-[13px]">
+            {n.label}
+          </text>
+          <text x={p.x} y={p.y + 55} textAnchor="middle" className="fill-muted-foreground/70 text-[10.5px]">
+            {t("pathFrozenPast")}
+          </text>
+        </g>
+      )
+    }
     if (n.kind === "done") {
       return (
         <g>
           <circle cx={p.x} cy={p.y} r="8.5" className="fill-card stroke-brand-ink" strokeWidth="6.5" />
           {n.failed && <circle cx={p.x + 9} cy={p.y - 9} r="4.5" className="fill-warning stroke-card" strokeWidth="2" />}
-          <text x={p.x} y={p.y + 38} textAnchor="middle" className="fill-muted-foreground text-[13px]">
+          <text x={p.x} y={p.y + 40} textAnchor="middle" className={n.sem ? "fill-foreground text-[13px]" : "fill-muted-foreground text-[13px]"}>
             {n.label}
           </text>
+          {n.sem && <SemNumber x={p.x} y={p.y + 55} sem={n.sem} />}
         </g>
       )
     }
@@ -399,6 +427,11 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
         </text>
         {n.sem && (
           <SemNumber x={p.x} y={p.y + 55} sem={n.sem} extra={isHere && !n.empty ? `${num(n.credits)} ${t("creditsShort")}` : undefined} />
+        )}
+        {n.frozen && (
+          <text x={p.x} y={p.y + 55} textAnchor="middle" className="fill-muted-foreground/70 text-[10.5px]">
+            {t("pathFrozen")}
+          </text>
         )}
         {isHere && <HereMark x={p.x} y={p.y + 72} />}
       </g>

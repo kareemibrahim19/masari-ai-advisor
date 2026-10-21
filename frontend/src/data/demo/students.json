@@ -7693,15 +7693,15 @@
     {
       "student_id": "871006518",
       "persona": "t_last_term",
-      "persona_note": "تجريبي: في آخر ترم ليها، اللي فاضل كله مسجل الترم ده.",
+      "persona_note": "تجريبي: داخلة 2022 وفي آخر ترم ليها (الفصل التاسع، خريف 2026): كل اللي فاضلها مسجلاه الترم ده، وهتتخرج في 4 سنين ونص.",
       "personal": {
         "name_ar": "فرح عصام زكي الغمراوي",
         "name_en": "Farah Essam Zaki Elghamrawy",
         "gender": "أنثى",
-        "birth_date": "2003-06-27",
+        "birth_date": "2004-06-27",
         "birth_place": "المنصورة",
         "nationality": "مصر",
-        "national_id": "30306271274382",
+        "national_id": "30406271274382",
         "id_type": "بطاقة رقم قومي"
       },
       "contact": {
@@ -7719,7 +7719,7 @@
       },
       "previous_qualification": {
         "qualification": "ثانوي عام رياضة",
-        "year": "2020-2021",
+        "year": "2021-2022",
         "total": 396.5,
         "max_total": 410,
         "percentage": 96.7,
@@ -7730,34 +7730,34 @@
         "university": "جامعة المنصورة",
         "faculty": "كلية الهندسة",
         "program": "هندسة الذكاء الاصطناعي (AIE)",
-        "enrollment_year": "2021-2022"
+        "enrollment_year": "2022-2023"
       },
       "academic_status": {
         "level": 4,
         "name": "Senior",
         "required_hours": 160,
-        "earned_hours": 157,
-        "mandatory_hours": 133,
-        "elective_hours": 15,
-        "project_hours": 9,
+        "earned_hours": 143,
+        "mandatory_hours": 131,
+        "elective_hours": 6,
+        "project_hours": 6,
         "trainings_passed": [
           "ARI 171",
           "ARI 271",
           "ARI 371"
         ],
-        "cumulative_gpa": 3.23,
-        "main_semesters_completed": 10,
+        "cumulative_gpa": 3.28,
+        "main_semesters_completed": 8,
         "academic_standing": "منتظم",
         "consecutive_warning_semesters": 0,
         "current_term": {
           "academic_year": "2026-2027",
           "term_ar": "الأول",
-          "registered_hours": 3
+          "registered_hours": 17
         }
       },
       "terms": [
         {
-          "academic_year": "2021-2022",
+          "academic_year": "2022-2023",
           "term": "fall",
           "term_ar": "الأول",
           "status": "published",
@@ -7865,7 +7865,7 @@
           }
         },
         {
-          "academic_year": "2021-2022",
+          "academic_year": "2022-2023",
           "term": "spring",
           "term_ar": "الثاني",
           "status": "published",
@@ -7961,19 +7961,34 @@
               "total": 79,
               "grade": "B-",
               "grade_ar": "ب-"
+            },
+            {
+              "code": "UNR 261",
+              "name_ar": "آداب وأخلاقيات المهنة",
+              "name_en": "Ethics and Morals of the Profession",
+              "credits": 2,
+              "attempt": 1,
+              "marks": {
+                "midterm": 16,
+                "coursework": 24,
+                "final": 39
+              },
+              "total": 79,
+              "grade": "B-",
+              "grade_ar": "ب-"
             }
           ],
           "summary": {
-            "registered_hours": 16,
-            "earned_hours": 16,
-            "term_gpa": 3.23,
-            "cumulative_gpa": 3.27,
-            "cumulative_earned_hours": 33,
+            "registered_hours": 18,
+            "earned_hours": 18,
+            "term_gpa": 3.17,
+            "cumulative_gpa": 3.24,
+            "cumulative_earned_hours": 35,
             "academic_standing": "منتظم"
           }
         },
         {
-          "academic_year": "2022-2023",
+          "academic_year": "2023-2024",
           "term": "fall",
           "term_ar": "الأول",
           "status": "published",
@@ -8069,19 +8084,34 @@
               "total": 82,
               "grade": "B",
               "grade_ar": "ب"
+            },
+            {
+              "code": "UNR 241",
+              "name_ar": "مهارات الاتصال والعرض",
+              "name_en": "Communication and Presentation Skills",
+              "credits": 2,
+              "attempt": 1,
+              "marks": {
+                "midterm": 18,
+                "coursework": 27,
+                "final": 44
+              },
+              "total": 89,
+              "grade": "A-",
+              "grade_ar": "أ-"
             }
           ],
           "summary": {
-            "registered_hours": 16,
-            "earned_hours": 16,
-            "term_gpa": 3.22,
-            "cumulative_gpa": 3.26,
-            "cumulative_earned_hours": 49,
+            "registered_hours": 18,
+            "earned_hours": 18,
+            "term_gpa": 3.27,
+            "cumulative_gpa": 3.25,
+            "cumulative_earned_hours": 53,
             "academic_standing": "منتظم"
           }
         },
         {
-          "academic_year": "2022-2023",
+          "academic_year": "2023-2024",
           "term": "spring",
           "term_ar": "الثاني",
           "status": "published",
@@ -8183,12 +8213,12 @@
             "earned_hours": 17,
             "term_gpa": 3.44,
             "cumulative_gpa": 3.3,
-            "cumulative_earned_hours": 66,
+            "cumulative_earned_hours": 70,
             "academic_standing": "منتظم"
           }
         },
         {
-          "academic_year": "2022-2023",
+          "academic_year": "2023-2024",
           "term": "summer",
           "term_ar": "الصيفي",
           "status": "published",
@@ -8210,11 +8240,11 @@
             "earned_hours": 0,
             "term_gpa": null,
             "cumulative_gpa": 3.3,
-            "cumulative_earned_hours": 66
+            "cumulative_earned_hours": 70
           }
         },
         {
-          "academic_year": "2023-2024",
+          "academic_year": "2024-2025",
           "term": "fall",
           "term_ar": "الأول",
           "status": "published",
@@ -8298,32 +8328,32 @@
               "grade_ar": "ب"
             },
             {
-              "code": "UNR 241",
-              "name_ar": "مهارات الاتصال والعرض",
-              "name_en": "Communication and Presentation Skills",
-              "credits": 2,
+              "code": "CSE 352",
+              "name_ar": "علم النفس المعرفي",
+              "name_en": "Cognitive Science",
+              "credits": 3,
               "attempt": 1,
               "marks": {
                 "midterm": 18,
                 "coursework": 27,
-                "final": 44
+                "final": 46
               },
-              "total": 89,
+              "total": 91,
               "grade": "A-",
               "grade_ar": "أ-"
             }
           ],
           "summary": {
-            "registered_hours": 16,
-            "earned_hours": 16,
-            "term_gpa": 3.26,
+            "registered_hours": 17,
+            "earned_hours": 17,
+            "term_gpa": 3.28,
             "cumulative_gpa": 3.29,
-            "cumulative_earned_hours": 82,
+            "cumulative_earned_hours": 87,
             "academic_standing": "منتظم"
           }
         },
         {
-          "academic_year": "2023-2024",
+          "academic_year": "2024-2025",
           "term": "spring",
           "term_ar": "الثاني",
           "status": "published",
@@ -8404,32 +8434,32 @@
               "grade_ar": "ب"
             },
             {
-              "code": "UNR 261",
-              "name_ar": "آداب وأخلاقيات المهنة",
-              "name_en": "Ethics and Morals of the Profession",
-              "credits": 2,
+              "code": "BAS 311",
+              "name_ar": "التعلم الإحصائي",
+              "name_en": "Statistical Learning",
+              "credits": 3,
               "attempt": 1,
               "marks": {
                 "midterm": 16,
-                "coursework": 24,
-                "final": 39
+                "coursework": 25,
+                "final": 41
               },
-              "total": 79,
-              "grade": "B-",
-              "grade_ar": "ب-"
+              "total": 82,
+              "grade": "B",
+              "grade_ar": "ب"
             }
           ],
           "summary": {
-            "registered_hours": 17,
-            "earned_hours": 17,
-            "term_gpa": 3.09,
+            "registered_hours": 18,
+            "earned_hours": 18,
+            "term_gpa": 3.12,
             "cumulative_gpa": 3.26,
-            "cumulative_earned_hours": 99,
+            "cumulative_earned_hours": 105,
             "academic_standing": "منتظم"
           }
         },
         {
-          "academic_year": "2023-2024",
+          "academic_year": "2024-2025",
           "term": "summer",
           "term_ar": "الصيفي",
           "status": "published",
@@ -8451,11 +8481,11 @@
             "earned_hours": 0,
             "term_gpa": null,
             "cumulative_gpa": 3.26,
-            "cumulative_earned_hours": 99
+            "cumulative_earned_hours": 105
           }
         },
         {
-          "academic_year": "2024-2025",
+          "academic_year": "2025-2026",
           "term": "fall",
           "term_ar": "الأول",
           "status": "published",
@@ -8538,37 +8568,6 @@
               "grade_ar": "ب"
             },
             {
-              "code": "CSE 352",
-              "name_ar": "علم النفس المعرفي",
-              "name_en": "Cognitive Science",
-              "credits": 3,
-              "attempt": 1,
-              "marks": {
-                "midterm": 18,
-                "coursework": 27,
-                "final": 46
-              },
-              "total": 91,
-              "grade": "A-",
-              "grade_ar": "أ-"
-            }
-          ],
-          "summary": {
-            "registered_hours": 18,
-            "earned_hours": 18,
-            "term_gpa": 3.35,
-            "cumulative_gpa": 3.27,
-            "cumulative_earned_hours": 117,
-            "academic_standing": "منتظم"
-          }
-        },
-        {
-          "academic_year": "2024-2025",
-          "term": "spring",
-          "term_ar": "الثاني",
-          "status": "published",
-          "courses": [
-            {
               "code": "ARI 381",
               "name_ar": "مشروع (1) في هندسة الذكاء الاصطناعي",
               "name_en": "Project (1) in AI",
@@ -8581,7 +8580,23 @@
               "total": 88,
               "grade": "B+",
               "grade_ar": "ب+"
-            },
+            }
+          ],
+          "summary": {
+            "registered_hours": 18,
+            "earned_hours": 18,
+            "term_gpa": 3.28,
+            "cumulative_gpa": 3.27,
+            "cumulative_earned_hours": 123,
+            "academic_standing": "منتظم"
+          }
+        },
+        {
+          "academic_year": "2025-2026",
+          "term": "spring",
+          "term_ar": "الثاني",
+          "status": "published",
+          "courses": [
             {
               "code": "CSE 315",
               "name_ar": "الأنظمة المتضمنة",
@@ -8643,32 +8658,46 @@
               "grade_ar": "أ-"
             },
             {
-              "code": "BAS 311",
-              "name_ar": "التعلم الإحصائي",
-              "name_en": "Statistical Learning",
+              "code": "ARI 481",
+              "name_ar": "مشروع (2) في هندسة الذكاء الاصطناعي",
+              "name_en": "Project (2) in AI",
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 16,
-                "coursework": 25,
-                "final": 41
+                "periodic_followup": 44,
+                "oral_discussion": 43
               },
-              "total": 82,
-              "grade": "B",
-              "grade_ar": "ب"
+              "total": 87,
+              "grade": "B+",
+              "grade_ar": "ب+"
+            },
+            {
+              "code": "CSE 451",
+              "name_ar": "علم البيانات الكبيرة",
+              "name_en": "Big Data",
+              "credits": 3,
+              "attempt": 1,
+              "marks": {
+                "midterm": 17,
+                "coursework": 26,
+                "final": 44
+              },
+              "total": 87,
+              "grade": "B+",
+              "grade_ar": "ب+"
             }
           ],
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.36,
+            "term_gpa": 3.42,
             "cumulative_gpa": 3.28,
-            "cumulative_earned_hours": 134,
+            "cumulative_earned_hours": 140,
             "academic_standing": "منتظم"
           }
         },
         {
-          "academic_year": "2024-2025",
+          "academic_year": "2025-2026",
           "term": "summer",
           "term_ar": "الصيفي",
           "status": "published",
@@ -8683,141 +8712,6 @@
               "total": 80,
               "grade": "P",
               "grade_ar": "ناجح"
-            }
-          ],
-          "summary": {
-            "registered_hours": 0,
-            "earned_hours": 0,
-            "term_gpa": null,
-            "cumulative_gpa": 3.28,
-            "cumulative_earned_hours": 134
-          }
-        },
-        {
-          "academic_year": "2025-2026",
-          "term": "fall",
-          "term_ar": "الأول",
-          "status": "published",
-          "courses": [
-            {
-              "code": "ARI 481",
-              "name_ar": "مشروع (2) في هندسة الذكاء الاصطناعي",
-              "name_en": "Project (2) in AI",
-              "credits": 3,
-              "attempt": 1,
-              "marks": {
-                "periodic_followup": 44,
-                "oral_discussion": 44
-              },
-              "total": 88,
-              "grade": "B+",
-              "grade_ar": "ب+"
-            },
-            {
-              "code": "CSE 423",
-              "name_ar": "روبوتكس",
-              "name_en": "Robotics",
-              "credits": 3,
-              "attempt": 1,
-              "marks": {
-                "midterm": 10,
-                "practical": 5,
-                "coursework": 10,
-                "final": 24
-              },
-              "total": 49,
-              "grade": "F",
-              "grade_ar": "هـ"
-            },
-            {
-              "code": "UNR 471",
-              "name_ar": "التسويق",
-              "name_en": "Marketing",
-              "credits": 2,
-              "attempt": 1,
-              "marks": {
-                "midterm": 18,
-                "coursework": 27,
-                "final": 44
-              },
-              "total": 89,
-              "grade": "A-",
-              "grade_ar": "أ-"
-            },
-            {
-              "code": "CSE 412",
-              "name_ar": "حوسبة لينة",
-              "name_en": "Soft Computing",
-              "credits": 3,
-              "attempt": 1,
-              "marks": {
-                "midterm": 17,
-                "coursework": 25,
-                "final": 41
-              },
-              "total": 83,
-              "grade": "B",
-              "grade_ar": "ب"
-            },
-            {
-              "code": "CSE 414",
-              "name_ar": "التنقيب في البيانات",
-              "name_en": "Data Mining",
-              "credits": 3,
-              "attempt": 1,
-              "marks": {
-                "midterm": 17,
-                "coursework": 26,
-                "final": 44
-              },
-              "total": 87,
-              "grade": "B+",
-              "grade_ar": "ب+"
-            }
-          ],
-          "summary": {
-            "registered_hours": 14,
-            "earned_hours": 11,
-            "term_gpa": 2.59,
-            "cumulative_gpa": 3.22,
-            "cumulative_earned_hours": 145,
-            "academic_standing": "منتظم"
-          }
-        },
-        {
-          "academic_year": "2025-2026",
-          "term": "spring",
-          "term_ar": "الثاني",
-          "status": "published",
-          "courses": [
-            {
-              "code": "ARI 482",
-              "name_ar": "مشروع (3) في هندسة الذكاء الاصطناعي",
-              "name_en": "Project (3) in AI",
-              "credits": 3,
-              "attempt": 1,
-              "marks": {
-                "periodic_followup": 41,
-                "oral_discussion": 41
-              },
-              "total": 82,
-              "grade": "B",
-              "grade_ar": "ب"
-            },
-            {
-              "code": "CSE 451",
-              "name_ar": "علم البيانات الكبيرة",
-              "name_en": "Big Data",
-              "credits": 3,
-              "attempt": 1,
-              "marks": {
-                "midterm": 17,
-                "coursework": 26,
-                "final": 42
-              },
-              "total": 85,
-              "grade": "B+",
-              "grade_ar": "ب+"
             },
             {
               "code": "CSE 452",
@@ -8826,37 +8720,21 @@
               "credits": 3,
               "attempt": 1,
               "marks": {
-                "midterm": 18,
-                "coursework": 27,
-                "final": 44
+                "midterm": 16,
+                "coursework": 24,
+                "final": 40
               },
-              "total": 89,
-              "grade": "A-",
-              "grade_ar": "أ-"
-            },
-            {
-              "code": "ECE 435",
-              "name_ar": "الرؤية بالحاسب",
-              "name_en": "Computer Vision",
-              "credits": 3,
-              "attempt": 1,
-              "marks": {
-                "midterm": 17,
-                "coursework": 25,
-                "final": 42
-              },
-              "total": 84,
-              "grade": "B+",
-              "grade_ar": "ب+"
+              "total": 80,
+              "grade": "B",
+              "grade_ar": "ب"
             }
           ],
           "summary": {
-            "registered_hours": 12,
-            "earned_hours": 12,
-            "term_gpa": 3.32,
-            "cumulative_gpa": 3.23,
-            "cumulative_earned_hours": 157,
-            "academic_standing": "منتظم"
+            "registered_hours": 3,
+            "earned_hours": 3,
+            "term_gpa": 3.0,
+            "cumulative_gpa": 3.28,
+            "cumulative_earned_hours": 143
           }
         },
         {
@@ -8870,7 +8748,42 @@
               "name_ar": "روبوتكس",
               "name_en": "Robotics",
               "credits": 3,
-              "attempt": 2
+              "attempt": 1
+            },
+            {
+              "code": "UNR 471",
+              "name_ar": "التسويق",
+              "name_en": "Marketing",
+              "credits": 2,
+              "attempt": 1
+            },
+            {
+              "code": "ARI 482",
+              "name_ar": "مشروع (3) في هندسة الذكاء الاصطناعي",
+              "name_en": "Project (3) in AI",
+              "credits": 3,
+              "attempt": 1
+            },
+            {
+              "code": "CSE 458",
+              "name_ar": "الذكاء الاصطناعي في معالجة الإشارات والأصوات",
+              "name_en": "AI Applications in Signal and Audio Processing",
+              "credits": 3,
+              "attempt": 1
+            },
+            {
+              "code": "CSE 459",
+              "name_ar": "تعلم الآلة وتطبيقاتها في الفنون",
+              "name_en": "Applications of AI in Art",
+              "credits": 3,
+              "attempt": 1
+            },
+            {
+              "code": "ECE 435",
+              "name_ar": "الرؤية بالحاسب",
+              "name_en": "Computer Vision",
+              "credits": 3,
+              "attempt": 1
             }
           ]
         }

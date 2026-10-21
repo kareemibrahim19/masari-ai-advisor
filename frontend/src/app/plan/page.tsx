@@ -50,8 +50,10 @@ const flagStyle: Record<Exclude<PlanFlag, "regular">, { key: Parameters<ReturnTy
   summer_on_demand: { key: "flagSummer", cls: "bg-warning-soft text-warning" },
   training_summer: { key: "flagTrainingSummer", cls: "bg-muted text-muted-foreground" },
   college_request: { key: "flagCollegeRequest", cls: "bg-primary/10 text-primary" },
-  graduation_request: { key: "flagGraduationRequest", cls: "bg-primary/10 text-primary" },
-  open_request: { key: "flagOpenRequest", cls: "bg-primary/10 text-primary" },
+  // A course the college opens outside its semester, for whatever reason (graduating on time, behind on it, nothing
+  // else runs for the student): one label for the student.
+  graduation_request: { key: "flagLateRequest", cls: "bg-primary/10 text-primary" },
+  open_request: { key: "flagLateRequest", cls: "bg-primary/10 text-primary" },
   late_request: { key: "flagLateRequest", cls: "bg-primary/10 text-primary" },
   improvement: { key: "flagImprovement", cls: "bg-verified-soft text-verified" },
 }
@@ -75,7 +77,7 @@ export default function PlanPage() {
   const { t, tr, num } = useI18n()
   const { student } = useStudentView()
 
-  const [choice, setChoice] = usePlanChoice(student.id)
+  const [choice, setChoice] = usePlanChoice(student.id, student.finishTarget)
   const { target, summer: allowSummer } = choice
   const setTarget = (years: TargetYears) => setChoice({ ...choice, target: years })
   const setAllowSummer = (on: boolean) => setChoice({ ...choice, summer: on })
@@ -456,6 +458,15 @@ function PlanSummary({ plan, loading, failedNow, whatIfGpa }: {
   const requests = plan.college_requests?.length ?? 0
   const status = plan.status ?? (plan.feasible ? "feasible" : "impossible")
 
+  // Graduating at the end of this term with a later target picked: the target does not move the date, so say it is
+  // before that target instead of pairing the date with it.
+  const { student } = useStudentView()
+  const early = student.finishTarget !== null && plan.target_years > student.finishTarget && plan.terms.length === 0
+  const finish = early ? t(TARGETS.find((x) => x.years === student.finishTarget)!.key) : ""
+  const earlyText =
+    lang === "ar"
+      ? `هتتخرج في ${grad} (${finish})، قبل هدف ${target}: كل اللي فاضلك مسجله الترم ده، فلو نجحت مفيش مواد للترمات الجاية.`
+      : `You graduate in ${grad} (${finish}), before the ${target} target: everything you have left is registered this term, so if you pass there is nothing left for later semesters.`
   const text =
     status === "feasible"
       ? lang === "ar"
@@ -482,7 +493,7 @@ function PlanSummary({ plan, loading, failedNow, whatIfGpa }: {
         <div className="flex items-start gap-2 text-sm font-medium">
           <Icon className={cn("mt-0.5 size-4 shrink-0", status === "feasible" ? "text-verified" : "text-warning")} aria-hidden />
           <div className="space-y-2">
-            <p>{text}</p>
+            <p>{status === "feasible" && early ? earlyText : text}</p>
             {status === "conditional" && (
               <ol className="space-y-2">
                 {routes.map((r, i) => (
@@ -757,8 +768,6 @@ function Legend({ improvement }: { improvement: boolean }) {
   const items: { flag: Exclude<PlanFlag, "regular">; hint: string }[] = [
     { flag: "summer_on_demand", hint: t("flagSummerHint") },
     { flag: "college_request", hint: t("flagCollegeRequestHint") },
-    { flag: "graduation_request", hint: t("flagGraduationRequestHint") },
-    { flag: "open_request", hint: t("flagOpenRequestHint") },
     { flag: "late_request", hint: t("flagLateRequestHint") },
     // Only when this plan has improvement courses: most students never need it.
     ...(improvement ? [{ flag: "improvement" as const, hint: t("flagImprovementHint") }] : []),

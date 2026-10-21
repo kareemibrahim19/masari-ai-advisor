@@ -72,6 +72,28 @@ function useDarkClass() {
   )
 }
 
+let graduate = false
+const gradListeners = new Set<() => void>()
+
+/** Dresses every bot in the graduation cap and gown while a student in their last semester is signed in (the hello
+ *  and goodbye screens, the path, the chat, the plan). Signed out, the login page shows the plain bot. */
+export function setGraduateBot(on: boolean) {
+  if (graduate === on) return
+  graduate = on
+  gradListeners.forEach((l) => l())
+}
+
+function useGraduateBot() {
+  return React.useSyncExternalStore(
+    (cb) => {
+      gradListeners.add(cb)
+      return () => gradListeners.delete(cb)
+    },
+    () => graduate,
+    () => false
+  )
+}
+
 type Props = {
   mood: BotMood
   outfit?: "none" | "grad" | "chat"
@@ -98,6 +120,8 @@ export const Bot = React.forwardRef<BotElement | null, Props>(function Bot(
 ) {
   const el = React.useRef<BotElement | null>(null)
   const dark = useDarkClass()
+  // A graduating student's bot wears the graduation outfit everywhere, whatever the page asks for.
+  const look = useGraduateBot() ? "grad" : outfit
   const [ready, setReady] = React.useState(false)
   const [dizzy, setDizzy] = React.useState(false)
   const moodRef = React.useRef(mood)
@@ -118,14 +142,14 @@ export const Bot = React.forwardRef<BotElement | null, Props>(function Bot(
     const set = (k: string, v: string | number | boolean | undefined) =>
       v === undefined || v === false ? b.removeAttribute(k) : b.setAttribute(k, v === true ? "" : String(v))
     set("theme", dark ? "dark" : "light")
-    set("outfit", outfit)
+    set("outfit", look)
     set("sleep-after", sleepAfter)
     set("arrive", arrive)
     set("edge", edge)
     set("once", once)
     set("track", track ? undefined : "false")
     set("wake-to", "wave")
-  }, [dark, outfit, sleepAfter, arrive, edge, once, track])
+  }, [dark, look, sleepAfter, arrive, edge, once, track])
 
   const peeked = React.useRef(false)
   React.useLayoutEffect(() => {

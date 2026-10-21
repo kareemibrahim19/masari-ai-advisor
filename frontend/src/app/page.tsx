@@ -38,7 +38,7 @@ export default function DashboardPage() {
   const thisTerm = rankCurrentCourses(currentCourses, delays)
   const currentCredits = thisTerm.reduce((s, c) => s + c.credits, 0)
   // The path and the estimate follow the target the student picked on the plan page (no what-if here).
-  const [choice] = usePlanChoice(student.id)
+  const [choice] = usePlanChoice(student.id, student.finishTarget)
   const { data, error, loading } = useGraduationPlan({
     studentId: student.id,
     targetYears: choice.target,
@@ -245,7 +245,6 @@ export default function DashboardPage() {
                   <div className="min-w-0 space-y-2">
                     <p className="font-medium">{tr(a.title)}</p>
                     <p className="text-sm leading-relaxed text-muted-foreground">{tr(a.body)}</p>
-                    {a.sourceId && <SourceChip sourceId={a.sourceId} />}
                     {a.seat && (
                       <SeatRequestButton seats={seats} code={a.seat.code} section={a.seat.section} size="sm" className="h-8" />
                     )}

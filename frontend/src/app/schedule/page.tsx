@@ -2,8 +2,8 @@
 
 /**
  * The student's weekly timetable for the current term (lib/timetable.ts), next to "Ask Masari".
- * One table on every screen: the days across, the six periods down, days off as a narrow column. On phones the
- * table scrolls sideways inside its card while the period column stays put.
+ * One table on every screen: the days down the side, the six periods across, a day off as one short row. On phones
+ * the table scrolls sideways inside its card while the day column stays put.
  */
 import * as React from "react"
 import { CalendarOff, FlaskConical, MapPin, PencilRuler, Presentation } from "lucide-react"
@@ -42,9 +42,9 @@ export default function SchedulePage() {
   const at = (d: Day, period: number) => tt.sessions.find((s) => s.day === d && s.period === period)
   const hours = (tt.sessions.length * 90) / 60
   const off = (d: Day) => tt.restDays.includes(d)
-  // Phones: fixed widths, and the table scrolls sideways. Wide screens: the columns share the width.
-  const narrow = `4.75rem ${DAYS.map((d) => (off(d) ? "2.75rem" : "9rem")).join(" ")}`
-  const wide = `minmax(7rem, 0.7fr) ${DAYS.map((d) => (off(d) ? "minmax(3rem, 0.35fr)" : "minmax(0, 1fr)")).join(" ")}`
+  // Phones: fixed widths, and the table scrolls sideways. Wide screens: the period columns share the width.
+  const narrow = `5.25rem repeat(${PERIODS.length}, 9rem)`
+  const wide = `minmax(6rem, 0.55fr) repeat(${PERIODS.length}, minmax(0, 1fr))`
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-5 p-4 md:p-6">
@@ -82,50 +82,47 @@ export default function SchedulePage() {
                   role="columnheader"
                   className="sticky start-0 z-10 border-b bg-muted px-2.5 py-3 text-xs font-medium text-muted-foreground md:px-3"
                 >
-                  {t("ttPeriod")}
+                  {t("ttDay")}
                 </div>
-                {DAYS.map((d) => (
-                  <div
-                    key={d}
-                    role="columnheader"
-                    className="border-b border-s bg-muted/50 px-2 py-3 text-center text-sm font-semibold"
-                  >
-                    {tr(dayNames[d])}
-                  </div>
-                ))}
-              </div>
-
-              {PERIODS.map((p) => (
-                <div role="row" className="contents" key={p.n}>
-                  <div role="rowheader" className="sticky start-0 z-10 border-b bg-card px-2.5 py-3 md:px-3">
-                    <p className="text-[13px] font-medium md:text-sm">{tr(p.name)}</p>
+                {PERIODS.map((p) => (
+                  <div key={p.n} role="columnheader" className="border-b border-s bg-muted/50 px-2 py-2.5 text-center">
+                    <p className="text-[13px] font-semibold md:text-sm">{tr(p.name)}</p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground tabular-nums md:text-xs" dir="ltr">
                       {clock(p.start)} – {clock(p.end)}
                     </p>
                   </div>
-                  {DAYS.map((d) => {
-                    if (tt.restDays.includes(d)) {
-                      // One tall "day off" cell for the whole column, drawn on the first row.
-                      return p.n === 1 ? (
-                        <div
-                          key={d}
-                          role="cell"
-                          className="flex items-center justify-center border-s bg-[repeating-linear-gradient(135deg,transparent_0_10px,var(--muted)_10px_11px)]"
-                          style={{ gridRow: `2 / span ${PERIODS.length}`, gridColumn: DAYS.indexOf(d) + 2 }}
-                        >
-                          <span className="rounded-full bg-background px-1.5 py-2.5 text-xs font-medium text-muted-foreground [writing-mode:vertical-rl]">
-                            {t("ttRest")}
-                          </span>
+                ))}
+              </div>
+
+              {DAYS.map((d) => (
+                <div role="row" className="contents" key={d}>
+                  <div
+                    role="rowheader"
+                    className="sticky start-0 z-10 flex items-center border-b bg-card px-2.5 py-3 text-sm font-semibold md:px-3"
+                  >
+                    {tr(dayNames[d])}
+                  </div>
+                  {off(d) ? (
+                    // A day off: one short row across all the periods.
+                    <div
+                      role="cell"
+                      className="flex items-center justify-start border-b border-s bg-[repeating-linear-gradient(135deg,transparent_0_10px,var(--muted)_10px_11px)] px-2 py-2 md:justify-center"
+                      style={{ gridColumn: `2 / span ${PERIODS.length}` }}
+                    >
+                      <span className="sticky start-[5.75rem] rounded-full bg-background px-3 py-1 text-xs font-medium text-muted-foreground md:static">
+                        {t("ttRest")}
+                      </span>
+                    </div>
+                  ) : (
+                    PERIODS.map((p) => {
+                      const s = at(d, p.n)
+                      return (
+                        <div key={p.n} role="cell" className="min-h-24 border-b border-s p-1.5">
+                          {s ? <SessionCard s={s} /> : <span className="sr-only">{t("ttFree")}</span>}
                         </div>
-                      ) : null
-                    }
-                    const s = at(d, p.n)
-                    return (
-                      <div key={d} role="cell" className="min-h-24 border-b border-s p-1.5">
-                        {s ? <SessionCard s={s} /> : <span className="sr-only">{t("ttFree")}</span>}
-                      </div>
-                    )
-                  })}
+                      )
+                    })
+                  )}
                 </div>
               ))}
             </div>

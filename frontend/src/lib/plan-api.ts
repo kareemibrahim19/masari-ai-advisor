@@ -167,9 +167,9 @@ const choiceListeners = new Set<() => void>()
 
 function readChoice(studentId: string) {
   try {
-    return localStorage.getItem(choiceKey(studentId)) ?? DEFAULT_CHOICE
+    return localStorage.getItem(choiceKey(studentId)) ?? ""
   } catch {
-    return DEFAULT_CHOICE
+    return ""
   }
 }
 
@@ -188,9 +188,11 @@ function parseChoice(raw: string): PlanChoice {
   return { target: t === "4" ? 4 : t === "4.5" ? 4.5 : 5, summer: s !== "0" }
 }
 
-export function usePlanChoice(studentId: string): [PlanChoice, (c: PlanChoice) => void] {
-  const raw = React.useSyncExternalStore(subscribeChoice, () => readChoice(studentId), () => DEFAULT_CHOICE)
-  const choice = React.useMemo(() => parseChoice(raw), [raw])
+/** `start`: the target shown before the student picks one (the one they finish in, for a student graduating this
+ *  term; else the regulation plan). The student can still pick any other. */
+export function usePlanChoice(studentId: string, start: TargetYears | null = null): [PlanChoice, (c: PlanChoice) => void] {
+  const raw = React.useSyncExternalStore(subscribeChoice, () => readChoice(studentId), () => "")
+  const choice = React.useMemo(() => parseChoice(raw || (start ? `${start}:1` : DEFAULT_CHOICE)), [raw, start])
   const set = React.useCallback(
     (c: PlanChoice) => {
       try {
