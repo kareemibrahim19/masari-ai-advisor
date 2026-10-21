@@ -9,7 +9,7 @@ import { Bar, CategoryTag, Code, CountUp, FlipText, Ring } from "@/components/ma
 import { JourneyRail } from "@/components/masari/journey"
 import { PriorityLevel } from "@/components/masari/priority-level"
 import { SeatRequestButton } from "@/components/masari/seat-request"
-import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
+import { VerifiedBadge } from "@/components/masari/trust"
 import { useI18n } from "@/lib/i18n"
 import { semesterLabel, useGraduationPlan, usePlanChoice } from "@/lib/plan-api"
 import { formatLongDate, upcomingReminders, useNow, useToday } from "@/lib/reminders"
@@ -301,7 +301,6 @@ export default function DashboardPage() {
                 </li>
               ))}
             </ul>
-            <SourceChip sourceId="graduation" />
           </div>
         </div>
       </section>

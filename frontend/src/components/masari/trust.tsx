@@ -7,11 +7,9 @@
  * Provenance is carried by FORM (plus icon and label), not by extra hues, so the page keeps one accent:
  *   VerifiedBadge  solid green fill + shield     → deterministic rules engine
  *   AiExplanation  dashed outline on a tint      → wording drafted by the LLM
- *   SourceChip     outlined document chip        → citation to a regulation (RAG)
  */
-import { BookOpenText, FlaskConical, ShieldCheck, Sparkles } from "lucide-react"
+import { FlaskConical, ShieldCheck, Sparkles } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { sources } from "@/lib/demo-content"
 import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
@@ -80,42 +78,6 @@ export function DemoBadge({ className }: { className?: string }) {
       label={t("demoData")}
       hint={t("demoDataHint")}
     />
-  )
-}
-
-export function SourceChip({ sourceId, className }: { sourceId: string; className?: string }) {
-  const { tr, t } = useI18n()
-  const s = sources[sourceId]
-  if (!s) return null
-  return (
-    <span
-      className={cn(
-        "inline-flex max-w-full items-center gap-1.5 rounded-md border border-border bg-source-soft px-2 py-1 text-xs text-source",
-        className
-      )}
-    >
-      <BookOpenText className="size-3.5 shrink-0" aria-hidden />
-      <span className="sr-only">{t("source")}: </span>
-      <span className="truncate font-medium">{tr(s.title)}</span>
-      <span className="truncate text-muted-foreground">{tr(s.locator)}</span>
-    </span>
-  )
-}
-
-/** A regulation / course chunk the RAG service retrieved (title only, from the AI service). */
-export function RagSourceChip({ title, className }: { title: string; className?: string }) {
-  const { t } = useI18n()
-  return (
-    <span
-      className={cn(
-        "inline-flex max-w-full items-center gap-1.5 rounded-md border border-border bg-source-soft px-2 py-1 text-xs text-source",
-        className
-      )}
-    >
-      <BookOpenText className="size-3.5 shrink-0" aria-hidden />
-      <span className="sr-only">{t("source")}: </span>
-      <span className="truncate font-medium">{title}</span>
-    </span>
   )
 }
 

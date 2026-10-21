@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Bar, Code, FlipText, PageHeader } from "@/components/masari/bits"
 import { Bot, type BotMood } from "@/components/masari/bot"
-import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
+import { VerifiedBadge } from "@/components/masari/trust"
 import { courseNames } from "@/lib/demo-content"
 import { useI18n } from "@/lib/i18n"
 import {
@@ -293,9 +293,6 @@ export default function PlanPage() {
 
           <div className="flex flex-wrap items-center gap-2">
             <VerifiedBadge />
-            <SourceChip sourceId="catalog" />
-            <SourceChip sourceId="load" />
-            <SourceChip sourceId="training" />
           </div>
         </div>
       )}

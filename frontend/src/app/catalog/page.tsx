@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CategoryTag, Code, PageHeader } from "@/components/masari/bits"
 import { CourseMap } from "@/components/masari/course-map"
-import { SourceChip, VerifiedBadge } from "@/components/masari/trust"
+import { VerifiedBadge } from "@/components/masari/trust"
 import {
   categoryLabels,
   courseNameIn,
@@ -348,7 +348,6 @@ function CoursesCatalog() {
           )}
         </>
       )}
-      <SourceChip sourceId="catalog" />
     </div>
   )
 }
@@ -563,7 +562,6 @@ function Regulations() {
               <li key={i.en}>{tr(i)}</li>
             ))}
           </ul>
-          <SourceChip sourceId="load" />
         </CardContent>
       </Card>
 
@@ -637,9 +635,6 @@ function Regulations() {
                 </li>
               ))}
             </ul>
-            {s.id === "drop" && <SourceChip sourceId="retake" />}
-            {s.id === "training" && <SourceChip sourceId="training" />}
-            {s.id === "graduation" && <SourceChip sourceId="graduation" />}
           </CardContent>
         </Card>
       ))}

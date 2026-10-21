@@ -57,7 +57,6 @@ export type Alert = {
   kind: "warning" | "info" | "seat"
   title: L
   body: L
-  sourceId?: string
   /** For a "seat" alert: the full section the student can request a seat in. */
   seat?: { code: string; section: string }
 }
@@ -124,7 +123,7 @@ function priorityWhy(p: Priority): L {
 /** GET /api/students/{id}/graduation-delays (ai/chatbot/tools/priorities.py). */
 export type GraduationDelays = { delays: Record<string, number | null>; needs_request: Record<string, boolean> }
 
-export type IneligibleCourse = { code: string; name: L; credits: number; reason: L; sourceId: string; missing: string[] }
+export type IneligibleCourse = { code: string; name: L; credits: number; reason: L; missing: string[] }
 
 export type PlannedCourse = { code: string; credits: number; category: Category; requires: string[]; slot?: string; minCredits?: number }
 
@@ -377,7 +376,7 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
         const reason: L = missing.length
           ? { ar: `ناقص المتطلب السابق ${listCodes(missing)}`, en: `Missing prerequisite ${listCodesEn(missing)}` }
           : { ar: `يتطلب ${i.minCredits} ساعة مكتسبة (معاك ${earned})`, en: `Requires ${i.minCredits} earned credits (you have ${earned})` }
-        return { code: i.code, name: courseNameL(i.code), credits: i.credits, reason, sourceId: missing.length ? "catalog" : "training", missing }
+        return { code: i.code, name: courseNameL(i.code), credits: i.credits, reason, missing }
       }),
     // Failed courses that cannot be retaken this term because they run in the other term.
     ...remaining
@@ -387,7 +386,6 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
         name: courseNameL(i.code),
         credits: i.credits,
         reason: { ar: `إعادة: بيتدرّس في ${termWord[i.term].ar} فقط حسب الخطة`, en: `Retake: offered in ${termWord[i.term].en} only per the plan` },
-        sourceId: "catalog",
         missing: [] as string[],
       })),
   ]
@@ -419,7 +417,6 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
             : `, which is the dismissal limit: the Faculty Council decides, so talk to your advisor.`) +
           ` You can register up to ${limit} credit hours.`,
       },
-      sourceId: "load",
     })
   } else if (record.gpa !== null && record.gpa < 2) {
     // Under 2.00 with no warning yet: warning starts at the end of the 2nd main semester, so it may come with this one.
@@ -440,7 +437,6 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
           `, and ${DISMISSAL_AFTER_WARNINGS} warnings in a row mean dismissal from the program. Raise your GPA to 2.00 this semester ` +
           `to avoid the warning. You can register up to ${limit} credit hours.`,
       },
-      sourceId: "load",
     })
   }
   for (const code of record.failed) {
@@ -462,7 +458,6 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
       body: gated
         ? { ar: `متطلب سابق لـ ${gated} مقررات (مباشر وغير مباشر). ${when.ar}`, en: `It gates ${gated} courses (directly or indirectly). ${when.en}` }
         : when,
-      sourceId: "catalog",
     })
   }
   if (record.failed.length) {
@@ -474,7 +469,6 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
         ar: `لما تعيد مقرر سقطت فيه، أعلى تقدير ممكن تاخده ${RETAKE_MAX_GRADE}.`,
         en: `When you re-register a failed course, the highest grade you can get is ${RETAKE_MAX_GRADE}.`,
       },
-      sourceId: "retake",
     })
   }
   for (const c of recommendedCourses) {

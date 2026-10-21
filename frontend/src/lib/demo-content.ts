@@ -1,6 +1,6 @@
 /**
  * Demo content that is NOT student data, moved unchanged from mock-data.ts:
- * course-name lookup, regulation sources (RAG citations), simulated section seats, the plan assumption and chat suggestions.
+ * course-name lookup, simulated section seats, the plan assumption and chat suggestions.
  *
  * Student data comes from src/data/demo/students.json through lib/data/student-source.ts.
  * When the backend is ready, seats should come from it too (instructor recommendations already do: lib/data/instructor-grades-source.ts).
@@ -13,38 +13,6 @@ import type { L } from "@/lib/i18n"
 export const courseNames: Record<string, L> = new Proxy({} as Record<string, L>, {
   get: (_, code: string) => courseNameL(code),
 })
-
-// ---------------------------------------------------------------- Sources (RAG citations)
-
-export type Source = { id: string; title: L; locator: L }
-
-export const sources: Record<string, Source> = {
-  catalog: {
-    id: "catalog",
-    title: { ar: "دليل البرنامج", en: "Program guide" },
-    locator: { ar: "المقررات والمتطلبات", en: "Courses & prerequisites" },
-  },
-  load: {
-    id: "load",
-    title: { ar: "اللائحة", en: "Regulations" },
-    locator: { ar: "العبء الدراسي", en: "Academic load" },
-  },
-  retake: {
-    id: "retake",
-    title: { ar: "اللائحة", en: "Regulations" },
-    locator: { ar: "إعادة التسجيل", en: "Re-registration" },
-  },
-  training: {
-    id: "training",
-    title: { ar: "اللائحة", en: "Regulations" },
-    locator: { ar: "التدريب والمشروعات", en: "Training & projects" },
-  },
-  graduation: {
-    id: "graduation",
-    title: { ar: "اللائحة", en: "Regulations" },
-    locator: { ar: "متطلبات التخرج", en: "Graduation requirements" },
-  },
-}
 
 // ---------------------------------------------------------------- Section seats (simulated)
 

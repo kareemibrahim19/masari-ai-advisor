@@ -7,9 +7,9 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { Textarea } from "@/components/ui/textarea"
 import { AppIcon } from "@/components/masari/brand"
 import { Bot, type BotElement, type BotMood } from "@/components/masari/bot"
-import { AiBadge, RagSourceChip } from "@/components/masari/trust"
+import { AiBadge } from "@/components/masari/trust"
 import { chatSuggestions } from "@/lib/demo-content"
-import { MODEL_BUSY, RATE_LIMITED, useDemoState, type AdvisorEmail, type ChatMessage, type RagSource } from "@/lib/demo-state"
+import { MODEL_BUSY, RATE_LIMITED, useDemoState, type AdvisorEmail, type ChatMessage } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
 import { useStudentView } from "@/lib/student-context"
 import { useVoiceInput } from "@/lib/use-voice-input"
@@ -341,7 +341,7 @@ type Typing = { onTick: () => void; onDone: () => void }
 
 function AssistantMessage({ message, typing }: { message: Extract<ChatMessage, { role: "assistant" }>; typing?: Typing }) {
   if (message.kind === "error") return <ErrorReply detail={message.detail} />
-  return <AiReply text={message.text} sources={message.sources} advisorEmail={message.advisorEmail} typing={typing} />
+  return <AiReply text={message.text} advisorEmail={message.advisorEmail} typing={typing} />
 }
 
 /** How long a fresh answer takes to type itself out: quick for short ones, never more than 6 s. */
@@ -378,9 +378,8 @@ function TypedText({ text, onTick, onDone }: { text: string } & Typing) {
 }
 
 /** An answer from the Masari AI service (RAG over the regulations + the rule tools + Gemini). */
-function AiReply({ text, sources, advisorEmail, typing }: { text: string; sources: RagSource[]; advisorEmail?: AdvisorEmail; typing?: Typing }) {
-  const { t } = useI18n()
-  // The extras (email, sources) come once the text has finished typing.
+function AiReply({ text, advisorEmail, typing }: { text: string; advisorEmail?: AdvisorEmail; typing?: Typing }) {
+  // The advisor email comes once the text has finished typing.
   const [typed, setTyped] = React.useState(!typing)
   const onDone = typing?.onDone
   const finish = React.useCallback(() => {
@@ -393,16 +392,6 @@ function AiReply({ text, sources, advisorEmail, typing }: { text: string; source
         {typing && !typed ? <TypedText text={text} onTick={typing.onTick} onDone={finish} /> : <SimpleMarkdown text={text} />}
       </div>
       {typed && advisorEmail && <AdvisorEmailActions email={advisorEmail} />}
-      {typed && sources.length > 0 && (
-        <details className="group text-xs text-muted-foreground">
-          <summary className="cursor-pointer select-none hover:text-foreground">{t("ragSources")}</summary>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {sources.map((s) => (
-              <RagSourceChip key={s.id} title={s.title} />
-            ))}
-          </div>
-        </details>
-      )}
     </AssistantShell>
   )
 }
