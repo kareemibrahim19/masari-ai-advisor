@@ -448,6 +448,11 @@ for sid in d.students():
         if gn and gn["from"] == 0:
             check(f"{sid} {years}y: plan and chat agree on the GPA for 3.00",
                   P.grades_needed(sid, 3.0)["term_gpa"] == gn["term_gpa"], (gn, P.grades_needed(sid, 3.0)["term_gpa"]))
+        if gn and gn["from"] == 1:  # 4.00 now, then a GPA next term: the chat says the same and A in every course
+            g = P.grades_needed(sid, 3.0)
+            check(f"{sid} {years}y: plan and chat agree on next term's GPA for 3.00",
+                  not g["reachable"] and g["next_term_gpa"] == gn["next_term_gpa"]
+                  and all(c["grade"] == "A" for c in g["courses"]), (gn, g.get("next_term_gpa")))
 
 # Electives in a plan are shown by slot: each a different slot, in its pool
 slots = {sl: p for p in d.program()["elective_pools"] for sl in p["slots"]}

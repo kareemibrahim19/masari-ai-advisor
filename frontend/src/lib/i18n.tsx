@@ -334,6 +334,10 @@ const dict = {
     ar: "عشان معدلك التراكمي يوصل {target} آخر الترم ده، محتاج معدل الترم ده {gpa} فيما فوق.",
     en: "For your cumulative GPA to reach {target} by the end of this semester, you need a semester GPA of {gpa} or more.",
   },
+  termGoalTwo: {
+    ar: "مش هتلحق توصل {target} في ترم واحد: محتاج معدل الترم ده {gpa}، والترم الجاي {next} فيما فوق.",
+    en: "You can't reach {target} in one semester: you need a semester GPA of {gpa} this term, and {next} or more next term.",
+  },
   termGoalDismissal: {
     ar: "لو جبت أقل من كده هتاخد الإنذار التالت ورا بعض، وده حد الفصل.",
     en: "Below that you get a third academic warning in a row, the dismissal limit.",

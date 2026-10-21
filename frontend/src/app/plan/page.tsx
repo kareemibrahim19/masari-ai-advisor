@@ -651,14 +651,15 @@ function GpaLadder({ plan, failedNow, whatIfGpa }: { plan: GraduationPlan; faile
 
 /** The semester GPA this term takes, or more, and the chat for the grade it takes in each course (its grades_needed
  *  tool, asked with the same target). Two cases: under 2.00 now, back to 2.00 (and what missing it means); or a
- *  target that needs the 3.00 band (21 hours), reachable by the end of this term. */
+ *  target that needs the 3.00 band (21 hours), by the end of this term or, when one term is not enough, with 4.00
+ *  now and the GPA it then takes next term. */
 function TermGoal({ plan }: { plan: GraduationPlan }) {
   const { t, num } = useI18n()
-  const top = plan.gpa_needed?.from === 0 ? plan.gpa_needed : null
+  const top = plan.gpa_needed
   // Under 2.00 with a target that needs 3.00 too: both, 2.00 (the warning) first.
-  const goals = [
+  const goals: { target: number; term_gpa: number; next_term_gpa?: number; reachable: boolean; warning_if_missed: boolean; dismissal_if_missed: boolean }[] = [
     plan.this_term_goal,
-    top && { target: 3, term_gpa: top.term_gpa, reachable: true, warning_if_missed: false, dismissal_if_missed: false },
+    top && { target: 3, term_gpa: top.term_gpa, next_term_gpa: top.from === 1 ? top.next_term_gpa : undefined, reachable: true, warning_if_missed: false, dismissal_if_missed: false },
   ].filter((g): g is NonNullable<typeof g> => !!g)
   if (!goals.length) return null
   const two = (n: number) => num(n, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -670,9 +671,11 @@ function TermGoal({ plan }: { plan: GraduationPlan }) {
         return (
           <div key={goal.target} className="space-y-1">
             <p className="font-medium">
-              {goal.reachable
-                ? t("termGoal").replace("{target}", two(goal.target)).replace("{gpa}", two(goal.term_gpa))
-                : t("termGoalUnreachable").replace("{target}", two(goal.target))}
+              {!goal.reachable
+                ? t("termGoalUnreachable").replace("{target}", two(goal.target))
+                : goal.next_term_gpa !== undefined
+                  ? t("termGoalTwo").replace("{target}", two(goal.target)).replace("{gpa}", two(goal.term_gpa)).replace("{next}", two(goal.next_term_gpa))
+                  : t("termGoal").replace("{target}", two(goal.target)).replace("{gpa}", two(goal.term_gpa))}
               {goal.reachable && risk && <span className="text-destructive"> {risk}</span>}
             </p>
             {goal.reachable && (

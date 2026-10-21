@@ -703,7 +703,7 @@ def _gpa_lever(s: dict, failed: list[str], expected_term_gpa: float | None, cap:
                           f"{term_gpa:.2f} or more), so you can register {top} hours from next semester."}
     # One semester later: 4.00 on what is passed now, then a full load next semester.
     h1, p1 = hours + now_h, points + 4.0 * pass_h
-    nxt = (target * (h1 + cap) - p1) / cap if cap else 99
+    nxt = ((target - 0.005) * (h1 + cap) - p1) / cap if cap else 99
     if nxt <= 4.0:
         nxt = up(nxt)
         return {"from": 1, "cap": top, "term_gpa": 4.0, "next_term_gpa": nxt,
@@ -1320,10 +1320,25 @@ def grades_needed(student_id: str, target_gpa: float | None = None) -> dict:
                            "grade": ladder[pick[c["code"]]][0], "min_percent": pct.get(ladder[pick[c["code"]]][0])}
                           for c in graded]
         out["uniform_grade"] = ladder[start][0]
+    else:
+        # Not in one semester: A (4.00) in every course now, then what the next semester takes, at the hour limit
+        # that GPA gives (as the plan's GPA route counts it).
+        out["courses"] = [{"code": c["code"], "name_ar": allc[c["code"]]["name_ar"], "credits": c["credits"],
+                           "grade": "A", "min_percent": pct.get("A")} for c in graded]
+        after = round((points + 4.0 * now_h) / (hours + now_h), 2)
+        main_now = s["academic_status"]["main_semesters_completed"] + 1
+        cap, _ = _load_cap(after, main_now)
+        nxt = up(((target - 0.005) * (hours + now_h + cap) - points - 4.0 * now_h) / cap)
+        out.update({"gpa_after_this_term": after, "next_term_hours": cap,
+                    "next_term_gpa": nxt if nxt <= 4.0 + 1e-9 else None})
     risk = (" ولو معدلك فضل تحت 2.00 هيبقى ده الإنذار رقم " + str(warned + 1) +
             (" يعني حد الفصل (القرار لمجلس الكلية)." if out["dismissal_if_missed"] else ".")) if out["warning_if_missed"] else ""
-    if not reachable:
-        out["explanation"] = (f"حتى لو جبت 4.00 الترم ده ({now_h} ساعة بتقدير) معدلك التراكمي مش هيوصل {target:.2f}."
+    if not reachable and out["next_term_gpa"] is not None:
+        out["explanation"] = (f"مش هتلحق توصل {target:.2f} في ترم واحد: محتاج 4.00 الترم ده (يعني A في كل المواد، "
+                              f"{pct.get('A')}% أو أكتر)، وبعدها معدل ترم {out['next_term_gpa']:.2f} أو أكتر الترم الجاي "
+                              f"في {out['next_term_hours']} ساعة." + risk)
+    elif not reachable:
+        out["explanation"] = (f"حتى لو جبت 4.00 الترم ده والترم الجاي معدلك التراكمي مش هيوصل {target:.2f}."
                               + risk + " كلّم مرشدك عن خطة على أكتر من ترم.")
     else:
         lines = "، ".join(f"{c['code']} {c['grade']}" for c in out["courses"])
