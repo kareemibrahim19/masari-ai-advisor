@@ -548,7 +548,7 @@ def registration_eligibility(student_id: str, course_code: str, term_type: str =
 PAPER_MAX_LOW_GPA = 15
 PAPER_COURSES, PAPER_COURSE_CREDITS = 5, 3
 # What the student does in every case that goes on paper.
-PAPER_STEPS = ("فإنت محتاج تسجل ورقي: روح لإدارة شئون الطلاب في الكلية واطلب استمارة التسجيل الورقي، "
+PAPER_STEPS = ("فإنت محتاج تسجل ورقي: روح لإدارة البرنامج واطلب استمارة التسجيل الورقي، "
                "واملاها وسلّمها قبل آخر ميعاد للتسجيل.")
 # Project allowance: a project may be registered on paper with up to this many hours fewer than it requires.
 # (From the data: courses.json "min_credits_tolerance", the same numbers the graduation planner uses.)

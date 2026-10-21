@@ -2,55 +2,6 @@
   "_note": "بيانات وهمية لعدد المقاعد في كل سكشن (السعة والمسجلين)، بنفس الشكل اللي هتيجي بيه الداتا الحقيقية.",
   "sections": [
     {
-      "course_code": "UNR 061",
-      "section": "1",
-      "offered_term": "fall",
-      "capacity": 40,
-      "enrolled": 33
-    },
-    {
-      "course_code": "UNR 021",
-      "section": "1",
-      "offered_term": "spring",
-      "capacity": 45,
-      "enrolled": 41
-    },
-    {
-      "course_code": "UNR 181",
-      "section": "1",
-      "offered_term": "fall",
-      "capacity": 30,
-      "enrolled": 19
-    },
-    {
-      "course_code": "UNR 241",
-      "section": "1",
-      "offered_term": "fall",
-      "capacity": 30,
-      "enrolled": 22
-    },
-    {
-      "course_code": "UNR 121",
-      "section": "1",
-      "offered_term": "spring",
-      "capacity": 30,
-      "enrolled": 19
-    },
-    {
-      "course_code": "UNR 261",
-      "section": "1",
-      "offered_term": "spring",
-      "capacity": 35,
-      "enrolled": 32
-    },
-    {
-      "course_code": "UNR 471",
-      "section": "1",
-      "offered_term": "fall",
-      "capacity": 30,
-      "enrolled": 21
-    },
-    {
       "course_code": "BAS 011",
       "section": "1",
       "offered_term": "fall",

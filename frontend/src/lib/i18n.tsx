@@ -50,9 +50,10 @@ const dict = {
   },
   regClosed: { ar: "التسجيل قفل على سيستم الجامعة.", en: "Registration is closed on the university system." },
   regClosedPaper: {
-    ar: "ينفع تسجل ورقي بس في الحالات الضرورية، من شؤون الطلاب.",
-    en: "Paper registration at Student Affairs is possible only in necessary cases.",
+    ar: "ينفع تسجل ورقي بس في الحالات الضرورية، من إدارة البرنامج، لحد",
+    en: "Paper registration from the program administration is possible only in necessary cases, until",
   },
+  regOver: { ar: "التسجيل خلص. آخر ميعاد كان", en: "Registration is over. The last day was" },
   regFull: { ar: "مكتمل", en: "full" },
   regAllFull: { ar: "كل السكاشن مكتملة", en: "All sections full" },
   regSeatsLeft: { ar: "مقاعد متاحة", en: "seats left" },
@@ -396,8 +397,8 @@ const dict = {
   flagImprovement: { ar: "تحسين", en: "Improvement" },
   flagAllowance: { ar: "سماحية تخرج · ورقي", en: "Graduation allowance · paper" },
   flagAllowanceHint: {
-    ar: "بدل ما يفضلك صيفي في الآخر عشان مادة واحدة، المادة بتتضاف لآخر ترم فوق حد الساعات بسماحية تخرج، وبتتسجل ورقي بموافقة المرشد وشئون الطلاب.",
-    en: "Instead of a final summer for one course, it is added to your last semester over the hour limit as a graduation allowance, registered on paper with your advisor's and student affairs' approval.",
+    ar: "بدل ما يفضلك صيفي في الآخر عشان مادة واحدة، المادة بتتضاف لآخر ترم فوق حد الساعات بسماحية تخرج، وبتتسجل ورقي بموافقة المرشد وإدارة البرنامج.",
+    en: "Instead of a final summer for one course, it is added to your last semester over the hour limit as a graduation allowance, registered on paper with your advisor's and the program administration's approval.",
   },
   allowanceTermNote: { ar: "فوق الحد بسماحية تخرج · ورقي", en: "Over the limit by graduation allowance · paper" },
   flagImprovementWas: { ar: "تقديرك دلوقتي", en: "now" },
@@ -427,8 +428,8 @@ const dict = {
   },
   belowMinimumNote: { ar: "ترم تخرج أقل من 12", en: "graduation semester under 12" },
   paperRegistrationHint: {
-    ar: "في حالات معينة الكلية بتطلب إن المادة أو المشروع يتسجّل ورقي مش على السيستم: بتروح لإدارة شئون الطلاب وتملا استمارة التسجيل الورقي قبل آخر ميعاد للتسجيل. الحالات دي:",
-    en: "In some cases the faculty requires a course or project to be registered on paper instead of the system: go to student affairs and fill in the paper registration form before the registration deadline. The cases:",
+    ar: "في حالات معينة الكلية بتطلب إن المادة أو المشروع يتسجّل ورقي مش على السيستم: بتروح لإدارة البرنامج وتملا استمارة التسجيل الورقي قبل آخر ميعاد للتسجيل. الحالات دي:",
+    en: "In some cases the faculty requires a course or project to be registered on paper instead of the system: go to the program administration and fill in the paper registration form before the registration deadline. The cases:",
   },
   paperCaseProject: {
     ar: "مشروع ساعاتك فيه أقل من المطلوب بس جوه السماحية (4 ساعات لمشروع 1 و2، و6 لمشروع 3).",

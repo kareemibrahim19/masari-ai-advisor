@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Code } from "@/components/masari/bits"
 import { useAdvisor, type Advisor } from "@/lib/advisor"
-import { addDropEvent } from "@/lib/registration"
+import { addDropEvent, dropWithoutWEvent, useRegistrationPhase } from "@/lib/registration"
 import { useI18n } from "@/lib/i18n"
 import type { useSeatRequests } from "@/lib/seat-requests"
 import type { SeatCourse, StudentView } from "@/lib/student-view"
@@ -29,6 +29,7 @@ export function UnregisteredCourses({
 }) {
   const { t, tr, lang } = useI18n()
   const advisor = useAdvisor(view.student.id)
+  const phase = useRegistrationPhase()
   const [failed, setFailed] = React.useState(false)
   const list = view.seatCourses
   const sent = seats.loaded && list.length > 0 && list.every((c) => seats.isSent(c.code, c.full))
@@ -56,7 +57,17 @@ export function UnregisteredCourses({
             <div className="flex items-start gap-2 rounded-xl bg-muted p-3 text-sm">
               <Lock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
               <p>
-                <span className="font-medium">{t("regClosed")}</span> {t("regClosedPaper")}
+                {phase === "closed" ? (
+                  <>
+                    <span className="font-medium">{t("regOver")}</span>{" "}
+                    {dropWithoutWEvent && tr(dayMonth(dropWithoutWEvent.date))}.
+                  </>
+                ) : (
+                  <>
+                    <span className="font-medium">{t("regClosed")}</span> {t("regClosedPaper")}{" "}
+                    {dropWithoutWEvent && <>{tr(dayMonth(dropWithoutWEvent.date))} {dropWithoutWEvent.time && tr(dropWithoutWEvent.time)}.</>}
+                  </>
+                )}
               </p>
             </div>
           )}

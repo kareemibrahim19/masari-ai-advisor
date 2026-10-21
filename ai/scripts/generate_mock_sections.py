@@ -29,6 +29,8 @@ def main() -> None:
 
     sections = []
     for o in offerings:
+        if o["course_code"].startswith("UNR"):  # university requirements have no sections
+            continue
         key = (o["course_code"], o["section"])
         if key in KNOWN:
             capacity, left = KNOWN[key]

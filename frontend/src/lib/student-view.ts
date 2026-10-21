@@ -205,6 +205,12 @@ function loadRule(r: StudentRecord, limit: number): L {
   }
 }
 
+/** University requirements (UNR), projects and training have no sections. */
+export const hasSections = (code: string) => {
+  const c = findCourse(code) as { category?: string; type?: string } | undefined
+  return !(code.startsWith("UNR") || c?.category === "UNR" || c?.type === "project")
+}
+
 const toPlanned = (terms: PlanItem[][]): PlannedCourse[][] =>
   terms.map((t) => t.map((i) => ({ code: i.code, credits: i.credits, category: i.category, requires: i.prereqs, slot: i.slot, minCredits: i.minCredits || undefined })))
 
@@ -350,7 +356,7 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
       priority: coursePriority(i.code, delayIfSkipped(i.code)).score,
       prereqs: i.prereqs,
       unlocks: dependentsOf(i.code),
-      sections: sections[i.code] ?? [{ id: "1", seatsLeft: 15, capacity: 40 }],
+      sections: hasSections(i.code) ? (sections[i.code] ?? [{ id: "1", seatsLeft: 15, capacity: 40 }]) : [],
       verifiedReasons: verifiedReasonsFor(i),
       aiReason: { ar: "", en: "" },
       slot: i.slot,

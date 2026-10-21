@@ -72,11 +72,11 @@ FLAG_AR = {
     "graduation_allowance": "سماحية تخرج: فوق حد الساعات في آخر ترم، ورقي",
 }
 ALLOWANCE_AR = ("تسجيل ورقي بسماحية تخرج: المادة دي بتتضاف لآخر ترم فوق حد الساعات بدل ما يبقى فاضلك صيفي "
-                "عشان مادة واحدة. اطلبها من مرشدك وشئون الطلاب.")
+                "عشان مادة واحدة. اطلبها من مرشدك وإدارة البرنامج.")
 PAPER_AR = "تسجيل ورقي: الساعات أقل من المطلوب بس جوه السماحية"
 # A course the college opens for the student outside its semester is not on the registration system: it goes on paper.
 OPENED_PAPER_AR = ("تسجيل ورقي: المادة مش في ترمها والكلية بتفتحهالك بطلب، فمش هتلاقيها على السيستم. "
-                   "اطلبها من شئون الطلاب وسجّلها ورقي.")
+                   "اطلبها من إدارة البرنامج وسجّلها ورقي.")
 
 
 # ---------------------------------------------------------------- the student after the current term
@@ -1485,7 +1485,7 @@ def graduation_plan(student_id: str, target_years: float | None = None, allow_su
                    **({"hint": t["short_hint"]["ar"] + " زي: " + "، ".join(named(c) for c in t["short_hint"]["courses"])}
                       if t.get("short_hint") else {})}
                   for t in p.get("terms", []) if not t.get("frozen")],
-        # Courses registered on paper at student affairs (opened by request, a project a few hours short, or a
+        # Courses registered on paper at the program administration (opened by request, a project a few hours short, or a
         # graduation allowance over the limit in the last semester).
         "paper_registration": [{"course": named(c["code"]), "term": t["ar"], "why": c["paper_note_ar"]}
                                for t in p.get("terms", []) for c in t["courses"] if c.get("paper_note_ar")],
