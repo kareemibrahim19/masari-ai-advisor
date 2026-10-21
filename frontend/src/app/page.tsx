@@ -11,7 +11,7 @@ import { PriorityLevel } from "@/components/masari/priority-level"
 import { useI18n } from "@/lib/i18n"
 import { semesterLabel, useGraduationPlan, usePlanChoice } from "@/lib/plan-api"
 import { formatLongDate, upcomingReminders, useNow, useToday } from "@/lib/reminders"
-import { useRegistrationOpen } from "@/lib/registration"
+import { useRegistrationOpen, useRegistrationPhase } from "@/lib/registration"
 import { useSeatRequests } from "@/lib/seat-requests"
 import { useGraduationDelays } from "@/lib/graduation-delays"
 import { useStudentView } from "@/lib/student-context"
@@ -33,6 +33,9 @@ export default function DashboardPage() {
   const remaining = student.total - student.earned
   const seats = useSeatRequests(student.id)
   const registrationOpen = useRegistrationOpen()
+  const seatNotices = useRegistrationPhase() !== "gone"
+  // Once registration has been closed a few days, the seat notices go (registration is over).
+  const shownAlerts = alerts.filter((a) => seatNotices || a.kind !== "seat")
   // What the rules-engine planner would register this term (prerequisites, credit thresholds and load limit checked).
   const delays = useGraduationDelays(student.id)
   const thisTerm = rankCurrentCourses(currentCourses, delays)
@@ -203,7 +206,7 @@ export default function DashboardPage() {
           <h2 id="alerts-title" className="text-xl font-semibold">
             {t("alerts")}
           </h2>
-          {alerts.length === 0 && reminders.length === 0 && (
+          {shownAlerts.length === 0 && reminders.length === 0 && (
             <p className="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">{t("noAlerts")}</p>
           )}
           <ul className="space-y-3">
@@ -233,7 +236,7 @@ export default function DashboardPage() {
                 </div>
               </li>
             ))}
-            {alerts.map((a, i) => {
+            {shownAlerts.map((a, i) => {
               const s = alertStyle[a.kind]
               const Icon = s.icon
               return (

@@ -53,7 +53,6 @@ const dict = {
     ar: "ينفع تسجل ورقي بس في الحالات الضرورية، من إدارة البرنامج، لحد",
     en: "Paper registration from the program administration is possible only in necessary cases, until",
   },
-  regOver: { ar: "التسجيل خلص. آخر ميعاد كان", en: "Registration is over. The last day was" },
   regFull: { ar: "مكتمل", en: "full" },
   regAllFull: { ar: "كل السكاشن مكتملة", en: "All sections full" },
   regSeatsLeft: { ar: "مقاعد متاحة", en: "seats left" },

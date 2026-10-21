@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Code, PageHeader } from "@/components/masari/bits"
 import { UnregisteredCourses } from "@/components/masari/unregistered-courses"
 import { type DictKey, useI18n } from "@/lib/i18n"
-import { useRegistrationOpen } from "@/lib/registration"
+import { useRegistrationOpen, useRegistrationPhase } from "@/lib/registration"
 import { useSeatRequests } from "@/lib/seat-requests"
 import { useStudentView } from "@/lib/student-context"
 import { DAYS, PERIODS, dayNames, type Day, type Session, type SessionKind } from "@/lib/timetable"
@@ -45,6 +45,7 @@ export default function SchedulePage() {
   const tt = student.timetable
   const seats = useSeatRequests(student.id)
   const registrationOpen = useRegistrationOpen()
+  const phase = useRegistrationPhase()
 
   const at = (d: Day, period: number) => tt.sessions.find((s) => s.day === d && s.period === period)
   const hours = (tt.sessions.length * 90) / 60
@@ -57,7 +58,7 @@ export default function SchedulePage() {
     <div className="mx-auto w-full max-w-7xl space-y-5 p-4 md:p-6">
       <PageHeader title={t("ttTitle")} subtitle={`${tr(student.level)} · ${t("ttSection")} ${tt.section}`} />
 
-      {registrationOpen !== null && <UnregisteredCourses view={view} seats={seats} open={registrationOpen} />}
+      {registrationOpen !== null && phase !== "gone" && <UnregisteredCourses view={view} seats={seats} open={registrationOpen} />}
 
       {tt.sessions.length === 0 ? (
         <Card>

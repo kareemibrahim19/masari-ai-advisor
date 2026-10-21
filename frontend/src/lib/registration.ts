@@ -15,16 +15,22 @@ export const addDropEvent = event("add-drop")
 const OPENS = `${event("registration-opens")?.date}T14:00`
 const CLOSES = `${addDropEvent?.date}T12:00`
 
-/** The last day to drop a course without a (W): paper registration closes then. */
+/** The last day to drop a course without a (W): paper registration (necessary cases) stays possible until then. */
 export const dropWithoutWEvent = event("drop-without-w")
-const PAPER_CLOSES = `${dropWithoutWEvent?.date}T12:00`
 
-/** On the system until add/drop, then on paper (necessary cases, program administration) until the last day to drop
- * without a (W), then closed. null while rendering on the server. */
-export function useRegistrationPhase(): "system" | "paper" | "closed" | null {
+/** Days after registration closes that the not-registered notices stay up; after that nothing is shown. */
+const NOTICE_GRACE_DAYS = 3
+const NOTICE_ENDS = (() => {
+  const d = new Date(`${addDropEvent?.date}T12:00`)
+  d.setDate(d.getDate() + NOTICE_GRACE_DAYS)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T23:59`
+})()
+
+/** "system": open on the system. "paper": closed, notice still up for a few days. "gone": no notice. null on the server. */
+export function useRegistrationPhase(): "system" | "paper" | "gone" | null {
   const now = useNow()
   if (!now) return null
-  return now < CLOSES ? "system" : now < PAPER_CLOSES ? "paper" : "closed"
+  return now < CLOSES ? "system" : now <= NOTICE_ENDS ? "paper" : "gone"
 }
 
 /** true while registration is open, false once it closed (or before it opens), null while rendering on the server. */

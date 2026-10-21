@@ -494,7 +494,10 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
   const seatCourses: SeatCourse[] = (frozenNow ? [] : recommendedCourses).flatMap((c) => {
     const full = c.sections.find((x) => x.seatsLeft === 0)
     const open = c.sections.find((x) => x.seatsLeft > 0)
-    if (!full || student.registeredNow.includes(c.code)) return []
+    // Only a course the student's own plan puts in this term (a first-term student's later courses do not count), that
+    // still fits under their load limit next to what they registered.
+    if (!full || student.registeredNow.includes(c.code) || !proposedNow.includes(c.code)) return []
+    if (registeredCredits + c.credits > limit) return []
     const name = { ar: courseNameIn(c.code, "ar"), en: courseNameIn(c.code, "en") }
     return [{ code: c.code, name, credits: c.credits, full: full.id, open: open && { id: open.id, seatsLeft: open.seatsLeft } }]
   })
