@@ -105,6 +105,12 @@ export default function PlanPage() {
   const inputRejected = error instanceof PlanError && error.status === 400
   const gpaInvalid = gpaText.trim() !== "" && parseGpa(gpaText) === null
   const whatIfActive = failed.length > 0 || gpa !== null
+  // Masari points up at the what-if fields until the student starts trying: to lift the warning (under 2.00 now),
+  // or to change the plan.
+  const tryHere = !whatIfActive && plan ? (plan.this_term_goal ? "warning" : "plan") : null
+  // No 5-year graduation either way (with or without summer): the summary's Masari is upset.
+  const five = data?.options.find((o) => o.target_years === 5)
+  const noFiveYears = !!five && five.with_summer.status === "impossible" && five.without_summer.status === "impossible"
 
   const baseOrder = React.useMemo(() => {
     const m = new Map<string, number>()
@@ -235,6 +241,14 @@ export default function PlanPage() {
               <p id="term-gpa-hint" className={cn("text-xs", gpaInvalid || inputRejected ? "text-destructive" : "text-muted-foreground")}>
                 {inputRejected ? error?.message : t("termGpaHint")}
               </p>
+              {tryHere && (
+                <p className="flex items-center gap-1.5 pt-1">
+                  <Bot mood="pointUp" label={t("botChat")} className="shrink-0" style={{ width: 40 }} />
+                  <span className="relative rounded-lg bg-brand-accent/10 px-2.5 py-1 text-xs font-semibold text-brand-accent before:absolute before:top-1/2 before:-start-1.5 before:size-3 before:-translate-y-1/2 before:rotate-45 before:bg-brand-accent/10">
+                    {t(tryHere === "warning" ? "tryHereWarning" : "tryHere")}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
 
@@ -270,7 +284,7 @@ export default function PlanPage() {
         </p>
       ) : (
         <div className={cn("space-y-4 transition-opacity", loading && "opacity-60")} aria-busy={loading}>
-          <PlanSummary plan={plan} loading={loading} failedNow={failed} whatIfGpa={gpa} />
+          <PlanSummary plan={plan} loading={loading} failedNow={failed} whatIfGpa={gpa} noFiveYears={noFiveYears} />
 
           {plan.terms.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("graduateThisTerm")}</p>
@@ -417,13 +431,14 @@ function WhatIfResult({ plan, baseline }: { plan: GraduationPlan; baseline: Grad
 }
 
 /**
- * Masari next to the verdict: thinks while the plan is computing, points at a GPA warning, and when the target
- * works it celebrates and throws its cap, then stands there in its graduation outfit.
+ * Masari next to the verdict: thinks while the plan is computing, is sad on an academic warning or when even 5 years
+ * is out of reach, points at a GPA warning, and when the target works it celebrates and throws its cap, then stands
+ * there in its graduation outfit.
  */
-function PlanBot({ status, gpaWarning, loading }: { status: string; gpaWarning: boolean; loading: boolean }) {
+function PlanBot({ status, gpaWarning, upset, loading }: { status: string; gpaWarning: boolean; upset: boolean; loading: boolean }) {
   const { t } = useI18n()
   const [cheer, setCheer] = React.useState<"celebrate" | "toss" | null>(null)
-  const feasible = status === "feasible" && !gpaWarning
+  const feasible = status === "feasible" && !gpaWarning && !upset
   React.useEffect(() => {
     if (!feasible || loading) return
     // eslint-disable-next-line react-hooks/set-state-in-effect -- a short celebration each time the verdict turns good
@@ -436,11 +451,13 @@ function PlanBot({ status, gpaWarning, loading }: { status: string; gpaWarning: 
       setCheer(null)
     }
   }, [feasible, loading])
-  const mood: BotMood = loading ? "thinking" : gpaWarning ? "point" : (cheer ?? "idle")
+  // Upset on an academic warning, or when even 5 years is out of reach; otherwise as before.
+  const mood: BotMood = loading ? "thinking" : upset ? "sad" : gpaWarning ? "point" : (cheer ?? "idle")
   return <Bot mood={mood} outfit={feasible ? "grad" : "none"} label={t("botChat")} className="shrink-0 self-center" style={{ width: 92 }} />
 }
 
-function PlanSummary({ plan, loading, failedNow, whatIfGpa }: {
+function PlanSummary({ plan, loading, failedNow, whatIfGpa, noFiveYears }: {
+  noFiveYears: boolean
   plan: GraduationPlan
   loading: boolean
   failedNow: string[]
@@ -540,7 +557,7 @@ function PlanSummary({ plan, loading, failedNow, whatIfGpa }: {
               {t("collegeRequestsCount")}: <span className="font-semibold tabular-nums">{num(requests)}</span>
             </span>
           </div>
-          <PlanBot status={status} gpaWarning={!!plan.gpa_warning} loading={loading} />
+          <PlanBot status={status} gpaWarning={!!plan.gpa_warning} upset={!!plan.this_term_goal || !!plan.gpa_warning || noFiveYears} loading={loading} />
         </div>
       </div>
       <GpaLadder plan={plan} failedNow={failedNow} whatIfGpa={whatIfGpa} />
@@ -665,7 +682,10 @@ function TermGoal({ plan }: { plan: GraduationPlan }) {
   if (!goals.length) return null
   const two = (n: number) => num(n, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   return (
-    <div className="space-y-2 rounded-lg border border-warning/50 bg-background/70 p-2.5 text-sm">
+    <div className="relative space-y-2 rounded-lg border border-warning/50 bg-background/70 p-2.5 pt-3 text-sm">
+      <span className="absolute -top-2.5 end-3 rounded-full border border-warning/50 bg-background px-2 text-[11px] font-medium text-muted-foreground">
+        {t("suggestionOnly")}
+      </span>
       {goals.map((goal) => {
         const risk = goal.dismissal_if_missed ? t("termGoalDismissal") : goal.warning_if_missed ? t("termGoalWarning") : ""
         const question = t("termGoalQuestion").replace("{target}", goal.target.toFixed(2))

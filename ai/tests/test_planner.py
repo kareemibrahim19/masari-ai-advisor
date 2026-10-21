@@ -505,6 +505,20 @@ for sid in d.students():
           all(c.get("elective_slot") and c["code"] in slots[c["elective_slot"]]["courses"] for c in els)
           and len({c["elective_slot"] for c in els}) == len(els), [(c["code"], c.get("elective_slot")) for c in els])
 
+# The chat's plan names courses (students know them by name), never a bare code
+import re  # noqa: E402
+for sid in d.students():
+    g = P.graduation_plan(sid)
+    if not g.get("found"):
+        continue
+    listed = [c for t in g.get("terms", []) for c in t["courses"]] + g.get("summer_courses", []) + g.get("college_requests", [])
+    check(f"{sid}: chat plan names every course", all(not re.fullmatch(r"[A-Z]{3} \d{3}", c) and re.search(r"[؀-ۿ]", c)
+                                                      for c in listed), listed[:3])
+    goal = P.grades_needed(sid)
+    if goal.get("explanation"):
+        check(f"{sid}: grades explanation names courses", not re.search(r"[A-Z]{3} \d{3} [A-F]", goal["explanation"]),
+              goal["explanation"][:80])
+
 # Options table
 o = plan_options(NEW)
 check("options table 3 targets", [r["target_years"] for r in o["options"]] == [4, 4.5, 5], o)

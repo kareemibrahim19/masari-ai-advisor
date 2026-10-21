@@ -1418,7 +1418,7 @@ def grades_needed(student_id: str, target_gpa: float | None = None) -> dict:
         out["explanation"] = (f"حتى لو جبت 4.00 الترم ده والترم الجاي معدلك التراكمي مش هيوصل {target:.2f}."
                               + risk + " كلّم مرشدك عن خطة على أكتر من ترم.")
     else:
-        lines = "، ".join(f"{c['code']} {c['grade']}" for c in out["courses"])
+        lines = "، ".join(f"{c['name_ar']} {c['grade']}" for c in out["courses"])  # by name: students know courses by name
         out["explanation"] = (f"عشان معدلك التراكمي يوصل {target:.2f} آخر الترم ده محتاج معدل ترم {term_gpa:.2f} على الأقل "
                               f"في {now_h} ساعة، يعني تقريبًا {out['uniform_grade']} في كل المواد، أو مثلًا: {lines}."
                               + risk + " النسب هي أقل مجموع للتقدير ده.")
@@ -1457,6 +1457,14 @@ def graduation_plan(student_id: str, target_years: float | None = None, allow_su
         return p
     opts = plan_options(student_id)["options"]
 
+    # Course names, not codes (students know courses by name); an elective by its slot, the student picks it.
+    slots = {c["code"]: c for t in p.get("terms", []) for c in t["courses"] if c.get("elective_slot")}
+
+    def named(code: str) -> str:
+        if code in slots:
+            return f"{slots[code]['name_ar']} (يختاره من اختياريات المستوى {slots[code]['elective_level']})"
+        return f"{d.courses()[code]['name_ar']} ({code})"
+
     def cell(c):
         return {"possible": c["feasible"], "status": c["status"], "graduation": (c["graduation_term"] or {}).get("ar"),
                 "conditions": [x["ar"] for x in c["conditions"]], "why_not": (c.get("why") or {}).get("ar")}
@@ -1467,10 +1475,20 @@ def graduation_plan(student_id: str, target_years: float | None = None, allow_su
         "status": p.get("status"), "conditions": [c["ar"] for c in p.get("conditions", [])],
         "risk_if_gpa_drops": (p.get("risk") or {}).get("ar"),
         "graduation": (p["graduation_term"] or {}).get("ar"),
-        "summer_courses": p.get("summer_courses", []), "college_requests": p.get("college_requests", []),
-        # Courses registered on paper at student affairs (opened by request, or a project a few hours short).
-        "paper_registration": [{"code": c["code"], "term": t["ar"], "why": c["paper_note_ar"]}
-                               for t in p.get("terms", []) for c in t["courses"] if c.get("paper_registration")],
+        "summer_courses": [named(c) for c in p.get("summer_courses", [])],
+        "college_requests": [named(c) for c in p.get("college_requests", [])],
+        # Each term of the plan with its courses by name, so "what do I take next term?" needs no other tool.
+        "terms": [{"term": t["ar"], "credits": t["credits"], "max_credits": t.get("max_credits"),
+                   "courses": [named(c["code"]) for c in t["courses"]],
+                   **({"note": t["allowance_ar"]} if t.get("allowance") else {}),
+                   **({"under_minimum": t["warning"]} if t.get("warning") else {}),
+                   **({"hint": t["short_hint"]["ar"] + " زي: " + "، ".join(named(c) for c in t["short_hint"]["courses"])}
+                      if t.get("short_hint") else {})}
+                  for t in p.get("terms", []) if not t.get("frozen")],
+        # Courses registered on paper at student affairs (opened by request, a project a few hours short, or a
+        # graduation allowance over the limit in the last semester).
+        "paper_registration": [{"course": named(c["code"]), "term": t["ar"], "why": c["paper_note_ar"]}
+                               for t in p.get("terms", []) for c in t["courses"] if c.get("paper_note_ar")],
         "credit_cap_per_semester": p["after_this_term"]["max_credits"],
         "all_targets": [{"target_years": o["target_years"], "with_summer": cell(o["with_summer"]),
                          "without_summer": cell(o["without_summer"])} for o in opts],

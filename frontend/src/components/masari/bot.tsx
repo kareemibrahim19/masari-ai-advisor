@@ -2,7 +2,7 @@
 
 /**
  * Masari, the bot (design "Masari Bot Animations"): a thin React wrapper around the <masari-bot> web component in
- * public/masari-bot.js, which draws and animates it (19 moods, poke, wake, walk). The wrapper:
+ * public/masari-bot.js, which draws and animates it (its moods, poke, wake, walk). The wrapper:
  *   - loads the script once, and sets every attribute itself (the element's `mood` is a read-only property, so React
  *     must not assign it);
  *   - follows the site's light/dark theme (dark = a white outline so the charcoal body stays visible);
@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
 
 export type BotMood =
   | "idle" | "hop" | "wave" | "happy" | "thinking" | "talking" | "celebrate" | "sleep" | "sad" | "worried" | "proud"
-  | "listening" | "reading" | "walk" | "peek" | "bye" | "confused" | "point" | "nod" | "toss"
+  | "listening" | "reading" | "walk" | "peek" | "bye" | "confused" | "point" | "pointUp" | "nod" | "toss"
 
 /** The element's own methods and the fields the wrapper touches (see public/masari-bot.js). */
 export type BotElement = HTMLElement & {
@@ -51,7 +51,7 @@ export function loadBot(): Promise<void> {
   if (customElements.get("masari-bot")) return Promise.resolve()
   loading ??= new Promise<void>((resolve) => {
     const s = document.createElement("script")
-    s.src = "/masari-bot.js?v=3" // bump when the file changes, so browsers drop the cached copy
+    s.src = "/masari-bot.js?v=4" // bump when the file changes, so browsers drop the cached copy
     s.async = true
     document.head.appendChild(s)
     customElements.whenDefined("masari-bot").then(() => resolve())

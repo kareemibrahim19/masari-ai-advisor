@@ -334,6 +334,9 @@ const dict = {
     ar: "عشان معدلك التراكمي يوصل {target} آخر الترم ده، محتاج معدل الترم ده {gpa} فيما فوق.",
     en: "For your cumulative GPA to reach {target} by the end of this semester, you need a semester GPA of {gpa} or more.",
   },
+  tryHere: { ar: "جرّب هنا بإيدك عشان تغيّر الخطة", en: "Try it here to change your plan" },
+  suggestionOnly: { ar: "اقتراح بس", en: "Just a suggestion" },
+  tryHereWarning: { ar: "جرّب هنا بإيدك عشان تحسّن الخطة وتشيل الإنذار", en: "Try it here to improve your plan and lift the warning" },
   termGoalTwo: {
     ar: "مش هتلحق توصل {target} في ترم واحد: محتاج معدل الترم ده {gpa}، والترم الجاي {next} فيما فوق.",
     en: "You can't reach {target} in one semester: you need a semester GPA of {gpa} this term, and {next} or more next term.",

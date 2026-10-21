@@ -1,7 +1,7 @@
 /* Masari Bot — <masari-bot> web component. No dependencies.
    Attributes:
      theme      "light" | "dark"  (dark = same colors + white outer outline)
-     mood       idle hop wave happy thinking talking celebrate sleep sad worried proud listening reading walk peek bye confused point nod toss
+     mood       idle hop wave happy thinking talking celebrate sleep sad worried proud listening reading walk peek bye confused point pointUp nod toss
      outfit     "none" | "grad" | "chat"
      progress   0-2 lit plan dots on the chest
      track      "false" disables eye tracking
@@ -141,7 +141,7 @@
     proud: 'M111 103 Q120 114 129 103 Z', bye: 'M110 102 Q120 118 130 102 Z',
     sad: 'M111 111 Q120 102 129 111', worried: 'M109 107 Q114.5 111 120 107 Q125.5 111 131 107',
     hop: 'M111 103 Q120 114 129 103', listening: 'M115 107 Q120 111 125 107', reading: 'M114 108 L126 108', peek: 'M114 106 Q120 111 126 106', walk: 'M112 105 Q120 112 128 105',
-    confused: 'M110 108 Q115 103 120 108 Q125 113 130 108', point: 'M112 105 Q120 113 128 105', nod: 'M111 104 Q120 114 129 104'
+    confused: 'M110 108 Q115 103 120 108 Q125 113 130 108', point: 'M112 105 Q120 113 128 105', pointUp: 'M111 103 Q120 114 129 103', nod: 'M111 104 Q120 114 129 104'
   };
   const HAPPY = ['happy', 'celebrate', 'wave', 'toss', 'proud', 'bye'];
   const backOut = x => { const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
@@ -273,6 +273,7 @@
         case 'thinking': tx = 8; ty = -6; break;
         case 'sleep': ty = 2; break;
         case 'point': tx = 10; ty = 2; break;
+        case 'pointUp': tx = 3; ty = -7; break;
         case 'confused': tx = -4; ty = -4; break;
         case 'sad': tx = -2; ty = 5; break;
         case 'worried': tx = Math.sin(t * 2.6) * 7; ty = -2; break;
@@ -330,6 +331,7 @@
         }
         case 'confused': y = Math.sin(t * 1.6) * 2 * k; hr = -10 + Math.sin(t * 1.4) * 3 * k; aL = 30 + Math.sin(t * 2) * 4 * k; aR = -100 + Math.sin(t * 5) * 6 * k; break;
         case 'point': y = Math.sin(t * 2) * 2 * k; hr = 6; aL = 6; aR = -88 + Math.sin(t * 4) * 6 * k; break;
+        case 'pointUp': y = -Math.abs(Math.sin(t * 3)) * 7 * k; hr = -3; aL = 8; aR = -168 + Math.sin(t * 6) * 8 * k; break;
         case 'nod': y = Math.sin(t * 2) * 2 * k; hy = Math.max(0, Math.sin(t * 7)) * 6 * k; hr = 2; aL = 8; aR = -8; break;
         case 'toss': {
           const u = ((now - this.moodT) / 2800) % 1;
