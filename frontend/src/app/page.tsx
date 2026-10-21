@@ -11,7 +11,7 @@ import { PriorityLevel } from "@/components/masari/priority-level"
 import { useI18n } from "@/lib/i18n"
 import { semesterLabel, useGraduationPlan, usePlanChoice } from "@/lib/plan-api"
 import { formatLongDate, upcomingReminders, useNow, useToday } from "@/lib/reminders"
-import { useRegistrationOpen, useRegistrationPhase } from "@/lib/registration"
+import { useRegistrationPhase } from "@/lib/registration"
 import { useSeatRequests } from "@/lib/seat-requests"
 import { useGraduationDelays } from "@/lib/graduation-delays"
 import { useStudentView } from "@/lib/student-context"
@@ -32,8 +32,8 @@ export default function DashboardPage() {
   const { alerts, currentCourses, electiveCategories, requirementGroups, student } = useStudentView()
   const remaining = student.total - student.earned
   const seats = useSeatRequests(student.id)
-  const registrationOpen = useRegistrationOpen()
-  const seatNotices = useRegistrationPhase() !== "gone"
+  const phase = useRegistrationPhase()
+  const seatNotices = phase !== "gone"
   // Once registration has been closed a few days, the seat notices go (registration is over).
   const shownAlerts = alerts.filter((a) => seatNotices || a.kind !== "seat")
   // What the rules-engine planner would register this term (prerequisites, credit thresholds and load limit checked).
@@ -253,7 +253,7 @@ export default function DashboardPage() {
                         {t(
                           seats.isSent(a.seat.code, a.seat.section)
                             ? "seatGoSent"
-                            : registrationOpen === false
+                            : phase === "over"
                               ? "seatGoClosed"
                               : "seatGoSend"
                         )}

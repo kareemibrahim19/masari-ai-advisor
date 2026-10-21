@@ -18,19 +18,24 @@ const CLOSES = `${addDropEvent?.date}T12:00`
 /** The last day to drop a course without a (W): paper registration (necessary cases) stays possible until then. */
 export const dropWithoutWEvent = event("drop-without-w")
 
-/** Days after registration closes that the not-registered notices stay up; after that nothing is shown. */
-const NOTICE_GRACE_DAYS = 3
-const NOTICE_ENDS = (() => {
-  const d = new Date(`${addDropEvent?.date}T12:00`)
-  d.setDate(d.getDate() + NOTICE_GRACE_DAYS)
+const PAPER_CLOSES = `${dropWithoutWEvent?.date}T12:00`
+/** Days the "registration is over" notice stays after the last day to drop without a (W); then nothing is shown. */
+const OVER_DAYS = 3
+const OVER_ENDS = (() => {
+  const d = new Date(`${dropWithoutWEvent?.date}T12:00`)
+  d.setDate(d.getDate() + OVER_DAYS)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T23:59`
 })()
 
-/** "system": open on the system. "paper": closed, notice still up for a few days. "gone": no notice. null on the server. */
-export function useRegistrationPhase(): "system" | "paper" | "gone" | null {
+/**
+ * "system": open on the system until add/drop. "paper": closed on the system, but the student can still ask the advisor
+ * and register on paper until the last day to drop without a (W). "over": registration is over, the notice stays 3 days.
+ * "gone": nothing is shown. null while rendering on the server.
+ */
+export function useRegistrationPhase(): "system" | "paper" | "over" | "gone" | null {
   const now = useNow()
   if (!now) return null
-  return now < CLOSES ? "system" : now <= NOTICE_ENDS ? "paper" : "gone"
+  return now < CLOSES ? "system" : now < PAPER_CLOSES ? "paper" : now <= OVER_ENDS ? "over" : "gone"
 }
 
 /** true while registration is open, false once it closed (or before it opens), null while rendering on the server. */

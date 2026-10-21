@@ -33,6 +33,11 @@ const dict = {
     ar: "السكاشن دي مكتملة على سيستم الجامعة. التسجيل والإضافة والحذف شغالين لحد",
     en: "These sections are full on the university system. Registration and add/drop are open until",
   },
+  regOver: { ar: "التسجيل خلص. آخر ميعاد كان", en: "Registration is over. The last day was" },
+  regSendHintPaper: {
+    ar: "هيفتحلك إيميل جاهز فيه بياناتك والمواد دي. المرشد هيوافق وإنت بتسجلها ورقي من إدارة البرنامج. الطلب ده بيتبعت مرة واحدة بس.",
+    en: "Opens a ready email with your details and these courses. Your advisor approves and you register on paper at the program administration. You can send this request once.",
+  },
   regSend: { ar: "ارسل طلب للمرشد الأكاديمي", en: "Send a request to your advisor" },
   regSendHint: {
     ar: "هيفتحلك إيميل جاهز فيه بياناتك والمواد دي، راجعه واضغط إرسال. الطلب ده بيتبعت مرة واحدة بس.",
