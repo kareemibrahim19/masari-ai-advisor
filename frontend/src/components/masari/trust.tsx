@@ -1,14 +1,12 @@
 "use client"
 
 /**
- * Trust primitives: the visual language for Masari's core rule,
- * "a rule-verified result must never look the same as an LLM-written explanation".
+ * Trust primitives: wording drafted by the LLM never looks like the rest of the page.
  *
  * Provenance is carried by FORM (plus icon and label), not by extra hues, so the page keeps one accent:
- *   VerifiedBadge  solid green fill + shield     → deterministic rules engine
  *   AiExplanation  dashed outline on a tint      → wording drafted by the LLM
  */
-import { FlaskConical, ShieldCheck, Sparkles } from "lucide-react"
+import { FlaskConical, Sparkles } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
@@ -42,18 +40,6 @@ function HintBadge({
       </TooltipTrigger>
       <TooltipContent>{hint}</TooltipContent>
     </Tooltip>
-  )
-}
-
-export function VerifiedBadge({ className }: { className?: string }) {
-  const { t } = useI18n()
-  return (
-    <HintBadge
-      className={cn("bg-verified-soft text-verified", className)}
-      icon={<ShieldCheck aria-hidden />}
-      label={t("verified")}
-      hint={t("verifiedHint")}
-    />
   )
 }
 

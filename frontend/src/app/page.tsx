@@ -9,7 +9,6 @@ import { Bar, CategoryTag, Code, CountUp, FlipText, Ring } from "@/components/ma
 import { JourneyRail } from "@/components/masari/journey"
 import { PriorityLevel } from "@/components/masari/priority-level"
 import { SeatRequestButton } from "@/components/masari/seat-request"
-import { VerifiedBadge } from "@/components/masari/trust"
 import { useI18n } from "@/lib/i18n"
 import { semesterLabel, useGraduationPlan, usePlanChoice } from "@/lib/plan-api"
 import { formatLongDate, upcomingReminders, useNow, useToday } from "@/lib/reminders"
@@ -130,7 +129,6 @@ export default function DashboardPage() {
                   </TooltipContent>
                 </Tooltip>
               )}
-              <VerifiedBadge />
             </div>
           </div>
           <JourneyRail plan={plan} loading={loading} />
@@ -262,7 +260,6 @@ export default function DashboardPage() {
           <h2 id="req-title" className="text-xl font-semibold">
             {t("gradProgress")}
           </h2>
-          <VerifiedBadge />
           <span className="text-sm text-muted-foreground">{t("gradProgressDesc")}</span>
         </div>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-x-10 gap-y-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">

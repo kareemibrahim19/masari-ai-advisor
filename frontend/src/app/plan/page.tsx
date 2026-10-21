@@ -24,7 +24,6 @@ import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Bar, Code, FlipText, PageHeader } from "@/components/masari/bits"
 import { Bot, type BotMood } from "@/components/masari/bot"
-import { VerifiedBadge } from "@/components/masari/trust"
 import { courseNames } from "@/lib/demo-content"
 import { useI18n } from "@/lib/i18n"
 import {
@@ -290,10 +289,6 @@ export default function PlanPage() {
           )}
 
           <Legend improvement={plan.terms.some((term) => term.courses.some((c) => c.flag === "improvement"))} />
-
-          <div className="flex flex-wrap items-center gap-2">
-            <VerifiedBadge />
-          </div>
         </div>
       )}
     </div>

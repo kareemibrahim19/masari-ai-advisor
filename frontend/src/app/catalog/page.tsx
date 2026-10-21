@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CategoryTag, Code, PageHeader } from "@/components/masari/bits"
 import { CourseMap } from "@/components/masari/course-map"
-import { VerifiedBadge } from "@/components/masari/trust"
 import {
   categoryLabels,
   courseNameIn,
@@ -52,7 +51,6 @@ export default function CatalogPage() {
           <Regulations />
         </TabsContent>
       </Tabs>
-      <p className="text-xs text-muted-foreground">{t("catalogSource")}</p>
     </div>
   )
 }
@@ -315,10 +313,6 @@ function CoursesCatalog() {
                   <span className="tabular-nums">{num(shownCredits)}</span> {t("creditHours")}
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <VerifiedBadge />
-                    <span className="hidden md:inline">{t("statusHint")}</span>
-                  </span>
                   {active && (
                     <Button variant="ghost" className="h-9 gap-1.5" onClick={() => setF(emptyFilters)}>
                       <RotateCcw className="size-4" />
@@ -528,7 +522,6 @@ function Regulations() {
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center gap-2 text-lg font-semibold">
             {tr(ruleSections[0].title)}
-            <VerifiedBadge />
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">

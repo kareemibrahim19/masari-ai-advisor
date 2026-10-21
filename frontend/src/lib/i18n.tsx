@@ -46,11 +46,6 @@ const dict = {
   toggleTheme: { ar: "تبديل الوضع الليلي", en: "Toggle dark mode" },
   openMenu: { ar: "فتح القائمة", en: "Open menu" },
 
-  verified: { ar: "تم التحقق بالقواعد", en: "Rule-verified" },
-  verifiedHint: {
-    ar: "نتيجة حتمية من محرك القواعد الأكاديمية، وليست من نموذج اللغة.",
-    en: "Deterministic result from the academic rules engine, not from the language model.",
-  },
   aiExplanation: { ar: "شرح بالذكاء الاصطناعي", en: "AI explanation" },
   aiExplanationHint: {
     ar: "صياغة نموذج اللغة لشرح النتيجة. القرار نفسه مأخوذ من القواعد والبيانات.",
@@ -552,14 +547,6 @@ const dict = {
   details: { ar: "التفاصيل", en: "Details" },
   colCode: { ar: "الكود", en: "Code" },
   colName: { ar: "المقرر", en: "Course" },
-  statusHint: {
-    ar: "حالتك محسوبة بمحرك القواعد من سجلك.",
-    en: "Your status is computed by the rules engine from your record.",
-  },
-  catalogSource: {
-    ar: "المصدر: دليل برنامج AIE، وهو ملخص غير رسمي للائحة. راجع اللائحة الرسمية قبل الاعتماد عليه.",
-    en: "Source: the AIE Program Guide, an unofficial summary of the bylaws. Check the official bylaws before relying on it.",
-  },
   yourLimit: { ar: "حدّك", en: "Your limit" },
   gradeScaleTitle: { ar: "نظام التقديرات", en: "Grading scale" },
   gradeCol: { ar: "التقدير", en: "Grade" },
