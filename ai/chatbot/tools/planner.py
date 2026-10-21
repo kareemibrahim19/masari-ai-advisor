@@ -692,7 +692,8 @@ def _gpa_lever(s: dict, failed: list[str], expected_term_gpa: float | None, cap:
     hours, points, now_h, pass_h = _gpa_points(s, failed)
     up = lambda x: max(0.0, math.ceil(x * 100 - 1e-9) / 100)
     if now_h and pass_h:
-        need = target * (hours + now_h) - points  # points needed this term
+        # Points needed this term; the GPA counts to two decimals (like _projection), as in grades_needed().
+        need = (target - 0.005) * (hours + now_h) - points
         if need / pass_h <= 4.0 + 1e-9:
             term_gpa = up(need / now_h)
             return {"from": 0, "cap": top, "term_gpa": term_gpa,
@@ -1177,6 +1178,7 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
         rows.append({**_term_label(t), "term": t["term"], "academic_year": t["academic_year"],
                      "main_semester": t["main"], "credits": sum(c["credits"] for c in courses),
                      "max_credits": caps[ti] if t["term"] != "summer" else None, "courses": courses})
+    _number_electives(rows, proj["passed"])
     earned_before = proj["earned"]
     for r in rows:
         for c in r["courses"]:
@@ -1227,6 +1229,10 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
 
     if gpa_warning:
         out["gpa_warning"] = gpa_warning
+    goal = grades_needed(s["student_id"])
+    if goal.get("found") and goal.get("below_two_now"):
+        out["this_term_goal"] = {k: goal[k] for k in ("target", "term_gpa", "reachable", "dismissal_if_missed",
+                                                      "warning_if_missed", "hours")}
     grad_txt = grad["ar"] if grad else ""
     extra = []
     if summer_courses:
@@ -1244,6 +1250,86 @@ def _build_graduation_plan(student_id: str, target_years: float = 5, allow_summe
         out["explanation"] = f"هدف {target_years} سنين مش ممكن: {reason} أقرب تخرج: {grad_txt}{extra_txt}. {cap_why}"
     if gpa_warning:
         out["explanation"] += " " + gpa_warning["ar"]
+    return out
+
+
+def _number_electives(rows: list[dict], passed: set[str]) -> None:
+    """Give each elective in the plan the elective slot it fills (E1..E5 of its level's pool), in term order after
+    the slots the student already filled. The plan picks one course of the pool only so the hours and prerequisites
+    add up; the student chooses the course, so the page shows "Elective (n)" instead of that course."""
+    slot_sem = {sl["slot"]: sl["semester"] for sl in d.program()["elective_slots"]}
+    for pool in d.program()["elective_pools"]:
+        free = sorted(pool["slots"], key=lambda sl: slot_sem[sl])[sum(c in passed for c in pool["courses"]):]
+        mine = [c for r in rows for c in r["courses"] if c["type"] == "elective" and c["code"] in pool["courses"]]
+        for c, sl in zip(mine, free):
+            n = sl.lstrip("E")
+            c.update({"elective_slot": sl, "elective_level": pool["level"],
+                      "name_ar": f"مقرر اختياري ({n})", "name_en": f"Elective ({n})"})
+
+
+def grades_needed(student_id: str, target_gpa: float | None = None) -> dict:
+    """The semester GPA the student needs this term for the cumulative GPA to reach `target_gpa` (default: 2.00 for a
+    student under it, otherwise 3.00, the 21-hour band), and one mix of grades in this term's courses that gets there,
+    with the percentage each grade needs. Assumes every course of this term is passed and graded."""
+    s = d.get_student(student_id)
+    if not s:
+        return d.not_found("الطالب", student_id)
+    current = current_or_frozen(s)
+    if not current or current["status"] == "frozen":
+        return {"found": True, "student_id": student_id, "error": "مفيش مواد مسجلة الترم ده (أو القيد موقوف)."}
+    r, gp, allc = d.rules(), _grade_points(), d.courses()
+    cgpa = s["academic_status"]["cumulative_gpa"]
+    two = r["graduation"]["min_cgpa"]
+    target = float(target_gpa) if target_gpa else (two if cgpa is None or cgpa < two else 3.0)
+    hours, points, now_h, _ = _gpa_points(s, [])
+    graded = [c for c in d.current_courses(s) if allc.get(c["code"], {}).get("graded", True) and c["credits"] > 0]
+    if not now_h:
+        return {"found": True, "student_id": student_id, "error": "مفيش مواد بتقدير الترم ده."}
+    # Points needed this term. The GPA counts to two decimals (like the projection above), so 1.995 is 2.00.
+    need = (target - 0.005) * (hours + now_h) - points
+    up = lambda x: max(0.0, math.ceil(x * 100 - 1e-9) / 100)
+    term_gpa = up(need / now_h)
+    reachable = term_gpa <= 4.0 + 1e-9
+    warned = s["academic_status"]["consecutive_warning_semesters"]
+    limit = r["dismissal_after_consecutive_low_semesters"]
+    below = cgpa is not None and cgpa < two
+    out = {"found": True, "student_id": student_id, "current_cgpa": cgpa, "target": round(target, 2),
+           "term_gpa": term_gpa, "reachable": reachable, "hours": now_h, "below_two_now": below,
+           "warnings_in_row": warned, "warning_if_missed": below and target <= two,
+           "dismissal_if_missed": below and target <= two and warned + 1 >= limit}
+
+    # One mix of grades: the lowest single grade that gets there in every course, then each course (smallest first)
+    # one grade lower while the total still gets there, so the student sees where there is room.
+    ladder = sorted({g: p for g, p in gp.items() if g not in ("A+", "DN")}.items(), key=lambda x: x[1])
+    pct = {x["grade"]: x["min_percent"] for x in r.get("grade_scale", [])}
+    if reachable:
+        start = next(i for i, (_, p) in enumerate(ladder) if p >= term_gpa - 1e-9)
+        pick = {c["code"]: start for c in graded}
+        total = lambda: sum(ladder[pick[c["code"]]][1] * c["credits"] for c in graded)
+        changed = True
+        while changed:
+            changed = False
+            for c in sorted(graded, key=lambda c: c["credits"]):
+                if pick[c["code"]] > 0:
+                    pick[c["code"]] -= 1
+                    if total() + 1e-9 >= need and ladder[pick[c["code"]]][1] >= gp["D"]:
+                        changed = True
+                    else:
+                        pick[c["code"]] += 1
+        out["courses"] = [{"code": c["code"], "name_ar": allc[c["code"]]["name_ar"], "credits": c["credits"],
+                           "grade": ladder[pick[c["code"]]][0], "min_percent": pct.get(ladder[pick[c["code"]]][0])}
+                          for c in graded]
+        out["uniform_grade"] = ladder[start][0]
+    risk = (" ولو معدلك فضل تحت 2.00 هيبقى ده الإنذار رقم " + str(warned + 1) +
+            (" يعني حد الفصل (القرار لمجلس الكلية)." if out["dismissal_if_missed"] else ".")) if out["warning_if_missed"] else ""
+    if not reachable:
+        out["explanation"] = (f"حتى لو جبت 4.00 الترم ده ({now_h} ساعة بتقدير) معدلك التراكمي مش هيوصل {target:.2f}."
+                              + risk + " كلّم مرشدك عن خطة على أكتر من ترم.")
+    else:
+        lines = "، ".join(f"{c['code']} {c['grade']}" for c in out["courses"])
+        out["explanation"] = (f"عشان معدلك التراكمي يوصل {target:.2f} آخر الترم ده محتاج معدل ترم {term_gpa:.2f} على الأقل "
+                              f"في {now_h} ساعة، يعني تقريبًا {out['uniform_grade']} في كل المواد، أو مثلًا: {lines}."
+                              + risk + " النسب هي أقل مجموع للتقدير ده.")
     return out
 
 

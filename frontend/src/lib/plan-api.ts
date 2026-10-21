@@ -34,6 +34,10 @@ export type PlanCourse = {
   hours_needed?: number
   /** The grade the student has now in a course retaken to raise the GPA (set with the "improvement" flag). */
   current_grade?: string
+  /** An elective: the slot it fills (E1..E5) and its pool's level. The student picks the course, so the page shows
+   *  "Elective (n)" instead of the one the plan used for the hours and prerequisites. */
+  elective_slot?: string
+  elective_level?: number
 }
 
 export type PlanTerm = {
@@ -89,6 +93,16 @@ export type GraduationPlan = {
   /** GPA under 2.00 after this semester: graduation needs 2.00, and how many semesters are left before dismissal. */
   /** The student froze the current semester: the plan starts with the semester they return. */
   frozen?: { ar: string; en: string }
+  /** A student under 2.00 now: the semester GPA this term that brings the cumulative GPA to 2.00, and whether
+   *  missing it means another academic warning, or the dismissal limit. */
+  this_term_goal?: {
+    target: number
+    term_gpa: number
+    reachable: boolean
+    warning_if_missed: boolean
+    dismissal_if_missed: boolean
+    hours: number
+  }
   gpa_warning?: {
     cgpa: number
     semesters_left: number

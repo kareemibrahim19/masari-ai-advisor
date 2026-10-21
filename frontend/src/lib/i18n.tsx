@@ -330,6 +330,29 @@ const dict = {
   termGpaPlaceholder: { ar: "مثلًا 2.8", en: "e.g. 2.8" },
   afterThisTerm: { ar: "بعد الترم ده", en: "After this semester" },
   ladderNowHere: { ar: "معدلك دلوقتي", en: "Your GPA now" },
+  termGoal: {
+    ar: "عشان معدلك التراكمي يوصل {target} آخر الترم ده، محتاج معدل الترم ده {gpa} فيما فوق.",
+    en: "For your cumulative GPA to reach {target} by the end of this semester, you need a semester GPA of {gpa} or more.",
+  },
+  termGoalDismissal: {
+    ar: "لو جبت أقل من كده هتاخد الإنذار التالت ورا بعض، وده حد الفصل.",
+    en: "Below that you get a third academic warning in a row, the dismissal limit.",
+  },
+  termGoalWarning: { ar: "لو جبت أقل من كده هتاخد إنذار أكاديمي.", en: "Below that you get an academic warning." },
+  termGoalUnreachable: {
+    ar: "حتى بـ 4.00 الترم ده معدلك التراكمي مش هيوصل {target}، فمحتاج خطة على أكتر من ترم مع مرشدك.",
+    en: "Even 4.00 this semester won't bring your cumulative GPA to {target}, so plan it over more semesters with your advisor.",
+  },
+  termGoalChat: {
+    ar: "لمعرفة تفاصيل أكتر عن التقدير اللي محتاج تجيبه في كل مادة، اسأل مساري في الشات",
+    en: "For the grade you need in each course, ask Masari in the chat",
+  },
+  termGoalQuestion: {
+    ar: "المفروض تقديراتي تكون إيه في كل مادة الترم ده عشان معدلي التراكمي يوصل {target}؟",
+    en: "What grades do I need in each course this term for my cumulative GPA to reach {target}?",
+  },
+  electiveSlot: { ar: "مقرر اختياري ({n})", en: "Elective ({n})" },
+  electivePick: { ar: "تختاره من اختياريات المستوى {level}", en: "your pick from the level {level} electives" },
   ladderEstimate: {
     ar: "لو كمّلت الترم ده بنفس مستواك (معدل ترم {term}) ونجحت في كل المواد، معدلك التراكمي هيبقى {gpa}.",
     en: "If you keep your current level this term (a term GPA of {term}) and pass every course, your cumulative GPA becomes {gpa}.",

@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import * as React from "react"
 import {
   CalendarClock,
@@ -642,6 +643,45 @@ function GpaLadder({ plan, failedNow, whatIfGpa }: { plan: GraduationPlan; faile
         })}
       </ol>
       {estimate && <p className="text-xs text-muted-foreground">{estimate}</p>}
+      <TermGoal plan={plan} />
+    </div>
+  )
+}
+
+/** The semester GPA this term takes, or more, and the chat for the grade it takes in each course (its grades_needed
+ *  tool, asked with the same target). Two cases: under 2.00 now, back to 2.00 (and what missing it means); or a
+ *  target that needs the 3.00 band (21 hours), reachable by the end of this term. */
+function TermGoal({ plan }: { plan: GraduationPlan }) {
+  const { t, num } = useI18n()
+  const top = plan.gpa_needed?.from === 0 ? plan.gpa_needed : null
+  // Under 2.00 with a target that needs 3.00 too: both, 2.00 (the warning) first.
+  const goals = [
+    plan.this_term_goal,
+    top && { target: 3, term_gpa: top.term_gpa, reachable: true, warning_if_missed: false, dismissal_if_missed: false },
+  ].filter((g): g is NonNullable<typeof g> => !!g)
+  if (!goals.length) return null
+  const two = (n: number) => num(n, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return (
+    <div className="space-y-2 rounded-lg border border-warning/50 bg-background/70 p-2.5 text-sm">
+      {goals.map((goal) => {
+        const risk = goal.dismissal_if_missed ? t("termGoalDismissal") : goal.warning_if_missed ? t("termGoalWarning") : ""
+        const question = t("termGoalQuestion").replace("{target}", goal.target.toFixed(2))
+        return (
+          <div key={goal.target} className="space-y-1">
+            <p className="font-medium">
+              {goal.reachable
+                ? t("termGoal").replace("{target}", two(goal.target)).replace("{gpa}", two(goal.term_gpa))
+                : t("termGoalUnreachable").replace("{target}", two(goal.target))}
+              {goal.reachable && risk && <span className="text-destructive"> {risk}</span>}
+            </p>
+            {goal.reachable && (
+              <Link href={`/chat?ask=${encodeURIComponent(question)}`} className="inline-block text-xs font-medium text-primary underline underline-offset-4">
+                {t("termGoalChat")}
+              </Link>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -718,7 +758,9 @@ function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined;
   const moved = from !== undefined && from !== here
   const later = moved && here > from
   const flag = c.flag !== "regular" ? flagStyle[c.flag] : null
-  const name = tr(courseNames[c.code])
+  // An elective is shown by its slot: the student picks which course of the pool to take.
+  const elective = c.type === "elective" && c.elective_slot
+  const name = elective ? t("electiveSlot").replace("{n}", c.elective_slot!.replace("E", "")) : tr(courseNames[c.code])
 
   return (
     <li className={cn("space-y-1.5 rounded-lg border bg-background/60 p-2.5", moved && "border-warning/60 bg-warning-soft/60")}>
@@ -732,7 +774,11 @@ function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined;
         )}
       </div>
       <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
-        <Code>{c.code}</Code>
+        {elective ? (
+          <span>{t("electivePick").replace("{level}", num(c.elective_level ?? 0))}</span>
+        ) : (
+          <Code>{c.code}</Code>
+        )}
         <span>
           · {num(c.credits)} {t("creditsShort")}
         </span>

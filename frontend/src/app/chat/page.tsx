@@ -34,6 +34,15 @@ export default function ChatPage() {
   const listening = voice.state === "recording"
   const endRef = React.useRef<HTMLDivElement>(null)
 
+  // /chat?ask=... (e.g. from the plan page): the question waits in the composer for the student to send.
+  React.useEffect(() => {
+    const ask = new URLSearchParams(window.location.search).get("ask")
+    if (!ask) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the address is only readable in the browser
+    setDraft(ask)
+    window.history.replaceState(null, "", window.location.pathname)
+  }, [])
+
   // Masari above the composer. Waiting for an answer it thinks, then reads the regulations, then thinks again;
   // the answer types itself out while it talks, and it stops talking when the text stops. An error confuses it.
   // Left alone for 30 seconds it gets bored: walks about, hops, waves, nods… a mix. At a minute it goes back,

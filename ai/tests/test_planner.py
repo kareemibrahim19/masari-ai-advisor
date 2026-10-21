@@ -421,6 +421,43 @@ check("frozen now: the plan starts with the semester after the frozen one",
       (nxt["term"], nxt["academic_year"]) != (nxt_kind, nxt_year) and nxt["courses"], (nxt["term"], nxt["academic_year"]))
 del d.students()["test-frozen"]
 
+# This term's GPA goal for a student under 2.00 (the plan page's yellow box and the chat's grades_needed)
+for sid, st in d.students().items():
+    if (st["academic_status"]["cumulative_gpa"] or 9) >= 2 or P.current_or_frozen(st)["status"] == "frozen":
+        continue
+    g = P.grades_needed(sid)
+    if not g.get("reachable"):
+        continue
+    hit = build_graduation_plan(sid, 5, True, expected_term_gpa=g["term_gpa"])["after_this_term"]["cumulative_gpa"]
+    miss = build_graduation_plan(sid, 5, True, expected_term_gpa=round(g["term_gpa"] - 0.01, 2))["after_this_term"]["cumulative_gpa"]
+    check(f"{sid}: the needed term GPA is exactly the line to 2.00", hit >= 2 and (g["term_gpa"] == 0 or miss < 2),
+          (g["term_gpa"], hit, miss))
+    gp, allc = d.rules()["grade_points"], d.courses()
+    pts = sum(gp[c["grade"]] * c["credits"] for c in g["courses"]) / g["hours"]
+    check(f"{sid}: the suggested grades give that GPA", pts + 1e-9 >= g["term_gpa"] - 0.01, (pts, g["term_gpa"]))
+    check(f"{sid}: the plan carries the goal", build_graduation_plan(sid, 5, True).get("this_term_goal", {}).get("term_gpa")
+          == g["term_gpa"])
+check("no goal for a student at 2.00 or above",
+      all("this_term_goal" not in build_graduation_plan(sid, 5, True) for sid, st in d.students().items()
+          if (st["academic_status"]["cumulative_gpa"] or 0) >= 2))
+
+# A target that needs 3.00 by the end of this term: the plan page and the chat give the same semester GPA
+for sid in d.students():
+    for years in (4, 4.5):
+        gn = build_graduation_plan(sid, years, True).get("gpa_needed")
+        if gn and gn["from"] == 0:
+            check(f"{sid} {years}y: plan and chat agree on the GPA for 3.00",
+                  P.grades_needed(sid, 3.0)["term_gpa"] == gn["term_gpa"], (gn, P.grades_needed(sid, 3.0)["term_gpa"]))
+
+# Electives in a plan are shown by slot: each a different slot, in its pool
+slots = {sl: p for p in d.program()["elective_pools"] for sl in p["slots"]}
+for sid in d.students():
+    pl = build_graduation_plan(sid, 5, True)
+    els = [c for t in pl.get("terms", []) for c in t["courses"] if c["type"] == "elective"]
+    check(f"{sid}: every elective in the plan has its own slot of its pool",
+          all(c.get("elective_slot") and c["code"] in slots[c["elective_slot"]]["courses"] for c in els)
+          and len({c["elective_slot"] for c in els}) == len(els), [(c["code"], c.get("elective_slot")) for c in els])
+
 # Options table
 o = plan_options(NEW)
 check("options table 3 targets", [r["target_years"] for r in o["options"]] == [4, 4.5, 5], o)
