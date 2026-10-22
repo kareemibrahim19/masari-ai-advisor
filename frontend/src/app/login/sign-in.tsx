@@ -14,6 +14,7 @@ import * as React from "react"
 import { Eye, EyeOff, Moon, Sun } from "lucide-react"
 import { Bot, type BotMood } from "@/components/masari/bot"
 import { Lockup } from "@/components/masari/brand"
+import { ThemePicker } from "@/components/masari/theme-picker"
 import { useTheme } from "@/components/masari/app-shell"
 import { activateCheck } from "@/lib/auth"
 import { type DictKey, useI18n } from "@/lib/i18n"
@@ -332,6 +333,7 @@ export function SignIn({ initial }: { initial: SignInMode }) {
           <button type="button" className={s.tool} onClick={() => setLang(lang === "ar" ? "en" : "ar")} aria-label={t("switchLangLabel")}>
             <span lang={lang === "ar" ? "en" : "ar"}>{t("switchLang")}</span>
           </button>
+          <ThemePicker trigger={<button type="button" className={`${s.tool} ${s.toolIcon}`} aria-label={t("colorTheme")} title={t("colorTheme")} />} />
           <button type="button" className={`${s.tool} ${s.toolIcon}`} onClick={toggle} aria-label={t("toggleTheme")}>
             {dark ? <Sun className={s.icon} aria-hidden /> : <Moon className={s.icon} aria-hidden />}
           </button>

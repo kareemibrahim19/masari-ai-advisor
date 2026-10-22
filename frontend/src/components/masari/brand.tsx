@@ -111,15 +111,15 @@ export function Wordmark({ className }: { className?: string }) {
  */
 export function AppIcon({ className, tone = "charcoal" }: { className?: string; tone?: "charcoal" | "orange" }) {
   const orange = tone === "orange"
-  const ink = orange ? "#1E2230" : "#FFFFFF"
+  const ink = orange ? "var(--brand-charcoal)" : "#FFFFFF"
   return (
     <svg viewBox="0 0 100 100" className={cn("shrink-0", className)} aria-hidden>
-      <circle cx="50" cy="50" r="50" fill={orange ? "#F27A2E" : "#1E2230"} />
+      <circle cx="50" cy="50" r="50" style={{ fill: orange ? "var(--brand-accent)" : "var(--brand-charcoal)" }} />
       <g transform="translate(19 19) scale(0.62)">
         <path d={MARK_PATH} fill="none" stroke={ink} strokeWidth="10" strokeLinecap="round" />
         <circle cx="24" cy="76" r="10" fill={ink} />
         <circle cx="50" cy="50" r="10" fill={ink} />
-        <circle cx="76" cy="24" r="14" fill={orange ? "#FFFFFF" : "#F27A2E"} />
+        <circle cx="76" cy="24" r="14" style={{ fill: orange ? "#FFFFFF" : "var(--brand-accent)" }} />
       </g>
     </svg>
   )

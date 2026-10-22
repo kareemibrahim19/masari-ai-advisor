@@ -191,6 +191,186 @@
   --warning-soft: rgb(224 161 27 / 0.14);
 }
 
+
+/* ===== Colour themes: html[data-palette] picks the palette (navy | green; none = the default above),
+   and .dark picks light or dark independently. Set by lib/palette.ts and the pre-paint script in layout.tsx. =====*/
+html[data-palette="navy"] {
+  --brand-charcoal: #0c4a6e;
+  --brand-accent: #06b6d4;
+  --brand-ink: #0b2233;
+  --background: #f4f9fc;
+  --foreground: #0b2233;
+  --card: #ffffff;
+  --card-foreground: #0b2233;
+  --popover: #ffffff;
+  --popover-foreground: #0b2233;
+  --primary: #0c4a6e;
+  --primary-foreground: #ffffff;
+  --secondary: #e5f0f6;
+  --secondary-foreground: #0c4a6e;
+  --muted: #e5f0f6;
+  --muted-foreground: #53697a;
+  --accent: #e5f0f6;
+  --accent-foreground: #0c4a6e;
+  --border: #d9e6ee;
+  --input: #c3d6e2;
+  --ring: rgb(6 182 212 / 0.55);
+  --chart-1: #0c4a6e;
+  --chart-2: #53697a;
+  --chart-3: #06b6d4;
+  --chart-4: #53697a;
+  --chart-5: #c3d6e2;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0b2233;
+  --sidebar-primary: #0c4a6e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e5f0f6;
+  --sidebar-accent-foreground: #0c4a6e;
+  --sidebar-border: #d9e6ee;
+  --sidebar-ring: rgb(6 182 212 / 0.55);
+  --highlight: #06b6d4;
+  --highlight-soft: color-mix(in oklab, #06b6d4 16%, transparent);
+  --highlight-ink: #0e7490;
+  --cat-dept: #0c4a6e;
+  --cat-dept-soft: #e5f0f6;
+  --ai: #3f6277;
+  --ai-soft: #eef5f9;
+  --source: #0c4a6e;
+  --source-soft: #ffffff;
+}
+html[data-palette="navy"].dark {
+  --brand-charcoal: #0c4a6e;
+  --brand-accent: #06b6d4;
+  --brand-ink: #ffffff;
+  --background: #071b29;
+  --foreground: #eaf4f9;
+  --card: #0d2b3f;
+  --card-foreground: #eaf4f9;
+  --popover: #0d2b3f;
+  --popover-foreground: #eaf4f9;
+  --primary: #06b6d4;
+  --primary-foreground: #04202b;
+  --secondary: #15384f;
+  --secondary-foreground: #eaf4f9;
+  --muted: #15384f;
+  --muted-foreground: #9db6c6;
+  --accent: #15384f;
+  --accent-foreground: #eaf4f9;
+  --border: #1b3f57;
+  --input: #285069;
+  --ring: rgb(6 182 212 / 0.6);
+  --chart-1: #06b6d4;
+  --chart-2: #9db6c6;
+  --chart-3: #06b6d4;
+  --chart-4: #9db6c6;
+  --chart-5: #285069;
+  --sidebar: #0d2b3f;
+  --sidebar-foreground: #eaf4f9;
+  --sidebar-primary: #06b6d4;
+  --sidebar-primary-foreground: #04202b;
+  --sidebar-accent: #15384f;
+  --sidebar-accent-foreground: #eaf4f9;
+  --sidebar-border: #1b3f57;
+  --sidebar-ring: rgb(6 182 212 / 0.6);
+  --highlight: #06b6d4;
+  --highlight-soft: color-mix(in oklab, #06b6d4 16%, transparent);
+  --highlight-ink: #3dd3ea;
+  --cat-dept: #eaf4f9;
+  --cat-dept-soft: #15384f;
+  --ai: #b6cddb;
+  --ai-soft: #102a3b;
+  --source: #eaf4f9;
+  --source-soft: #0d2b3f;
+}
+html[data-palette="green"] {
+  --brand-charcoal: #354f52;
+  --brand-accent: #dda15e;
+  --brand-ink: #1a2d2a;
+  --background: #fbf7e4;
+  --foreground: #1a2d2a;
+  --card: #fffdf3;
+  --card-foreground: #1a2d2a;
+  --popover: #fffdf3;
+  --popover-foreground: #1a2d2a;
+  --primary: #52796f;
+  --primary-foreground: #ffffff;
+  --secondary: #eef0dc;
+  --secondary-foreground: #354f52;
+  --muted: #eef0dc;
+  --muted-foreground: #5b6b64;
+  --accent: #eef0dc;
+  --accent-foreground: #354f52;
+  --border: #e5e2c9;
+  --input: #d2cfb0;
+  --ring: rgb(221 161 94 / 0.6);
+  --chart-1: #52796f;
+  --chart-2: #5b6b64;
+  --chart-3: #dda15e;
+  --chart-4: #5b6b64;
+  --chart-5: #d2cfb0;
+  --sidebar: #fffdf3;
+  --sidebar-foreground: #1a2d2a;
+  --sidebar-primary: #52796f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef0dc;
+  --sidebar-accent-foreground: #354f52;
+  --sidebar-border: #e5e2c9;
+  --sidebar-ring: rgb(221 161 94 / 0.6);
+  --highlight: #dda15e;
+  --highlight-soft: color-mix(in oklab, #dda15e 16%, transparent);
+  --highlight-ink: #8a5a1f;
+  --cat-dept: #52796f;
+  --cat-dept-soft: #eef0dc;
+  --ai: #4f625c;
+  --ai-soft: #f4f3e2;
+  --source: #52796f;
+  --source-soft: #fffdf3;
+}
+html[data-palette="green"].dark {
+  --brand-charcoal: #354f52;
+  --brand-accent: #dda15e;
+  --brand-ink: #ffffff;
+  --background: #0f1b19;
+  --foreground: #f1efdc;
+  --card: #172725;
+  --card-foreground: #f1efdc;
+  --popover: #172725;
+  --popover-foreground: #f1efdc;
+  --primary: #7fb5a5;
+  --primary-foreground: #10201d;
+  --secondary: #213633;
+  --secondary-foreground: #f1efdc;
+  --muted: #213633;
+  --muted-foreground: #a5b6ae;
+  --accent: #213633;
+  --accent-foreground: #f1efdc;
+  --border: #25403b;
+  --input: #35524c;
+  --ring: rgb(221 161 94 / 0.6);
+  --chart-1: #7fb5a5;
+  --chart-2: #a5b6ae;
+  --chart-3: #dda15e;
+  --chart-4: #a5b6ae;
+  --chart-5: #35524c;
+  --sidebar: #172725;
+  --sidebar-foreground: #f1efdc;
+  --sidebar-primary: #7fb5a5;
+  --sidebar-primary-foreground: #10201d;
+  --sidebar-accent: #213633;
+  --sidebar-accent-foreground: #f1efdc;
+  --sidebar-border: #25403b;
+  --sidebar-ring: rgb(221 161 94 / 0.6);
+  --highlight: #dda15e;
+  --highlight-soft: color-mix(in oklab, #dda15e 16%, transparent);
+  --highlight-ink: #e8b377;
+  --cat-dept: #f1efdc;
+  --cat-dept-soft: #213633;
+  --ai: #c5d0c8;
+  --ai-soft: #1b2c29;
+  --source: #f1efdc;
+  --source-soft: #172725;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -228,7 +408,7 @@
     font-family: var(--font-sora), system-ui, sans-serif;
   }
   ::selection {
-    background: rgb(242 122 46 / 0.25);
+    background: color-mix(in oklab, var(--brand-accent) 28%, transparent);
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),

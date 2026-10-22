@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { GoodbyeSplash, useSplashDone, WelcomeSplash } from "@/components/masari/welcome-bot"
 import { CalendarButton } from "@/components/masari/calendar-sheet"
 import { DeadlinePopup } from "@/components/masari/deadline-popup"
+import { ThemePicker } from "@/components/masari/theme-picker"
 import { Lockup } from "@/components/masari/brand"
 import { DemoStateProvider } from "@/lib/demo-state"
 import { type DictKey, useI18n } from "@/lib/i18n"
@@ -317,6 +318,7 @@ function Shell({ children }: { children: React.ReactNode }) {
               <span className="sm:hidden lg:inline xl:hidden">{lang === "ar" ? "EN" : "ع"}</span>
             </Button>
             <CalendarButton />
+            <ThemePicker />
             <Button variant="ghost" size="icon-lg" className="size-10" onClick={toggle} aria-label={t("toggleTheme")}>
               {dark ? <Sun className="size-[18px]" aria-hidden /> : <Moon className="size-[18px]" aria-hidden />}
             </Button>
