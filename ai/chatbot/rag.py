@@ -182,7 +182,14 @@ class Masari:
         self.chunks, self.data = build_chunks()
         self.by_id = {c["id"]: c for c in self.chunks}
         self.bm25 = BM25Okapi([_tokenize(c["title"] + " " + c["text"]) for c in self.chunks])
-        self.vectors = self._load_or_embed()
+        # Without embeddings (no valid key, or the service is down while the data changed) the server still starts and
+        # searches by keywords only; the index is built on the next start that can reach the embedding service.
+        try:
+            self.vectors = self._load_or_embed()
+        except (errors.APIError, httpx.HTTPError) as e:
+            print(f"embedding the chunks failed ({getattr(e, 'code', type(e).__name__)}), using keyword search only",
+                  file=sys.stderr)
+            self.vectors = None
         self.cooldown: dict[str, float] = {}  # model -> time it can be used again
         rules_for_model = {k: v for k, v in self.data["rules"].items() if k != "standing_by_credits"}
         self.rules_json = json.dumps(rules_for_model, ensure_ascii=False, indent=1)
@@ -233,11 +240,12 @@ class Masari:
         """Hybrid search: reciprocal-rank fusion of BM25 and embedding ranks."""
         scores = np.zeros(len(self.chunks))
         # If the embedding service is out of quota or down, search by keywords only instead of waiting a minute.
-        try:
-            qv = self._embed(queries, "RETRIEVAL_QUERY", wait_on_429=False)
-        except (errors.APIError, httpx.TimeoutException) as e:
-            print(f"query embedding failed ({getattr(e, 'code', 'timeout')}), using keyword search only", file=sys.stderr)
-            qv = [None] * len(queries)
+        qv = [None] * len(queries)
+        if self.vectors is not None:
+            try:
+                qv = self._embed(queries, "RETRIEVAL_QUERY", wait_on_429=False)
+            except (errors.APIError, httpx.TimeoutException) as e:
+                print(f"query embedding failed ({getattr(e, 'code', 'timeout')}), using keyword search only", file=sys.stderr)
         for q, v in zip(queries, qv):
             rankings = [np.argsort(-self.bm25.get_scores(_tokenize(q)))]
             if v is not None:
