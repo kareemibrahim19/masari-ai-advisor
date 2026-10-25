@@ -633,6 +633,31 @@ const dict = {
   gradeCol: { ar: "التقدير", en: "Grade" },
   pointsCol: { ar: "النقاط", en: "Points" },
   assessmentTitle: { ar: "توزيع الدرجات", en: "Grade distribution" },
+
+  // Past terms (/record): opened from a finished semester on the dashboard's path, not from the top navigation
+  recordTitle: { ar: "ترماتي اللي فاتت", en: "My past semesters" },
+  recordSubtitle: { ar: "كل ترم بمواده ودرجاته. دوس على أي ترم عشان تفتحه أو تقفله.", en: "Each semester with its courses and marks. Tap a semester to open or close it." },
+  recordBack: { ar: "الرئيسية", en: "Dashboard" },
+  recordEmpty: { ar: "لسه مفيش ترمات خلصت ونتيجتها ظهرت.", en: "No semester has finished with published results yet." },
+  recordSummer: { ar: "ترم صيفي", en: "Summer term" },
+  recordFrozen: { ar: "موقوف قيد", en: "Frozen" },
+  recordFrozenNote: { ar: "الترم ده كان موقوف قيدك فيه، فمفيش مواد ولا نتيجة.", en: "Your enrolment was frozen this semester, so there are no courses or results." },
+  recordTermGpa: { ar: "معدل الترم", en: "Semester GPA" },
+  recordCumGpa: { ar: "التراكمي", en: "Cumulative" },
+  recordHours: { ar: "ساعة", en: "credit hours" },
+  recordPassedHours: { ar: "نجحت في", en: "passed" },
+  recordWarning: { ar: "إنذار", en: "Warning" },
+  recordRetake: { ar: "إعادة", en: "Retake" },
+  recordTotal: { ar: "المجموع", en: "Total" },
+  recordNoMarks: { ar: "المادة دي بتتقيّم نجاح ورسوب بس، من غير درجات.", en: "This course is graded pass or fail, with no marks." },
+  recordWithdrawn: { ar: "انسحبت من المادة.", en: "You withdrew from this course." },
+  recordDeprived: { ar: "اتحرمت من دخول الامتحان بسبب الغياب.", en: "Barred from the exam for absence." },
+  markMidterm: { ar: "منتصف الترم", en: "Midterm" },
+  markCoursework: { ar: "أعمال السنة", en: "Semester work" },
+  markPractical: { ar: "العملي", en: "Lab" },
+  markFinal: { ar: "النهائي", en: "Final" },
+  markFollowup: { ar: "المتابعة الدورية", en: "Follow-up" },
+  markDiscussion: { ar: "المناقشة", en: "Discussion" },
 } satisfies Record<string, L>
 
 export type DictKey = keyof typeof dict

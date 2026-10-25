@@ -14,6 +14,7 @@
  */
 import * as React from "react"
 import { MoveHorizontal } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Bot, type BotElement, type BotMood } from "@/components/masari/bot"
 import { useSplashDone } from "@/components/masari/welcome-bot"
 import { findCourse } from "@/lib/aie-program"
@@ -41,7 +42,7 @@ const BOT_HOP_MS = 650 // or hopping there
 const BOT_MOOD_MS = 6000 // how long the mood from last term's results shows before it stands quietly
 
 type Node =
-  | { kind: "done"; label: string; sem: number | null; failed: boolean; frozen?: boolean }
+  | { kind: "done"; label: string; sem: number | null; failed: boolean; frozen?: boolean; termKey?: string }
   | { kind: "term"; label: string; sem: number | null; summer: boolean; credits: number; empty: boolean; grad: boolean; frozen?: boolean }
 
 /**
@@ -80,6 +81,7 @@ function Legend({ swatch, label }: { swatch: string; label: string }) {
 
 function Rail({ plan }: { plan: GraduationPlan | null }) {
   const { t, tr, num, dir, lang } = useI18n()
+  const router = useRouter()
   const scroller = React.useRef<HTMLDivElement>(null)
   const here = React.useRef<SVGGElement>(null)
   const { baselineGraduationIndex, baselinePlan, lastTerm, pastTerms, record, semesterNames, student } = useStudentView()
@@ -98,7 +100,13 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
       doneNodes.push(
         x.frozen
           ? { kind: "done", label: semesterLabel(x.term, x.academicYear, lang), sem: null, failed: false, frozen: true }
-          : { kind: "done", label: semesterLabel(x.term, x.academicYear, lang), sem: s, failed: record.failed.some((f) => semOf(f) === s) }
+          : {
+              kind: "done",
+              label: semesterLabel(x.term, x.academicYear, lang),
+              sem: s,
+              failed: record.failed.some((f) => semOf(f) === s),
+              termKey: `${x.academicYear}-${x.term}`,
+            }
       )
     }
   } else {
@@ -346,8 +354,30 @@ function Rail({ plan }: { plan: GraduationPlan | null }) {
       )
     }
     if (n.kind === "done") {
+      // A finished semester opens the past-terms page with that semester open.
+      const href = n.termKey ? `/record?term=${n.termKey}` : "/record"
       return (
-        <g>
+        <g
+          role="link"
+          tabIndex={0}
+          aria-label={`${n.label}: ${t("recordTitle")}`}
+          className="group cursor-pointer outline-none"
+          onClick={() => router.push(href)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault()
+              router.push(href)
+            }
+          }}
+        >
+          {/* A wider invisible target than the ring, so the label below opens it too. */}
+          <rect x={p.x - 34} y={p.y - 18} width="68" height="80" className="fill-transparent" />
+          <circle
+            cx={p.x}
+            cy={p.y}
+            r="15"
+            className="fill-brand-ink/0 transition-colors group-hover:fill-brand-ink/10 group-focus-visible:fill-brand-ink/15"
+          />
           <circle cx={p.x} cy={p.y} r="8.5" className="fill-card stroke-brand-ink" strokeWidth="6.5" />
           {n.failed && <circle cx={p.x + 9} cy={p.y - 9} r="4.5" className="fill-warning stroke-card" strokeWidth="2" />}
           <text x={p.x} y={p.y + 40} textAnchor="middle" className={n.sem ? "fill-foreground text-[13px]" : "fill-muted-foreground text-[13px]"}>

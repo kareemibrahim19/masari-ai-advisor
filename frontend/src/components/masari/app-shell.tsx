@@ -25,7 +25,9 @@ const nav: { href: string; key: DictKey; short: DictKey; icon: React.ComponentTy
   { href: "/catalog", key: "navCatalog", short: "navCatalogShort", icon: Library },
 ]
 
-const isActive = (href: string, pathname: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href))
+// Past terms (/record) opens from the dashboard's path, so the dashboard stays the active tab there.
+const isActive = (href: string, pathname: string) =>
+  href === "/" ? pathname === "/" || pathname.startsWith("/record") : pathname.startsWith(href)
 
 type Theme = "system" | "light" | "dark"
 const useStoredTheme = createStoredValue<Theme>("masari.theme", "system", (v): v is Theme => ["system", "light", "dark"].includes(v))

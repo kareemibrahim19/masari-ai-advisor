@@ -268,6 +268,24 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
   const pastTerms: { term: "fall" | "spring"; academicYear: string; frozen: boolean }[] = s.terms
     .filter((x, i) => x.term !== "summer" && (x.status === "published" || (x.status === "frozen" && i < s.terms.length - 1)))
     .map((x) => ({ term: x.term as "fall" | "spring", academicYear: x.academic_year, frozen: x.status === "frozen" }))
+  // Every term behind the student (summers too) with its courses and results, for the past-terms page (/record).
+  // `sem` is the main semester number; summers and frozen terms are not counted.
+  let semCount = 0
+  const history = s.terms
+    .filter((x, i) => x.status === "published" || (x.status === "frozen" && i < s.terms.length - 1))
+    .map((x) => {
+      const counted = x.term !== "summer" && x.status === "published"
+      if (counted) semCount++
+      return {
+        key: `${x.academic_year}-${x.term}`,
+        term: x.term as "fall" | "spring" | "summer",
+        academicYear: x.academic_year,
+        frozen: x.status === "frozen",
+        sem: counted ? semCount : null,
+        courses: x.courses,
+        summary: x.summary ?? null,
+      }
+    })
   const lastMain = mainTerms[mainTerms.length - 1]
   const lastTerm = lastMain
     ? {
@@ -619,6 +637,7 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
     student,
     lastTerm,
     pastTerms,
+    history,
     earned,
     minLoad: MIN_LOAD,
     currentSemester,
