@@ -8,3 +8,4 @@ python-multipart
 scipy
 sqlalchemy>=2.0
 pg8000>=1.31
+scramp<1.5  # 1.5 dropped make_channel_binding, which pg8000 1.31 calls on every connection
