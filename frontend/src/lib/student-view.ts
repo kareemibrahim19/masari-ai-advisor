@@ -26,7 +26,6 @@ import {
   LOAD_BANDS,
   maxLoad,
   MIN_LOAD,
-  PROBATION_MAX_LOAD,
   DISMISSAL_AFTER_WARNINGS,
   coursePriority,
   planGraduation,
@@ -189,13 +188,8 @@ function termNames(start: { term: Term; academicYear: number }): L[] {
 function loadRule(r: StudentRecord, limit: number): L {
   if (r.gpa === null)
     return { ar: `أول ترم (لسه مفيش معدل) ← حد أقصى ${FIRST_TERM_MAX_LOAD} ساعة`, en: `First semester (no GPA yet) → up to ${FIRST_TERM_MAX_LOAD} credit hours` }
-  if (r.onProbation && limit === PROBATION_MAX_LOAD)
-    return { ar: `تاني إنذار أكاديمي ورا بعض ← حد أقصى ${limit} ساعة`, en: `Second academic warning in a row → up to ${limit} credit hours` }
   if (r.onProbation)
-    return {
-      ar: `أول إنذار أكاديمي ← حد أقصى ${limit} ساعة (ولو جالك إنذار تاني ورا بعض ${PROBATION_MAX_LOAD})`,
-      en: `First academic warning → up to ${limit} credit hours (${PROBATION_MAX_LOAD} after a second warning in a row)`,
-    }
+    return { ar: `إنذار أكاديمي ← حد أقصى ${limit} ساعة`, en: `Academic warning → up to ${limit} credit hours` }
   const b = LOAD_BANDS.find((x) => x.max_credits === limit)!
   if (b.gpa_min === 0) return { ar: `معدل أقل من ${fmt(b.gpa_max)} ← حد أقصى ${limit} ساعة`, en: `GPA < ${fmt(b.gpa_max)} → up to ${limit} credit hours` }
   if (b.gpa_max > 4) return { ar: `معدل ${fmt(b.gpa_min)} أو أكتر ← حد أقصى ${limit} ساعة`, en: `GPA ≥ ${fmt(b.gpa_min)} → up to ${limit} credit hours` }
@@ -228,7 +222,7 @@ export function buildStudentView(s: StudentFileEntry, sections: Record<string, S
   const registeredCredits = registeredNow(s).reduce((sum, code) => sum + ((findCourse(code) as { credits?: number })?.credits ?? 0), 0)
   const graduatingNow = st.earned_hours < st.required_hours && st.required_hours - st.earned_hours <= registeredCredits
   const earned = earnedCredits(record)
-  const limit = maxLoad(record.gpa, record.onProbation, record.warnings)
+  const limit = maxLoad(record.gpa)
   const semesterNames = termNames(now)
   /** First term index ≥ `from` that falls in `term`. */
   const nextIndexOf = (term: Term, from = 0) => semesterNames.findIndex((n, i) => i >= from && (i + (startTerm === "spring" ? 1 : 0)) % 2 === (term === "fall" ? 0 : 1))

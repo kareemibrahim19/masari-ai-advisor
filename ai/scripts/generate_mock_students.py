@@ -41,7 +41,7 @@ PERSONAS = [
          fails={"BAS 115": 1, "CSE 141": 1, "ECE 121": 1}, summer_retakes=False,
          name_ar="يوسف محمود السيد النجار", name_en="Youssef Mahmoud Elsayed Elnaggar",
          guardian_job="محاسب", hs_percent=91.2,
-         note="تحت الإنذار الأكاديمي ترمين ورا بعض (معدل أقل من 2): الحد الأقصى 12 ساعة، ولو الترم ده كمان تحت 2 يتفصل (3 ترمات متتالية)."),
+         note="تحت الإنذار الأكاديمي ترمين ورا بعض (معدل أقل من 2): الحد الأقصى 14 ساعة، ولو فضل تحت 2 لحد 6 ترمات متتالية يتفصل."),
     dict(key="near_graduation", enrolled=2022, mean=85, sd=5, gender="F",
          name_ar="سلمى أحمد فتحي القاضي", name_en="Salma Ahmed Fathy Elkady",
          guardian_job="طبيب", hs_percent=95.4,
@@ -114,8 +114,6 @@ def level_of(earned: int) -> dict:
 def max_load(cgpa, main_done: int):
     if cgpa is None:
         return 21
-    if on_warning(cgpa, main_done):
-        return RULES["probation_max_credits"]  # team decision: a student on warning → 12 (dashboard)
     for band in RULES["max_credits_by_gpa"]:
         if band["gpa_min"] <= cgpa < band["gpa_max"]:
             return band["max_credits"]

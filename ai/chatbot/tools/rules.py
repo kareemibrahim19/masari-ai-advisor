@@ -62,13 +62,9 @@ def credit_limit(student_id: str, term_type: str = "main") -> dict:
     warned = _on_warning(cgpa, main_done)
     if cgpa is None:
         limit, why = FIRST_TERM_MAX_LOAD, f"أول فصل دراسي ومفيش معدل تراكمي لسه، فالحد الأقصى {FIRST_TERM_MAX_LOAD} ساعة."
-    elif warned and (st.get("consecutive_warning_semesters") or 0) >= 2:
-        limit = r["probation_max_credits"]
-        why = f"الطالب واخد إنذار تاني ورا بعض (معدله {cgpa} أقل من 2.00)، فالحد الأقصى {limit} ساعة."
-    elif warned:  # the first warning keeps the 14 of the lowest band
+    elif warned:  # under academic warning the cap is the 14 of the lowest band, however many warnings in a row
         limit = min(b["max_credits"] for b in r["max_credits_by_gpa"])
-        why = (f"الطالب تحت أول إنذار أكاديمي (معدله {cgpa} أقل من 2.00)، فالحد الأقصى {limit} ساعة، "
-               f"ولو جاله إنذار تاني ورا بعض الحد يبقى {r['probation_max_credits']}.")
+        why = f"الطالب تحت الإنذار الأكاديمي (معدله {cgpa} أقل من 2.00)، فالحد الأقصى {limit} ساعة."
     else:
         band = next(b for b in r["max_credits_by_gpa"] if b["gpa_min"] <= cgpa < b["gpa_max"])
         limit = band["max_credits"]
@@ -597,9 +593,6 @@ def paper_registration(student_id: str, reason: str | None = None, requested_hou
         if cgpa is None or cgpa >= r["warning_gpa_threshold"]:
             ok, text = False, (f"التسجيل الورقي لزيادة الساعات للي معدله أقل من 2.00 بس. حدك {limit['max_credits']} ساعة "
                                "وبتسجلهم على السيستم عادي.")
-        elif limit["on_warning"] and limit["max_credits"] == r["probation_max_credits"]:
-            ok, text = False, (f"إنت واخد إنذار تاني ورا بعض، فحدك {limit['max_credits']} ساعة بس، "
-                               "ومينفعش تزود عليهم ولا بالتسجيل الورقي.")
         else:
             ok = True
             text = (f"معدلك {cgpa} أقل من 2.00: على السيستم حدك {limit['max_credits']} ساعة. ولو عايز {PAPER_MAX_LOW_GPA} ساعة "

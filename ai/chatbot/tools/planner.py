@@ -150,17 +150,13 @@ def _streak_after(s: dict, cgpa: float | None, current: dict) -> int:
 
 
 def _load_cap(cgpa: float | None, main_done: int, warned: int = 0) -> tuple[int, str]:
-    """Max hours per main term for a GPA (article 13). Under 2.00 the first academic warning keeps the 14 of the
-    lowest band; from the second warning in a row the cap is 12 (the team's reading of article 25)."""
+    """Max hours per main term for a GPA (article 13). Under 2.00 the cap is the 14 of the lowest band, on academic
+    warning too, however many warnings in a row (articles 13 and 25)."""
     r = d.rules()
     if cgpa is None:
         return 21, "مفيش معدل تراكمي، فالحد 21 ساعة."
-    if _on_warning(cgpa, main_done) and warned >= 2:
-        return r["probation_max_credits"], (f"معدلك هيبقى {cgpa} (أقل من 2.00) وده إنذار تاني ورا بعض: "
-                                            f"الحد {r['probation_max_credits']} ساعة.")
-    if _on_warning(cgpa, main_done) and warned == 1:
-        return _low_band_cap(), (f"معدلك هيبقى {cgpa} (أقل من 2.00) وده أول إنذار: الحد {_low_band_cap()} ساعة، "
-                                 f"ولو فضل تحت 2.00 الترم الجاي يبقى إنذار تاني والحد {r['probation_max_credits']}.")
+    if _on_warning(cgpa, main_done) and warned:
+        return _low_band_cap(), (f"معدلك هيبقى {cgpa} (أقل من 2.00) وده إنذار أكاديمي: الحد {_low_band_cap()} ساعة.")
     band = next(b for b in r["max_credits_by_gpa"] if b["gpa_min"] <= cgpa < b["gpa_max"])
     return band["max_credits"], f"معدلك هيبقى {cgpa} فالحد {band['max_credits']} ساعة في الترم."
 
@@ -236,22 +232,15 @@ def _caps(terms: list[dict], cap: int, hi: int, hi_from: int | None, warned: int
     """Hour cap of each term: `cap`, or `hi` from main semester number `hi_from` (counted among these terms) on.
     Summers get None (they have their own limit).
 
-    The low band (GPA under 2.00, 14 hours) holds through the first academic warning: with the GPA unchanged, each
-    main semester from the warning start adds a warning (`warned`: warnings in a row before the first of these
-    terms), and from the second in a row the cap is 12.
+    The low band (GPA under 2.00, 14 hours) is the same on academic warning, however many warnings in a row.
     """
-    r = d.rules()
     out, mains = [], 0
     for t in terms:
         if t["term"] == "summer":
             out.append(None)
             continue
-        c = cap
-        if cap == _low_band_cap() and warned >= 2:
-            c = r["probation_max_credits"]
-        out.append(hi if hi_from is not None and mains >= hi_from else c)
+        out.append(hi if hi_from is not None and mains >= hi_from else cap)
         mains += 1
-        warned = warned + 1 if t["main"] >= r["warning_starts_after_main_semester"] else 0
     return out
 
 
@@ -598,13 +587,10 @@ def _why_not(proj: dict, cap: int, current: dict, main_now: int, last_main: int,
     room = before[deadline + 1] - proj["earned"] if deadline + 1 < len(before) else total - proj["earned"]
     summer_ar = " مع الصيفي" if allow_summer else " من غير صيفي"
     summer_en = " with summers" if allow_summer else " without summers"
-    # The hour limit in words: with a GPA under 2.00 it is 14 (15 on paper) until the second academic warning.
-    r = d.rules()
+    # The hour limit in words: with a GPA under 2.00 it is 14 (15 on paper), on academic warning too.
     if cap == _low_band_cap():
-        lim_ar = (f"حد {cap} ساعة (أو {PAPER_MAX_LOW_GPA} ورقي)، ومن تاني إنذار ورا بعض {r['probation_max_credits']} "
-                  f"لو المعدل فضل تحت 2.00")
-        lim_en = (f"{cap} hours ({PAPER_MAX_LOW_GPA} on paper), then {r['probation_max_credits']} from the second academic "
-                  f"warning in a row if the GPA stays under 2.00")
+        lim_ar = f"حد {cap} ساعة (أو {PAPER_MAX_LOW_GPA} ورقي) طول ما المعدل تحت 2.00"
+        lim_en = f"{cap} hours ({PAPER_MAX_LOW_GPA} on paper) while the GPA is under 2.00"
     else:
         lim_ar, lim_en = f"حد {cap} ساعة في الترم", f"{cap} per semester"
     if left > room:
@@ -631,7 +617,7 @@ def _term_label(t: dict) -> dict:
 def _raise(proj: dict, cap: int, hi_from: int | None) -> tuple[int, int | None]:
     """(cap the plan rises to, from which main semester). A route's GPA condition raises it to the top band; a student
     on academic warning cannot stay under 2.00 for good (article 25: dismissal after a run of main semesters under
-    2.00), so the plan keeps the warning cap (14, then 12) only until the GPA can reach 2.00, then the 2.00-2.99
+    2.00), so the plan keeps the warning cap (14) only until the GPA can reach 2.00, then the 2.00-2.99
     band."""
     if hi_from is None and proj.get("recover_from") is not None and cap <= _low_band_cap():
         return _mid_cap(), proj["recover_from"]

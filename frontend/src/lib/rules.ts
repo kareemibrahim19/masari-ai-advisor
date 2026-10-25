@@ -22,7 +22,7 @@ export type StudentRecord = {
   gpa: number | null
   /** On academic warning (probation). */
   onProbation?: boolean
-  /** Academic warnings in a row: from the second one the load limit drops to the probation maximum. */
+  /** Academic warnings in a row (main semesters under 2.00). */
   warnings?: number
   /** Passed course codes (including pool courses taken as electives). */
   passed: string[]
@@ -40,19 +40,15 @@ export const LOAD_BANDS = [
 ]
 /** A first-term student has no GPA yet; the faculty allows 18 credit hours in that term. */
 export const FIRST_TERM_MAX_LOAD = 18
-/** From the second academic warning in a row a student may not exceed 12 credit hours; the first warning keeps the
- *  14 of the lowest band (the team's reading of the Academic Warning section of the bylaws). */
-export const PROBATION_MAX_LOAD = 12
 /** Academic warnings in a row (main semesters under 2.00) that mean dismissal (ai/data/courses.json → rules). */
-export const DISMISSAL_AFTER_WARNINGS = 3
+export const DISMISSAL_AFTER_WARNINGS = 6
 /** Highest grade on a re-registered (retaken) course. */
 export const RETAKE_MAX_GRADE = "B+"
 
-/** Max registration load: 18 in the first term, 12 from the second academic warning in a row, otherwise the GPA
- *  band in LOAD_BANDS. */
-export function maxLoad(gpa: number | null, onProbation = false, warnings = 0) {
+/** Max registration load: 18 in the first term, otherwise the GPA band in LOAD_BANDS (14 under 2.00, on academic
+ *  warning too, however many warnings in a row: articles 13 and 25). */
+export function maxLoad(gpa: number | null) {
   if (gpa === null) return FIRST_TERM_MAX_LOAD
-  if (onProbation && warnings >= 2) return PROBATION_MAX_LOAD
   const band = LOAD_BANDS.find((b) => gpa >= b.gpa_min && gpa < b.gpa_max)
   return band?.max_credits ?? LOAD_BANDS.at(-1)!.max_credits
 }

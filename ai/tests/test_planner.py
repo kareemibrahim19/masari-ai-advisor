@@ -9,6 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "chatbot"))
 from tools import _data as d  # noqa: E402
 from tools.planner import build_graduation_plan, plan_options  # noqa: E402
+from tools.rules import PAPER_MAX_LOW_GPA  # noqa: E402
 
 BY = {s["persona"]: s["student_id"] for s in d.students().values()}
 EXC, PROB, NEAR, FAILPRE, NEW, RETAKE = (BY[k] for k in (
@@ -71,7 +72,7 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
                 out.append(f"{c['code']} twice")
         if summer and t["credits"] > r["summer"]["max_credits"]:
             out.append(f"more than {r['summer']['max_credits']} hours in {t['en']}")
-        if not summer and t["credits"] > t["max_credits"]:
+        if not summer and t["credits"] > (PAPER_MAX_LOW_GPA if t.get("paper_load") else t["max_credits"]):
             out.append(f"{t['credits']} hours over the cap in {t['en']}")
         seen |= set(codes)
         earned += sum(allc[c]["credits"] for c in codes)
@@ -172,7 +173,7 @@ check("what-if anchored to the plan moves no more courses than from scratch",
 
 # What-if: term GPA moves the hour cap.
 p = build_graduation_plan(PROB, 5, expected_term_gpa=0.5)
-check("low term GPA keeps probation cap 12", p["after_this_term"]["max_credits"] == 12, p["after_this_term"])
+check("low term GPA keeps probation cap 14", p["after_this_term"]["max_credits"] == 14, p["after_this_term"])
 p = build_graduation_plan(PROB, 4.5)  # 5 years works since the summer after semester 10 counts
 check("retaking failed courses lifts probation GPA over 2", p["after_this_term"]["cumulative_gpa"] >= 2, p["after_this_term"])
 p = build_graduation_plan(EXC, 5, failed_courses=["BAS 216", "CSE 221", "CSE 251", "ECE 223", "ECE 234"], expected_term_gpa=3)
@@ -216,14 +217,14 @@ for name, sid in BY.items():
             seq = [at[c] for c in ("ARI 381", "ARI 481", "ARI 482") if c in at]
             check(f"projects in order, one per semester ({name} {years}y summer={summer})", seq == sorted(set(seq)), at)
 
-# GPA under 2.00: 14 hours (15 on paper, five 3-credit courses) through the first academic warning, 12 from the
-# second warning in a row (the team's rule); warnings start at the end of main semester 2.
+# GPA under 2.00: 14 hours (15 on paper, five 3-credit courses), on academic warning too, however many in a row
+# (articles 13 and 25).
 terms = P._terms_after({"term": "fall", "academic_year": "2026-2027"}, 2, 6)
 mains = [t for t in terms if t["term"] != "summer"]
 caps = [c for c in P._caps(terms, 14, 21, None, 0) if c is not None]
-check("low GPA, no warning yet: 14, 14 on the first warning, then 12", caps[:3] == [14, 14, 12] and set(caps[2:]) == {12}, caps)
-caps = [c for c in P._caps(terms, 14, 21, None, 1) if c is not None]
-check("low GPA on a first warning: 14, then 12 from the second", caps[0] == 14 and set(caps[1:]) == {12}, caps)
+check("low GPA, no warning yet: 14 in every semester", set(caps) == {14}, caps)
+caps = [c for c in P._caps(terms, 14, 21, None, 3) if c is not None]
+check("low GPA after warnings in a row: still 14, never 12", set(caps) == {14}, caps)
 p = build_graduation_plan(NEW, 5, True, [], 1.5)
 main_caps = [t["max_credits"] for t in p["terms"] if t["term"] != "summer"]
 check("low GPA, recoverable: 14 next semester, then 18 (never 12 to the end)", main_caps[0] == 14 and 12 not in main_caps
@@ -353,14 +354,14 @@ if p.get("max_term_gpa") is not None:
     check("what-if: the highest term GPA shown is accepted", again.get("found"), again.get("error"))
 
 # GPA under 2.00: the plan says graduation needs 2.00, when dismissal comes, and the GPA that gets back.
+limit = d.rules()["dismissal_after_consecutive_low_semesters"]
 sid = near_end("test-under-2", set(c for c in allc if (allc[c]["planned_semester"] or 9) > 6), ["ECE 332"], "fall", 6,
-               grade="D+", streak=1)
+               grade="D+", streak=limit - 2)
 p = build_graduation_plan(sid, 5, True)
 w = p.get("gpa_warning") or {}
-# Two semesters in a row under 2.00 after this one (1 before + this term): the rest of article 25's run is left.
-limit = d.rules()["dismissal_after_consecutive_low_semesters"]
+# One semester before the limit after this one (limit - 2 before + this term): one semester of article 25's run left.
 check("under 2.00: warning with 2.00 for graduation and the semesters left before dismissal",
-      w.get("semesters_left") == limit - 2 and "2.00" in w.get("ar", "") and "هتتفصل" in w.get("ar", ""), w)
+      w.get("semesters_left") == 1 and "2.00" in w.get("ar", "") and "هتتفصل" in w.get("ar", ""), w)
 caps = [t["max_credits"] for t in p.get("terms") or [] if t["term"] != "summer"]
 # Even 4.00 cannot bring it back before the limit, and under 80% of the hours: dismissal, no graduation plan.
 check("under 2.00, cannot recover in time, under 80% of the hours: dismissal, no plan (article 25)",
@@ -368,17 +369,17 @@ check("under 2.00, cannot recover in time, under 80% of the hours: dismissal, no
       and w.get("recover_after") is None, (p["status"], p.get("why"), w.get("recover_after")))
 # Recoverable: the warning cap only until 2.00 can be reached, then 18 (not 12 to the end).
 sid = near_end("test-under-2-rec", set(c for c in allc if (allc[c]["planned_semester"] or 9) > 6), ["ECE 332"], "fall", 6,
-               grade="C-", streak=0)
+               grade="C-", streak=limit - 3)  # two semesters left before the limit, as the plan has
 p = build_graduation_plan(sid, 5, True)
 w = p.get("gpa_warning") or {}
 k = w.get("recover_after") or 0
 caps = [t["max_credits"] for t in p.get("terms") or [] if t["term"] != "summer"]
-check("under 2.00, recoverable: 14 on the first warning until 2.00, then 18",
+check("under 2.00, recoverable: 14 on warning until 2.00, then 18",
       k and caps and caps[0] == 14 and all(c <= 14 for c in caps[:k]) and all(c == 18 for c in caps[k:]) and 18 in caps,
       (caps, k, w))
 from tools.rules import credit_limit  # noqa: E402
 r = credit_limit(sid)  # warned once before (streak 0, then this term): registering now is still the low band
-check("credit limit under 2.00 before a second warning: 14", r["max_credits"] == 14, r)
+check("credit limit under 2.00 before a warning: 14", r["max_credits"] == 14, r)
 d.get_student(sid)["academic_status"]["consecutive_warning_semesters"] = 1
 r = credit_limit(sid)
 check("credit limit on a first warning: 14", r["max_credits"] == 14 and r["on_warning"], r)

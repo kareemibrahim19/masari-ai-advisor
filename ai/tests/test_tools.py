@@ -26,7 +26,7 @@ def check(name, cond, got=None):
 # credit limit: GPA bands, warning, first term, summer
 check("limit excellent=21", call_tool("credit_limit", {}, EXC)["max_credits"] == 21)
 r = call_tool("credit_limit", {}, PROB)
-check("limit probation=12", r["max_credits"] == 12 and r["on_warning"], r)
+check("limit probation=14 (as any GPA under 2.00)", r["max_credits"] == 14 and r["on_warning"], r)
 check("limit new student=18 (first term, same as the website)", call_tool("credit_limit", {}, NEW)["max_credits"] == 18)
 check("limit summer=6 hours", call_tool("credit_limit", {"term_type": "summer"}, EXC)["max_credits"] == 6)
 r = call_tool("registration_eligibility", {"course_code": "ARI 381", "term_type": "spring"}, RETAKE)
@@ -257,13 +257,13 @@ for q in ["اقدر اسجل كام ساعة؟", "معدلي كام؟", "مين 
 # paper registration: GPA below 2 (14 on the system, 15 on paper), system closed, last term below 12
 import copy  # noqa: E402
 r = call_tool("paper_registration", {"reason": "more_hours"}, PROB)
-check("paper: on warning stays at 12, no paper option", r["cases"][0]["applies"] is False and r["system_max_credits"] == 12, r)
+check("paper: on warning 14 on the system, 15 on paper", r["cases"][0]["applies"] is True and r["system_max_credits"] == 14, r)
 r = call_tool("paper_registration", {"reason": "more_hours"}, EXC)
 check("paper: GPA above 2 does not need paper for more hours", r["cases"][0]["applies"] is False, r)
 r = call_tool("paper_registration", {"reason": "system_closed"}, EXC)
 check("paper: system closed always goes on paper, and says to go to the program administration",
       r["paper_needed"] and "إدارة البرنامج" in r["cases"][0]["explanation"] and r["how_ar"], r)
-r = call_tool("paper_registration", {"reason": "more_hours"}, PROB)
+r = call_tool("paper_registration", {"reason": "more_hours"}, EXC)
 check("paper: no 'go to the program administration' when paper does not apply", "إدارة البرنامج" not in r["explanation"] and not r["how_ar"], r)
 check("paper: 26 hours left is not the last term", not call_tool("paper_registration", {"reason": "below_minimum"}, NEAR)["cases"][0]["applies"])
 

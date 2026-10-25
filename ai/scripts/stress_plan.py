@@ -93,8 +93,6 @@ def cap_for(cgpa, main_done: int) -> int:
     """Article 13 / 25 as in courses.json: the hour cap of the next main term."""
     if cgpa is None:
         return 21
-    if cgpa < R["warning_gpa_threshold"] and main_done >= R["warning_starts_after_main_semester"]:
-        return R["probation_max_credits"]
     return next(b["max_credits"] for b in R["max_credits_by_gpa"] if b["gpa_min"] <= cgpa < b["gpa_max"])
 
 
@@ -174,15 +172,13 @@ def terms_after(kind: str, year: int, main_now: int, last_main: int, summer_afte
 
 
 def caps_of(terms: list[dict], cap: int, hi_from) -> list:
-    """Cap of each main term: the GPA band, 14 -> 12 once academic warning starts, 21 from `hi_from` (the GPA route)."""
+    """Cap of each main term: the GPA band (14 under 2.00, on warning too), 21 from `hi_from` (the GPA route)."""
     out, j = [], 0
     for t in terms:
         if t["main"] is None:
             out.append(None)
             continue
         c = cap
-        if cap == 14 and t["main"] - 1 >= R["warning_starts_after_main_semester"]:
-            c = R["probation_max_credits"]
         if hi_from is not None and j >= hi_from:
             c = 21
         out.append(c)

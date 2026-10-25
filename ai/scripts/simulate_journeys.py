@@ -55,17 +55,17 @@ SCENARIOS = [
     dict(key="slipping", sid="SIM-03", student="كريم أشرف نبيل سليمان", name="النازل", target=4.5, summer=True, summer_opens=True,
          grades=[(1, 82, 4), (3, 61, 2), (6, 84, 4)],
          story="بدأ كويس، وبعدين درجاته وقعت من الترم التالت لحد الخامس، ورجع اتحسن.",
-         expect="الحد ينزل من 18 لـ 14 أول ما المعدل يقع تحت 2.00، وبعدها 12 تحت الإنذار، والتخرج يتأخر. "
+         expect="الحد ينزل من 18 لـ 14 أول ما المعدل يقع تحت 2.00، ويفضل 14 تحت الإنذار، والتخرج يتأخر. "
                 "ولما يتحسن ويعدّي 2.00 الحد يرجع 18."),
     dict(key="dismissal", sid="SIM-04", student="أحمد ياسر رمضان العزب", name="المفصول", target=5, summer=False, summer_opens=False,
          grades=[(1, 62, 4)], fail_in={2: 2, 3: 2, 4: 2},
          story="درجاته ضعيفة من الأول وبيسقط في مواد كل ترم.",
-         expect="إنذار من بعد الترم التاني، و12 ساعة، وبعد 3 ترمات إنذار ورا بعض يتفصل "
+         expect="إنذار من بعد الترم التاني، و14 ساعة، وبعد 6 ترمات إنذار ورا بعض يتفصل "
                 "(إلا لو مجلس الكلية إداله فرصة أخيرة، وده محتاج 80% من الساعات)."),
     dict(key="recovery", sid="SIM-05", student="مصطفى عادل حسين غنيم", name="الراجع", target=5, summer=True, summer_opens=True,
          grades=[(1, 64, 3), (3, 92, 3)], fail_in={2: 1},
          story="تحت الإنذار في الأول، وبعدين اتحسن جامد من الترم التالت.",
-         expect="12 ساعة تحت الإنذار، وأول ما المعدل يعدّي 2.00 الإنذار يتشال والحد يرجع 18، والخطة تتحسن."),
+         expect="14 ساعة تحت الإنذار، وأول ما المعدل يعدّي 2.00 الإنذار يتشال والحد يرجع 18، والخطة تتحسن."),
     dict(key="failed_chain", sid="SIM-06", student="يوسف إيهاب منير الجمال", name="الساقط في متطلب", target=4.5, summer=False, summer_opens=False,
          grades=[(1, 82, 4)], fail={"BAS 115": 2},
          story="سقط مرتين في مادة متطلب سابق لمواد كتير بعدها (BAS 115).",
@@ -100,8 +100,8 @@ SCENARIOS = [
          summer=False, summer_opens=False,
          grades=[(1, 72, 3), (2, 66, 2), (3, 80, 2), (4, 66, 2), (5, 80, 2), (6, 74, 4)],
          story="معدله رايح جاي حوالين 2.00: ترم فوق وترم تحت.",
-         expect="الإنذار يتشال لما المعدل يعدّي 2.00، وعدّاد الترمات المتتالية يرجع صفر، فمش هيتفصل إلا لو 3 ورا بعض. "
-                "والحد بيتنقل بين 12 و18."),
+         expect="الإنذار يتشال لما المعدل يعدّي 2.00، وعدّاد الترمات المتتالية يرجع صفر، فمش هيتفصل إلا لو 6 ورا بعض. "
+                "والحد بيتنقل بين 14 و18."),
     dict(key="failed_training", sid="SIM-13", student="سارة رامي حمدي الفقي", name="سقطت في التدريب", target=4.5,
          summer=True, summer_opens=True,
          grades=[(1, 84, 4)], fail={"ARI 171": 1, "ARI 271": 1},
@@ -277,8 +277,6 @@ class Student:
 def expected_cap(cgpa, main_done: int) -> int:
     if cgpa is None:
         return 18  # first term (the website's rule engine)
-    if cgpa < R["warning_gpa_threshold"] and main_done >= R["warning_starts_after_main_semester"]:
-        return R["probation_max_credits"]
     return next(b["max_credits"] for b in R["max_credits_by_gpa"] if b["gpa_min"] <= cgpa < b["gpa_max"])
 
 

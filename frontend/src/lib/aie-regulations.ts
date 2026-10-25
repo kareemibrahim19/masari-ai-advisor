@@ -96,8 +96,8 @@ export const ruleSections: RuleSection[] = [
     title: { ar: "الإنذار والفصل", en: "Academic warning & dismissal" },
     items: [
       { ar: "إنذار لو المعدل التراكمي أقل من 2.00 بعد الترم التاني أو أي ترم بعده.", en: "Warning if the cumulative GPA is below 2.00 after the 2nd semester or any later one." },
-      { ar: "أول إنذار: الحد 14 ساعة. من تاني إنذار ورا بعض: مايسجلش أكتر من 12 ساعة لحد ما معدله يوصل 2.00.", en: "First warning: up to 14 credits. From the second warning in a row: no more than 12 credits until the GPA reaches 2.00." },
-      { ar: "الفصل بعد 3 أترام أساسية متتالية تحت 2.00، أو تجاوز 10 سنين دراسة.", en: "Dismissal after 3 consecutive main semesters below 2.00, or exceeding 10 years of study." },
+      { ar: "تحت الإنذار الحد 14 ساعة (زي أي معدل أقل من 2.00) لحد ما معدله يوصل 2.00.", en: "On academic warning: up to 14 credits (as for any GPA below 2.00) until the GPA reaches 2.00." },
+      { ar: "الفصل بعد 6 أترام أساسية متتالية تحت 2.00، أو تجاوز 10 سنين دراسة.", en: "Dismissal after 6 consecutive main semesters below 2.00, or exceeding 10 years of study." },
       { ar: "تحسين التقدير: لحد 5 مقررات طول مدة الدراسة.", en: "Grade improvement: up to 5 courses over the whole study period." },
     ],
   },

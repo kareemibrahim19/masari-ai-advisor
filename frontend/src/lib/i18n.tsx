@@ -348,8 +348,8 @@ const dict = {
     en: "You can't reach {target} in one semester: you need a semester GPA of {gpa} this term, and {next} or more next term.",
   },
   termGoalDismissal: {
-    ar: "لو جبت أقل من كده هتاخد الإنذار التالت ورا بعض، وده حد الفصل.",
-    en: "Below that you get a third academic warning in a row, the dismissal limit.",
+    ar: "لو جبت أقل من كده هتوصل لحد الفصل (6 إنذارات ورا بعض).",
+    en: "Below that you reach the dismissal limit (6 academic warnings in a row).",
   },
   termGoalWarning: { ar: "لو جبت أقل من كده هتاخد إنذار أكاديمي.", en: "Below that you get an academic warning." },
   termGoalUnreachable: {

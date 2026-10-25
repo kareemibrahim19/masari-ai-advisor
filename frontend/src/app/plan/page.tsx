@@ -587,10 +587,9 @@ function GpaLadder({ plan, failedNow, whatIfGpa }: { plan: GraduationPlan; faile
   const cap = plan.after_this_term.max_credits
   const bandOf = (g: number) => (g < 2 ? "low" : g < 3 ? "mid" : "top") as "low" | "mid" | "top"
   const here = now !== null ? bandOf(now) : after !== null ? bandOf(after) : cap >= 21 ? "top" : cap === 18 ? "mid" : "low"
-  // Under 2.00 the hours are the student's limit now (14 on a first warning, 12 from the second in a row); when only
-  // the estimate is under 2.00, the plan's cap after this term.
+  // Under 2.00 the limit is 14, on academic warning too.
   const bands = [
-    { key: "low", label: "< 2.00", hours: here === "low" ? student.maxLoad : cap === 12 ? 12 : 14, from: 0 },
+    { key: "low", label: "< 2.00", hours: 14, from: 0 },
     { key: "mid", label: "2.00 – 2.99", hours: 18, from: 2 },
     { key: "top", label: "3.00 +", hours: 21, from: 3 },
   ] as const

@@ -34,7 +34,6 @@
       }
     ],
     "min_credits_main_semester": 12,
-    "probation_max_credits": 12,
     "summer": {
       "max_credits": 6,
       "projects_allowed": false,
@@ -45,7 +44,8 @@
     "warning_gpa_threshold": 2.0,
     "warning_starts_after_main_semester": 2,
     "warning_source": "dashboard: الإنذار لو المعدل التراكمي أقل من 2.00 بعد الترم الأساسي التاني أو أي ترم بعده",
-    "dismissal_after_consecutive_low_semesters": 3,
+    "dismissal_after_consecutive_low_semesters": 6,
+    "warning_rules_source": "اللايحة (مادتي 13 و25): المعدل أقل من 2.00 حده 14 ساعة على طول، تحت الإنذار كمان، والفصل بعد 6 ترمات رئيسية متتالية تحت 2.00",
     "max_study_years": 10,
     "graduation": {
       "min_credits": 160,
