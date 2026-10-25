@@ -72,7 +72,9 @@ def violations(sid: str, plan: dict, failed=()) -> list[str]:
                 out.append(f"{c['code']} twice")
         if summer and t["credits"] > r["summer"]["max_credits"]:
             out.append(f"more than {r['summer']['max_credits']} hours in {t['en']}")
-        if not summer and t["credits"] > (PAPER_MAX_LOW_GPA if t.get("paper_load") else t["max_credits"]):
+        # Over the limit only on paper: 15 with five 3-credit courses under 2.00, or one course moved into the
+        # graduation semester (a graduation allowance; its own check is further down).
+        if not summer and not t.get("allowance") and t["credits"] > (PAPER_MAX_LOW_GPA if t.get("paper_load") else t["max_credits"]):
             out.append(f"{t['credits']} hours over the cap in {t['en']}")
         seen |= set(codes)
         earned += sum(allc[c]["credits"] for c in codes)

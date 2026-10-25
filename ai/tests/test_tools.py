@@ -29,7 +29,13 @@ r = call_tool("credit_limit", {}, PROB)
 check("limit probation=14 (as any GPA under 2.00)", r["max_credits"] == 14 and r["on_warning"], r)
 check("limit new student=18 (first term, same as the website)", call_tool("credit_limit", {}, NEW)["max_credits"] == 18)
 check("limit summer=6 hours", call_tool("credit_limit", {"term_type": "summer"}, EXC)["max_credits"] == 6)
-r = call_tool("registration_eligibility", {"course_code": "ARI 381", "term_type": "spring"}, RETAKE)
+# A copy of the retake student at 93 hours: 3 short of ARI 381's 96, inside the projects' 4-hour tolerance.
+short = copy.deepcopy(d.students()[RETAKE])
+short["student_id"] = "test-93"
+short["academic_status"]["earned_hours"] = 93
+d.students()["test-93"] = short
+r = call_tool("registration_eligibility", {"course_code": "ARI 381", "term_type": "spring"}, "test-93")
+del d.students()["test-93"]
 check("ARI 381 within the 4-hour tolerance is paper registration (93 of 96)",
       next(c for c in r["checks"] if c["check"] == "min_credits")["ok"] and "ورقي" in r["explanation"] + str(r["checks"]), r["checks"])
 

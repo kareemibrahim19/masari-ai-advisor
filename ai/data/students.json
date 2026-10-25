@@ -624,19 +624,19 @@
         "level": 2,
         "name": "Sophomore",
         "required_hours": 160,
-        "earned_hours": 45,
-        "mandatory_hours": 45,
-        "elective_hours": 0,
+        "earned_hours": 52,
+        "mandatory_hours": 49,
+        "elective_hours": 3,
         "project_hours": 0,
         "trainings_passed": [],
-        "cumulative_gpa": 1.89,
+        "cumulative_gpa": 1.94,
         "main_semesters_completed": 4,
         "academic_standing": "إنذار أكاديمي",
         "consecutive_warning_semesters": 2,
         "current_term": {
           "academic_year": "2026-2027",
           "term_ar": "الأول",
-          "registered_hours": 12
+          "registered_hours": 14
         }
       },
       "terms": [
@@ -999,14 +999,59 @@
               "total": 71,
               "grade": "C",
               "grade_ar": "ج"
+            },
+            {
+              "code": "UNR 261",
+              "name_ar": "آداب وأخلاقيات المهنة",
+              "name_en": "Ethics and Morals of the Profession",
+              "credits": 2,
+              "attempt": 1,
+              "marks": {
+                "midterm": 16,
+                "coursework": 23,
+                "final": 39
+              },
+              "total": 78,
+              "grade": "B-",
+              "grade_ar": "ب-"
+            },
+            {
+              "code": "ENG 312",
+              "name_ar": "إدارة المشروعات",
+              "name_en": "Project Management",
+              "credits": 2,
+              "attempt": 1,
+              "marks": {
+                "midterm": 14,
+                "coursework": 22,
+                "final": 36
+              },
+              "total": 72,
+              "grade": "C",
+              "grade_ar": "ج"
+            },
+            {
+              "code": "CSE 352",
+              "name_ar": "علم النفس المعرفي",
+              "name_en": "Cognitive Science",
+              "credits": 3,
+              "attempt": 1,
+              "marks": {
+                "midterm": 15,
+                "coursework": 22,
+                "final": 38
+              },
+              "total": 75,
+              "grade": "C+",
+              "grade_ar": "ج+"
             }
           ],
           "summary": {
-            "registered_hours": 5,
-            "earned_hours": 5,
-            "term_gpa": 2.0,
-            "cumulative_gpa": 1.89,
-            "cumulative_earned_hours": 45,
+            "registered_hours": 12,
+            "earned_hours": 12,
+            "term_gpa": 2.19,
+            "cumulative_gpa": 1.94,
+            "cumulative_earned_hours": 52,
             "academic_standing": "إنذار أكاديمي"
           }
         },
@@ -1042,6 +1087,13 @@
               "name_ar": "تعلم الآلة",
               "name_en": "Machine Learning",
               "credits": 3,
+              "attempt": 1
+            },
+            {
+              "code": "UNR 241",
+              "name_ar": "مهارات الاتصال والعرض",
+              "name_en": "Communication and Presentation Skills",
+              "credits": 2,
               "attempt": 1
             }
           ]
@@ -3296,8 +3348,8 @@
         "level": 3,
         "name": "Junior",
         "required_hours": 160,
-        "earned_hours": 93,
-        "mandatory_hours": 93,
+        "earned_hours": 96,
+        "mandatory_hours": 96,
         "elective_hours": 0,
         "project_hours": 0,
         "trainings_passed": [
@@ -3946,14 +3998,29 @@
               "total": 72,
               "grade": "C",
               "grade_ar": "ج"
+            },
+            {
+              "code": "ECE 321",
+              "name_ar": "شبكات الاتصالات",
+              "name_en": "Communication Networks",
+              "credits": 3,
+              "attempt": 1,
+              "marks": {
+                "midterm": 15,
+                "coursework": 23,
+                "final": 38
+              },
+              "total": 76,
+              "grade": "B-",
+              "grade_ar": "ب-"
             }
           ],
           "summary": {
-            "registered_hours": 11,
-            "earned_hours": 11,
-            "term_gpa": 2.82,
-            "cumulative_gpa": 2.53,
-            "cumulative_earned_hours": 91,
+            "registered_hours": 14,
+            "earned_hours": 14,
+            "term_gpa": 2.79,
+            "cumulative_gpa": 2.54,
+            "cumulative_earned_hours": 94,
             "academic_standing": "منتظم"
           }
         },
@@ -3970,7 +4037,7 @@
               "credits": 0,
               "attempt": 1,
               "marks": {},
-              "total": 76,
+              "total": 80,
               "grade": "P",
               "grade_ar": "ناجح"
             },
@@ -3983,19 +4050,19 @@
               "marks": {
                 "midterm": 16,
                 "coursework": 24,
-                "final": 40
+                "final": 39
               },
-              "total": 80,
-              "grade": "B",
-              "grade_ar": "ب"
+              "total": 79,
+              "grade": "B-",
+              "grade_ar": "ب-"
             }
           ],
           "summary": {
             "registered_hours": 2,
             "earned_hours": 2,
-            "term_gpa": 3.0,
+            "term_gpa": 2.7,
             "cumulative_gpa": 2.59,
-            "cumulative_earned_hours": 93
+            "cumulative_earned_hours": 96
           }
         },
         {
@@ -4033,9 +4100,9 @@
               "attempt": 1
             },
             {
-              "code": "CSE 318",
-              "name_ar": "التفاعل بين الإنسان والحاسب",
-              "name_en": "Human Computer Interaction (HCI)",
+              "code": "BAS 311",
+              "name_ar": "التعلم الإحصائي",
+              "name_en": "Statistical Learning",
               "credits": 3,
               "attempt": 1
             }
@@ -4327,7 +4394,7 @@
         "current_term": {
           "academic_year": "2026-2027",
           "term_ar": "الأول",
-          "registered_hours": 11
+          "registered_hours": 14
         }
       },
       "terms": [
@@ -5271,6 +5338,13 @@
               "name_en": "High Performance Computing",
               "credits": 3,
               "attempt": 1
+            },
+            {
+              "code": "BAS 311",
+              "name_ar": "التعلم الإحصائي",
+              "name_en": "Statistical Learning",
+              "credits": 3,
+              "attempt": 1
             }
           ]
         }
@@ -6182,8 +6256,8 @@
         "level": 2,
         "name": "Sophomore",
         "required_hours": 160,
-        "earned_hours": 52,
-        "mandatory_hours": 52,
+        "earned_hours": 54,
+        "mandatory_hours": 54,
         "elective_hours": 0,
         "project_hours": 0,
         "trainings_passed": [],
@@ -6578,14 +6652,29 @@
               "total": 19,
               "grade": "DN",
               "grade_ar": "محروم"
+            },
+            {
+              "code": "UNR 261",
+              "name_ar": "آداب وأخلاقيات المهنة",
+              "name_en": "Ethics and Morals of the Profession",
+              "credits": 2,
+              "attempt": 1,
+              "marks": {
+                "midterm": 15,
+                "coursework": 22,
+                "final": 38
+              },
+              "total": 75,
+              "grade": "C+",
+              "grade_ar": "ج+"
             }
           ],
           "summary": {
-            "registered_hours": 11,
-            "earned_hours": 6,
-            "term_gpa": 1.45,
+            "registered_hours": 13,
+            "earned_hours": 8,
+            "term_gpa": 1.58,
             "cumulative_gpa": 2.45,
-            "cumulative_earned_hours": 52,
+            "cumulative_earned_hours": 54,
             "academic_standing": "منتظم"
           }
         },

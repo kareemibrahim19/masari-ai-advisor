@@ -486,6 +486,39 @@
    "total": 71
   },
   {
+   "student_id": "897948891",
+   "course_code": "UNR 261",
+   "academic_year": "2025-2026",
+   "term": "spring",
+   "attempt": 1,
+   "instructor_id": "i23",
+   "section": "1",
+   "grade": "B-",
+   "total": 78
+  },
+  {
+   "student_id": "897948891",
+   "course_code": "ENG 312",
+   "academic_year": "2025-2026",
+   "term": "spring",
+   "attempt": 1,
+   "instructor_id": "i25",
+   "section": "1",
+   "grade": "C",
+   "total": 72
+  },
+  {
+   "student_id": "897948891",
+   "course_code": "CSE 352",
+   "academic_year": "2025-2026",
+   "term": "spring",
+   "attempt": 1,
+   "instructor_id": "i13",
+   "section": "1",
+   "grade": "C+",
+   "total": 75
+  },
+  {
    "student_id": "839263318",
    "course_code": "BAS 011",
    "academic_year": "2022-2023",
@@ -1884,14 +1917,25 @@
   },
   {
    "student_id": "824548805",
+   "course_code": "ECE 321",
+   "academic_year": "2025-2026",
+   "term": "spring",
+   "attempt": 1,
+   "instructor_id": "i1",
+   "section": "1",
+   "grade": "B-",
+   "total": 76
+  },
+  {
+   "student_id": "824548805",
    "course_code": "BAS 216",
    "academic_year": "2025-2026",
    "term": "summer",
    "attempt": 2,
    "instructor_id": "i20",
    "section": "1",
-   "grade": "B",
-   "total": 80
+   "grade": "B-",
+   "total": 79
   }
  ]
 }

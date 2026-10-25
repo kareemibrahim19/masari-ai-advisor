@@ -170,7 +170,11 @@ def simulate(p: dict, rng: random.Random) -> tuple[list[dict], dict]:
             pick = [code for code, s in TRAINING_SUMMER_AFTER.items() if s == sem and not passed(code) and eligible(code)]
             if p.get("summer_retakes"):
                 retakes = [c for c in best if not passed(c) and COURSES[c]["type"] != "project" and eligible(c)]
-                pick += retakes[:RULES["summer"]["max_courses"]]
+                room = RULES["summer"]["max_credits"]  # summer limit in hours (team decision 2026-10-12)
+                for c in retakes:
+                    if COURSES[c]["credits"] <= room:
+                        pick.append(c)
+                        room -= COURSES[c]["credits"]
             if not pick:
                 continue
         else:
@@ -195,6 +199,24 @@ def simulate(p: dict, rng: random.Random) -> tuple[list[dict], dict]:
                 if load + c["credits"] <= limit:
                     pick.append(c["code"])
                     load += c["credits"]
+            # Under the 12-hour minimum (article 13), e.g. after failing prerequisites: any course of this term whose
+            # prerequisites are done, from a later semester too, then an elective, instead of a nearly empty term.
+            if load < RULES["min_credits_main_semester"]:
+                later = sorted((c for c in COURSES.values()
+                                if c["type"] == "mandatory" and c["planned_semester"] and c["planned_semester"] > sem
+                                and c["planned_semester"] % 2 == parity and not passed(c["code"]) and eligible(c["code"])),
+                               key=lambda c: (c["planned_semester"], c["code"]))
+                later += sorted((COURSES[code] for pl in PROGRAM["elective_pools"] for code in pl["courses"]
+                                 if code not in electives_taken and not passed(code) and eligible(code)),
+                                key=lambda c: c["code"])
+                for c in later:
+                    if load >= RULES["min_credits_main_semester"]:
+                        break
+                    if c["code"] not in pick and load + c["credits"] <= limit:
+                        pick.append(c["code"])
+                        load += c["credits"]
+                        if c["type"] == "elective":
+                            electives_taken.add(c["code"])
             if not pick:
                 continue
 
