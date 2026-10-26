@@ -87,6 +87,7 @@ const dict = {
   openFullSize: { ar: "افتح الصورة بالحجم الكامل", en: "Open full size" },
   toggleTheme: { ar: "تبديل الوضع الليلي", en: "Toggle dark mode" },
   colorTheme: { ar: "اختيار ألوان الموقع", en: "Choose colour theme" },
+  communityTitle: { ar: "انضم لمجتمع البرنامج على واتساب", en: "Join the program's WhatsApp community" },
   openMenu: { ar: "فتح القائمة", en: "Open menu" },
 
   aiExplanation: { ar: "شرح بالذكاء الاصطناعي", en: "AI explanation" },

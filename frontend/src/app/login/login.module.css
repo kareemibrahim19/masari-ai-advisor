@@ -13,6 +13,11 @@
 }
 .tool:hover { border-color: var(--input); background: var(--muted); }
 .toolIcon { padding: 0; }
+/* The program's WhatsApp community: a quiet link beside the tools, no box until hovered. */
+.community { color: var(--muted-foreground); text-decoration: none; border-color: transparent; background: transparent; }
+.community:hover { color: var(--foreground); }
+.community:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 1px; }
+.whatsapp { color: #25d366; }
 .icon { width: 16px; height: 16px; flex-shrink: 0; }
 
 .main {
@@ -160,6 +165,8 @@
 /* Phones: the path goes small above the card, so it is still in view while typing. */
 @media (max-width: 719px) {
   .bar { padding: 12px 16px; }
+  .community { padding: 0; }
+  .communityText { display: none; }
   .main { flex-direction: column; flex-wrap: nowrap; justify-content: flex-start; gap: 12px; padding: 0 16px 20px; }
   .stage { flex: none; width: 100%; }
   .stageBox { width: min(56vw, 210px); }
