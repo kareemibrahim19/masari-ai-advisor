@@ -328,6 +328,17 @@ check("eligibility mentions the project allowance", any("سماحية المشا
 for sid in ("t93", "t92", "t91", "t96", "t112", "t111", "t124", "t123"):
     del d.students()[sid]
 
+# room_location: the rooms of the website's campus map, written the way students write them
+for q, want, where in (("308", "H308", "مبنى البرامج، الدور الثاني"), ("قاعة 308", "H308", None), ("٣١٥", "H315", None),
+                       ("2012", "B2012", "مبنى عام، الدور الأرضي (بلوك 2)"), ("Hall 13", "Hall 13", None),
+                       ("هول 13", "Hall 13", None), ("23a", "23A", None), ("ICDL Lab 1", "B6314", None)):
+    r = call_tool("room_location", {"room": q})
+    check(f"room {q} -> {want}", r.get("room") == want and (where is None or r["where_ar"] == where), r)
+r = call_tool("room_location", {"room": "معمل الهوائيات"})
+check("lab by part of its name", r.get("name_ar") == "معمل الهوائيات والذكاء الاصطناعي" and r["action"]["type"] == "campus_map", r)
+check("room link opens the map", call_tool("room_location", {"room": "308"})["map_link"] == "/map?room=H308")
+check("unknown room", call_tool("room_location", {"room": "999"})["found"] is False)
+
 # registry: every tool callable, session student overrides the model's
 check("tool names unique", len({t["name"] for t in TOOLS}) == len(TOOLS))
 check("student id injected", call_tool("academic_level", {"student_id": "wrong"}, EXC)["found"])

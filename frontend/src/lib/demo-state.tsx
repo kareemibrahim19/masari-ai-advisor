@@ -32,16 +32,20 @@ export type ChatAction =
   | { type: "set_selection"; courses: string[] }
   // A case only a real academic advisor can settle: the email the student can send them (shown as a button).
   | { type: "advisor_email"; to: string; subject: string; body: string }
+  // "Where is room 308?": the room to open on the campus map (shown as a button).
+  | { type: "campus_map"; room: string; label: string }
 
 /** A document the RAG service searched to write its answer. */
 export type RagSource = { id: string; title: string; source: string }
 
 /** The ready email to the student's academic advisor, attached to the answer that wrote it. */
 export type AdvisorEmail = { to: string; subject: string; body: string }
+/** A room the answer is about, to open on the campus map: `room` goes in the link, `label` on the button. */
+export type MapRoom = { room: string; label: string }
 
 export type ChatMessage =
   | { id: string; role: "user"; text: string | L }
-  | { id: string; role: "assistant"; kind: "ai"; text: string; sources: RagSource[]; advisorEmail?: AdvisorEmail }
+  | { id: string; role: "assistant"; kind: "ai"; text: string; sources: RagSource[]; advisorEmail?: AdvisorEmail; mapRoom?: MapRoom }
   | { id: string; role: "assistant"; kind: "error"; detail: string }
 
 export { MASARI_API_URL }
@@ -221,9 +225,9 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
           if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`)
           if (!controller.signal.aborted && Array.isArray(data.actions)) applyActions(data.actions as ChatAction[])
           // The email comes from the tool's result, not the model's text, so the button always has all of it.
-          const email = Array.isArray(data.actions)
-            ? (data.actions as ChatAction[]).find((a) => a.type === "advisor_email")
-            : undefined
+          const actions: ChatAction[] = Array.isArray(data.actions) ? data.actions : []
+          const email = actions.find((a) => a.type === "advisor_email")
+          const map = actions.find((a) => a.type === "campus_map")
           reply({
             id: crypto.randomUUID(),
             role: "assistant",
@@ -231,6 +235,7 @@ export function DemoStateProvider({ children }: { children: React.ReactNode }) {
             text: data.answer ?? "",
             sources: data.sources ?? [],
             ...(email ? { advisorEmail: { to: email.to, subject: email.subject, body: email.body } } : {}),
+            ...(map ? { mapRoom: { room: map.room, label: map.label } } : {}),
           })
         })
         .catch((e: Error) => {

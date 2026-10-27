@@ -1,15 +1,16 @@
 "use client"
 
 import * as React from "react"
-import { Check, Copy, ExternalLink, History, Loader2, Mic, Plus, SendHorizontal, Square, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Check, Copy, ExternalLink, History, Loader2, Map as MapIcon, Mic, Plus, SendHorizontal, Square, Trash2 } from "lucide-react"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 import { AppIcon } from "@/components/masari/brand"
+import { campusMapHref } from "@/components/masari/campus-map"
 import { Bot, type BotElement, type BotMood } from "@/components/masari/bot"
 import { AiBadge } from "@/components/masari/trust"
 import { chatSuggestions } from "@/lib/demo-content"
-import { MODEL_BUSY, RATE_LIMITED, useDemoState, type AdvisorEmail, type ChatMessage } from "@/lib/demo-state"
+import { MODEL_BUSY, RATE_LIMITED, useDemoState, type AdvisorEmail, type ChatMessage, type MapRoom } from "@/lib/demo-state"
 import { useI18n } from "@/lib/i18n"
 import { useStudentView } from "@/lib/student-context"
 import { useVoiceInput } from "@/lib/use-voice-input"
@@ -350,7 +351,7 @@ type Typing = { onTick: () => void; onDone: () => void }
 
 function AssistantMessage({ message, typing }: { message: Extract<ChatMessage, { role: "assistant" }>; typing?: Typing }) {
   if (message.kind === "error") return <ErrorReply detail={message.detail} />
-  return <AiReply text={message.text} advisorEmail={message.advisorEmail} typing={typing} />
+  return <AiReply text={message.text} advisorEmail={message.advisorEmail} mapRoom={message.mapRoom} typing={typing} />
 }
 
 /** How long a fresh answer takes to type itself out: quick for short ones, never more than 6 s. */
@@ -387,7 +388,7 @@ function TypedText({ text, onTick, onDone }: { text: string } & Typing) {
 }
 
 /** An answer from the Masari AI service (RAG over the regulations + the rule tools + Gemini). */
-function AiReply({ text, advisorEmail, typing }: { text: string; advisorEmail?: AdvisorEmail; typing?: Typing }) {
+function AiReply({ text, advisorEmail, mapRoom, typing }: { text: string; advisorEmail?: AdvisorEmail; mapRoom?: MapRoom; typing?: Typing }) {
   // The advisor email comes once the text has finished typing.
   const [typed, setTyped] = React.useState(!typing)
   const onDone = typing?.onDone
@@ -401,7 +402,19 @@ function AiReply({ text, advisorEmail, typing }: { text: string; advisorEmail?: 
         {typing && !typed ? <TypedText text={text} onTick={typing.onTick} onDone={finish} /> : <SimpleMarkdown text={text} />}
       </div>
       {typed && advisorEmail && <AdvisorEmailActions email={advisorEmail} />}
+      {typed && mapRoom && <MapRoomLink room={mapRoom} />}
     </AssistantShell>
+  )
+}
+
+/** Under an answer about where a room is: open the campus map on it, in its own tab. */
+function MapRoomLink({ room }: { room: MapRoom }) {
+  const { t } = useI18n()
+  return (
+    <a href={campusMapHref(room.room)} target="_blank" rel="noopener" className={cn(buttonVariants({ variant: "outline" }), "mt-3 h-10 gap-2")}>
+      <MapIcon className="size-4" aria-hidden />
+      {t("chatOpenOnMap")} <bdi dir="ltr">{room.label}</bdi>
+    </a>
   )
 }
 

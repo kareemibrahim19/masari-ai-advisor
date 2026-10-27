@@ -7,6 +7,7 @@ filled in automatically, so the model never has to guess it.
 from . import advisor
 from . import instructors as ins
 from . import planner
+from . import rooms
 from . import rules
 
 _STUDENT = {"student_id": {"type": "string", "description": "رقم الطالب (بيتملّى تلقائيًا من الجلسة)."}}
@@ -96,6 +97,12 @@ TOOLS += [
         "target_years": {"type": "number", "enum": [4, 4.5, 5], "description": "الهدف بالسنين لو الطالب ذكره. اختياري."},
         "allow_summer": {"type": "boolean", "description": "الطالب يقدر يحضر صيفي؟ اختياري (الافتراضي: اختياره في صفحة الخطة)."}},
        ["student_id"], planner.graduation_plan, True),
+    # ---- where a room is (the same rooms as the website's campus map)
+    _t("room_location", "مكان قاعة أو مدرج أو معمل في الكلية: في مبنى عام ولا مبنى البرامج، وفي أنهي دور، ولينك يفتحه على خريطة الكلية "
+       "في الموقع (بيظهر للطالب كزرار تحت الرد). نادِها لما الطالب يسأل فين قاعة أو معمل، زي: فين 308؟ قاعة B2012 فين؟ "
+       "أروح معمل الهوائيات إزاي؟",
+       {"room": {"type": "string", "description": "رقم القاعة زي ما الطالب كتبه (308، H308، 2012، B2012، 23A، Hall 13) أو اسم المعمل."}},
+       ["room"], rooms.room_location),
 ]
 
 TOOLS += [

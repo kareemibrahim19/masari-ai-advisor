@@ -7,6 +7,7 @@ import { CalendarClock, CalendarRange, Languages, LayoutDashboard, Library, LogO
 import { Button } from "@/components/ui/button"
 import { GoodbyeSplash, useSplashDone, WelcomeSplash } from "@/components/masari/welcome-bot"
 import { CalendarButton } from "@/components/masari/calendar-sheet"
+import { CampusMapButton } from "@/components/masari/campus-map"
 import { DeadlinePopup } from "@/components/masari/deadline-popup"
 import { ThemePicker } from "@/components/masari/theme-picker"
 import { Lockup } from "@/components/masari/brand"
@@ -236,14 +237,15 @@ function StudentChip() {
 }
 
 /**
- * Frame around every page, and the login gate: /login and /activate (first sign-in) render on their own;
- * every other page needs a signed-in student and sends visitors without one to /login.
+ * Frame around every page, and the login gate: /login, /activate (first sign-in) and /map (the campus map, in its
+ * own tab, with no student data) render on their own; every other page needs a signed-in student and sends visitors
+ * without one to /login.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const { ready, view } = useStudent()
-  const isLogin = pathname === "/login" || pathname === "/activate"
+  const isLogin = pathname === "/login" || pathname === "/activate" || pathname === "/map"
   // Right after signing in, the hello screen comes on its own: the app (and its entrance animations) only mounts
   // once Masari has said hello and gone.
   const helloDone = useSplashDone()
@@ -320,6 +322,7 @@ function Shell({ children }: { children: React.ReactNode }) {
               <span className="sm:hidden lg:inline xl:hidden">{lang === "ar" ? "EN" : "ع"}</span>
             </Button>
             <CalendarButton />
+            <CampusMapButton />
             <ThemePicker />
             <Button variant="ghost" size="icon-lg" className="size-10" onClick={toggle} aria-label={t("toggleTheme")}>
               {dark ? <Sun className="size-[18px]" aria-hidden /> : <Moon className="size-[18px]" aria-hidden />}

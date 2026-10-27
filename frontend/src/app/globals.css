@@ -462,6 +462,12 @@ html[data-palette="green"].dark {
     stroke-dashoffset: 0;
   }
 }
+/* Campus map: dots marching along the walking route (one dash period per second). */
+@keyframes masari-map-flow {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
 /* Split-flap change (airport board): the old word folds away, the new one folds in. */
 @keyframes masari-flip-out {
   from {

@@ -2,8 +2,8 @@
  * The student's weekly timetable for the current term: SIMULATED until the faculty publishes its timetable in a
  * form we can read. It is built from the courses the student is registered in this term, in the shape of the
  * faculty's timetable (Table_1st_term_26-27): Saturday to Thursday, six periods a day, a lecture for the whole
- * group and a section (tutorial or lab) per section, and rest days on which the level has no classes. Which day and period each class lands on, and the rooms, are made up (the same student
- * always gets the same timetable). The period times are the faculty's (confirmed by the team, 2026-10-17).
+ * group and a section (tutorial or lab) per section, and rest days on which the level has no classes. Which day and period each class lands on, and which room it gets, are made up (the same
+ * student always gets the same timetable); the rooms themselves are real ones from the campus map. The period times are the faculty's (confirmed by the team, 2026-10-17).
  */
 import type { L } from "@/lib/i18n"
 import type { StudentFileEntry } from "@/lib/data/types"
@@ -48,18 +48,22 @@ export type Timetable = {
   sessions: Session[]
 }
 
-// ------------------------------------------------------------------------------------------------ rooms (from the PDF)
+// ------------------------------------------------------------------------------------------------ rooms (on the campus map)
 
+// Real rooms from lib/campus-map: halls by number, labs by their Arabic name (the map finds both).
+// Mostly the Programs building, where AIE is taught, plus two lecture halls in "عام".
 const room = (r: string): L => ({ ar: r, en: r })
-const HALLS = ["308", "315", "3013", "2012", "H408"].map(room)
+const HALLS = ["H308", "H315", "H408", "H412", "H213", "H214", "H505", "Hall 13", "B2012", "B3013"].map(room)
 const LABS: Record<"computer" | "comms", L[]> = {
   computer: [
-    { ar: "معمل شبكات الحاسب", en: "Computer networks lab" },
-    { ar: "معمل الحاسب", en: "Computer lab" },
+    { ar: "معمل الهوائيات والذكاء الاصطناعي", en: "Antennas & AI lab" },
+    { ar: "معمل حاسبات A", en: "Computer lab A" },
+    { ar: "ICDL Lab 1", en: "ICDL Lab 1" },
   ],
   comms: [
-    { ar: "معمل الاتصالات الرقمية", en: "Digital communications lab" },
     { ar: "معمل الاتصالات", en: "Communications lab" },
+    { ar: "معمل الموجات", en: "Microwave lab" },
+    { ar: "معمل الإلكترونيات الرقمية", en: "Digital electronics lab" },
   ],
 }
 

@@ -7,7 +7,7 @@
  * the table scrolls sideways inside its card while the day column stays put.
  */
 import * as React from "react"
-import { CalendarOff, FlaskConical, MapPin, PencilRuler, Presentation } from "lucide-react"
+import { CalendarOff, FlaskConical, Map as MapIcon, MapPin, PencilRuler, Presentation } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Code, PageHeader } from "@/components/masari/bits"
 import { UnregisteredCourses } from "@/components/masari/unregistered-courses"
@@ -57,6 +57,11 @@ export default function SchedulePage() {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-5 p-4 md:p-6">
       <PageHeader title={t("ttTitle")} subtitle={`${tr(student.level)} · ${t("ttSection")} ${tt.section}`} />
+      {/* Where the rooms are: the campus map in the header (one place for it, not a link on every card). */}
+      <p className="flex items-start gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+        <MapIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
+        {t("ttMapHint")}
+      </p>
 
       {registrationOpen !== null && phase !== "gone" && <UnregisteredCourses view={view} seats={seats} open={registrationOpen} />}
 
