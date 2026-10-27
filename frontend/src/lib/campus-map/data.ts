@@ -246,9 +246,9 @@ for (let b = 1; b <= 6; b++) {
 entrances.push(
   { id: "E2", space: "gen", f: 0, name: l("المدخل الرئيسي لمبنى عام (بين بلوك 3 و 4)", "the main entrance (between Blocks 3 and 4)"), short: l("المدخل الرئيسي", "Main entrance"), at: [22, 870], label: [-16, 851] },
   { id: "E1", space: "gen", f: 0, name: l("مدخل المبنى الإداري", "the administration entrance"), short: l("مدخل الإداري", "Admin entrance"), at: [22, 315], label: [-16, 296] },
-  { id: "E3", space: "gen", f: 0, name: l("المدخل الجنوبي (آخر الممر الرئيسي)", "the south entrance (end of the main corridor)"), short: l("المدخل الجنوبي", "South entrance"), at: [436, 1418], label: [436, 1441] },
+  { id: "E3", space: "gen", f: 0, name: l("المدخل الجنوبي جنب بلوك 6 (آخر الممر الرئيسي)", "the south entrance by Block 6 (end of the main corridor)"), short: l("المدخل الجنوبي", "South entrance"), at: [436, 1418], label: [436, 1441] },
   { id: "E4", space: "gen", f: 0, name: l("مدخل المعامل الشرقية", "the east labs entrance"), short: l("مدخل المعامل الشرقية", "East labs entrance"), at: [858, 1418], label: [858, 1441] },
-  { id: "E5", space: "gen", f: 0, name: l("مدخل بلوك 6", "the Block 6 entrance"), short: l("مدخل بلوك 6", "Block 6 entrance"), at: [22, 1288], label: [-16, 1269] },
+  { id: "E6", space: "gen", f: 0, name: l("الممر اللي بين الورش والمعامل الشرقية", "the passage between the workshops and the east labs"), short: l("ممر الورش", "Workshops passage"), at: [825, 332], label: [825, 360] },
 )
 
 // ================================================================================================ البرامج (Programs building)
@@ -364,7 +364,8 @@ risers.push(
 const C = "campus"
 outlines.push(
   { space: C, f: 0, x: 60, y: 60, w: 320, h: 550, label: l("مبنى عام", "General building"), lx: 220, ly: 50 },
-  { space: C, f: 0, x: 420, y: 40, w: 140, h: 560, label: l("الورش والمعامل الشرقية", "Workshops & east labs"), lx: 490, ly: 30 },
+  { space: C, f: 0, x: 420, y: 40, w: 62, h: 560, label: l("الورش", "Workshops"), lx: 436, ly: 30 },
+  { space: C, f: 0, x: 498, y: 40, w: 62, h: 560, label: l("المعامل الشرقية", "East labs"), lx: 556, ly: 30 },
   { space: C, f: 0, x: 700, y: 300, w: 240, h: 330, label: PROG, lx: 820, ly: 290 },
 )
 for (let b = 1; b <= 6; b++) {
@@ -372,25 +373,25 @@ for (let b = 1; b <= 6; b++) {
   labels.push({ space: C, f: 0, x: 220, y: 116 + (b - 1) * 86, t: l(`بلوك ${b}`, `Block ${b}`), size: 13 })
 }
 labels.push({ space: C, f: 0, x: 820, y: 470, t: l("البرامج", "Programs"), size: 16 })
-corr(C, 0, "c1", l("الممشى اللي تحت مبنى الورش", "the path below the workshops"), [[400, 615], [400, 665], [590, 665]], { width: 18 })
-corr(C, 0, "c2", l("الممشى اللي جنب الورش من ناحية الشرق", "the path along the east side of the workshops"), [[590, 665], [590, 440]], { width: 18 })
+// 1. the shortest, sometimes closed: from the north corridor of عام down the passage with the east labs on one side and
+//    the workshops on the other, out on the east side and down to the Programs gate
+corr(C, 0, "r1", l("الممر اللي بين الورش والمعامل الشرقية", "the passage between the workshops and the east labs"), [[490, 40], [490, 265], [575, 265], [575, 440], [590, 440]], { width: 16 })
+// 2. out of the south entrance by Block 6, round the south end of the workshops and the labs
+corr(C, 0, "r2", l("الطريق اللي تحت الورش والمعامل", "the road below the workshops and the labs"), [[400, 615], [400, 700], [606, 700], [606, 440]], { width: 18 })
 corr(C, 0, "c3", l("الطريق لبوابة البرامج", "the path to the Programs gate"), [[590, 440], [690, 440]], { width: 18 })
 corr(C, 0, "o1", l("الطريق الخارجي من بوابة عام الرئيسية", "the outer road from the main gate"), [[60, 345], [10, 345], [10, 735], [650, 735]], { width: 18 })
 corr(C, 0, "o2", l("الطريق اللي طالع لبوابة البرامج", "the road up to the Programs gate"), [[650, 735], [650, 440]], { width: 18 })
-corr(C, 0, "b6", l("الطريق اللي بيلف من عند بلوك 6", "the road round from Block 6"), [[60, 541], [35, 541], [35, 700], [620, 700], [620, 440]], { width: 18 })
 entrances.push(
-  { id: "C_gs", space: C, f: 0, name: l("المدخل الجنوبي لعام", "the south entrance of the general building"), short: l("المدخل الجنوبي", "South entrance"), at: [400, 600], label: [330, 645], hidden: true },
-  { id: "C_ge", space: C, f: 0, name: l("مدخل المعامل الشرقية", "the east labs entrance"), short: l("مدخل المعامل الشرقية", "East labs entrance"), at: [520, 610], label: [520, 640], hidden: true },
-  { id: "C_b6", space: C, f: 0, name: l("مدخل بلوك 6", "the Block 6 entrance"), short: l("مدخل بلوك 6", "Block 6 entrance"), at: [60, 541], label: [5, 520], hidden: true },
+  { id: "C_gs", space: C, f: 0, name: l("المدخل الجنوبي لعام", "the south entrance of the general building"), short: l("المدخل الجنوبي (بلوك 6)", "South entrance (Block 6)"), at: [400, 600], label: [330, 645], hidden: true },
+  { id: "C_ws", space: C, f: 0, name: l("الممر اللي بين الورش والمعامل الشرقية", "the passage between the workshops and the east labs"), short: l("ممر الورش", "Workshops passage"), at: [490, 40], label: [490, 62], hidden: true },
   { id: "C_main", space: C, f: 0, name: l("المدخل الرئيسي لعام", "the main entrance of the general building"), short: l("المدخل الرئيسي", "Main entrance"), at: [60, 345], label: [5, 325], hidden: true },
   { id: "C_pg", space: C, f: 0, name: l("بوابة البرامج", "the Programs gate"), short: l("بوابة البرامج", "Programs gate"), at: [700, 440], label: [640, 485], hidden: true },
 )
 
 export const portals: Portal[] = [
-  { a: "E5", b: "C_b6", w: 10, say: l("اخرج من مدخل بلوك 6", "Leave the general building through the Block 6 entrance"), sayBack: l("ادخل مبنى عام من مدخل بلوك 6", "Enter the general building through the Block 6 entrance"), way: { id: "block6", name: l("من مدخل بلوك 6", "Through the Block 6 entrance") } },
+  { a: "E6", b: "C_ws", w: 10, say: l("ادخل الممر اللي بين الورش والمعامل الشرقية", "Go into the passage between the workshops and the east labs"), sayBack: l("ادخل مبنى عام من الممر اللي بين الورش والمعامل الشرقية", "Enter the general building from the passage between the workshops and the east labs"), way: { id: "workshops", name: l("من الممر اللي بين الورش والمعامل (ساعات بيبقى مقفول)", "Through the workshops passage (sometimes closed)") } },
   { a: "E2", b: "C_main", w: 10, say: l("اخرج من المدخل الرئيسي لمبنى عام", "Leave the general building through the main entrance"), sayBack: l("ادخل مبنى عام من المدخل الرئيسي", "Enter the general building through the main entrance"), way: { id: "main", name: l("من المدخل الرئيسي لعام (الطريق الخارجي)", "Through the main entrance (the outer road)") } },
-  { a: "E3", b: "C_gs", w: 10, say: l("اخرج من المدخل الجنوبي لمبنى عام", "Leave the general building through the south entrance"), sayBack: l("ادخل مبنى عام من المدخل الجنوبي", "Enter the general building through the south entrance"), way: { id: "workshops", name: l("من جنب الورش", "By the workshops") } },
-  { a: "E4", b: "C_ge", w: 10, say: l("اخرج من مدخل المعامل الشرقية", "Leave through the east labs entrance"), sayBack: l("ادخل من مدخل المعامل الشرقية", "Enter through the east labs entrance"), way: { id: "workshops", name: l("من جنب الورش", "By the workshops") } },
+  { a: "E3", b: "C_gs", w: 10, say: l("اخرج من المدخل الجنوبي لمبنى عام", "Leave the general building through the south entrance"), sayBack: l("ادخل مبنى عام من المدخل الجنوبي", "Enter the general building through the south entrance"), way: { id: "block6", name: l("من المدخل الجنوبي جنب بلوك 6", "Through the south entrance by Block 6") } },
   { a: "C_pg", b: "PG", w: 10, say: l("ادخل مبنى البرامج من بوابة الدخول", "Enter the Programs building through its gate"), sayBack: l("اخرج من بوابة الدخول بتاعة مبنى البرامج", "Leave the Programs building through its gate") },
 ]
 

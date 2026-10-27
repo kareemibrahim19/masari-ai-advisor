@@ -129,8 +129,8 @@ const dict = {
   mapPickHint: { ar: "دوس على أي أوضة في الخريطة عشان تعرف اسمها ورقمها.", en: "Tap any room on the map to see its name and number." },
   chatOpenOnMap: { ar: "افتح على الخريطة", en: "Open on the map" },
   ttMapHint: {
-    ar: "عايز تعرف مكان أي قاعة أو معمل؟ افتح خريطة الكلية من أيقونة الخريطة اللي فوق جنب الكاليندر.",
-    en: "Looking for a room or lab? Open the campus map from the map icon at the top, next to the calendar.",
+    ar: "عايز تعرف مكان أي قاعة أو معمل؟ بص على خريطة الكلية اللي فوق.",
+    en: "Looking for a room or lab? Check the campus map at the top.",
   },
   toggleTheme: { ar: "تبديل الوضع الليلي", en: "Toggle dark mode" },
   colorTheme: { ar: "اختيار ألوان الموقع", en: "Choose colour theme" },
