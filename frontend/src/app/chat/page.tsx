@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { Check, Copy, ExternalLink, History, Loader2, Map as MapIcon, Mic, Plus, SendHorizontal, Square, Trash2 } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -407,14 +408,14 @@ function AiReply({ text, advisorEmail, mapRoom, typing }: { text: string; adviso
   )
 }
 
-/** Under an answer about where a room is: open the campus map on it, in its own tab. */
+/** Under an answer about where a room is: open the campus map on it, in the same tab (the chat stays in the app's state). */
 function MapRoomLink({ room }: { room: MapRoom }) {
   const { t } = useI18n()
   return (
-    <a href={campusMapHref(room.room)} target="_blank" rel="noopener" className={cn(buttonVariants({ variant: "outline" }), "mt-3 h-10 gap-2")}>
+    <Link href={campusMapHref(room.room)} className={cn(buttonVariants({ variant: "outline" }), "mt-3 h-10 gap-2")}>
       <MapIcon className="size-4" aria-hidden />
       {t("chatOpenOnMap")} <bdi dir="ltr">{room.label}</bdi>
-    </a>
+    </Link>
   )
 }
 

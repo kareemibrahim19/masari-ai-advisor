@@ -1,11 +1,12 @@
 "use client"
 
 /**
- * Campus map: a small header button (next to the calendar) opens the map in its own tab (app/map). There the student
+ * Campus map: a small header button (next to the calendar) opens the map page (app/map) in the same tab. There the student
  * picks where they are and where they're going, and gets the walk drawn on the floor plans with turn-by-turn
  * directions, across both buildings when needed. The chat links a room it was asked about (?room=308).
  */
 import * as React from "react"
+import Link from "next/link"
 import { ArrowUpDown, Map as MapIcon, Minus, Plus } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,16 +21,14 @@ export const campusMapHref = (room?: string) => (room ? `/map?room=${encodeURICo
 export function CampusMapButton() {
   const { t } = useI18n()
   return (
-    <a
+    <Link
       href={campusMapHref()}
-      target="_blank"
-      rel="noopener"
       className={cn(buttonVariants({ variant: "ghost", size: "icon-lg" }), "size-10")}
       aria-label={t("mapOpen")}
       title={t("mapOpen")}
     >
       <MapIcon className="size-[18px]" aria-hidden />
-    </a>
+    </Link>
   )
 }
 

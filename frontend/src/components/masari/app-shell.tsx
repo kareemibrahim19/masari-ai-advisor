@@ -237,24 +237,25 @@ function StudentChip() {
 }
 
 /**
- * Frame around every page, and the login gate: /login, /activate (first sign-in) and /map (the campus map, in its
- * own tab, with no student data) render on their own; every other page needs a signed-in student and sends visitors
- * without one to /login.
+ * Frame around every page, and the login gate: /login and /activate (first sign-in) render on their own; every other
+ * page needs a signed-in student and sends visitors without one to /login. /map (the campus map, no student data)
+ * opens in the same tab inside the app for a signed-in student, and on its own for anyone else.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const { ready, view } = useStudent()
-  const isLogin = pathname === "/login" || pathname === "/activate" || pathname === "/map"
+  const isLogin = pathname === "/login" || pathname === "/activate"
+  const isMap = pathname === "/map"
   // Right after signing in, the hello screen comes on its own: the app (and its entrance animations) only mounts
   // once Masari has said hello and gone.
   const helloDone = useSplashDone()
 
   React.useEffect(() => {
-    if (ready && !view && !isLogin) router.replace("/login")
-  }, [ready, view, isLogin, router])
+    if (ready && !view && !isLogin && !isMap) router.replace("/login")
+  }, [ready, view, isLogin, isMap, router])
 
-  if (isLogin) return <>{children}</>
+  if (isLogin || (isMap && ready && !view)) return <>{children}</>
   if (!ready || !view) return null
   if (!helloDone) return <WelcomeSplash />
   return (
