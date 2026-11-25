@@ -22,6 +22,7 @@ from db.models import (  # noqa: E402
     AcademicStatus, Advisor, Base, Course, CoursePrerequisite, CourseResult, ElectivePool, ElectivePoolCourse,
     ElectivePoolSlot, ElectiveSlot, Guardian, Instructor, InstructorCourseYear, Meta, Offering, PreviousQualification, Program,
     SectionSeats, Student, StudentTerm)
+from db.source import with_real_students  # noqa: E402
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
@@ -32,7 +33,8 @@ COURSE_COLUMNS = {"code", "name_ar", "name_en", "credits", "category", "type", "
 
 
 def load_json(name: str, data_dir: Path = DATA_DIR) -> dict:
-    return json.loads((data_dir / name).read_text(encoding="utf-8"))
+    """One ai/data file; the people files come with the real students of real_students.json added."""
+    return with_real_students(name, json.loads((data_dir / name).read_text(encoding="utf-8")), data_dir)
 
 
 def seed(session: Session, data_dir: Path = DATA_DIR) -> dict[str, int]:

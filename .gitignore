@@ -27,3 +27,7 @@ ai/chatbot/dist/
 
 # Stress test raw results (5 MB, same seed gives the same file): ai/scripts/stress_plan.py
 ai/simulation/plan_stress.json
+
+# Real students (the team's MyU records): kept only on the machine that seeds the database, never on GitHub.
+# Add one with ai/scripts/add_real_student.py, then load them with ai/db/seed.py --reset.
+ai/data/real_students.json

@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session  # noqa: E402
 from db import export  # noqa: E402
 from db.database import make_engine  # noqa: E402
 from db.models import Base, CourseResult, Student, StudentTerm  # noqa: E402
-from db.seed import DATA_DIR, create_and_seed  # noqa: E402
+from db.seed import DATA_DIR, create_and_seed, load_json  # noqa: E402
 
 failures = []
 
@@ -27,7 +27,8 @@ def check(name, cond, got=None):
 
 
 def load(name):
-    return json.loads((DATA_DIR / name).read_text(encoding="utf-8"))
+    """A data file as the service sees it: the people files with the real students of real_students.json added."""
+    return load_json(name)
 
 
 def first_diff(a, b, path="$"):

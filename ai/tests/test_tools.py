@@ -60,7 +60,9 @@ check("new student no warning", not call_tool("academic_standing", {}, NEW)["on_
 for name, sid in BY.items():
     stored = d.get_student(sid)["academic_status"]["cumulative_gpa"]
     got = call_tool("gpa_calculator", {}, sid)["cumulative_gpa"]
-    check(f"gpa matches stored ({name})", got == stored, (got, stored))
+    # A real student's GPA is MyU's, which cuts to two decimals (3.9264 -> 3.92) where Masari rounds (3.93).
+    ok = got == stored or (name is None and 0 < round(got - stored, 2) <= 0.01)
+    check(f"gpa matches stored ({name})", ok, (got, stored))
 
 # retake / improvement
 check("failed ECE 332 must retake cap B+", (lambda r: r["status"] == "must_retake" and r["max_grade_after_retake"] == "B+")(

@@ -25,8 +25,27 @@ FROM_DB = ("students.json", "advisors.json", "instructors.json", "student_instru
 log = logging.getLogger("masari.data")
 
 
+REAL_FILE = "real_students.json"  # the team's own records (ai/scripts/add_real_student.py), next to the mock ones
+
+
+def with_real_students(name: str, data: dict, data_dir: Path = DATA_DIR) -> dict:
+    """data from one of the people files, with the real students of real_students.json added: their records to
+    students.json, their advisor to advisors.json and who taught them to student_instructor_history.json."""
+    path = data_dir / REAL_FILE
+    if name not in ("students.json", "advisors.json", "student_instructor_history.json") or not path.exists():
+        return data
+    real = json.loads(path.read_text(encoding="utf-8"))
+    if name == "students.json":
+        return {**data, "students": data["students"] + real["students"]}
+    if name == "student_instructor_history.json":
+        return {**data, "rows": data["rows"] + real["history"]}
+    return {**data, "advisors": [{**a, "students": a["students"] + [sid for sid, adv in real["advisors"].items()
+                                                                     if adv == a["advisor_id"]]}
+                                 for a in data["advisors"]]}
+
+
 def _file(name: str) -> dict:
-    return json.loads((DATA_DIR / name).read_text(encoding="utf-8"))
+    return with_real_students(name, json.loads((DATA_DIR / name).read_text(encoding="utf-8")))
 
 
 @lru_cache(maxsize=1)
