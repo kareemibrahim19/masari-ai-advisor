@@ -65,6 +65,8 @@ export const courses: Course[] = [
   c("CSE 042", "Intro to Computer Systems", "CSE", 2, 3),
   c("PDE 051", "Principles of Manufacturing Engineering", "PDE", 2, 3),
   c("UNR 021", "History of Engineering & Technology", "UNR", 2, 1),
+  // University requirement from MyU (not in the guide's tables): 0 hours, pass/fail, needed to graduate.
+  c("UNVS 101", "Community Issues", "UNR", 2, 0),
   // Level 1
   c("BAS 115", "Linear Algebra", "BAS", 3, 3, ["BAS 012"]),
   c("CSE 151", "Introduction to Artificial Intelligence", "CSE", 3, 3),
@@ -264,6 +266,7 @@ const namesAr: Record<string, string> = {
   "UNR 241": "مهارات الاتصال والعرض",
   "UNR 261": "آداب وأخلاقيات المهنة",
   "UNR 471": "التسويق",
+  "UNVS 101": "القضايا المجتمعية",
 }
 
 /** Course name in the UI language: Arabic name in Arabic, official English name in English. Codes never change. */

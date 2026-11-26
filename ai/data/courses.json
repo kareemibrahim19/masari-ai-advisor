@@ -278,6 +278,26 @@
       "name_en_source": "English edition"
     },
     {
+      "code": "UNVS 101",
+      "name_ar": "القضايا المجتمعية",
+      "credits": 0,
+      "category": "university",
+      "type": "mandatory",
+      "department": "UNR",
+      "weekly_load_hours": 0,
+      "assessment": null,
+      "level": 0,
+      "planned_semester": 2,
+      "prerequisites": [],
+      "min_level_required": null,
+      "graded": false,
+      "graduation_requirement": true,
+      "name_en": "Community Issues",
+      "name_en_source": "team",
+      "offered_ar": "بتتفتح في الترم التاني (الربيع) من أول سنة، وأحيانًا في الصيفي. صفر ساعات فمش بتأثر على حد الساعات، والطالب ممكن يأجلها بس لازم ياخدها قبل التخرج.",
+      "source": "MyU (تقدم الساعات): المستوى FreshMan، 0 ساعة، إجباري. مش في جداول دليل الطالب. متطلب جامعة للتخرج، نجاح/رسوب ومش بيدخل في المعدل. بتتفتح في الترم التاني من أول سنة، وأحيانًا في الصيفي (قرار الفريق 2026-11-26)."
+    },
+    {
       "code": "UNR 181",
       "name_ar": "القانون وحقوق الإنسان",
       "credits": 2,

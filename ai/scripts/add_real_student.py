@@ -71,9 +71,12 @@ def build(src: dict) -> tuple[dict, str, list[dict]]:
         reg = earned = hours = points = 0.0
         for code, total, grade, *rest in t["courses"]:
             c = courses[code]
-            row["courses"].append({"code": code, "name_ar": c["name_ar"], "name_en": c["name_en"],
-                                   "credits": c["credits"], "attempt": 1, "marks": rest[0] if rest else {},
-                                   "total": total, "grade": grade, "grade_ar": GRADE_AR[grade]})
+            entry = {"code": code, "name_ar": c["name_ar"], "name_en": c["name_en"], "credits": c["credits"],
+                     "attempt": 1, "marks": rest[0] if rest else {}, "total": total, "grade": grade,
+                     "grade_ar": GRADE_AR[grade]}
+            if total is None:  # not on the screenshots (a passed training): left out, as the export leaves it out
+                del entry["total"]
+            row["courses"].append(entry)
             reg += c["credits"]
             if grade not in ("F",):
                 earned += c["credits"]

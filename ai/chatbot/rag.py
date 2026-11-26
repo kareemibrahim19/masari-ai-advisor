@@ -112,6 +112,10 @@ def build_chunks() -> tuple[list[dict], dict]:
             lines.append(f"توزيع الدرجات: أعمال سنة {a.get('coursework')}، منتصف الترم {a.get('midterm')}، عملي {a.get('practical')}، نهائي {a.get('final')}")
         if c.get("graded") is False:
             lines.append("المقرر نجاح/رسوب ولا يدخل في المعدل.")
+        if c.get("graduation_requirement"):
+            lines.append("متطلب تخرج: لازم الطالب ينجح فيه قبل ما يتخرج.")
+        if c.get("offered_ar"):
+            lines.append(c["offered_ar"])
         chunks.append({"id": f"course-{c['code']}", "source": "course",
                        "title": f"{c['code']} {c['name_ar']}", "text": "\n".join(lines)})
 
