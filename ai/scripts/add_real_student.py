@@ -22,7 +22,9 @@ The input file:
   ]
 }
 The script checks every term against its MyU summary (hours and GPA recomputed from the grades), so a typo in a
-grade stops it instead of landing in the data.
+grade stops it instead of landing in the data. A term without "summary" (screenshots that cut it off) gets the one
+computed from the grades, with the academic warning of article 25. A course taken again counts as attempt 2, and its
+latest grade replaces the earlier one in the cumulative GPA.
 """
 
 import json
@@ -36,6 +38,7 @@ OUT = DATA / "real_students.json"
 TERM_AR = {"fall": "الأول", "spring": "الثاني", "summer": "الصيفي"}
 GRADE_AR = {"A+": "أ+", "A": "أ", "A-": "أ-", "B+": "ب+", "B": "ب", "B-": "ب-", "C+": "ج+", "C": "ج", "C-": "ج-",
             "D+": "د+", "D": "د", "F": "هـ", "P": "ناجح"}
+FAILING = ("F", "FP", "DN")  # not a pass (same as tools._data.FAILING)
 NOTE = ("Real students: members of the Masari team who agreed to share their MyU records for testing. Only the name, "
         "student code, grades and term summaries are real; instructors and advisors come from the mock data. "
         "Added with ai/scripts/add_real_student.py. ai/db/source.py and ai/db/seed.py load these next to students.json.")
@@ -60,8 +63,10 @@ def build(src: dict) -> tuple[dict, str, list[dict]]:
 
     terms, history, problems = [], [], []
     passed: dict[str, dict] = {}
-    cum_hours = cum_points = cum_earned = 0.0
-    main_done = 0
+    latest: dict[str, str] = {}  # code -> grade of the latest attempt (a retake replaces the earlier grade)
+    attempts: dict[str, int] = {}
+    main_done = warned = 0
+    standing = "منتظم"
     for t in src["terms"]:
         status = t.get("status", "published")
         row = {"academic_year": t["academic_year"], "term": t["term"], "term_ar": TERM_AR[t["term"]], "status": status,
@@ -70,21 +75,23 @@ def build(src: dict) -> tuple[dict, str, list[dict]]:
             for code in t["courses"]:
                 c = courses[code]
                 row["courses"].append({"code": code, "name_ar": c["name_ar"], "name_en": c["name_en"],
-                                       "credits": c["credits"], "attempt": 1})
+                                       "credits": c["credits"], "attempt": attempts.get(code, 0) + 1})
             terms.append(row)
             continue
 
         reg = earned = hours = points = 0.0
         for code, total, grade, *rest in t["courses"]:
             c = courses[code]
+            attempts[code] = attempts.get(code, 0) + 1
             entry = {"code": code, "name_ar": c["name_ar"], "name_en": c["name_en"], "credits": c["credits"],
-                     "attempt": 1, "marks": rest[0] if rest else {}, "total": total, "grade": grade,
+                     "attempt": attempts[code], "marks": rest[0] if rest else {}, "total": total, "grade": grade,
                      "grade_ar": GRADE_AR[grade]}
             if total is None:  # not on the screenshots (a passed training): left out, as the export leaves it out
                 del entry["total"]
             row["courses"].append(entry)
             reg += c["credits"]
-            if grade not in ("F",):
+            latest[code] = grade
+            if grade not in FAILING:
                 earned += c["credits"]
                 passed[code] = c
             if grade in gp and c.get("graded", True):
@@ -97,17 +104,26 @@ def build(src: dict) -> tuple[dict, str, list[dict]]:
                 sec = next((o["section"] for o in offerings if o["course_code"] == code and o["instructor_id"] == who),
                            next((o["section"] for o in offerings if o["course_code"] == code), "1"))
                 history.append({"student_id": sid, "course_code": code, "academic_year": t["academic_year"],
-                                "term": t["term"], "attempt": 1, "instructor_id": who, "section": sec,
+                                "term": t["term"], "attempt": attempts[code], "instructor_id": who, "section": sec,
                                 "grade": grade, "total": total})
-        cum_hours += hours
-        cum_points += points
-        cum_earned += earned
-        if t["term"] != "summer":
-            main_done += 1
-
-        s = t["summary"]
+        # Cumulative: the latest attempt of every course counts (article 15), so a passed retake replaces the F.
+        graded = [(courses[k]["credits"], g) for k, g in latest.items()
+                  if g in gp and courses[k].get("graded", True) and courses[k]["credits"]]
+        cum_hours = sum(h for h, _ in graded)
+        cum_points = sum(h * gp[g] for h, g in graded)
+        cum_earned = sum(courses[k]["credits"] for k, g in latest.items() if g not in FAILING)
         term_gpa = gpa2(points / hours) if hours else None
         cgpa = gpa2(cum_points / cum_hours) if cum_hours else None
+        if t["term"] != "summer":
+            main_done += 1
+            # Academic warning (article 25): cumulative under 2.00 from the end of the 2nd main semester on.
+            low = cgpa is not None and cgpa < rules["warning_gpa_threshold"] and                 main_done >= rules["warning_starts_after_main_semester"]
+            warned = warned + 1 if low else 0
+            standing = "إنذار أكاديمي" if low else "منتظم"
+
+        # MyU's summary when the screenshots show it (then every number is checked), else the one computed here.
+        s = t.get("summary") or {"registered_hours": reg, "earned_hours": earned, "term_gpa": term_gpa,
+                                 "cumulative_gpa": cgpa, "academic_standing": standing}
         label = f"{t['academic_year']} {t['term']}"
         for name, mine, theirs in (("registered hours", reg, s["registered_hours"]),
                                    ("earned hours", earned, s["earned_hours"]),
@@ -118,7 +134,7 @@ def build(src: dict) -> tuple[dict, str, list[dict]]:
         row["summary"] = {"registered_hours": int(reg), "earned_hours": int(earned), "term_gpa": s.get("term_gpa"),
                           "cumulative_gpa": s["cumulative_gpa"], "cumulative_earned_hours": int(cum_earned)}
         if t["term"] != "summer":  # MyU gives no standing for a summer term
-            row["summary"]["academic_standing"] = s.get("academic_standing", "منتظم")
+            row["summary"]["academic_standing"] = s.get("academic_standing", standing)
         terms.append(row)
 
     if problems:
@@ -144,7 +160,7 @@ def build(src: dict) -> tuple[dict, str, list[dict]]:
             "project_hours": by_type("project"),
             "trainings_passed": sorted(code for code, c in passed.items() if c["type"] == "training"),
             "cumulative_gpa": published[-1]["summary"]["cumulative_gpa"] if published else None,
-            "main_semesters_completed": main_done, "academic_standing": "منتظم", "consecutive_warning_semesters": 0,
+            "main_semesters_completed": main_done, "academic_standing": standing, "consecutive_warning_semesters": warned,
             "current_term": {"academic_year": (current or published[-1])["academic_year"],
                              "term_ar": (current or published[-1])["term_ar"],
                              "registered_hours": int(sum(c["credits"] for c in current["courses"])) if current else 0}},
