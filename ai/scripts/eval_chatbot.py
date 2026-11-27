@@ -166,9 +166,13 @@ def judge_avg(rows: list[dict], key: str) -> str:
 
 def report(rows: list[dict], started: str) -> str:
     ok = [r for r in rows if "error" not in r]
-    cats = ["regulation", "course", "student_tool", "out_of_scope", "multi_turn"]
     names = {"regulation": "Regulations (اللائحة)", "course": "Courses (المواد)", "student_tool": "Student data + tools",
-             "out_of_scope": "Out of scope / refusal", "multi_turn": "Multi-turn follow-ups"}
+             "out_of_scope": "Out of scope / refusal", "multi_turn": "Multi-turn follow-ups",
+             # test set 3: the human side (jokes, stress, cheating, loopholes, pushback, unclear, privacy)
+             "humor": "Jokes and teasing", "emotional": "Stress and frustration", "unethical": "Asked to cheat or lie",
+             "loophole": "Looking for loopholes", "pushback": "Student insists the bot is wrong",
+             "unclear": "Unclear or messy questions", "privacy": "Other students' data"}
+    cats = [c for c in names if any(r["category"] == c for r in ok)]
     lat = [r["latency_s"] for r in ok]
     models = {}
     for r in ok:

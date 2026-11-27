@@ -1,0 +1,336 @@
+[
+ {
+  "id": "T01",
+  "category": "regulation",
+  "lang": "ar",
+  "question": "سمعت إن الحد الأقصى 24 ساعة لو معدلي فوق 3.5، صح؟",
+  "student_id": null,
+  "reference": "لأ، الحد الأقصى 21 ساعة لمعدل 3.00 فأكثر، مادة 13 (سؤال فيه معلومة غلط مقصودة).",
+  "answer": "لأ، المعلومة دي غير صحيحة.\n\nالحد الأقصى للتسجيل للطالب اللي معدله التراكمي (GPA) من 3.0 فأكثر هو **21 ساعة معتمدة** فقط في الفصل الدراسي الرئيسي، وليس 24 ساعة (مادة 13).",
+  "model": "gemini-3.5-flash",
+  "latency_s": 13.4,
+  "search_query": "ما هو الحد الأقصى المسموح بتسجيله من الساعات الدراسية للطلبة الحاصلين على معدل تراكمي يفوق 3.5؟",
+  "sources": [
+   "aie-reg-25-ar",
+   "aie-reg-13-ar",
+   "aie-reg-30-ar",
+   "aie-reg-26-ar",
+   "aie-reg-8-ar",
+   "aie-reg-21-ar",
+   "aie-reg-15-ar",
+   "aie-reg-11-ar"
+  ],
+  "tools_used": [],
+  "retrieval_hit": true,
+  "tool_ok": null,
+  "facts_ok": true,
+  "no_wrong_claims": true,
+  "article_ok": true,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash"
+  }
+ },
+ {
+  "id": "T09",
+  "category": "regulation",
+  "lang": "ar",
+  "question": "إجمالي ساعات المواد الاختيارية في البرنامج كام؟",
+  "student_id": null,
+  "reference": "15 ساعة (5 مقررات × 3 ساعات).",
+  "answer": "إجمالي ساعات المواد الاختيارية في البرنامج هو 15 ساعة معتمدة.",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 8.3,
+  "search_query": "ما هو إجمالي عدد الساعات الدراسية المطلوبة للمواد الاختيارية ضمن الخطة الدراسية للبرنامج؟",
+  "sources": [
+   "program-overview",
+   "aie-reg-9-ar",
+   "aie-reg-18-ar",
+   "aie-reg-11-ar",
+   "electives-300",
+   "aie-reg-32-ar",
+   "aie-reg-15-ar",
+   "electives-400"
+  ],
+  "tools_used": [],
+  "retrieval_hit": true,
+  "tool_ok": null,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash"
+  }
+ },
+ {
+  "id": "T10",
+  "category": "regulation",
+  "lang": "ar",
+  "question": "كام مادة اختيارية من المستوى 400 لازم أختار؟",
+  "student_id": null,
+  "reference": "3 مقررات من المستوى 400 (الخانات E3 وE4 وE5)، واتنين من المستوى 300.",
+  "answer": "3 مواد اختيارية من المستوى 400.",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 1.7,
+  "search_query": "ما هو الحد الأدنى لعدد المقرر الدراسي الاختيارية من مستوى 400 المطلوبة لاتمام خطة دراسية تخصصية؟",
+  "sources": [
+   "electives-400",
+   "aie-reg-18-ar",
+   "course-ARI 481",
+   "course-ARI 482",
+   "course-CSE 423",
+   "course-UNR 471",
+   "electives-300",
+   "aie-reg-17-ar"
+  ],
+  "tools_used": [],
+  "retrieval_hit": true,
+  "tool_ok": null,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 3,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "The bot answered the correct number of level 400 courses but missed mentioning the level 300 courses required.",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "T11",
+  "category": "regulation",
+  "lang": "franco",
+  "question": "law ghebt aktar men 25% fe madda eh elly hy7sal?",
+  "student_id": null,
+  "reference": "يتحرم من دخول الامتحان (حرمان DN) والتقدير بيتحسب في المعدل، مادة 12. الرد بالعامية بالحروف العربية.",
+  "answer": "لو غيابك زاد عن 25% من غير عذر معتمد، هيتسجل لك تقدير محروم (DN) في المادة دي، والتقدير ده بيتحسب في المعدل الفصلي والتراكمي حسب (مادة 12).",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 8.3,
+  "search_query": "ما هي الأثر المترتب أكاديمياً وقانونياً على الطالب في حال تجاوز نسبة الغياب 25% في أي مقرر دراسي؟",
+  "sources": [
+   "aie-reg-25-ar",
+   "aie-reg-12-ar",
+   "aie-reg-15-ar",
+   "aie-reg-21-ar",
+   "aie-reg-23-ar",
+   "aie-reg-26-ar",
+   "aie-reg-25-en",
+   "aie-reg-12-en"
+  ],
+  "tools_used": [],
+  "retrieval_hit": true,
+  "tool_ok": null,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": true,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "T22",
+  "category": "student_tool",
+  "lang": "ar",
+  "question": "عايز أسجل 18 ساعة الترم ده، ينفع؟",
+  "student_id": "897948891",
+  "reference": "لأ، حده 14 ساعة لأنه تحت الإنذار (معدل 1.94)؛ ممكن يُعرض عليه التسجيل الورقي/المرشد حسب الحالة.",
+  "answer": "لأ، ما ينفعش؛ لأن معدلك التراكمي أقل من 2.00 وإنت تحت الإنذار الأكاديمي (معدلك 1.94)، فالحد الأقصى للتسجيل هو 14 ساعة معتمدة طبقاً للمادة [13].",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 15.7,
+  "search_query": "ما هي الشروط والضوابط الأكاديمية لتسجيل 18 ساعة دراسية في الفصل الدراسي الحالي؟",
+  "sources": [
+   "aie-reg-13-ar",
+   "aie-reg-18-ar",
+   "aie-reg-18-en",
+   "aie-reg-11-ar",
+   "aie-reg-19-ar",
+   "aie-reg-8-ar",
+   "aie-reg-15-ar",
+   "aie-reg-intro-ar"
+  ],
+  "tools_used": [
+   "credit_limit"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": true,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "T24",
+  "category": "student_tool",
+  "lang": "ar",
+  "question": "إحنا في الأسبوع 6، لسه ينفع أحذف مادة؟",
+  "student_id": "883941655",
+  "reference": "لأ، الحذف كان لحد الأسبوع 4؛ لسه يقدر ينسحب لحد الأسبوع 10 والمادة تتسجل W، مادة 15.",
+  "answer": "لأ، الحذف خلاص خلص في الأسبوع الرابع (مادة 15)، لكن لسه يقدر ينسحب لحد نهاية الأسبوع العاشر (مادة 15) وهتتسجل في السجل بتقدير \"منسحب (W)\" بشرط ميكونش عدّى نسبة الغياب وبموافقة المرشد الأكاديمي وبشرط الساعات مفضلش أقل من الحد الأدنى (12 ساعة) إلا بحالات التخرج أو موافقة المجلس (مادة 13).",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 3.6,
+  "search_query": "ما هي الأحكام واللوائح الجامعية المنظمة لحذف مادة دراسية خلال الأسبوع السادس من الفصل الدراسي؟",
+  "sources": [
+   "aie-reg-15-ar",
+   "aie-reg-30-ar",
+   "aie-reg-33-ar",
+   "aie-reg-12-ar",
+   "aie-reg-6-ar",
+   "aie-reg-25-ar",
+   "aie-reg-13-ar",
+   "aie-reg-21-ar"
+  ],
+  "tools_used": [
+   "drop_withdraw_info"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": true,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "T26",
+  "category": "student_tool",
+  "lang": "ar",
+  "question": "أنا في مستوى كام؟",
+  "student_id": "833603614",
+  "reference": "المستوى 0 (Freshman)، والمستوى 100 بيبدأ من الترم 3.",
+  "answer": "المستوى 0 (Freshman).",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 13.2,
+  "search_query": "ما هو المستوى الدراسي الحالي للطالب بناءً على الساعات المكتسبة والخطة الدراسية؟",
+  "sources": [
+   "aie-reg-25-ar",
+   "aie-reg-2-ar",
+   "course-ARI 481",
+   "aie-reg-18-ar",
+   "aie-reg-11-ar",
+   "aie-reg-21-ar",
+   "aie-reg-8-ar",
+   "aie-reg-13-ar"
+  ],
+  "tools_used": [
+   "academic_level"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": true,
+  "facts_ok": true,
+  "no_wrong_claims": true,
+  "article_ok": null,
+  "lang_ok": false,
+  "judge": {
+   "correctness": 4,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "Bot answered with the correct level, but omitted the detail about level 100 starting from semester 3.",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "T27",
+  "category": "student_tool",
+  "lang": "ar",
+  "question": "أنا تحت الإنذار؟",
+  "student_id": "816199702",
+  "reference": "لأ، معدلها 1.91 بس بعد أول ترم أساسي بس، والإنذار بيبدأ بعد الترم الأساسي التاني؛ حدها 14 ساعة.",
+  "answer": "لأ، إنت مش تحت الإنذار. (مادة 25)",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 2.5,
+  "search_query": "ما هي الشروط الأكاديمية واللوائح المنظمة لتسجيل العبء الدراسي والفصل الصيفي للطلاب الحاصلين على إنذار أكاديمي؟",
+  "sources": [
+   "aie-reg-25-ar",
+   "aie-reg-12-ar",
+   "aie-reg-19-ar",
+   "aie-reg-24-ar",
+   "aie-reg-13-ar",
+   "aie-reg-14-ar",
+   "aie-reg-11-ar",
+   "aie-reg-15-ar"
+  ],
+  "tools_used": [
+   "academic_standing"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": true,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 4,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "The bot correctly answers the core question using the right language, though it misses the minor details about the GPA and semester count mentioned in the reference.",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "T28",
+  "category": "student_tool",
+  "lang": "franco",
+  "question": "a2dar asagel CSE 351 el term da?",
+  "student_id": "877567042",
+  "reference": "لأ: المادة مش بتتفتح الترم ده (ترم 8 ربيع) ومتطلبها ECE 332 مش مجتاز. الرد بالعامية بالحروف العربية.",
+  "answer": "لأ، مش هتقدر تسجل مادة التعلم العميق (CSE 351) الترم ده للأسباب دي:\n- المادة مقررة في الترم الثامن من الخطة، وده ترم ربيع فمش بتتفتح في الترم ده.\n- ناقصك متطلب سابق وهو مادة شبكات عصبونية (ECE 332) (مادة 19).\n- إجمالي الساعات اللي مسجلها (17 ساعة) مع ساعات المادة (3 ساعات) هيعدّي الحد الأقصى للساعات المسموح بيها (مادة 13).",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 7.0,
+  "search_query": "ما هي شروط وإجراءات تسجيل مادة CSE 351 في الفصل الدراسي الحالي؟",
+  "sources": [
+   "course-CSE 351",
+   "course-CSE 452",
+   "course-CSE 454",
+   "plan-sem-8",
+   "course-CSE 455",
+   "course-CSE 457",
+   "course-CSE 459",
+   "course-CSE 414"
+  ],
+  "tools_used": [
+   "registration_eligibility"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": true,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ }
+]

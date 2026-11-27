@@ -22,6 +22,10 @@ CASES = [
     ("ezay a3mel drop le mada?", "franco"),
     ("momken a2ol lel doctor ye3melo ba2a", "franco"),
     ("enta 3arf 7aga 3an el mohadra", "franco"),
+    ("a2dar asagel CSE 351 el term da?", "franco"),  # chatbot eval T28: was taken for English
+    ("el exam emta?", "franco"),
+    ("Is Dr Ahmed teaching the course?", "en"),
+    ("Can I drop a course in week 5?", "en"),
     ("123 ؟", "ar"),
 ]
 bad = [(t, want, detect_language(t)) for t, want in CASES if detect_language(t) != want]

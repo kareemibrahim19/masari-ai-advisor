@@ -26,6 +26,12 @@ _FRANCO_WORDS = {
     "aywa", "aywa", "la2", "momken", "mmkn", "3shan", "3lshan", "aashan", "fe", "fi", "ma3", "mn", "men", "ala",
     "3la", "ya", "yaani", "ya3ni", "khalas", "5alas", "wallahi", "inshallah", "ensha2allah", "ba2a", "baa",
     "7aga", "haga", "doctor", "dr", "mohadra", "mohadrat", "madda", "mada", "gadwal", "te3mel", "a3mel",
+    # Articles, pronouns, question words and registration verbs students use all the time
+    # ("a2dar asagel CSE 351 el term da?" was taken for English without them).
+    "el", "da", "dah", "di", "deh", "dih", "dol", "howa", "hwa", "heya", "hya", "e7na", "ehna", "kam", "kaam",
+    "feen", "fen", "emta", "imta", "lessa", "lesa", "3ady", "ady", "wala", "walla", "ezzai", "3ayez", "3ayza",
+    "3awz", "3awza", "asagel", "asgel", "sagel", "a2dar", "a2dr", "akhod", "a5od", "ashil", "asheel", "sa3a",
+    "sa3at", "madat", "mawad", "naga7",
 }
 
 

@@ -1,0 +1,39 @@
+﻿id,category,lang,student_id,question,reference,answer,model,latency_s,retrieval_hit,tool_ok,facts_ok,article_ok,lang_ok,abstain_ok,no_wrong_claims,tools_used,sources,judge_correctness,judge_faithfulness,judge_comment,judge_model,error
+R01,regulation,ar,,اقدر اسجل كام ساعة لو معدلي 2.5؟,18 ساعة كحد أقصى (المعدل من 2.00 لأقل من 3.00)، مادة 13.,أقدر أقولك إن الحد الأقصى للتسجيل هو 18 ساعة معتمدة، طبقاً لما ورد في مادة [13].,gemini-3.5-flash-lite,66.0,True,,True,True,True,,,,"aie-reg-25-ar, aie-reg-13-ar, aie-reg-26-ar, aie-reg-8-ar, aie-reg-21-ar, aie-reg-9-ar, aie-reg-3-ar, aie-reg-22-ar",5,5,ok,gemini-3.5-flash,
+R13,regulation,ar,,امتى الطالب بيتحط تحت الإنذار الأكاديمي؟,لو المعدل التراكمي أقل من 2.00 بعد الترم الرئيسي التاني أو أي ترم بعده، مادة 25.,الطالب بيتحط تحت الإنذار الأكاديمي لو حصل على معدل تراكمي أقل من 2 في نهاية الفصل الدراسي الثاني من التحاقه بالدراسة أو أي فصل دراسي آخر بعد ذلك (مادة 25).,gemini-3.5-flash-lite,2.3,True,,True,True,True,,,,"aie-reg-25-ar, aie-reg-12-ar, aie-reg-15-ar, aie-reg-14-ar, aie-reg-13-ar, aie-reg-30-ar, aie-reg-33-ar, aie-reg-19-ar",5,5,ok,gemini-3.5-flash,
+R18,regulation,franco,,a2dr asagel kam sa3a law el gpa bta3y 1.8?,14 ساعة كحد أقصى (معدل أقل من 2.00)، مادة 13. الرد بالعامية بالحروف العربية.,تقدر تسجل لحد 14 ساعة معتمدة (مادة 13).,gemini-3.5-flash-lite,31.6,True,,True,True,True,,,,"aie-reg-21-ar, aie-reg-13-ar, aie-reg-30-ar, aie-reg-25-en, aie-reg-13-en, aie-reg-21-en, aie-reg-30-en, aie-reg-25-ar",5,5,ok,gemini-3.5-flash,
+R21,regulation,ar,,الطالب بيتفصل من البرنامج امتى؟,لو فضل معدله التراكمي أقل من 2.00 لمدة 6 فصول رئيسية متتالية، مادة 25.,"بيتفصل الطالب من البرنامج في الحالتين دول (مادة 25):
+
+1. **تكرار الإنذار الأكاديمي:** لو تكرر انخفاض معدلك التراكمي (CGPA) عن 2.00 لمدة **6 فصول دراسية رئيسية متتابعة**.
+2. **تجاوز مدة الدراسة:** لو مجمّعتش شروط التخرج خلال الحد الأقصى للدراسة وهو **10 سنوات**.
+
+*(ملاحظة: مجلس الكلية ممكن يعطي فرصة أخيرة لمدة فصلين رئيسيين للطالب المعرض للفصل بسبب المعدل، بشرط يكون أتم بنجاح 80% على الأقل من الساعات المعتمدة للتخرج).*",gemini-3.5-flash,3.5,True,,True,True,True,,,,"aie-reg-25-ar, aie-reg-15-ar, aie-reg-12-ar, aie-reg-11-ar, aie-reg-30-ar, aie-reg-14-ar, aie-reg-33-ar, aie-reg-26-ar",5,3,The bot accurately answered the main question but included additional rules and exceptions not present in the reference context.,gemini-3.5-flash,
+C04,course,ar,,امتى أقدر أسجل مشروع 1؟,مشروع (1) ARI 381: لازم توصل المستوى 300 وتكون مجتاز 96 ساعة (لو ناقصه لحد 4 ساعات يسجل ورقي)، في ترم أساسي مش صيفي.,"تقدر تسجل مقرر **مشروع (1) في هندسة الذكاء الاصطناعي (ARI 381)** لما تتحقق الشروط دي:
+
+1. **الساعات المعتمدة:** تكون اجتزت **96 ساعة معتمدة** على الأقل.
+2. **المستوى الدراسي:** تكون وصلت للمستوى **300**.
+3. **الفصل الدراسي:** يتسجل في ترم أساسي (خريف أو ربيع) فقط، ومينفعش تسجله في الترم الصيفي.
+
+(مادة 16)",gemini-3.5-flash,2.9,True,,True,,True,,,,"course-ARI 381, course-ARI 482, aie-reg-16-ar, course-ARI 481, course-ARI 271, aie-reg-19-ar, aie-reg-13-ar, course-CSE 111",5,5,ok,gemini-3.5-flash,
+C06,course,ar,,كام مادة اختيارية لازم آخدها في البرنامج؟,5 مقررات اختيارية (15 ساعة).,"لازم تاخد **5 مواد اختيارية** في البرنامج، بإجمالي 15 ساعة معتمدة، وتوزيعهم بيكون:
+- 2 مقرر في المستوى 300
+- 3 مقررات في المستوى 400",gemini-3.5-flash,7.3,True,,True,,True,,,,"aie-reg-18-ar, aie-reg-9-ar, aie-reg-15-ar, aie-reg-26-ar, aie-reg-11-ar, aie-reg-10-ar, aie-reg-17-ar, program-overview",5,5,ok,gemini-3.5-flash-lite,
+S01,student_tool,ar,897948891,أقدر أسجل كام ساعة الترم ده؟,طالب تحت الإنذار: الحد الأقصى 14 ساعة.,"أقصى عدد ساعات تقدر تسجله الترم ده هو **14 ساعة معتمدة**، والحد الأدنى هو 12 ساعة.
+
+**السبب:**
+معدلك التراكمي 1.94 (أقل من 2.00) وأنت تحت الإنذار الأكاديمي، وطبقًا للائحة الحد الأقصى للتسجيل للطلاب اللي معدلهم أقل من 2.00 أو تحت الإنذار هو 14 ساعة معتمدة (مادة 13 ومادة 25).
+
+*(ملاحظة: أنت حاليًا مسجل الـ 14 ساعة بالكامل ومفاضلش ساعات للتسجيل الترم ده).*",gemini-3.5-flash,16.9,,True,True,,True,,,credit_limit,"aie-reg-13-ar, aie-reg-11-ar, aie-reg-2-ar, aie-reg-25-ar, aie-reg-3-ar, aie-reg-8-ar, aie-reg-13-en, aie-reg-11-en",5,5,ok,gemini-3.5-flash,
+S03,student_tool,ar,897948891,أنا تحت الإنذار الأكاديمي؟,نعم، تحت الإنذار (معدل أقل من 2.00) مع عدد الفصول المتبقية قبل الفصل من نتيجة الأداة.,"أيوة، إنت تحت الإنذار الأكاديمي.
+
+معدلك التراكمي حالياً 1.94 (أقل من 2.00)، وده الفصل الدراسي التاني المتتالي اللي تكون فيه تحت الإنذار. فاضلك 4 فصول دراسية متتالية لو فضل معدلك فيها أقل من 2.00 هتعرّض للفصل (مادة 25).
+
+علشان يترفع عنك الإنذار، محتاج ترفع معدلك التراكمي لـ 2.00 أو أعلى.",gemini-3.5-flash,35.3,,True,,,True,,,academic_standing,"aie-reg-25-ar, aie-reg-13-ar, aie-reg-15-ar, aie-reg-14-ar, aie-reg-12-ar, aie-reg-33-ar, aie-reg-19-ar, aie-reg-30-ar",5,5,ok,gemini-3.5-flash,
+S06,student_tool,ar,883941655,أنا في مستوى كام؟,"المستوى كما ترجعه أداة academic_level بصيغة ""المستوى X (Name)"".","إنت في المستوى 200 (Junior).
+
+إنت حاليًا في السنة التالتة (الترم الخامس)، خلصت 66 ساعة معتمدة من أصل 160 ساعة، وفاضلك 94 ساعة على التخرج. المستوى اللي بعده (300) بيبدأ من الترم السلبع.",gemini-3.5-flash,5.8,,True,True,,True,,,academic_level,"aie-reg-21-ar, aie-reg-25-ar, aie-reg-2-ar, aie-reg-33-ar, aie-reg-27-ar, course-ARI 481, aie-reg-13-ar, aie-reg-21-en",5,5,ok,gemini-3.5-flash,
+S10,student_tool,en,887870334,"Am I on academic probation, and how many credits can I take?","Yes, first warning (GPA below 2.00); max 14 credits.","Yes, you are currently on academic probation (مادة 25), because your cumulative GPA is 1.76, which is below the 2.00 threshold. 
+
+Regarding your credit limits for the main semester (مادة 13):
+- **Maximum credits allowed:** Up to 14 credit hours (due to your academic probation).
+- **Minimum credits required:** 12 credit hours.",gemini-3.5-flash-lite,43.4,,True,True,,True,,,"academic_standing, credit_limit","aie-reg-21-ar, aie-reg-25-ar, aie-reg-13-ar, aie-reg-13-en, aie-reg-25-en, aie-reg-19-en, aie-reg-21-en, aie-reg-15-ar",5,5,ok,gemini-3.5-flash,
