@@ -1,0 +1,128 @@
+﻿id,category,lang,student_id,question,reference,answer,model,latency_s,retrieval_hit,tool_ok,facts_ok,article_ok,lang_ok,abstain_ok,tools_used,sources,judge_correctness,judge_faithfulness,judge_comment,judge_model,error
+R01,regulation,ar,,اقدر اسجل كام ساعة لو معدلي 2.5؟,18 ساعة كحد أقصى (المعدل من 2.00 لأقل من 3.00)، مادة 13.,"تقدر تسجل لحد 18 ساعة معتمدة.
+
+السبب: حسب جدول الحد الأقصى للتسجيل في مادة (13)، الطالب اللي معدله التراكمي بين 2.0 و3.0 مسموح ليه يسجل لحد 18 ساعة معتمدة في الفصل الدراسي.",gemini-3.5-flash-lite,3.7,True,,True,True,True,,,"aie-reg-25-ar, aie-reg-13-ar, aie-reg-26-ar, aie-reg-8-ar, aie-reg-21-ar, aie-reg-3-ar, aie-reg-9-ar, aie-reg-27-ar",5,5,ok,gemini-3.5-flash-lite,
+R02,regulation,ar,,لو معدلي أقل من 2 أقدر أسجل كام ساعة؟,14 ساعة كحد أقصى، مادة 13 (ومادة 25 عن الإنذار).,تقدر تسجل لحد 14 ساعة معتمدة (مادة 13).,gemini-3.5-flash-lite,6.0,True,,True,True,True,,,"aie-reg-25-ar, aie-reg-8-ar, aie-reg-21-ar, aie-reg-13-ar, aie-reg-30-ar, aie-reg-26-ar, aie-reg-27-ar, aie-reg-15-ar",5,5,ok,gemini-3.5-flash-lite,
+R03,regulation,en,,What is the maximum credit load if my GPA is 3.2?,"21 credit hours (GPA 3.00 or higher), Article 13.","Up to 21 credit hours (Article [13]). 
+
+Since your GPA is 3.2 (which is 3.0 or higher), your maximum allowed registration limit is 21 credit hours per semester.",gemini-3.5-flash-lite,3.7,True,,True,True,True,,,"aie-reg-13-ar, aie-reg-13-en, aie-reg-25-en, aie-reg-30-ar, aie-reg-30-en, aie-reg-25-ar, aie-reg-21-en, aie-reg-21-ar",5,5,ok,gemini-3.5-flash-lite,
+R04,regulation,ar,,أقصى عدد ساعات في الترم الصيفي كام؟,6 ساعات كحد أقصى في الترم الصيفي، ومفيش مشاريع في الصيفي.,6 ساعات معتمدة (مادة 13).,gemini-3.5-flash-lite,143.2,,,True,,True,,,"aie-reg-13-ar, aie-reg-11-ar, aie-reg-25-ar, aie-reg-17-ar, aie-reg-15-ar, aie-reg-2-ar, aie-reg-9-ar, aie-reg-21-ar",4,5,"The bot correctly stated the maximum hours for the summer term, though it omitted the detail about projects.",gemini-3.5-flash-lite,
+R05,regulation,ar,,الحد الأدنى للتسجيل في الترم الأساسي كام ساعة؟,12 ساعة معتمدة حد أدنى في الفصل الرئيسي، مادة 13.,12 ساعة معتمدة، وفقاً لما ورد في المادة [13].,gemini-3.5-flash-lite,129.7,True,,True,True,True,,,"aie-reg-13-ar, aie-reg-11-ar, aie-reg-25-ar, aie-reg-12-ar, aie-reg-15-ar, aie-reg-30-ar, aie-reg-19-ar, aie-reg-8-ar",5,5,ok,gemini-3.5-flash-lite,
+R06,regulation,ar,,اقدر احذف مادة لحد امتى؟,حتى نهاية الأسبوع الرابع من الدراسة بعد موافقة المرشد الأكاديمي، مادة 15.,"نهاية الأسبوع الرابع (مادة 15).
+
+تقدر تحذف أي مقرر بموافقة المرشد الأكاديمي لحد نهاية الأسبوع الرابع من الدراسة، بشرط إن الحذف ما يخلّش بالحد الأدنى للعبء الدراسي (12 ساعة).",gemini-3.5-flash-lite,37.6,True,,True,True,True,,,"aie-reg-15-ar, aie-reg-30-ar, aie-reg-11-ar, aie-reg-13-ar, aie-reg-33-ar, aie-reg-19-ar, aie-reg-34-ar, aie-reg-24-ar",5,5,ok,gemini-3.5-flash-lite,
+R07,regulation,ar,,آخر ميعاد للانسحاب من مادة في الترم العادي امتى؟,حتى نهاية الأسبوع العاشر (الثالث في الصيفي) ويُسجل W، مادة 15.,نهاية الأسبوع العاشر من بدء التسجيل للفصل الدراسي الخريفي أو الربيعي (مادة 15).,gemini-3.5-flash-lite,100.1,True,,True,True,True,,,"aie-reg-15-ar, aie-reg-11-ar, aie-reg-30-ar, aie-reg-33-ar, aie-reg-25-ar, aie-reg-13-ar, aie-reg-34-ar, aie-reg-24-ar",5,5,ok,gemini-3.5-flash-lite,
+R08,regulation,ar,,لو سقطت في مادة وعدتها، أعلى تقدير ممكن أجيبه كام؟,أقصى تقدير في الإعادة بعد الرسوب B+، مادة 15.,B+ (جيد جداً)، وده حسب مادة 15.,gemini-3.5-flash-lite,19.0,True,,True,True,True,,,"aie-reg-30-ar, aie-reg-21-ar, aie-reg-33-ar, aie-reg-19-ar, aie-reg-15-ar, aie-reg-22-ar, aie-reg-27-ar, aie-reg-8-ar",5,5,ok,gemini-3.5-flash-lite,
+R09,regulation,ar,,كام مادة أقدر أحسّن فيها؟,5 مواد كحد أقصى للتحسين، مادة 30.,5 مواد (مادة 30).,gemini-3.5-flash-lite,3.3,True,,True,True,True,,,"aie-reg-30-ar, aie-reg-21-ar, aie-reg-9-ar, aie-reg-27-ar, aie-reg-15-ar, aie-reg-11-ar, aie-reg-19-ar, aie-reg-2-ar",5,5,ok,gemini-3.5-flash-lite,
+R10,regulation,ar,,نسبة الغياب المسموح بيها كام؟,25% من ساعات المحاضرات والمعامل، وإنذارات عند 10% و20%، مادة 12.,الحد المسموح به لغياب الطالب بدون عذر مقبول هو 25% من مجموع ساعات المحاضرات والمعامل للمقرر (مادة 12).,gemini-3.5-flash-lite,11.8,True,,True,True,True,,,"aie-reg-12-ar, aie-reg-15-ar, aie-reg-30-ar, aie-reg-21-ar, aie-reg-27-ar, aie-reg-13-ar, aie-reg-33-ar, aie-reg-8-ar",5,5,ok,gemini-3.5-flash-lite,
+R11,regulation,ar,,محتاج كام ساعة معتمدة عشان أتخرج؟,160 ساعة معتمدة بمعدل تراكمي 2.00 على الأقل، مادة 9/26.,160 ساعة معتمدة، طبقاً للمعلومات المرجعية (مادة 9 ومادة 26).,gemini-3.5-flash-lite,3.9,True,,True,,True,,,"aie-reg-26-ar, aie-reg-25-ar, aie-reg-13-ar, aie-reg-9-ar, aie-reg-3-ar, aie-reg-11-ar, aie-reg-22-ar, program-overview",5,5,ok,gemini-3.5-flash-lite,
+R12,regulation,ar,,إيه شروط مرتبة الشرف؟,متوسط 3.3 أو أكثر في كل الفصول الرئيسية ومن غير رسوب في أي مقرر، مادة 23.,"شروط مرتبة الشرف (مادة 23):
+1. في الفصول الدراسية السابقة: الحصول على متوسط تقدير 3.6 أو أكثر، بشرط عدم الرسوب في أي مقرر أثناء الدراسة (ويدون هذا التميز في السجل الأكاديمي).
+2. عند التخرج: الحصول على متوسط تقدير 3.3 أو أكثر في جميع الفصول الدراسية الرئيسية، بشرط عدم الرسوب في أي مقرر طوال فترة الدراسة.",gemini-3.5-flash-lite,6.6,True,,True,True,True,,,"aie-reg-23-ar, aie-reg-25-ar, aie-reg-26-ar, aie-reg-7-ar, aie-reg-8-ar, aie-reg-9-ar, aie-reg-27-ar, aie-reg-12-ar",3,3,The bot added a graduation honors GPA requirement of 3.6 that is not present in the reference answer.,gemini-3.5-flash-lite,
+R13,regulation,ar,,امتى الطالب بيتحط تحت الإنذار الأكاديمي؟,لو المعدل التراكمي أقل من 2.00 بعد الترم الرئيسي التاني أو أي ترم بعده، مادة 25.,الطالب بيتحط تحت الإنذار الأكاديمي لو حصل على معدل تراكمي أقل من 2 في نهاية الفصل الدراسي الثاني من التحاقه بالدراسة أو أي فصل دراسي آخر بعد ذلك (مادة 25).,gemini-3.5-flash-lite,5.3,True,,True,True,True,,,"aie-reg-25-ar, aie-reg-12-ar, aie-reg-15-ar, aie-reg-14-ar, aie-reg-13-ar, aie-reg-30-ar, aie-reg-33-ar, aie-reg-8-ar",5,5,ok,gemini-3.5-flash-lite,
+R14,regulation,ar,,أقل درجة في الامتحان النهائي عشان أنجح في المادة كام؟,40% من درجة الامتحان النهائي، و60% من المجموع الكلي، مادة 20.,40% من درجات الامتحان التحريري النهائي (مادة 20).,gemini-3.5-flash-lite,17.4,True,,True,True,True,,,"aie-reg-33-ar, aie-reg-20-ar, aie-reg-26-ar, aie-reg-9-ar, aie-reg-30-ar, aie-reg-25-ar, aie-reg-16-ar, aie-reg-8-ar",5,5,ok,gemini-3.5-flash-lite,
+R15,regulation,en,,How many weeks is the summer semester?,"7 teaching weeks starting in July (with doubled course hours), Article 11.","The summer semester is 7 teaching weeks long, as stated in Article [11].",gemini-3.5-flash-lite,37.7,True,,True,True,True,,,"aie-reg-11-ar, aie-reg-11-en, aie-reg-13-en, aie-reg-13-ar, aie-reg-17-en, aie-reg-2-ar, aie-reg-2-en, aie-reg-3-en",5,5,ok,gemini-3.5-flash-lite,
+R16,regulation,ar,,إزاي أقدم طلب مراجعة على درجة مادة؟,خلال أسبوع من إعلان النتيجة بعد سداد الرسوم، مادة 34.,يقدم الطالب طلبا لمراجعة درجات المقرر الدراسي في غضون أسبوع من إعلان النتيجة، وذلك بعد سداد الرسوم المقررة وفقا للوائح الكلية (مادة 34).,gemini-3.5-flash-lite,19.3,True,,True,True,True,,,"aie-reg-33-ar, aie-reg-30-ar, aie-reg-20-ar, aie-reg-24-ar, aie-reg-34-ar, aie-reg-6-ar, aie-reg-15-ar, aie-reg-21-ar",5,5,ok,gemini-3.5-flash-lite,
+R17,regulation,ar,,ينفع أحضر مادة كمستمع؟,أيوه لو فيه أماكن، بس من غير امتحان ولا ساعات معتمدة ولا إفادة حضور، مادة 29.,نعم ينفع، بشرط وجود أماكن شاغرة (مادة 29). وبسجلوا في فترة متأخرة بعد الانتهاء من التسجيل للطلاب المنتظمين، بس من غير ما تحسب لك ساعات معتمدة ومش هتقدر تحضر الامتحان أو تاخد إفادة بالحضور.,gemini-3.5-flash-lite,5.8,True,,True,True,True,,,"aie-reg-19-ar, aie-reg-29-ar, aie-reg-15-ar, aie-reg-33-ar, aie-reg-30-ar, aie-reg-18-ar, aie-reg-7-ar, aie-reg-12-ar",5,5,ok,gemini-3.5-flash-lite,
+R18,regulation,franco,,a2dr asagel kam sa3a law el gpa bta3y 1.8?,14 ساعة كحد أقصى (معدل أقل من 2.00)، مادة 13. الرد بالعامية بالحروف العربية.,"تقدر تسجل لحد 14 ساعة معتمدة (مادة 13).
+
+السبب إن معدلك التراكمي أقل من 2، فالحد الأقصى للعبء الدراسي في الفصل هو 14 ساعة.",gemini-3.5-flash-lite,13.7,True,,True,True,True,,,"aie-reg-21-ar, aie-reg-13-ar, aie-reg-30-ar, aie-reg-25-en, aie-reg-13-en, aie-reg-21-en, aie-reg-30-en, aie-reg-25-ar",5,5,ok,gemini-3.5-flash-lite,
+R19,regulation,ar,,إجمالي ساعات البرنامج كام وعلى كام ترم؟,160 ساعة معتمدة على 10 فصول دراسية.,إجمالي ساعات البرنامج 160 ساعة موزعة على 10 فصول دراسية رئيسية (مادة 11).,gemini-3.5-flash-lite,12.5,True,,True,,True,,,"course-ARI 381, program-overview, aie-reg-11-ar, aie-reg-9-ar, plan-sem-8, aie-reg-2-ar, aie-reg-13-ar, aie-reg-10-ar",5,5,ok,gemini-3.5-flash-lite,
+R20,regulation,ar,,تقدير A- بيساوي كام نقطة؟,3.7 نقطة (من 89% لأقل من 93%)، مادة 21.,3.7 نقطة (مادة 21).,gemini-3.5-flash-lite,10.7,True,,True,,True,,,"aie-reg-21-ar, aie-reg-27-ar, aie-reg-22-ar, aie-reg-30-ar, aie-reg-8-ar, aie-reg-22-en, aie-reg-23-ar, aie-reg-33-ar",4,5,"The bot correctly stated the GPA points for an A- grade, omitting only the optional percentage and course weight details.",gemini-3.5-flash-lite,
+R21,regulation,ar,,الطالب بيتفصل من البرنامج امتى؟,لو فضل معدله التراكمي أقل من 2.00 لمدة 6 فصول رئيسية متتالية، مادة 25.,بيفصل الطالب من البرنامج لو تكرر انخفاض معدله التراكمي عن 2.00 لستة فصول دراسية رئيسية متتابعة، أو لو عدى الحد الأقصى للدراسة وهو عشر سنوات من تاريخ التحاقه بالبرنامج (مادة 25).,gemini-3.5-flash-lite,3.2,True,,True,True,True,,,"aie-reg-25-ar, aie-reg-12-ar, aie-reg-15-ar, aie-reg-11-ar, aie-reg-14-ar, aie-reg-33-ar, aie-reg-30-ar, aie-reg-24-ar",5,5,ok,gemini-3.5-flash-lite,
+R22,regulation,en,,Can I register a graduation project in the summer semester?,"No. Projects are registered only in a main semester (fall or spring), not in summer.","No, you cannot register a graduation project in the summer semester. Graduation projects cannot be registered during the summer semester according to Article (13) and the program rules.",gemini-3.5-flash-lite,11.0,,,True,,True,,,"aie-reg-13-en, aie-reg-16-ar, aie-reg-16-en, aie-reg-13-ar, aie-reg-11-en, aie-reg-9-en, aie-reg-11-ar, aie-reg-19-en",5,5,ok,gemini-3.5-flash-lite,
+R23,regulation,ar,,أقل تقدير لازم أجيبه في المادة عشان تتحسب متطلب سابق لمادة بعدها؟,تقدير D على الأقل (النجاح في المادة).,D (مادة 21),gemini-3.5-flash-lite,3.2,,,True,,True,,,"aie-reg-19-ar, aie-reg-30-ar, aie-reg-21-ar, aie-reg-26-ar, aie-reg-33-ar, aie-reg-8-ar, aie-reg-15-ar, aie-reg-9-ar",3,3,"Mentioned the correct grade D, but included an unnecessary or invented course number reference.",gemini-3.5-flash-lite,
+C01,course,ar,,إيه المتطلب السابق لمادة التعلم العميق؟,التعلم العميق (CSE 351) متطلبه الشبكات العصبونية (ECE 332)، 3 ساعات.,شبكات عصبونية (ECE 332).,gemini-3.5-flash-lite,38.9,True,,True,,True,,,"course-CSE 351, course-CSE 454, course-CSE 459, course-CSE 457, course-CSE 452, course-CSE 455, electives-400, course-CSE 251",5,5,ok,gemini-3.5-flash-lite,
+C02,course,ar,,مادة CSE 112 كام ساعة ومتطلبها إيه؟,خوارزميات وهياكل بيانات: 3 ساعات، متطلبها CSE 042.,3 ساعات، ومتطلبها السابق هو مقدمة لنظم الحاسب (CSE 042).,gemini-3.5-flash-lite,3.7,True,,True,,True,,,"course-CSE 112, course-CSE 212, plan-sem-4, course-CSE 423, course-CSE 319, course-CSE 111, course-CSE 412, course-CSE 311",5,5,ok,gemini-3.5-flash-lite,
+C03,course,en,,What are the prerequisites for the Computer Vision course?,Computer Vision (ECE 435) is a 3-credit elective; its prerequisite is ECE 333.,The prerequisite for Computer Vision (ECE 435) is Digital Image Processing (ECE 333).,gemini-3.5-flash-lite,12.3,True,,True,,True,,,"course-ECE 435, course-CSE 318, electives-400, course-CSE 423, plan-sem-7, course-ECE 333, course-CSE 351, course-ECE 334",5,5,ok,gemini-3.5-flash-lite,
+C04,course,ar,,امتى أقدر أسجل مشروع 1؟,مشروع (1) ARI 381: لازم توصل المستوى 300 وتكون مجتاز 96 ساعة (لو ناقصه لحد 4 ساعات يسجل ورقي)، في ترم أساسي مش صيفي.,يقدر الطالب يسجل مشروع (1) في هندسة الذكاء الاصطناعي (ARI 381) لما يوصل للمستوى 300 ويجتاز 96 ساعة معتمدة على الأقل قبل التسجيل، ومفيش متطلبات سابقة للمقرر ده.,gemini-3.5-flash-lite,3.5,True,,True,,True,,,"course-ARI 381, course-ARI 482, course-ARI 481, aie-reg-16-ar, course-ARI 271, plan-sem-8, course-CSE 111, aie-reg-19-ar",5,5,ok,gemini-3.5-flash-lite,
+C05,course,ar,,مواد الترم الأول في الخطة إيه؟,من ضمنها لغة إنجليزية (1) UNR 061 وميكانيكا (1) BAS 021.,"مواد الترم الأول في الخطة هي:
+- لغة إنجليزية (1) (UNR 061) - ساعتان
+- رياضيات (1) (BAS 011) - 3 ساعات
+- ميكانيكا (1) (BAS 021) - 3 ساعات
+- فيزياء (1) (BAS 031) - 3 ساعات
+- كيمياء هندسية (BAS 041) - 3 ساعات
+- رسم هندسي (PDE 052) - 3 ساعات",gemini-3.5-flash-lite,8.1,True,,True,,True,,,"aie-reg-11-ar, plan-sem-1, plan-sem-9, plan-sem-2, plan-sem-3, plan-sem-7, plan-sem-10, plan-sem-8",5,5,ok,gemini-3.5-flash-lite,
+C06,course,ar,,كام مادة اختيارية لازم آخدها في البرنامج؟,5 مقررات اختيارية (15 ساعة).,عدد المقررات الاختيارية في البرنامج هو 6 مقررات، موزعة على المستويين 300 و400 (مادة 18).,gemini-3.5-flash-lite,9.5,False,,False,,True,,,"aie-reg-18-ar, aie-reg-15-ar, aie-reg-9-ar, aie-reg-14-ar, aie-reg-11-ar, electives-300, aie-reg-10-ar, aie-reg-26-ar",1,1,The bot stated the number of elective courses is 6 instead of the correct 5.,gemini-3.5-flash-lite,
+C07,course,ar,,التدريب العملي ARI 171 بيدخل في المعدل؟,لا، نجاح/رسوب ولا يدخل في المعدل (0 ساعة)، ومتطلب تخرج.,لأ، التدريب العملي على هندسة الذكاء الاصطناعي (ARI 171) مقرر نجاح/رسوب ولا يدخل في المعدل.,gemini-3.5-flash-lite,42.7,True,,True,,True,,,"course-ARI 171, course-ARI 271, course-ARI 371, aie-reg-17-ar, aie-reg-21-ar, plan-sem-4, plan-sem-8, course-ARI 381",5,5,ok,gemini-3.5-flash-lite,
+C08,course,ar,,فريق مشروع التخرج بيبقى كام طالب؟,من 5 إلى 8 طلاب.,من 5 لـ 8 طلاب (مادة 16).,gemini-3.5-flash-lite,19.9,,,True,,True,,,"aie-reg-16-ar, aie-reg-9-ar, aie-reg-26-ar, course-ARI 482, aie-reg-22-ar, aie-reg-17-ar, aie-reg-16-en, aie-reg-9-en",5,5,ok,gemini-3.5-flash-lite,
+S01,student_tool,ar,897948891,أقدر أسجل كام ساعة الترم ده؟,طالب تحت الإنذار: الحد الأقصى 14 ساعة.,تقدر تسجل بحد أقصى 14 ساعة وبحد أدنى 12 ساعة، عشان معدلك التراكمي أقل من 2.00 (1.94) وإنت تحت الإنذار الأكاديمي (مادة 13).,gemini-3.5-flash-lite,33.4,,True,True,,True,,credit_limit,"aie-reg-13-ar, aie-reg-11-ar, aie-reg-2-ar, aie-reg-25-ar, aie-reg-3-ar, aie-reg-8-ar, course-ECE 122, course-CSE 423",5,5,ok,gemini-3.5-flash-lite,
+S02,student_tool,ar,883941655,أقدر أسجل كام ساعة الترم ده؟,طالبة متفوقة: الحد الأقصى 21 ساعة.,"حتى 21 ساعة. (مادة 13)
+
+علشان معدلك التراكمي 3.9، الحد الأقصى للساعات اللي تقدر تسجلها في الترم هو 21 ساعة، والحد الأدنى هو 12 ساعة. أنت مسجل لحد دلوقتي 16 ساعة وفاضلك 5 ساعات على الحد الأقصى.",gemini-3.5-flash-lite,13.4,,True,True,,True,,credit_limit,"aie-reg-13-ar, aie-reg-11-ar, aie-reg-2-ar, aie-reg-25-ar, aie-reg-3-ar, aie-reg-8-ar, course-ECE 122, course-CSE 423",5,5,ok,gemini-3.5-flash-lite,
+S03,student_tool,ar,897948891,أنا تحت الإنذار الأكاديمي؟,نعم، تحت الإنذار (معدل أقل من 2.00) مع عدد الفصول المتبقية قبل الفصل من نتيجة الأداة.,"لأ، ثواني.. أقصى عدد ساعات ووضع الإنذار.
+
+أيوة، أنت تحت الإنذار الأكاديمي لأن معدلك التراكمي (1.94) أقل من 2.00 (مادة 25). ده الفصل التاني ليك تحت الإنذار، وفاضلك 4 فصول دراسية متتالية قبل الفصل من الجامعة لو المعدل فضل أقل من 2.00.",gemini-3.5-flash-lite,33.2,,True,,,True,,academic_standing,"aie-reg-25-ar, aie-reg-14-ar, aie-reg-13-ar, aie-reg-15-ar, aie-reg-12-ar, aie-reg-33-ar, aie-reg-19-ar, aie-reg-30-ar",5,5,The bot correctly answers in Egyptian Arabic and accurately uses the tool data.,gemini-3.5-flash-lite,
+S04,student_tool,ar,877567042,أقدر أسجل التعلم العميق الترم ده؟,لا، لأنه ساقط في الشبكات العصبونية ECE 332 وهي متطلب سابق.,"لأ، مش تقدر تسجل مادة التعلم العميق (CSE 351) الترم ده للأسباب دي:
+
+- المادة مقررة في الترم الثامن من الخطة الدراسية ومش مفتوحة في الترم الحالي.
+- ناقصك متطلب سابق وهو مادة شبكات عصبونية (ECE 332) (مادة 19).
+- مسجل 17 ساعة والحد الأقصى المسموح لك هو 18 ساعة، وتسجيلها هيعدّي الحد الأقصى (مادة 13).",gemini-3.5-flash-lite,86.5,,True,True,,True,,registration_eligibility,"course-ARI 381, course-CSE 351, course-CSE 454, plan-sem-8, course-CSE 457, course-CSE 459, aie-reg-13-ar, course-CSE 452",5,5,ok,gemini-3.5-flash-lite,
+S05,student_tool,ar,839263318,أنا هتخرج امتى؟,حسب نتيجة graduation_plan: في الترم التاسع وفاضلها الترم العاشر.,"هتتخرج في فصل الربيع 2026-2027 (خلال 5 سنين).
+
+عشان إنت في الترم التاسع دلوقتي، فأقرب ميعاد تخرج ليك هو الربيع 2026-2027. تقدر تراجع التفاصيل كاملة في صفحة ""خطة التخرج"".",gemini-3.5-flash-lite,5.8,,True,,,True,,graduation_plan,"aie-reg-11-ar, aie-reg-26-ar, aie-reg-25-ar, aie-reg-9-ar, aie-reg-21-ar, aie-reg-13-ar, aie-reg-2-ar, aie-reg-22-ar",5,5,ok,gemini-3.5-flash-lite,
+S06,student_tool,ar,883941655,أنا في مستوى كام؟,"المستوى كما ترجعه أداة academic_level بصيغة ""المستوى X (Name)"".",المستوى 200 (Junior).,gemini-3.5-flash-lite,3.9,,True,True,,True,,academic_level,"aie-reg-33-ar, aie-reg-21-ar, aie-reg-25-ar, aie-reg-13-ar, aie-reg-22-ar, aie-reg-2-ar, aie-reg-27-ar, aie-reg-15-ar",5,5,ok,gemini-3.5-flash-lite,
+S07,student_tool,ar,824548805,انهي مواد أحسّن فيها عشان معدلي يعلى؟,قائمة المواد المرشحة للتحسين من improvement_candidates وكام تحسين فاضل.,"أفضل مواد تقدر تحسن فيها لرفع معدلك التراكمي (مادة 30):
+
+- ميكانيكا (1) (BAS 021): تقديرك الحالي C-، ولو جبت A معدلك هيوصل 2.66 (هيزيد 0.07).
+- كيمياء هندسية (BAS 041): تقديرك الحالي C، ولو جبت A معدلك هيوصل 2.65 (هيزيد 0.06).
+- رسم هندسي (PDE 052): تقديرك الحالي C، ولو جبت A معدلك هيوصل 2.65 (هيزيد 0.06).
+- قوى وآلات كهربية (ELE 151): تقديرك الحالي C، ولو جبت A معدلك هيوصل 2.65 (هيزيد 0.06).
+- إشارات ونظم (ECE 234): تقديرك الحالي C، ولو جبت A معدلك هيوصل 2.65 (هيزيد 0.06).
+
+فاضل لك 5 محاولات تحسين تقدر تستخدمهم.",gemini-3.5-flash-lite,7.4,,True,,,True,,improvement_candidates,"aie-reg-30-ar, aie-reg-15-ar, aie-reg-8-ar, aie-reg-21-ar, aie-reg-25-ar, aie-reg-13-ar, aie-reg-19-ar, aie-reg-20-ar",5,5,ok,gemini-3.5-flash-lite,
+S08,student_tool,ar,883941655,معدلي التراكمي كام؟,المعدل التراكمي كما تحسبه أداة gpa_calculator (فوق 3.5).,3.90 (مادة 21),gemini-3.5-flash-lite,3.9,,True,True,,True,,gpa_calculator,"aie-reg-30-ar, aie-reg-21-ar, aie-reg-25-ar, aie-reg-26-ar, aie-reg-22-ar, aie-reg-27-ar, aie-reg-19-ar, aie-reg-13-ar",5,5,ok,gemini-3.5-flash-lite,
+S09,student_tool,ar,833603614,مين المرشد الأكاديمي بتاعي؟,اسم المرشد وإيميله ومكتبه من my_advisor.,المرشد الأكاديمي بتاعك هو د. كريم يوسف عطية (مدرس بقسم هندسة الذكاء الاصطناعي)، ومكتبه في مبنى البرامج المميزة، الدور الثالث، مكتب 312. والساعات المكتبية بتاعته: الأحد والخميس من 12 لـ 2 الظهر، وإيميله: karim.attia@aie-advisors.example,gemini-3.5-flash-lite,20.8,,True,True,,True,,my_advisor,"aie-reg-14-ar, aie-reg-18-ar, aie-reg-13-ar, aie-reg-4-ar, aie-reg-15-ar, aie-reg-5-ar, aie-reg-25-ar, aie-reg-24-ar",5,5,ok,gemini-3.5-flash-lite,
+S10,student_tool,en,887870334,"Am I on academic probation, and how many credits can I take?","Yes, first warning (GPA below 2.00); max 14 credits.","Yes, you are on academic probation because your cumulative GPA is 1.76 (which is below 2.00) (Article 25).
+
+- Maximum credits you can take: 14 credit hours (Article 13). You currently have 13 registered hours, with 1 hour remaining.",gemini-3.5-flash-lite,12.8,,True,True,,True,,"academic_standing, credit_limit","aie-reg-25-ar, aie-reg-13-ar, aie-reg-13-en, aie-reg-25-en, aie-reg-11-en, aie-reg-intro-en, aie-reg-19-en, aie-reg-21-en",5,5,ok,gemini-3.5-flash-lite,
+S11,student_tool,ar,877567042,مين بيدرّس الشبكات العصبونية؟,أسماء الدكاترة والشعب من recommend_instructor، بصياغة موضوعية.,"بيقرر تدريس مادة شبكات عصبونية (ECE 332):
+- د. عمرو خليل.",gemini-3.5-flash-lite,5.2,,True,,,True,,recommend_instructor,"course-ARI 381, course-ECE 332, plan-sem-7, plan-sem-8, course-CSE 351, course-CSE 412, course-ECE 321, aie-reg-intro-ar",5,5,ok,gemini-3.5-flash-lite,
+S12,student_tool,ar,855239507,عايز ابعت إيميل للمرشد بتاعي عشان عندي ظروف عائلية وعايز انسحب من الترم,يتم استدعاء contact_advisor (أول مرة try_first: أسئلة توضيحية، أو الإيميل لو confirmed).,"علشان ظروفك العائلية ورغبتك في الانسحاب أو وقف القيد، الموضوع محتاج تتواصل مع مرشدك الأكاديمي.
+
+السبب: إيقاف القيد والظروف الخاصة بتحتاج تقدير إنساني وقرار رسمي، مش قاعدة ثابتة.
+
+مرشدك الأكاديمي هو د. كريم يوسف عطية (مبنى البرامج المميزة، الدور الثالث، مكتب 312 - الساعات المكتبية: الأحد والخميس من 12 لـ 2 الظهر).
+ابعت على: karim.attia@aie-advisors.example
+
+إليك الإيميل الجاهز:
+
+إلى: karim.attia@aie-advisors.example
+الموضوع: طلب بخصوص ظروف شخصية تؤثر على دراستي - 855239507
+
+النص:
+د. كريم يوسف عطية،
+تحية طيبة وبعد،
+
+أمر بظروف شخصية تؤثر على انتظامي في الدراسة هذا الفصل. أرجو التكرم بتحديد موعد لمناقشة الخيارات المتاحة مثل إيقاف القيد.
+
+التفاصيل:
+عندي ظروف عائلية وعايز انسحب من الترم
+
+بياناتي:
+- الاسم: ليلى سامح نبيل الدسوقي
+- الرقم الجامعي: 855239507
+- البرنامج: هندسة الذكاء الاصطناعي (AIE)
+- الساعات المجتازة: 54 من 160
+- المعدل التراكمي: 2.45
+
+وتفضلوا بقبول فائق الاحترام،
+ليلى سامح نبيل الدسوقي
+laila9507@std.mans.edu.eg
+
+المطلوب إرفاقه:
+- توضيح الظرف باختصار
+- أي مستند داعم",gemini-3.5-flash-lite,4.5,,True,,,True,,contact_advisor,"aie-reg-15-ar, aie-reg-25-ar, aie-reg-33-ar, aie-reg-34-ar, aie-reg-14-ar, aie-reg-30-ar, aie-reg-13-ar, aie-reg-12-ar",5,5,ok,gemini-3.5-flash-lite,
+S13,student_tool,ar,826375976,أقدر أتخرج في 4 سنين؟,حسب graduation_plan: هدف 4 سنين محتاج يرفع معدله لـ 3.00 عشان حده يبقى 21 ساعة، وأقرب تخرج من نتيجة الأداة.,"لأ، مش هتقدر تتخرج في 4 سنين.
+
+السبب: مشروع (1) في هندسة الذكاء الاصطناعي (ARI 381) محتاج عدد ساعات ناجحة قبل ما تسجله، ومش هتلحق تخلص كل المتطلبات وسلسلة المواد ورا بعضها قبل خريف 2028، فمشروع (3) مش هتلحق تخلصها قبل ربيع 2030 (بعد آخر ترم في هدف 4 سنين). وأقرب ميعاد تقدر تتخرج فيه هو الربيع 2029-2030 (في خلال 5 سنين).
+
+تقدر تشوف كل التفاصيل في صفحة ""خطة التخرج"".",gemini-3.5-flash-lite,8.2,,True,,,True,,graduation_plan,"aie-reg-26-ar, aie-reg-9-ar, aie-reg-25-ar, aie-reg-11-ar, plan-sem-4, aie-reg-19-ar, aie-reg-16-ar, aie-reg-30-ar",5,5,ok,gemini-3.5-flash-lite,
+S14,student_tool,ar,883941655,غبت 4 محاضرات من 28 في مادة، كده أنا في أمان؟,النسبة حوالي 14% (فوق 10%): إنذار أول، والحرمان عند 25%، مادة 12.,"لأ، إنت كده وصلت للإنذار الأول (مادة 12).
+
+نسبة غيابك حوالي 14.3% لأنك غبت 4 ساعات من إجمالي 28 ساعة، وطالما عديت 10% يبقى دخلت في الإنذار الأول. خد بالك إن الحد الأقصى المسموح بيه للغياب هو 25% (يعني حوالي 7 ساعات)، وباقي لك 3 ساعات غياب قبل ما توصل لمرحلة الحرمان من الامتحان.",gemini-3.5-flash-lite,4.9,,True,True,,True,,attendance_check,"course-ARI 381, aie-reg-12-ar, aie-reg-33-ar, aie-reg-25-ar, aie-reg-30-ar, aie-reg-21-ar, aie-reg-20-ar, aie-reg-15-ar",5,5,ok,gemini-3.5-flash-lite,
+O01,out_of_scope,ar,,مصاريف الترم كام جنيه؟,المعلومة غير موجودة في اللائحة المتاحة (مادة 12 تقول إن مجلس الكلية بيحدد الرسوم): يقول إنه مش متأكد ويوجّه للمرشد/الإدارة، من غير ما يألف رقم.,مش متأكد من مصاريف الترم كام جنيه بالضبط لأنها مش موجودة في القواعد الرسمية أو المعلومات المرجعية عندي. يفضل تسأل إدارة البرنامج في الكلية عشان تعرف التفاصيل المضبوطة.,gemini-3.5-flash-lite,11.4,,,,,True,True,,"plan-sem-1, aie-reg-11-ar, aie-reg-12-ar, aie-reg-13-ar, plan-sem-9, plan-sem-7, plan-sem-10, plan-sem-2",5,5,ok,gemini-3.5-flash-lite,
+O02,out_of_scope,ar,,مين رئيس جامعة المنصورة الحالي؟,خارج نطاق المرشد: يقول إنه مش متأكد/مش عنده المعلومة من غير تأليف اسم.,أنا مساري، المرشد الأكاديمي لبرنامج هندسة الذكاء الاصطناعي (AIE) بكلية الهندسة جامعة المنصورة، ومختص فقط بالإجابة عن اللائحة والقواعد الأكاديمية للبرنامج والمقررات والجداول. معلومة رئيس الجامعة مش متوفرة في المعلومات المرجعية للبرنامج عندي.,gemini-3.5-flash-lite,26.9,,,,,True,True,,"aie-reg-23-ar, aie-reg-1-ar, aie-reg-8-ar, aie-reg-4-ar, aie-reg-28-ar, aie-reg-27-ar, aie-reg-5-ar, program-overview",5,5,ok,gemini-3.5-flash-lite,
+O03,out_of_scope,en,,Can you write me a Python function that sorts a list?,Out of scope for an academic advisor: should decline politely or redirect to academic questions.,"I can only help you with academic guidance, program regulations, courses, and schedules for the Artificial Intelligence Engineering program at Mansoura University. For general programming questions like writing a Python sorting function, you can check programming resources or tutorials. Let me know if you need help with anything related to your study plan, courses, or program rules!",gemini-3.5-flash-lite,30.2,,,,,True,True,,"aie-reg-6-en, aie-reg-21-ar, aie-reg-20-ar, aie-reg-15-en, aie-reg-27-en, aie-reg-29-en, aie-reg-34-ar, aie-reg-7-en",5,5,ok,gemini-3.5-flash-lite,
+M01,multi_turn,ar,,طب والصيفي؟,في الصيفي الحد الأقصى 6 ساعات.,6 ساعات في الفصل الصيفي (مادة 13).,gemini-3.5-flash-lite,2.6,,,True,,True,,,"aie-reg-11-ar, aie-reg-13-ar, aie-reg-2-ar, aie-reg-25-ar, aie-reg-21-ar, aie-reg-15-ar, aie-reg-8-ar, aie-reg-20-ar",5,5,ok,gemini-3.5-flash-lite,
+M02,multi_turn,ar,,ومتطلبها السابق إيه؟,المتطلب السابق ECE 333.,معالجة صور رقمية (ECE 333) (مادة 19).,gemini-3.5-flash-lite,30.9,True,,True,,True,,,"course-ECE 435, aie-reg-19-ar, aie-reg-7-ar, aie-reg-9-ar, aie-reg-26-ar, aie-reg-18-ar, electives-400, course-ECE 432",5,5,ok,gemini-3.5-flash-lite,
