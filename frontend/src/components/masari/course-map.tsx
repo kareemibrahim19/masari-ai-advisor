@@ -10,7 +10,7 @@
  */
 import * as React from "react"
 import { X } from "lucide-react"
-import { CategoryTag, Code } from "@/components/masari/bits"
+import { CategoryTag, Code, OverdueTag } from "@/components/masari/bits"
 import {
   allDependentsOf,
   allPrerequisitesOf,
@@ -23,7 +23,7 @@ import {
   findCourse,
   termOf,
 } from "@/lib/aie-program"
-import { statusOf } from "@/lib/rules"
+import { isOverdue, statusOf } from "@/lib/rules"
 import { type DictKey, useI18n } from "@/lib/i18n"
 import { useStudentView } from "@/lib/student-context"
 import { cn } from "@/lib/utils"
@@ -120,6 +120,11 @@ export function CourseMap() {
     },
     [record, registered, student.electiveSlots]
   )
+  const overdue = React.useCallback(
+    (code: string) => isOverdue(code, record, student.registeredNow, student.completedSemesters + 1),
+    [record, student.registeredNow, student.completedSemesters]
+  )
+  const anyOverdue = courses.some((c) => overdue(c.code))
 
   // ---------------------------------------------------------------- focus
   const [hover, setHover] = React.useState<string | null>(null)
@@ -194,9 +199,16 @@ export function CourseMap() {
             {t(kindLabel[k])}
           </li>
         ))}
+        {/* Only when this student has a course left behind: most students never see it. */}
+        {anyOverdue && (
+          <li className="inline-flex items-center gap-1.5 whitespace-nowrap">
+            <OverdueTag />
+            {t("overdueLegend")}
+          </li>
+        )}
       </ul>
 
-      <Details code={selected} kindOf={kindOf} onPick={pick} onClear={() => setSelected(null)} />
+      <Details code={selected} kindOf={kindOf} overdue={selected ? overdue(selected) : false} onPick={pick} onClear={() => setSelected(null)} />
 
       <div
         ref={scroller}
@@ -281,7 +293,11 @@ export function CourseMap() {
                     )}
                   >
                     <span data-node-body className="flex flex-col">
-                      <Code className="text-[10px] leading-none opacity-80">{isSlot ? c.code.replace("ELEC ", "") : c.code}</Code>
+                      {/* The tag shares the code's line, so boxes keep their height. */}
+                      <span className="flex items-center justify-between gap-1">
+                        <Code className="text-[10px] leading-none opacity-80">{isSlot ? c.code.replace("ELEC ", "") : c.code}</Code>
+                        {overdue(c.code) && <OverdueTag className="h-3.5 px-1 text-[9px]" />}
+                      </span>
                       <span
                         className={cn("mt-1 text-[11px] leading-[1.25] font-medium text-pretty", kind === "locked" ? "text-muted-foreground" : "text-foreground")}
                       >
@@ -313,11 +329,13 @@ export function CourseMap() {
 function Details({
   code,
   kindOf,
+  overdue,
   onPick,
   onClear,
 }: {
   code: string | null
   kindOf: (code: string) => Kind
+  overdue: boolean
   onPick: (code: string) => void
   onClear: () => void
 }) {
@@ -371,6 +389,7 @@ function Details({
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
           <span className={cn("inline-flex h-6 items-center rounded-full px-2 text-xs font-medium", pill[kind])}>{t(kindLabel[kind])}</span>
+          {overdue && <OverdueTag className="h-6 px-2 text-xs" />}
           <span className="inline-flex h-6 items-center rounded-full bg-muted px-2 text-xs tabular">
             {num(c.credits)} {t("creditsShort")}
             {semester ? ` · ${t("semShort")} ${num(semester)}` : ""}
@@ -378,6 +397,7 @@ function Details({
           <CategoryTag category={c.category} />
         </div>
         <p className="text-sm leading-relaxed text-muted-foreground">{why}</p>
+        {overdue && <p className="text-sm leading-relaxed text-warning">{t("mapWhyOverdue")}</p>}
         {"description" in c && c.description && (
           <p lang="en" dir="ltr" className="text-start text-xs leading-relaxed text-muted-foreground">
             {c.description}

@@ -175,6 +175,19 @@ export const categoryStyles: Record<Category, string> = {
 }
 
 /** Department code tag (e.g. "CSE") with the full department name as tooltip / accessible label. */
+/** «متأخرة»: a course left behind from an earlier study year (rules.isOverdue). Small and quiet, amber. */
+export function OverdueTag({ className }: { className?: string }) {
+  const { t } = useI18n()
+  return (
+    <span
+      title={t("overdueLegend")}
+      className={cn("inline-flex h-4 w-fit items-center rounded-full bg-warning-soft px-1.5 text-[10px] leading-none font-semibold text-warning", className)}
+    >
+      {t("stOverdue")}
+    </span>
+  )
+}
+
 export function CategoryTag({ category, className }: { category: Category; className?: string }) {
   const { tr } = useI18n()
   const label = tr(categoryLabel[category])

@@ -85,6 +85,19 @@ export function statusOf(code: string, r: StudentRecord): Status {
   return missing.length === 0 && creditsShort === 0 ? { kind: "eligible" } : { kind: "locked", missing, creditsShort }
 }
 
+/**
+ * A course left behind from an earlier study year: its plan semester is in a year before the student's current
+ * one (last year counts, this year does not), and it is neither passed nor registered now. The course guide tags
+ * it «متأخرة» so it is not forgotten, e.g. UNVS 101 (0 hours, first year) that is easy to put off until graduation.
+ * Elective slots are left out: the plan places them.
+ */
+export function isOverdue(code: string, r: StudentRecord, registeredNow: string[], currentSemester: number): boolean {
+  const course = findCourse(code)
+  if (!course || !("semester" in course) || course.type === "elective") return false
+  if (r.passed.includes(code) || registeredNow.includes(code)) return false
+  return Math.ceil(course.semester / 2) < Math.ceil(currentSemester / 2)
+}
+
 // ------------------------------------------------------------------------------ planning
 
 export type PlanItem = {

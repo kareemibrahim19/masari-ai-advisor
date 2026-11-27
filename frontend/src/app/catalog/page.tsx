@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CategoryTag, Code, PageHeader } from "@/components/masari/bits"
+import { CategoryTag, Code, OverdueTag, PageHeader } from "@/components/masari/bits"
 import { CourseMap } from "@/components/masari/course-map"
 import {
   categoryLabels,
@@ -26,7 +26,7 @@ import {
   type PoolCourse,
 } from "@/lib/aie-program"
 import { assessment, gpaFormula, gradeScale, loadTable, ruleSections } from "@/lib/aie-regulations"
-import { statusOf, type Status } from "@/lib/rules"
+import { isOverdue, statusOf, type Status } from "@/lib/rules"
 import { useStudentView } from "@/lib/student-context"
 import { type DictKey, useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
@@ -361,8 +361,9 @@ function CourseRow({
   onPick: (code: string) => void
 }) {
   const { t, tr, num, lang } = useI18n()
-  const { student } = useStudentView()
+  const { record, student } = useStudentView()
   const isSlot = c.type === "elective"
+  const late = isOverdue(c.code, record, student.registeredNow, student.completedSemesters + 1)
   const deps = dependentsOf(c.code)
   // The pool course the student passed or registered in this slot.
   const chosen = isSlot ? student.electiveSlots[c.code]?.code : undefined
@@ -387,7 +388,10 @@ function CourseRow({
             <Code className="text-xs text-muted-foreground">{isSlot ? c.code.replace("ELEC ", "") : c.code}</Code>
             <CategoryTag category={c.category} />
           </span>
-          <span className="block font-medium">{isSlot ? electiveLabel(c.code, chosen, lang) : courseNameIn(c.code, lang)}</span>
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1 font-medium">
+            {isSlot ? electiveLabel(c.code, chosen, lang) : courseNameIn(c.code, lang)}
+            {late && <OverdueTag />}
+          </span>
           <span className="text-xs text-muted-foreground">
             {tr(typeLabels[c.type])}
             {chosen && (

@@ -649,6 +649,12 @@ const dict = {
   stEligible: { ar: "مؤهل", en: "Eligible" },
   stLocked: { ar: "مقفول", en: "Locked" },
   stRegistered: { ar: "مسجل الترم ده", en: "Registered now" },
+  stOverdue: { ar: "متأخرة", en: "Overdue" },
+  overdueLegend: { ar: "من سنة فاتت ولسه ماخدتهاش", en: "From an earlier year, not taken yet" },
+  mapWhyOverdue: {
+    ar: "متأخرة: مكانها في خطة سنة فاتت ولسه ماخدتهاش. سجّلها أول ما تتفتح عشان ماتنساهاش قبل التخرج.",
+    en: "Overdue: it belongs to an earlier year of the plan and you have not taken it. Register it as soon as it opens so it is not forgotten before graduation.",
+  },
   catViewMap: { ar: "خريطة المقررات", en: "Course map" },
   catViewList: { ar: "القائمة", en: "List" },
   mapUnlocks: { ar: "مقرر بيعتمد عليه", en: "courses depend on it" },
