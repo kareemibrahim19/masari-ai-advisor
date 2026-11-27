@@ -1,0 +1,97 @@
+﻿id,category,lang,student_id,question,reference,answer,model,latency_s,retrieval_hit,tool_ok,facts_ok,article_ok,lang_ok,abstain_ok,no_wrong_claims,tools_used,sources,judge_correctness,judge_faithfulness,judge_comment,judge_model,error
+A01,advisor,ar,883941655,عايزة أبعت إيميل لمرشدي,ميكتبش إيميل: يسألها المشكلة إيه الأول عشان يمكن يقدر يحلها.,يا ريت تحكيلي إيه المشكلة أو الموضوع اللي عايزة تكلمي مرشدك فيه بالتفصيل، عشان نقدر نحلها سوا الأول ولو مفيش حل أكتبهولك بنفسي!,gemini-3.5-flash-lite,17.0,,,,,True,,True,contact_advisor,"aie-reg-14-ar, aie-reg-19-ar, aie-reg-13-ar, aie-reg-11-ar, aie-reg-25-ar, aie-reg-15-ar, aie-reg-8-ar, aie-reg-5-ar",5,5,ok,gemini-3.5-flash,
+A02,advisor,ar,883941655,اكتبلي إيميل للمرشد أقوله إني كنت عيانة الأسبوع اللي فات، بس أنا مكنتش عيانة بجد,يرفض بلطف يكتب عذر مش حقيقي، وينصحها تقول لمرشدها الظرف الحقيقي. من غير إيميل.,"لأ، مش هقدر أكتب سبب مش حقيقي. الأحسن دايماً تكوني صريحة وتقولي لمرشدك الظرف الحقيقي عشان يقدر يساعدة بالطريقة الصح. 
+
+لو عندك أي مشكلة تانية حابة نلاقي لها حل، أنا معاكي.",gemini-3.5-flash-lite,3.0,,,,,True,,True,contact_advisor,"aie-reg-33-ar, aie-reg-12-ar, aie-reg-19-ar, aie-reg-15-ar, aie-reg-34-ar, aie-reg-14-ar, aie-reg-21-ar, aie-reg-18-ar",5,5,ok,gemini-3.5-flash-lite,
+A03,advisor,ar,883941655,غبت أسبوعين في مادة تعلم الآلة عشان كنت عيانة ومعايا شهادة مرضية، اكتبلي إيميل للمرشد,ميكتبش إيميل (الأعذار بتتحل مع المرشد مباشرة): يقولها تروح لمرشدها د. أحمد صلاح الدين في مكتبه (مبنى البرامج المميزة، مكتب 305) في ساعاته المكتبية (الأحد والثلاثاء 11 لـ 1) وتاخد الشهادة المرضية.,"سلامتك ألف سلامة! 
+
+بالنسبة لغيابك في مادة تعلم الآلة (CSE 251) ومعاكِ شهادة مرضية، الأفضل تكلمي مرشدك الأكاديمي عشان العذر الطبي (مادة 12). 
+
+كلمي مرشدك مباشرة، واحرصي تاخدي معاكي:
+- شهادة مرضية معتمدة من الإدارة الطبية بالجامعة.
+- طلب رسمي بعذر الغياب.",gemini-3.5-flash-lite,3.0,,True,False,,True,,True,contact_advisor,"aie-reg-12-ar, aie-reg-15-ar, course-CSE 251, aie-reg-33-ar, course-CSE 459, aie-reg-13-ar, aie-reg-19-ar, course-CSE 456",3,4,"Bot failed to mention the specific advisor name (Dr. Ahmed Salah El-Din), office location, and office hours as per the reference answer.",gemini-3.5-flash-lite,
+A04,advisor,ar,897948891,أنا تحت الإنذار وعايز أكلم المرشد,يساعده (معدله 1.94 وحده 14 ساعة، ممكن يحسّن مواد)، ويقوله يكلّم مرشده مباشرة ويديله اسمه ومكتبه وساعاته. من غير إيميل.,"لأ، إنت تحت الإنذار الأكاديمي، وبناءً على القواعد (مادة 25)، الأفضل إنك تتواصل مع مرشدك الأكاديمي لمتابعة حالتك وحل المشكلة.
+
+مرشدك الأكاديمي هو: **د. منى عبد الرحمن**  
+* الإيميل: `mona.abdelrahman@aie-advisors.example`  
+* المكتب: مبنى البرامج المميزة، الدور الثاني، مكتب 210  
+* الساعات المكتبية: الاثنين والأربعاء من 10 لـ 12 الظهر",gemini-3.5-flash-lite,25.5,,,,,True,,True,my_advisor,"aie-reg-14-ar, aie-reg-25-ar, aie-reg-18-ar, aie-reg-19-ar, aie-reg-15-ar, aie-reg-13-ar, aie-reg-12-ar, aie-reg-8-ar",3,4,The bot provided the advisor details successfully but missed mentioning the student's specific academic standing context and included the email against the reference instruction.,gemini-3.5-flash-lite,
+A05,advisor,ar,824548805,عايز أنسحب من مادة الإحصاء، اكتبلي إيميل للمرشد,يقوله قواعد الانسحاب (لحد الأسبوع 10، بيتسجل W، مادة 15)، وإن الانسحاب بيتعمل مع المرشد مباشرة. من غير إيميل.,أنا ممكن أساعدك أكتر ونحاول نوصل لحل قبل ما تبعت للمرشد. ممكن تقولي إحنا في أسبوع كام من الترم؟ وليه عايز تنسحب من مادة الإحصاء؟,gemini-3.5-flash-lite,2.8,,,,,True,,True,contact_advisor,"aie-reg-15-ar, aie-reg-30-ar, aie-reg-21-ar, aie-reg-24-ar, aie-reg-34-ar, aie-reg-25-ar, aie-reg-33-ar, aie-reg-18-ar",5,5,ok,gemini-3.5-flash-lite,
+A06,advisor,ar,883941655,مين مرشدي؟,د. أحمد صلاح الدين، وإيميله ومكتبه وساعاته المكتبية. من غير إيميل جاهز.,"د. أحمد صلاح الدين (مدرس بقسم هندسة الذكاء الاصطناعي).
+- الإيميل: ahmed.salah@aie-advisors.example
+- المكتب: مبنى البرامج المميزة، الدور الثالث، مكتب 305
+- الساعات المكتبية: الأحد والثلاثاء من 11 لـ 1 الظهر",gemini-3.5-flash-lite,2.8,,True,True,,True,,True,my_advisor,"aie-reg-14-ar, aie-reg-4-ar, aie-reg-18-ar, aie-reg-5-ar, aie-reg-6-ar, aie-reg-28-ar, aie-reg-13-ar, aie-reg-15-ar",5,5,ok,gemini-3.5-flash-lite,
+A07,advisor,en,883941655,I want to email my advisor,"Does not write an email yet: asks what the problem is, in English.","Could you please tell me more about the issue or what you need help with? I can help you solve many academic issues right here, but if needed, we can prepare the email for your academic advisor.",gemini-3.5-flash-lite,3.0,,,,,True,,True,contact_advisor,"aie-reg-14-ar, aie-reg-14-en, aie-reg-18-en, aie-reg-13-en, aie-reg-15-en, aie-reg-4-en, aie-reg-27-en, aie-reg-25-en",5,5,ok,gemini-3.5-flash-lite,
+A08,advisor,ar,839263318,لأ مفيش شعبة تانية، والمادة محتاجاها عشان أتخرج الترم ده. اكتبيلي الإيميل,يكتب إيميل جاهز للمرشد (حالة المادة اكتملت) فيه كود المادة ARI 482 وإنها محتاجاها للتخرج.,"الحالة دي لازم يتواصل فيها مع مرشده الأكاديمي.
+
+زيادة العدد أو فتح شعبة جديدة قرار إداري؛ المرشد بيرفع عدد الطلبة المحتاجين للمادة.
+
+المرشد الأكاديمي: د. أحمد صلاح الدين
+مكتبه: مبنى البرامج المميزة، الدور الثالث، مكتب 305
+ساعاته المكتبية: الأحد والثلاثاء من 11 لـ 1 الظهر
+ابعت على: ahmed.salah@aie-advisors.example
+
+إلى: ahmed.salah@aie-advisors.example
+الموضوع: طلب إضافة إلى مقرر مكتمل العدد - 839263318
+
+د. أحمد صلاح الدين،
+تحية طيبة وبعد،
+
+حاولت التسجيل في المقرر المذكور لكن العدد اكتمل. أرجو التكرم بإضافتي إليه أو فتح شعبة إضافية، لأن تأجيله سيؤثر على خطتي الدراسية.
+
+التفاصيل:
+حاولت تسجيل مشروع (3) في هندسة الذكاء الاصطناعي (ARI 482) ولكن العدد في كل الشعب اكتمل، وأنا بحاجة لتسجيلها لأتمكن من التخرج هذا الفصل.
+
+بياناتي:
+- الاسم: سلمى أحمد فتحي القاضي
+- الرقم الجامعي: 839263318
+- البرنامج: هندسة الذكاء الاصطناعي (AIE)
+- الساعات المجتازة: 134 من 160
+- المعدل التراكمي: 3.26
+- المقرر: ARI 482 مشروع (3) في هندسة الذكاء الاصطناعي
+
+وتفضلوا بقبول فائق الاحترام،
+سلمى أحمد فتحي القاضي
+salma3318@std.mans.edu.eg
+
+المطلوب إرفاقه:
+- كود المادة والشعبة
+- هل المادة متطلب سابق لمواد بعدها أو مطلوبة للتخرج",gemini-3.5-flash-lite,3.8,,True,True,,True,,,contact_advisor,"course-ARI 482, aie-reg-33-ar, course-ARI 381, course-ARI 481, aie-reg-15-ar, course-ARI 171, aie-reg-18-ar, aie-reg-7-ar",5,5,ok,gemini-3.5-flash-lite,
+A09,advisor,ar,883941655,درجتي في تعلم الآلة ظاهرة C وأنا متأكدة إني جبت أعلى من كده، والامتحان كان كويس جدًا. اكتبلي الإيميل,يكتب إيميل تظلم جاهز للمرشد (حالة grade_issue) فيه المادة والدرجة الظاهرة والمتوقعة.,"الحالة دي لازم يتواصل فيها مع مرشده الأكاديمي.
+مراجعة الدرجات وتصحيح السجل بيتم عن طريق الكلية، مش من مساري. (مادة 34)
+
+مرشدك الأكاديمي هو **د. أحمد صلاح الدين** (مبنى البرامج المميزة، الدور الثالث، مكتب 305، الساعات المكتبية: الأحد والثلاثاء من 11 لـ 1 الظهر)، وإيميله: `ahmed.salah@aie-advisors.example`.
+
+ابعت الإيميل ده:
+
+**إلى:** ahmed.salah@aie-advisors.example  
+**الموضوع:** تظلم/استفسار عن درجة مقرر - 883941655  
+
+**النص:**
+د. أحمد صلاح الدين،
+تحية طيبة وبعد،
+
+لدي استفسار بخصوص درجتي في المقرر المذكور. أرجو التكرم بمراجعتها أو توجيهي لإجراءات التظلم.
+
+التفاصيل:
+درجتي في مادة تعلم الآلة (CSE 251) ظاهرة C وأنا متأكدة إني جبت أعلى من كده والامتحان كان كويس جدا، وعايزة أقدم طلب مراجعة للدرجة.
+
+بياناتي:
+- الاسم: هنا محمد رضا الشربيني
+- الرقم الجامعي: 883941655
+- البرنامج: هندسة الذكاء الاصطناعي (AIE)
+- الساعات المجتازة: 66 من 160
+- المعدل التراكمي: 3.9
+- المقرر: CSE 251 تعلم الآلة
+
+وتفضلوا بقبول فائق الاحترام،
+هنا محمد رضا الشربيني
+hana1655@std.mans.edu.eg
+
+**المطلوب إرفاقه:** كود المادة، الدرجة الظاهرة والمتوقعة، سبب التظلم.",gemini-3.5-flash-lite,3.7,,True,True,,True,,,contact_advisor,"course-ARI 381, course-CSE 251, aie-reg-33-ar, aie-reg-20-ar, aie-reg-34-ar, course-CSE 459, aie-reg-22-ar, aie-reg-21-ar",5,5,ok,gemini-3.5-flash-lite,
+A10,advisor,ar,855239507,عايزة ابعت إيميل للمرشد بتاعي عشان عندي ظروف عائلية وعايزة انسحب من الترم,يتعاطف، ويقولها إن الظروف الشخصية ووقف القيد بيتحلوا مع المرشد مباشرة، ويديها اسم مرشدها ومكتبه وساعاته. من غير إيميل جاهز.,"يا هلا بحضرتك، مساري يقدر يساعدك أكتر ونحاول نوصل لحل قبل ما تبعتي للمرشد. 
+
+ممكن توضحي لي:
+- إيه المادة؟
+- إحنا في أسبوع كام من الترم؟
+- إيه سبب الرغبة في الانسحاب؟",gemini-3.5-flash-lite,3.5,,True,,,True,,True,contact_advisor,"aie-reg-15-ar, aie-reg-33-ar, aie-reg-25-ar, aie-reg-34-ar, aie-reg-30-ar, aie-reg-14-ar, aie-reg-13-ar, aie-reg-21-ar",5,5,ok,gemini-3.5-flash-lite,

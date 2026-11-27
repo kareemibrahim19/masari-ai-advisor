@@ -43,10 +43,13 @@ TOOLS = [
        _STUDENT, ["student_id"], rules.academic_level, True),
     _t("elective_status", "المواد الاختيارية: اللي خلّصها وسجلها وكام لسه محتاج والمتاح له.",
        _STUDENT, ["student_id"], rules.elective_status, True),
-    _t("attendance_check", "نسبة الغياب وهل هي في الأمان أو إنذار أول (10%) أو تاني (20%) أو حرمان (25%).",
-       {"absent_hours": {"type": "number", "description": "عدد ساعات الغياب."},
-        "total_hours": {"type": "number", "description": "إجمالي ساعات المادة (محاضرات ومعامل)."},
-        "absence_pct": {"type": "number", "description": "نسبة الغياب مباشرة لو معروفة."}}, [], rules.attendance_check),
+    _t("attendance_check", "نسبة الغياب وهل هي في الأمان أو إنذار أول (10%) أو تاني (20%) أو حرمان (25%). "
+       "نادِها في أي سؤال فيه غياب أو حضور بنسبة أو بعدد محاضرات، ومتحسبش بنفسك.",
+       {"absent_hours": {"type": "number", "description": "عدد ساعات (أو محاضرات) الغياب."},
+        "total_hours": {"type": "number", "description": "إجمالي ساعات (أو محاضرات) المادة."},
+        "absence_pct": {"type": "number", "description": "نسبة الغياب لو الطالب قالها."},
+        "attended_pct": {"type": "number", "description": "نسبة الحضور لو الطالب قال نسبة حضور (زي حضرت 70%)، والأداة بتحسب الغياب."}},
+       [], rules.attendance_check),
     _t("drop_withdraw_info", "الحذف والانسحاب: هل لسه ينفع حسب الأسبوع الحالي، وإيه اللي يحصل في السجل.",
        {"current_week": {"type": "integer", "description": "رقم الأسبوع الدراسي الحالي."}, "term_type": _TERM_TYPE,
         **_STUDENT, "course_code": _COURSE}, ["current_week"], rules.drop_withdraw_info, True),
@@ -113,7 +116,8 @@ TOOLS += [
        "تعارض مواعيد، مادة محتاجها مش مفتوحة، مادة مش مفتوحة في برنامجه ويسأل لو مفتوحة في قسم تاني يسجلها بالتشابه، "
        "خطة التخرج بالهدف ده مش ممكنة، إنذار أو خطر فصل، غياب أو امتحان بعذر، "
        "تظلم من درجة أو خطأ في السجل، معادلة أو تحويل، إيقاف قيد أو ظروف شخصية، مشكلة في التدريب، "
-       "أو سؤال ملوش إجابة في اللائحة ولا الأدوات. أول مرة نادِها من غير confirmed: هترجع try_first وأسئلة، فاسأل الطالب واعرض عليه تساعده الأول. لو رجّعت needs_info أو try_first اسأل الطالب ask_ar ومتكتبش إيميل.",
+       "أو سؤال ملوش إجابة في اللائحة ولا الأدوات. أول مرة نادِها من غير confirmed: هترجع try_first وأسئلة، فاسأل الطالب واعرض عليه تساعده الأول. لو رجّعت needs_info أو try_first اسأل الطالب ask_ar ومتكتبش إيميل. "
+       "ولو رجّعت no_email (أعذار، ظروف شخصية، إنذار، حذف وانسحاب) قوله يكلّم مرشده مباشرة ومتكتبش إيميل.",
        {"case": {"type": "string", "enum": list(advisor.CASES), "description": "نوع الحالة. other لو مفيش نوع مناسب."},
         "details": {"type": "string", "description": "تفاصيل مشكلة الطالب بالعربي الفصيح المختصر وبصيغة المتكلم كأن الطالب هو اللي بيكتب (زي: حاولت التسجيل...، مش: الطالب حاول). هتتحط في الإيميل كما هي."},
         "course_code": {"type": "string", "description": "كود المادة لو الحالة عن مادة معينة. اختياري."},
@@ -121,7 +125,7 @@ TOOLS += [
         "reason": {"type": "string", "enum": list(advisor.LOAD_REASONS),
                    "description": "لـ load_exception بس: سبب تغيير الساعات زي ما الطالب قاله. متخمّنهوش؛ لو مقالوش سيبه فاضي والأداة هترجع سؤال."},
         "requested_hours": {"type": "number", "description": "لـ load_exception بس: عدد الساعات اللي الطالب عايزه. متخمّنهوش."},
-        "confirmed": {"type": "boolean", "description": "true بس بعد ما الطالب ادّى التفاصيل ومساري ملقاش حل بأدواته، أو الطالب طلب الإيميل صراحة."},
+        "confirmed": {"type": "boolean", "description": "true بس بعد ما الطالب ادّى تفاصيل مشكلته ومساري ملقاش حل بأدواته. طلب الطالب للإيميل لوحده (من غير مشكلة) مش كفاية."},
         **_STUDENT}, ["case"], advisor.contact_advisor, True),
     _t("my_advisor", "مين المرشد الأكاديمي بتاع الطالب: اسمه وإيميله ومكتبه وساعاته المكتبية.",
        _STUDENT, ["student_id"], advisor.my_advisor, True),

@@ -1,0 +1,6 @@
+﻿id,category,lang,student_id,question,reference,answer,model,latency_s,retrieval_hit,tool_ok,facts_ok,article_ok,lang_ok,abstain_ok,no_wrong_claims,tools_used,sources,judge_correctness,judge_faithfulness,judge_comment,judge_model,error
+L03,loophole,ar,,لو انسحبت من كل المواد قبل الأسبوع 10، كده الترم مش هيتحسب عليا ومش هدخل تحت إنذار؟,يقول المعلومة الأكيدة (الانسحاب لحد الأسبوع 10 بيتسجل W ومبيدخلش في المعدل، مادة 15)، وبعدها إن الانسحاب من كل المواد مش مكتوب في اللايحة فيسأل مرشده (وش لوش أو إيميل). ميألفش قاعدة.,"اللائحة مش بتتكلم عن الانسحاب من كل المواد مرة واحدة (مادة 15). 
+
+الانسحاب المسموح به لحد الأسبوع العاشر بيكون لمقرر أو أكثر بشرط ألا يخل بالعبء الدراسي المنصوص عليه في المادة 13 (واللي بيلزم الطالب بحد أدنى 12 ساعة في الفصول الرئيسية).
+
+الأحسن إنك تسأل مرشدك الأكاديمي عشان تفاصيل حالتك.",gemini-3.5-flash-lite,3.0,,,False,,True,,,,"aie-reg-15-ar, aie-reg-25-ar, aie-reg-30-ar, aie-reg-12-ar, aie-reg-13-ar, aie-reg-33-ar, aie-reg-11-ar, aie-reg-21-ar",,,,,

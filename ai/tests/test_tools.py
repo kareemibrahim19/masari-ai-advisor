@@ -95,6 +95,9 @@ for pct, want in ((5, "ok"), (12, "first_warning"), (22, "second_warning"), (26,
     check(f"attendance {pct}%", call_tool("attendance_check", {"absence_pct": pct})["status"] == want)
 r = call_tool("attendance_check", {"absent_hours": 6, "total_hours": 45})
 check("attendance from hours", r["absence_pct"] == 13.3 and r["max_absent_hours"] == 11, r)
+r = call_tool("attendance_check", {"attended_pct": 70})
+check("70% attendance is 30% absence: deprived (chatbot eval L02)", r["absence_pct"] == 30 and r["status"] == "deprived", r)
+check("attendance answer says it depends on the course's doctor", "دكتور المادة" in r["explanation"], r)
 
 # drop / withdraw
 check("week 3 can drop", call_tool("drop_withdraw_info", {"current_week": 3})["can_drop"])
@@ -235,6 +238,15 @@ check("unknown advisor case falls back to other", call_tool("contact_advisor", {
 
 r = call_tool("contact_advisor", {"case": "course_full", "course_code": "CSE 351"}, EXC)
 check("first call offers help and asks details, no email", r.get("try_first") and r["ask_ar"] and "email" not in r, r)
+from tools.advisor import NO_EMAIL_CASES  # noqa: E402
+for case in NO_EMAIL_CASES:
+    for confirmed in (False, True):
+        r = call_tool("contact_advisor", {"case": case, "details": "x", "confirmed": confirmed}, EXC)
+        check(f"no email for {case} (confirmed={confirmed}): advisor details right away", r.get("no_email")
+              and "email" not in r and "action" not in r and r["advisor"]["office_hours_ar"], r)
+for case in ("course_full", "grade_issue", "record_error", "other"):
+    r = call_tool("contact_advisor", {"case": case, "course_code": "CSE 351", "details": "x", "confirmed": True}, EXC)
+    check(f"email still written for {case}", "email" in r and not r.get("no_email"), r)
 check("system_error case removed (a stuck system is normal at registration)",
       call_tool("contact_advisor", {"case": "system_error", "confirmed": True}, EXC)["case"] == "other")
 

@@ -385,9 +385,15 @@ def elective_status(student_id: str) -> dict:
 # ---------------------------------------------------------------- 9. attendance
 
 def attendance_check(absent_hours: float | None = None, total_hours: float | None = None,
-                     absence_pct: float | None = None) -> dict:
-    """Where an absence rate stands against the 10% / 20% warnings and the 25% limit (article 12)."""
+                     absence_pct: float | None = None, attended_pct: float | None = None) -> dict:
+    """Where an absence rate stands against the 10% / 20% warnings and the 25% limit (article 12).
+
+    "I attended 70%" is turned into 30% absence here, so the model never compares an attendance rate with
+    the absence limit (chatbot eval L02 said 70% attendance was safe).
+    """
     a = d.rules()["attendance"]
+    if absence_pct is None and attended_pct is not None:
+        absence_pct = 100 - attended_pct
     if absence_pct is None:
         if absent_hours is None or not total_hours:
             return {"found": False, "error": "محتاج نسبة الغياب، أو عدد ساعات الغياب وإجمالي ساعات المادة."}
@@ -402,8 +408,12 @@ def attendance_check(absent_hours: float | None = None, total_hours: float | Non
         status, text = "first_warning", f"نسبة الغياب {absence_pct:.1f}%: الإنذار الأول (بعد {w1}%). الحد النهائي {limit}%."
     else:
         status, text = "ok", f"نسبة الغياب {absence_pct:.1f}% وده في الحدود الآمنة (الإنذار الأول بعد {w1}%)."
+    # Team note 2026-11-27: how attendance is taken depends on the course's doctor (some do not take it at all).
+    doctor_note = ("ده اللي في اللايحة، بس تطبيقه على حسب دكتور المادة: فيه دكاترة بياخدوا الغياب وفيه دكاترة "
+                   "مبياخدوش، فاتأكد من دكتور المادة.")
     out = {"found": True, "absence_pct": round(absence_pct, 1), "status": status, "max_absence_pct": limit,
-           "warnings_at_pct": [w1, w2], "article": ARTICLES["attendance"], "explanation": text}
+           "warnings_at_pct": [w1, w2], "article": ARTICLES["attendance"], "doctor_note": doctor_note,
+           "explanation": f"{text} {doctor_note}"}
     if total_hours:
         out["max_absent_hours"] = math.floor(total_hours * limit / 100)
         out["hours_left_before_deprived"] = max(0, math.floor(total_hours * limit / 100) - (absent_hours or 0))

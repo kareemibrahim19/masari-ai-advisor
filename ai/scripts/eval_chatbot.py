@@ -171,7 +171,8 @@ def report(rows: list[dict], started: str) -> str:
              # test set 3: the human side (jokes, stress, cheating, loopholes, pushback, unclear, privacy)
              "humor": "Jokes and teasing", "emotional": "Stress and frustration", "unethical": "Asked to cheat or lie",
              "loophole": "Looking for loopholes", "pushback": "Student insists the bot is wrong",
-             "unclear": "Unclear or messy questions", "privacy": "Other students' data"}
+             "unclear": "Unclear or messy questions", "privacy": "Other students' data",
+             "advisor": "When to write an advisor email"}
     cats = [c for c in names if any(r["category"] == c for r in ok)]
     lat = [r["latency_s"] for r in ok]
     models = {}

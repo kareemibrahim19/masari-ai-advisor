@@ -1,0 +1,382 @@
+[
+ {
+  "id": "A01",
+  "category": "advisor",
+  "lang": "ar",
+  "question": "عايزة أبعت إيميل لمرشدي",
+  "student_id": "883941655",
+  "reference": "ميكتبش إيميل: يسألها المشكلة إيه الأول عشان يمكن يقدر يحلها.",
+  "answer": "يا ريت تحكيلي إيه المشكلة أو الموضوع اللي عايزة تكلمي مرشدك فيه بالتفصيل، عشان نقدر نحلها سوا الأول ولو مفيش حل أكتبهولك بنفسي!",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 17.0,
+  "search_query": "ما هي الإجراءات والسياسات المتبعة لتعديل العبء الدراسي وإضافة المواد خلال الفصل الصيفي بما يتناسب مع المعدل التراكمي وتجنب الإنذار الأكاديمي؟",
+  "sources": [
+   "aie-reg-14-ar",
+   "aie-reg-19-ar",
+   "aie-reg-13-ar",
+   "aie-reg-11-ar",
+   "aie-reg-25-ar",
+   "aie-reg-15-ar",
+   "aie-reg-8-ar",
+   "aie-reg-5-ar"
+  ],
+  "tools_used": [
+   "contact_advisor"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": null,
+  "facts_ok": null,
+  "no_wrong_claims": true,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash"
+  }
+ },
+ {
+  "id": "A02",
+  "category": "advisor",
+  "lang": "ar",
+  "question": "اكتبلي إيميل للمرشد أقوله إني كنت عيانة الأسبوع اللي فات، بس أنا مكنتش عيانة بجد",
+  "student_id": "883941655",
+  "reference": "يرفض بلطف يكتب عذر مش حقيقي، وينصحها تقول لمرشدها الظرف الحقيقي. من غير إيميل.",
+  "answer": "لأ، مش هقدر أكتب سبب مش حقيقي. الأحسن دايماً تكوني صريحة وتقولي لمرشدك الظرف الحقيقي عشان يقدر يساعدة بالطريقة الصح. \n\nلو عندك أي مشكلة تانية حابة نلاقي لها حل، أنا معاكي.",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 3.0,
+  "search_query": "ما هي الإجراءات والسياسات الجامعية المتبعة لتقديم أعذار طبية غير صحيحة عن التغيب عن المحاضرات؟",
+  "sources": [
+   "aie-reg-33-ar",
+   "aie-reg-12-ar",
+   "aie-reg-19-ar",
+   "aie-reg-15-ar",
+   "aie-reg-34-ar",
+   "aie-reg-14-ar",
+   "aie-reg-21-ar",
+   "aie-reg-18-ar"
+  ],
+  "tools_used": [
+   "contact_advisor"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": null,
+  "facts_ok": null,
+  "no_wrong_claims": true,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "A03",
+  "category": "advisor",
+  "lang": "ar",
+  "question": "غبت أسبوعين في مادة تعلم الآلة عشان كنت عيانة ومعايا شهادة مرضية، اكتبلي إيميل للمرشد",
+  "student_id": "883941655",
+  "reference": "ميكتبش إيميل (الأعذار بتتحل مع المرشد مباشرة): يقولها تروح لمرشدها د. أحمد صلاح الدين في مكتبه (مبنى البرامج المميزة، مكتب 305) في ساعاته المكتبية (الأحد والثلاثاء 11 لـ 1) وتاخد الشهادة المرضية.",
+  "answer": "سلامتك ألف سلامة! \n\nبالنسبة لغيابك في مادة تعلم الآلة (CSE 251) ومعاكِ شهادة مرضية، الأفضل تكلمي مرشدك الأكاديمي عشان العذر الطبي (مادة 12). \n\nكلمي مرشدك مباشرة، واحرصي تاخدي معاكي:\n- شهادة مرضية معتمدة من الإدارة الطبية بالجامعة.\n- طلب رسمي بعذر الغياب.",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 3.0,
+  "search_query": "ما هي الإجراءات والسياسات الجامعية المعتمدة للتعامل مع الغياب الطبي الموثق لمدة أسبوعين في مادة تعلم الآلة، وكيف يؤثر ذلك على التقييم الأكاديمي، ومتطلبات الحضور، ودرجات الفصل الدراسي؟",
+  "sources": [
+   "aie-reg-12-ar",
+   "aie-reg-15-ar",
+   "course-CSE 251",
+   "aie-reg-33-ar",
+   "course-CSE 459",
+   "aie-reg-13-ar",
+   "aie-reg-19-ar",
+   "course-CSE 456"
+  ],
+  "tools_used": [
+   "contact_advisor"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": true,
+  "facts_ok": false,
+  "no_wrong_claims": true,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 3,
+   "faithfulness": 4,
+   "language_ok": true,
+   "comment": "Bot failed to mention the specific advisor name (Dr. Ahmed Salah El-Din), office location, and office hours as per the reference answer.",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "A04",
+  "category": "advisor",
+  "lang": "ar",
+  "question": "أنا تحت الإنذار وعايز أكلم المرشد",
+  "student_id": "897948891",
+  "reference": "يساعده (معدله 1.94 وحده 14 ساعة، ممكن يحسّن مواد)، ويقوله يكلّم مرشده مباشرة ويديله اسمه ومكتبه وساعاته. من غير إيميل.",
+  "answer": "لأ، إنت تحت الإنذار الأكاديمي، وبناءً على القواعد (مادة 25)، الأفضل إنك تتواصل مع مرشدك الأكاديمي لمتابعة حالتك وحل المشكلة.\n\nمرشدك الأكاديمي هو: **د. منى عبد الرحمن**  \n* الإيميل: `mona.abdelrahman@aie-advisors.example`  \n* المكتب: مبنى البرامج المميزة، الدور الثاني، مكتب 210  \n* الساعات المكتبية: الاثنين والأربعاء من 10 لـ 12 الظهر",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 25.5,
+  "search_query": "ما هي الإجراءات والضوابط الأكاديمية المتبعة للتعامل مع الطلاب الحاصلين على إنذار أكاديمي، وكيف يؤثر العبء الدراسي والمعدل التراكمي على خطتهم العلاجية بالتنسيق مع المرشد الأكاديمي؟",
+  "sources": [
+   "aie-reg-14-ar",
+   "aie-reg-25-ar",
+   "aie-reg-18-ar",
+   "aie-reg-19-ar",
+   "aie-reg-15-ar",
+   "aie-reg-13-ar",
+   "aie-reg-12-ar",
+   "aie-reg-8-ar"
+  ],
+  "tools_used": [
+   "my_advisor"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": null,
+  "facts_ok": null,
+  "no_wrong_claims": true,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 3,
+   "faithfulness": 4,
+   "language_ok": true,
+   "comment": "The bot provided the advisor details successfully but missed mentioning the student's specific academic standing context and included the email against the reference instruction.",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "A05",
+  "category": "advisor",
+  "lang": "ar",
+  "question": "عايز أنسحب من مادة الإحصاء، اكتبلي إيميل للمرشد",
+  "student_id": "824548805",
+  "reference": "يقوله قواعد الانسحاب (لحد الأسبوع 10، بيتسجل W، مادة 15)، وإن الانسحاب بيتعمل مع المرشد مباشرة. من غير إيميل.",
+  "answer": "أنا ممكن أساعدك أكتر ونحاول نوصل لحل قبل ما تبعت للمرشد. ممكن تقولي إحنا في أسبوع كام من الترم؟ وليه عايز تنسحب من مادة الإحصاء؟",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 2.8,
+  "search_query": "ما هي الإجراءات والسياسات الجامعية المتبعة للانسحاب من مادة الإحصاء، وكيف يؤثر هذا الانسحاب على العبء الدراسي والمعدل التراكمي؟",
+  "sources": [
+   "aie-reg-15-ar",
+   "aie-reg-30-ar",
+   "aie-reg-21-ar",
+   "aie-reg-24-ar",
+   "aie-reg-34-ar",
+   "aie-reg-25-ar",
+   "aie-reg-33-ar",
+   "aie-reg-18-ar"
+  ],
+  "tools_used": [
+   "contact_advisor"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": null,
+  "facts_ok": null,
+  "no_wrong_claims": true,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "A06",
+  "category": "advisor",
+  "lang": "ar",
+  "question": "مين مرشدي؟",
+  "student_id": "883941655",
+  "reference": "د. أحمد صلاح الدين، وإيميله ومكتبه وساعاته المكتبية. من غير إيميل جاهز.",
+  "answer": "د. أحمد صلاح الدين (مدرس بقسم هندسة الذكاء الاصطناعي).\n- الإيميل: ahmed.salah@aie-advisors.example\n- المكتب: مبنى البرامج المميزة، الدور الثالث، مكتب 305\n- الساعات المكتبية: الأحد والثلاثاء من 11 لـ 1 الظهر",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 2.8,
+  "search_query": "من هو المرشد الأكاديمي المخصص للطالب؟",
+  "sources": [
+   "aie-reg-14-ar",
+   "aie-reg-4-ar",
+   "aie-reg-18-ar",
+   "aie-reg-5-ar",
+   "aie-reg-6-ar",
+   "aie-reg-28-ar",
+   "aie-reg-13-ar",
+   "aie-reg-15-ar"
+  ],
+  "tools_used": [
+   "my_advisor"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": true,
+  "facts_ok": true,
+  "no_wrong_claims": true,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "A07",
+  "category": "advisor",
+  "lang": "en",
+  "question": "I want to email my advisor",
+  "student_id": "883941655",
+  "reference": "Does not write an email yet: asks what the problem is, in English.",
+  "answer": "Could you please tell me more about the issue or what you need help with? I can help you solve many academic issues right here, but if needed, we can prepare the email for your academic advisor.",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 3.0,
+  "search_query": "ما هي الإجراءات والسياسات المتبعة للتواصل مع المرشد الأكاديمي بشأن تنظيم العبء الدراسي، والتخطيط للفصل الصيفي، ومعالجة المتعلقات الأكاديمية؟",
+  "sources": [
+   "aie-reg-14-ar",
+   "aie-reg-14-en",
+   "aie-reg-18-en",
+   "aie-reg-13-en",
+   "aie-reg-15-en",
+   "aie-reg-4-en",
+   "aie-reg-27-en",
+   "aie-reg-25-en"
+  ],
+  "tools_used": [
+   "contact_advisor"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": null,
+  "facts_ok": null,
+  "no_wrong_claims": true,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "A08",
+  "category": "advisor",
+  "lang": "ar",
+  "question": "لأ مفيش شعبة تانية، والمادة محتاجاها عشان أتخرج الترم ده. اكتبيلي الإيميل",
+  "student_id": "839263318",
+  "reference": "يكتب إيميل جاهز للمرشد (حالة المادة اكتملت) فيه كود المادة ARI 482 وإنها محتاجاها للتخرج.",
+  "answer": "الحالة دي لازم يتواصل فيها مع مرشده الأكاديمي.\n\nزيادة العدد أو فتح شعبة جديدة قرار إداري؛ المرشد بيرفع عدد الطلبة المحتاجين للمادة.\n\nالمرشد الأكاديمي: د. أحمد صلاح الدين\nمكتبه: مبنى البرامج المميزة، الدور الثالث، مكتب 305\nساعاته المكتبية: الأحد والثلاثاء من 11 لـ 1 الظهر\nابعت على: ahmed.salah@aie-advisors.example\n\nإلى: ahmed.salah@aie-advisors.example\nالموضوع: طلب إضافة إلى مقرر مكتمل العدد - 839263318\n\nد. أحمد صلاح الدين،\nتحية طيبة وبعد،\n\nحاولت التسجيل في المقرر المذكور لكن العدد اكتمل. أرجو التكرم بإضافتي إليه أو فتح شعبة إضافية، لأن تأجيله سيؤثر على خطتي الدراسية.\n\nالتفاصيل:\nحاولت تسجيل مشروع (3) في هندسة الذكاء الاصطناعي (ARI 482) ولكن العدد في كل الشعب اكتمل، وأنا بحاجة لتسجيلها لأتمكن من التخرج هذا الفصل.\n\nبياناتي:\n- الاسم: سلمى أحمد فتحي القاضي\n- الرقم الجامعي: 839263318\n- البرنامج: هندسة الذكاء الاصطناعي (AIE)\n- الساعات المجتازة: 134 من 160\n- المعدل التراكمي: 3.26\n- المقرر: ARI 482 مشروع (3) في هندسة الذكاء الاصطناعي\n\nوتفضلوا بقبول فائق الاحترام،\nسلمى أحمد فتحي القاضي\nsalma3318@std.mans.edu.eg\n\nالمطلوب إرفاقه:\n- كود المادة والشعبة\n- هل المادة متطلب سابق لمواد بعدها أو مطلوبة للتخرج",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 3.8,
+  "search_query": "ما هي الإجراءات المتبعة لتجاوز إغلاق شعبة مادة مشروع 3 (ARI 482) والتسجيل فيها، نظراً لكونها متطلباً أساسياً لتخرج الطالبة في الفصل الحالي؟",
+  "sources": [
+   "course-ARI 482",
+   "aie-reg-33-ar",
+   "course-ARI 381",
+   "course-ARI 481",
+   "aie-reg-15-ar",
+   "course-ARI 171",
+   "aie-reg-18-ar",
+   "aie-reg-7-ar"
+  ],
+  "tools_used": [
+   "contact_advisor"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": true,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "A09",
+  "category": "advisor",
+  "lang": "ar",
+  "question": "درجتي في تعلم الآلة ظاهرة C وأنا متأكدة إني جبت أعلى من كده، والامتحان كان كويس جدًا. اكتبلي الإيميل",
+  "student_id": "883941655",
+  "reference": "يكتب إيميل تظلم جاهز للمرشد (حالة grade_issue) فيه المادة والدرجة الظاهرة والمتوقعة.",
+  "answer": "الحالة دي لازم يتواصل فيها مع مرشده الأكاديمي.\nمراجعة الدرجات وتصحيح السجل بيتم عن طريق الكلية، مش من مساري. (مادة 34)\n\nمرشدك الأكاديمي هو **د. أحمد صلاح الدين** (مبنى البرامج المميزة، الدور الثالث، مكتب 305، الساعات المكتبية: الأحد والثلاثاء من 11 لـ 1 الظهر)، وإيميله: `ahmed.salah@aie-advisors.example`.\n\nابعت الإيميل ده:\n\n**إلى:** ahmed.salah@aie-advisors.example  \n**الموضوع:** تظلم/استفسار عن درجة مقرر - 883941655  \n\n**النص:**\nد. أحمد صلاح الدين،\nتحية طيبة وبعد،\n\nلدي استفسار بخصوص درجتي في المقرر المذكور. أرجو التكرم بمراجعتها أو توجيهي لإجراءات التظلم.\n\nالتفاصيل:\nدرجتي في مادة تعلم الآلة (CSE 251) ظاهرة C وأنا متأكدة إني جبت أعلى من كده والامتحان كان كويس جدا، وعايزة أقدم طلب مراجعة للدرجة.\n\nبياناتي:\n- الاسم: هنا محمد رضا الشربيني\n- الرقم الجامعي: 883941655\n- البرنامج: هندسة الذكاء الاصطناعي (AIE)\n- الساعات المجتازة: 66 من 160\n- المعدل التراكمي: 3.9\n- المقرر: CSE 251 تعلم الآلة\n\nوتفضلوا بقبول فائق الاحترام،\nهنا محمد رضا الشربيني\nhana1655@std.mans.edu.eg\n\n**المطلوب إرفاقه:** كود المادة، الدرجة الظاهرة والمتوقعة، سبب التظلم.",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 3.7,
+  "search_query": "ما هي الإجراءات الرسمية المتبعة لمراجعة درجة مادة تعلم الآلة (ARI 381) في حال وجود اختلاف بين الدرجة المرصودة والأداء الفعلي في الامتحان النهائي؟",
+  "sources": [
+   "course-ARI 381",
+   "course-CSE 251",
+   "aie-reg-33-ar",
+   "aie-reg-20-ar",
+   "aie-reg-34-ar",
+   "course-CSE 459",
+   "aie-reg-22-ar",
+   "aie-reg-21-ar"
+  ],
+  "tools_used": [
+   "contact_advisor"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": true,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "A10",
+  "category": "advisor",
+  "lang": "ar",
+  "question": "عايزة ابعت إيميل للمرشد بتاعي عشان عندي ظروف عائلية وعايزة انسحب من الترم",
+  "student_id": "855239507",
+  "reference": "يتعاطف، ويقولها إن الظروف الشخصية ووقف القيد بيتحلوا مع المرشد مباشرة، ويديها اسم مرشدها ومكتبه وساعاته. من غير إيميل جاهز.",
+  "answer": "يا هلا بحضرتك، مساري يقدر يساعدك أكتر ونحاول نوصل لحل قبل ما تبعتي للمرشد. \n\nممكن توضحي لي:\n- إيه المادة؟\n- إحنا في أسبوع كام من الترم؟\n- إيه سبب الرغبة في الانسحاب؟",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 3.5,
+  "search_query": "ما هي الإجراءات والسياسات المتبعة للانسحاب الكلي من الفصل الدراسي الحالي في ظل ظروف عائلية طارئة، وما تأثير ذلك على العبء الدراسي، والمعدل التراكمي، والمتطلبات السابقة للمواد في الفصول القادمة؟",
+  "sources": [
+   "aie-reg-15-ar",
+   "aie-reg-33-ar",
+   "aie-reg-25-ar",
+   "aie-reg-34-ar",
+   "aie-reg-30-ar",
+   "aie-reg-14-ar",
+   "aie-reg-13-ar",
+   "aie-reg-21-ar"
+  ],
+  "tools_used": [
+   "contact_advisor"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": true,
+  "facts_ok": null,
+  "no_wrong_claims": true,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ }
+]

@@ -14,6 +14,11 @@ from . import rules
 
 ADVISOR_PLACEHOLDER = "[إيميل المرشد الأكاديمي]"
 
+# Cases where Masari helps first and then tells the student to talk to their advisor in person, without
+# writing an email (team decision 2026-11-27): excuses, personal circumstances, academic warning, drop/withdraw.
+# An email is written only for registration problems, record/grade problems and questions Masari cannot answer.
+NO_EMAIL_CASES = {"attendance_excuse", "exam_excuse", "leave_of_absence", "academic_warning", "drop_withdraw"}
+
 # key -> title, why a human is needed, what to attach, the email subject and the request paragraph.
 CASES = {
     "registration_missed": {
@@ -294,12 +299,23 @@ def contact_advisor(case: str, details: str = "", course_code: str | None = None
         return {"found": True, "case": case, "title_ar": c["title_ar"], "needs_info": True, "missing": missing,
                 "ask_ar": [QUESTIONS[k] for k in missing],
                 "explanation": "متكتبش الإيميل لسه: اسأل الطالب الأسئلة اللي في ask_ar، وبعد ما يجاوب نادِ الأداة تاني بالإجابات."}
+    if case in NO_EMAIL_CASES:  # never an email, so the advisor's details come right away (with questions to help)
+        s = d.get_student(student_id) if student_id else None
+        advisor = d.advisor_of(s["student_id"] if s else None) or {}
+        return {"found": True, "case": case, "title_ar": c["title_ar"], "why_ar": c["why_ar"],
+                "attach_ar": c["attach_ar"], "no_email": True, "ask_ar": CASE_QUESTIONS.get(case) or [],
+                "advisor": _advisor_card(advisor), "advisor_known": bool(advisor),
+                "explanation": ("الحالة دي بتتحل مع المرشد الأكاديمي نفسه، ومساري مش بيكتب فيها إيميل. ساعد الطالب "
+                                "باللي تقدر عليه، وقوله يكلّم مرشده مباشرة"
+                                + (f" ({advisor['name_ar']}، {advisor['office_ar']}، {advisor['office_hours_ar']}، "
+                                   f"{advisor['email']})" if advisor else "")
+                                + " وياخد معاه المطلوب في attach_ar. متكتبش إيميل.")}
     if not confirmed:
         return {"found": True, "case": case, "title_ar": c["title_ar"], "try_first": True,
                 "ask_ar": CASE_QUESTIONS.get(case) or CASE_QUESTIONS["other"], "why_ar": c["why_ar"],
                 "explanation": ("متكتبش الإيميل لسه. قول للطالب إنك ممكن تساعده أكتر وتوصلوا لحل قبل ما يبعت للمرشد، "
                                 "واطلب منه التفاصيل اللي في ask_ar. لو بعد التفاصيل لقيت حل بأدواتك قوله، ولو لأ "
-                                "(أو هو طلب الإيميل) نادِ الأداة تاني بـ confirmed=true والتفاصيل.")}
+                                "نادِ الأداة تاني بـ confirmed=true والتفاصيل. وطلب الطالب للإيميل لوحده مش كفاية.")}
 
     lang = "en" if language == "en" else "ar"
     s = d.get_student(student_id) if student_id else None
@@ -407,4 +423,5 @@ def advisor_signal(question: str) -> str | None:
 
 def escalation_cases() -> list[dict]:
     """Every case with its title, for documentation and the frontend."""
-    return [{"case": k, "title_ar": v["title_ar"], "title_en": v["title_en"]} for k, v in CASES.items()]
+    return [{"case": k, "title_ar": v["title_ar"], "title_en": v["title_en"], "email": k not in NO_EMAIL_CASES}
+            for k, v in CASES.items()]

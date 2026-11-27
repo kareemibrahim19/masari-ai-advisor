@@ -1,0 +1,150 @@
+[
+ {
+  "id": "R06",
+  "category": "regulation",
+  "lang": "ar",
+  "question": "اقدر احذف مادة لحد امتى؟",
+  "student_id": null,
+  "reference": "حتى نهاية الأسبوع الرابع من الدراسة بعد موافقة المرشد الأكاديمي، مادة 15.",
+  "answer": "لحد نهاية الأسبوع الرابع من الدراسة، (مادة 15).\n\nتقدر تحذف المادة بموافقة المرشد الأكاديمي بشرط إن الحذف ده مياثرش على الحد الأدنى للعبء الدراسي (12 ساعة)، ومن غير ما تظهر المادة في سجلك الأكاديمي.",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 3.5,
+  "search_query": "ما هو الموعد النهائي لحذف مادة دراسية خلال الفصل الدراسي؟",
+  "sources": [
+   "aie-reg-15-ar",
+   "aie-reg-30-ar",
+   "aie-reg-11-ar",
+   "aie-reg-33-ar",
+   "aie-reg-13-ar",
+   "aie-reg-19-ar",
+   "aie-reg-34-ar",
+   "aie-reg-24-ar"
+  ],
+  "tools_used": [
+   "drop_withdraw_info"
+  ],
+  "retrieval_hit": true,
+  "tool_ok": null,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": true,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "R07",
+  "category": "regulation",
+  "lang": "ar",
+  "question": "آخر ميعاد للانسحاب من مادة في الترم العادي امتى؟",
+  "student_id": null,
+  "reference": "حتى نهاية الأسبوع العاشر (الثالث في الصيفي) ويُسجل W، مادة 15.",
+  "answer": "آخر ميعاد للانسحاب من مادة في الترم العادي هو نهاية الأسبوع العاشر من بدء التسجيل للفصل الدراسي الخريفي أو الربيعي، وذلك طبقاً للمادة [15].",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 1.8,
+  "search_query": "ما هو الموعد النهائي للانسحاب من مقرر دراسي خلال الفصل الدراسي العادي؟",
+  "sources": [
+   "aie-reg-15-ar",
+   "aie-reg-11-ar",
+   "aie-reg-30-ar",
+   "aie-reg-33-ar",
+   "aie-reg-25-ar",
+   "aie-reg-34-ar",
+   "aie-reg-13-ar",
+   "aie-reg-24-ar"
+  ],
+  "tools_used": [],
+  "retrieval_hit": true,
+  "tool_ok": null,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": true,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "R10",
+  "category": "regulation",
+  "lang": "ar",
+  "question": "نسبة الغياب المسموح بيها كام؟",
+  "student_id": null,
+  "reference": "25% من ساعات المحاضرات والمعامل، وإنذارات عند 10% و20%، مادة 12.",
+  "answer": "النسبة المسموح بيها لغياب الطالب من غير عذر مقبول هي 25% من مجموع ساعات المحاضرات والمعامل للمقرر، طبقاً لقواعد الانتظام في الدراسة (مادة 12). وتطبيق النسبة دي بيعتمد على دكتور المادة (فيه دكاترة بياخدوا الغياب وفيه دكاترة مبياخدوش).",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 2.3,
+  "search_query": "ما هي نسبة الغياب الأكاديمي المسموح بها في المقررات الدراسية وفقاً للوائح والأنظمة الجامعية؟",
+  "sources": [
+   "aie-reg-12-ar",
+   "aie-reg-15-ar",
+   "aie-reg-30-ar",
+   "aie-reg-21-ar",
+   "aie-reg-27-ar",
+   "aie-reg-13-ar",
+   "aie-reg-33-ar",
+   "aie-reg-8-ar"
+  ],
+  "tools_used": [],
+  "retrieval_hit": true,
+  "tool_ok": null,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": true,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 4,
+   "language_ok": true,
+   "comment": "The bot answered correctly and in the right language, though it added a minor unverified detail about professors.",
+   "model": "gemini-3.5-flash-lite"
+  }
+ },
+ {
+  "id": "S14",
+  "category": "student_tool",
+  "lang": "ar",
+  "question": "غبت 4 محاضرات من 28 في مادة، كده أنا في أمان؟",
+  "student_id": "883941655",
+  "reference": "النسبة حوالي 14% (فوق 10%): إنذار أول، والحرمان عند 25%، مادة 12.",
+  "answer": "لأ، إنت كده في الإنذار الأول (مادة 12). \n\nنسبة غيابك حوالي 14.3% (4 ساعات غياب من إجمالي 28 ساعة)، وده عدى نسبة الإنذار الأول (10%) وفاضلك 3 ساعات غياب كمان وتوصل للإنذار التاني. الحد الأقصى للغياب هو 25% (مادة 12)، وبعدها بيتعرض الطالب للحرمان (مادة 12). وتطبيق الكلام ده بيعتمد على دكتور المادة: فيه دكاترة بياخدوا الغياب وفيه دكاترة مبياخدوش، فاتأكد من دكتور المادة.",
+  "model": "gemini-3.5-flash-lite",
+  "latency_s": 3.2,
+  "search_query": "ما هي النسبة المسموحة للغياب في المقررات الدراسية، وما هي العواقب الأكاديمية المترتبة على تجاوزها؟",
+  "sources": [
+   "aie-reg-12-ar",
+   "aie-reg-33-ar",
+   "aie-reg-15-ar",
+   "aie-reg-21-ar",
+   "aie-reg-27-ar",
+   "aie-reg-8-ar",
+   "aie-reg-13-ar",
+   "aie-reg-25-ar"
+  ],
+  "tools_used": [
+   "attendance_check"
+  ],
+  "retrieval_hit": null,
+  "tool_ok": true,
+  "facts_ok": true,
+  "no_wrong_claims": null,
+  "article_ok": null,
+  "lang_ok": true,
+  "judge": {
+   "correctness": 5,
+   "faithfulness": 5,
+   "language_ok": true,
+   "comment": "ok",
+   "model": "gemini-3.5-flash-lite"
+  }
+ }
+]
