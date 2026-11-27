@@ -171,8 +171,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.81,
-            "cumulative_gpa": 3.81,
+            "term_gpa": 3.8,
+            "cumulative_gpa": 3.8,
             "cumulative_earned_hours": 17,
             "academic_standing": "منتظم"
           }
@@ -387,7 +387,7 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 3.91,
+            "term_gpa": 3.9,
             "cumulative_gpa": 3.9,
             "cumulative_earned_hours": 49,
             "academic_standing": "منتظم"
@@ -742,8 +742,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.44,
-            "cumulative_gpa": 2.44,
+            "term_gpa": 2.43,
+            "cumulative_gpa": 2.43,
             "cumulative_earned_hours": 17,
             "academic_standing": "منتظم"
           }
@@ -851,7 +851,7 @@
             "registered_hours": 16,
             "earned_hours": 16,
             "term_gpa": 1.96,
-            "cumulative_gpa": 2.21,
+            "cumulative_gpa": 2.2,
             "cumulative_earned_hours": 33,
             "academic_standing": "منتظم"
           }
@@ -958,7 +958,7 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 7,
-            "term_gpa": 1.22,
+            "term_gpa": 1.21,
             "cumulative_gpa": 1.88,
             "cumulative_earned_hours": 40,
             "academic_standing": "إنذار أكاديمي"
@@ -1268,8 +1268,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.42,
-            "cumulative_gpa": 3.42,
+            "term_gpa": 3.41,
+            "cumulative_gpa": 3.41,
             "cumulative_earned_hours": 17,
             "academic_standing": "منتظم"
           }
@@ -1376,7 +1376,7 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 3.23,
+            "term_gpa": 3.22,
             "cumulative_gpa": 3.32,
             "cumulative_earned_hours": 33,
             "academic_standing": "منتظم"
@@ -1485,7 +1485,7 @@
             "registered_hours": 16,
             "earned_hours": 16,
             "term_gpa": 3.18,
-            "cumulative_gpa": 3.28,
+            "cumulative_gpa": 3.27,
             "cumulative_earned_hours": 49,
             "academic_standing": "منتظم"
           }
@@ -1591,8 +1591,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.25,
-            "cumulative_gpa": 3.27,
+            "term_gpa": 3.24,
+            "cumulative_gpa": 3.26,
             "cumulative_earned_hours": 66,
             "academic_standing": "منتظم"
           }
@@ -1619,7 +1619,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 3.27,
+            "cumulative_gpa": 3.26,
             "cumulative_earned_hours": 66
           }
         },
@@ -1727,7 +1727,7 @@
             "registered_hours": 16,
             "earned_hours": 16,
             "term_gpa": 3.14,
-            "cumulative_gpa": 3.25,
+            "cumulative_gpa": 3.24,
             "cumulative_earned_hours": 82,
             "academic_standing": "منتظم"
           }
@@ -1966,7 +1966,7 @@
           "summary": {
             "registered_hours": 18,
             "earned_hours": 18,
-            "term_gpa": 3.17,
+            "term_gpa": 3.16,
             "cumulative_gpa": 3.24,
             "cumulative_earned_hours": 117,
             "academic_standing": "منتظم"
@@ -2424,8 +2424,8 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 2.78,
-            "cumulative_gpa": 2.85,
+            "term_gpa": 2.77,
+            "cumulative_gpa": 2.84,
             "cumulative_earned_hours": 33,
             "academic_standing": "منتظم"
           }
@@ -2532,7 +2532,7 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 2.87,
+            "term_gpa": 2.86,
             "cumulative_gpa": 2.85,
             "cumulative_earned_hours": 49,
             "academic_standing": "منتظم"
@@ -2775,7 +2775,7 @@
             "registered_hours": 16,
             "earned_hours": 16,
             "term_gpa": 2.96,
-            "cumulative_gpa": 2.92,
+            "cumulative_gpa": 2.91,
             "cumulative_earned_hours": 82,
             "academic_standing": "منتظم"
           }
@@ -3014,7 +3014,7 @@
           "summary": {
             "registered_hours": 18,
             "earned_hours": 15,
-            "term_gpa": 2.67,
+            "term_gpa": 2.66,
             "cumulative_gpa": 2.9,
             "cumulative_earned_hours": 114,
             "academic_standing": "منتظم"
@@ -3104,7 +3104,7 @@
           "summary": {
             "registered_hours": 14,
             "earned_hours": 14,
-            "term_gpa": 2.84,
+            "term_gpa": 2.83,
             "cumulative_gpa": 2.89,
             "cumulative_earned_hours": 128,
             "academic_standing": "منتظم"
@@ -3685,8 +3685,8 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 2.76,
-            "cumulative_gpa": 2.61,
+            "term_gpa": 2.75,
+            "cumulative_gpa": 2.6,
             "cumulative_earned_hours": 49,
             "academic_standing": "منتظم"
           }
@@ -3792,7 +3792,7 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.48,
+            "term_gpa": 2.47,
             "cumulative_gpa": 2.57,
             "cumulative_earned_hours": 66,
             "academic_standing": "منتظم"
@@ -3927,7 +3927,7 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 14,
-            "term_gpa": 2.16,
+            "term_gpa": 2.15,
             "cumulative_gpa": 2.49,
             "cumulative_earned_hours": 80,
             "academic_standing": "منتظم"
@@ -4019,7 +4019,7 @@
             "registered_hours": 14,
             "earned_hours": 14,
             "term_gpa": 2.79,
-            "cumulative_gpa": 2.54,
+            "cumulative_gpa": 2.53,
             "cumulative_earned_hours": 94,
             "academic_standing": "منتظم"
           }
@@ -4161,7 +4161,7 @@
         "elective_hours": 0,
         "project_hours": 0,
         "trainings_passed": [],
-        "cumulative_gpa": 1.91,
+        "cumulative_gpa": 1.9,
         "main_semesters_completed": 1,
         "academic_standing": "منتظم",
         "consecutive_warning_semesters": 0,
@@ -4274,8 +4274,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 14,
-            "term_gpa": 1.91,
-            "cumulative_gpa": 1.91,
+            "term_gpa": 1.9,
+            "cumulative_gpa": 1.9,
             "cumulative_earned_hours": 14,
             "academic_standing": "منتظم"
           }
@@ -4823,7 +4823,7 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.11,
+            "term_gpa": 2.1,
             "cumulative_gpa": 2.1,
             "cumulative_earned_hours": 66,
             "academic_standing": "منتظم"
@@ -4958,8 +4958,8 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 2.52,
-            "cumulative_gpa": 2.19,
+            "term_gpa": 2.51,
+            "cumulative_gpa": 2.18,
             "cumulative_earned_hours": 82,
             "academic_standing": "منتظم"
           }
@@ -5065,7 +5065,7 @@
             "registered_hours": 17,
             "earned_hours": 17,
             "term_gpa": 1.21,
-            "cumulative_gpa": 2.02,
+            "cumulative_gpa": 2.01,
             "cumulative_earned_hours": 99,
             "academic_standing": "منتظم"
           }
@@ -5092,7 +5092,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 2.02,
+            "cumulative_gpa": 2.01,
             "cumulative_earned_hours": 99
           }
         },
@@ -5198,7 +5198,7 @@
           "summary": {
             "registered_hours": 18,
             "earned_hours": 18,
-            "term_gpa": 1.22,
+            "term_gpa": 1.21,
             "cumulative_gpa": 1.89,
             "cumulative_earned_hours": 117,
             "academic_standing": "إنذار أكاديمي"
@@ -5514,8 +5514,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.72,
-            "cumulative_gpa": 2.72,
+            "term_gpa": 2.71,
+            "cumulative_gpa": 2.71,
             "cumulative_earned_hours": 17,
             "academic_standing": "منتظم"
           }
@@ -5733,7 +5733,7 @@
         "trainings_passed": [
           "ARI 171"
         ],
-        "cumulative_gpa": 2.99,
+        "cumulative_gpa": 2.98,
         "main_semesters_completed": 4,
         "academic_standing": "منتظم",
         "consecutive_warning_semesters": 0,
@@ -5846,8 +5846,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.12,
-            "cumulative_gpa": 3.12,
+            "term_gpa": 3.11,
+            "cumulative_gpa": 3.11,
             "cumulative_earned_hours": 17,
             "academic_standing": "منتظم"
           }
@@ -6063,7 +6063,7 @@
             "registered_hours": 16,
             "earned_hours": 16,
             "term_gpa": 3.07,
-            "cumulative_gpa": 3.06,
+            "cumulative_gpa": 3.05,
             "cumulative_earned_hours": 49,
             "academic_standing": "منتظم"
           }
@@ -6169,8 +6169,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.79,
-            "cumulative_gpa": 2.99,
+            "term_gpa": 2.78,
+            "cumulative_gpa": 2.98,
             "cumulative_earned_hours": 66,
             "academic_standing": "منتظم"
           }
@@ -6197,7 +6197,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 2.99,
+            "cumulative_gpa": 2.98,
             "cumulative_earned_hours": 66
           }
         },
@@ -6261,7 +6261,7 @@
         "elective_hours": 0,
         "project_hours": 0,
         "trainings_passed": [],
-        "cumulative_gpa": 2.45,
+        "cumulative_gpa": 2.44,
         "main_semesters_completed": 4,
         "academic_standing": "منتظم",
         "consecutive_warning_semesters": 0,
@@ -6374,8 +6374,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.85,
-            "cumulative_gpa": 2.85,
+            "term_gpa": 2.84,
+            "cumulative_gpa": 2.84,
             "cumulative_earned_hours": 17,
             "academic_standing": "منتظم"
           }
@@ -6483,7 +6483,7 @@
             "registered_hours": 16,
             "earned_hours": 16,
             "term_gpa": 2.43,
-            "cumulative_gpa": 2.65,
+            "cumulative_gpa": 2.64,
             "cumulative_earned_hours": 33,
             "academic_standing": "منتظم"
           }
@@ -6583,7 +6583,7 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 13,
-            "term_gpa": 2.82,
+            "term_gpa": 2.81,
             "cumulative_gpa": 2.69,
             "cumulative_earned_hours": 46,
             "academic_standing": "منتظم"
@@ -6672,8 +6672,8 @@
           "summary": {
             "registered_hours": 13,
             "earned_hours": 8,
-            "term_gpa": 1.58,
-            "cumulative_gpa": 2.45,
+            "term_gpa": 1.57,
+            "cumulative_gpa": 2.44,
             "cumulative_earned_hours": 54,
             "academic_standing": "منتظم"
           }
@@ -6896,8 +6896,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.18,
-            "cumulative_gpa": 3.18,
+            "term_gpa": 3.17,
+            "cumulative_gpa": 3.17,
             "cumulative_earned_hours": 17,
             "academic_standing": "منتظم"
           }
@@ -7113,7 +7113,7 @@
             "registered_hours": 16,
             "earned_hours": 16,
             "term_gpa": 3.0,
-            "cumulative_gpa": 3.05,
+            "cumulative_gpa": 3.04,
             "cumulative_earned_hours": 49,
             "academic_standing": "منتظم"
           }
@@ -7354,7 +7354,7 @@
         "elective_hours": 0,
         "project_hours": 0,
         "trainings_passed": [],
-        "cumulative_gpa": 2.06,
+        "cumulative_gpa": 2.05,
         "main_semesters_completed": 4,
         "academic_standing": "منتظم",
         "consecutive_warning_semesters": 0,
@@ -7467,8 +7467,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 1.95,
-            "cumulative_gpa": 1.95,
+            "term_gpa": 1.94,
+            "cumulative_gpa": 1.94,
             "cumulative_earned_hours": 17,
             "academic_standing": "منتظم"
           }
@@ -7560,7 +7560,7 @@
             "registered_hours": 13,
             "earned_hours": 13,
             "term_gpa": 1.85,
-            "cumulative_gpa": 1.91,
+            "cumulative_gpa": 1.9,
             "cumulative_earned_hours": 30,
             "academic_standing": "إنذار أكاديمي"
           }
@@ -7637,7 +7637,7 @@
           "summary": {
             "registered_hours": 12,
             "earned_hours": 12,
-            "term_gpa": 2.18,
+            "term_gpa": 2.17,
             "cumulative_gpa": 1.98,
             "cumulative_earned_hours": 42,
             "academic_standing": "إنذار أكاديمي"
@@ -7715,7 +7715,7 @@
             "registered_hours": 12,
             "earned_hours": 12,
             "term_gpa": 2.32,
-            "cumulative_gpa": 2.06,
+            "cumulative_gpa": 2.05,
             "cumulative_earned_hours": 54,
             "academic_standing": "منتظم"
           }
@@ -7834,7 +7834,7 @@
           "ARI 271",
           "ARI 371"
         ],
-        "cumulative_gpa": 3.28,
+        "cumulative_gpa": 3.27,
         "main_semesters_completed": 8,
         "academic_standing": "منتظم",
         "consecutive_warning_semesters": 0,
@@ -7947,8 +7947,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.32,
-            "cumulative_gpa": 3.32,
+            "term_gpa": 3.31,
+            "cumulative_gpa": 3.31,
             "cumulative_earned_hours": 17,
             "academic_standing": "منتظم"
           }
@@ -8070,7 +8070,7 @@
           "summary": {
             "registered_hours": 18,
             "earned_hours": 18,
-            "term_gpa": 3.17,
+            "term_gpa": 3.16,
             "cumulative_gpa": 3.24,
             "cumulative_earned_hours": 35,
             "academic_standing": "منتظم"
@@ -8301,7 +8301,7 @@
             "registered_hours": 17,
             "earned_hours": 17,
             "term_gpa": 3.44,
-            "cumulative_gpa": 3.3,
+            "cumulative_gpa": 3.29,
             "cumulative_earned_hours": 70,
             "academic_standing": "منتظم"
           }
@@ -8328,7 +8328,7 @@
             "registered_hours": 0,
             "earned_hours": 0,
             "term_gpa": null,
-            "cumulative_gpa": 3.3,
+            "cumulative_gpa": 3.29,
             "cumulative_earned_hours": 70
           }
         },
@@ -8541,7 +8541,7 @@
           "summary": {
             "registered_hours": 18,
             "earned_hours": 18,
-            "term_gpa": 3.12,
+            "term_gpa": 3.11,
             "cumulative_gpa": 3.26,
             "cumulative_earned_hours": 105,
             "academic_standing": "منتظم"
@@ -8675,7 +8675,7 @@
             "registered_hours": 18,
             "earned_hours": 18,
             "term_gpa": 3.28,
-            "cumulative_gpa": 3.27,
+            "cumulative_gpa": 3.26,
             "cumulative_earned_hours": 123,
             "academic_standing": "منتظم"
           }
@@ -8779,7 +8779,7 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 3.42,
+            "term_gpa": 3.41,
             "cumulative_gpa": 3.28,
             "cumulative_earned_hours": 140,
             "academic_standing": "منتظم"
@@ -8822,7 +8822,7 @@
             "registered_hours": 3,
             "earned_hours": 3,
             "term_gpa": 3.0,
-            "cumulative_gpa": 3.28,
+            "cumulative_gpa": 3.27,
             "cumulative_earned_hours": 143
           }
         },
@@ -9044,8 +9044,8 @@
           "summary": {
             "registered_hours": 17,
             "earned_hours": 17,
-            "term_gpa": 2.14,
-            "cumulative_gpa": 2.14,
+            "term_gpa": 2.13,
+            "cumulative_gpa": 2.13,
             "cumulative_earned_hours": 17,
             "academic_standing": "منتظم"
           }
@@ -9260,8 +9260,8 @@
           "summary": {
             "registered_hours": 16,
             "earned_hours": 16,
-            "term_gpa": 2.04,
-            "cumulative_gpa": 2.11,
+            "term_gpa": 2.03,
+            "cumulative_gpa": 2.1,
             "cumulative_earned_hours": 49,
             "academic_standing": "منتظم"
           }

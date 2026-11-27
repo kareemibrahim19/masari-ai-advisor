@@ -126,11 +126,11 @@ def _projection(s: dict, failed: list[str], term_gpa: float | None) -> dict:
             per_pass, assumed = 2.5, "مفيش معدل لسه، فافترضنا معدل ترم 2.5 لحد ما تختار معدلك المتوقع."
         else:
             per_pass = cgpa
-        term_out = round(per_pass * pass_hours / now_hours, 2) if now_hours else None
+        term_out = d.gpa2(per_pass * pass_hours / now_hours) if now_hours else None
 
     new_hours = hours + now_hours
     new_points = points + per_pass * pass_hours
-    new_cgpa = round(new_points / new_hours, 2) if new_hours else cgpa
+    new_cgpa = d.gpa2(new_points / new_hours) if new_hours else cgpa
     earned = sum(allc[c]["credits"] for c in passed if c in allc)
     return {"passed": passed, "earned": earned, "cgpa": new_cgpa, "term_gpa": term_out, "assumption": assumed,
             "graded_hours": new_hours, "points": new_points}
@@ -684,7 +684,7 @@ def _gpa_lever(s: dict, failed: list[str], expected_term_gpa: float | None, cap:
     up = lambda x: max(0.0, math.ceil(x * 100 - 1e-9) / 100)
     if now_h and pass_h:
         # Points needed this term; the GPA counts to two decimals (like _projection), as in grades_needed().
-        need = (target - 0.005) * (hours + now_h) - points
+        need = (target - 1e-9) * (hours + now_h) - points
         if need / pass_h <= 4.0 + 1e-9:
             term_gpa = up(need / now_h)
             return {"from": 0, "cap": top, "term_gpa": term_gpa,
@@ -694,7 +694,7 @@ def _gpa_lever(s: dict, failed: list[str], expected_term_gpa: float | None, cap:
                           f"{term_gpa:.2f} or more), so you can register {top} hours from next semester."}
     # One semester later: 4.00 on what is passed now, then a full load next semester.
     h1, p1 = hours + now_h, points + 4.0 * pass_h
-    nxt = ((target - 0.005) * (h1 + cap) - p1) / cap if cap else 99
+    nxt = ((target - 1e-9) * (h1 + cap) - p1) / cap if cap else 99
     if nxt <= 4.0:
         nxt = up(nxt)
         return {"from": 1, "cap": top, "term_gpa": 4.0, "next_term_gpa": nxt,
@@ -883,7 +883,7 @@ def _improvement_plan(s: dict, proj: dict, current: dict, main_now: int, last_ma
         if (points + sum(g for _, g in picks)) / hours >= need:
             break
         picks.append((code, gain))
-    gpa_after = round((points + sum(g for _, g in picks)) / hours, 2)
+    gpa_after = d.gpa2((points + sum(g for _, g in picks)) / hours)
     why = {"code": "gpa_below_2",
            "ar": f"خلّصت كل المواد، بس معدلك التراكمي هيبقى {proj['cgpa']} والتخرج محتاج {need:.2f} على الأقل.",
            "en": f"Every course is done, but your cumulative GPA will be {proj['cgpa']} and graduation needs at least "
@@ -926,7 +926,7 @@ def _improvement_plan(s: dict, proj: dict, current: dict, main_now: int, last_ma
                     gained += gain
                     break
     picks = [(code, gain_of[code]) for code in placed]
-    gpa_after = round((points + gained) / hours, 2)
+    gpa_after = d.gpa2((points + gained) / hours)
     rows = []
     for ti, t in enumerate(terms[:max(placed.values()) + 1]):
         cs = sorted(code for code, k in placed.items() if k == ti)
@@ -1348,8 +1348,8 @@ def grades_needed(student_id: str, target_gpa: float | None = None) -> dict:
     graded = [c for c in d.current_courses(s) if allc.get(c["code"], {}).get("graded", True) and c["credits"] > 0]
     if not now_h:
         return {"found": True, "student_id": student_id, "error": "مفيش مواد بتقدير الترم ده."}
-    # Points needed this term. The GPA counts to two decimals (like the projection above), so 1.995 is 2.00.
-    need = (target - 0.005) * (hours + now_h) - points
+    # Points needed this term. The GPA is cut to two decimals like MyU (d.gpa2), so 1.999 is still 1.99: the target itself.
+    need = (target - 1e-9) * (hours + now_h) - points
     up = lambda x: max(0.0, math.ceil(x * 100 - 1e-9) / 100)
     term_gpa = up(need / now_h)
     reachable = term_gpa <= 4.0 + 1e-9
@@ -1388,10 +1388,10 @@ def grades_needed(student_id: str, target_gpa: float | None = None) -> dict:
         # that GPA gives (as the plan's GPA route counts it).
         out["courses"] = [{"code": c["code"], "name_ar": allc[c["code"]]["name_ar"], "credits": c["credits"],
                            "grade": "A", "min_percent": pct.get("A")} for c in graded]
-        after = round((points + 4.0 * now_h) / (hours + now_h), 2)
+        after = d.gpa2((points + 4.0 * now_h) / (hours + now_h))
         main_now = s["academic_status"]["main_semesters_completed"] + 1
         cap, _ = _load_cap(after, main_now)
-        nxt = up(((target - 0.005) * (hours + now_h + cap) - points - 4.0 * now_h) / cap)
+        nxt = up(((target - 1e-9) * (hours + now_h + cap) - points - 4.0 * now_h) / cap)
         out.update({"gpa_after_this_term": after, "next_term_hours": cap,
                     "next_term_gpa": nxt if nxt <= 4.0 + 1e-9 else None})
     risk = (" ولو معدلك فضل تحت 2.00 هيبقى ده الإنذار رقم " + str(warned + 1) +

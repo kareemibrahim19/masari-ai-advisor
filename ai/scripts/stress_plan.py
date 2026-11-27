@@ -116,7 +116,7 @@ def is_pass(grade: str) -> bool:
 def cgpa_of(terms: list[dict]):
     g = [a for a in best_attempts(terms).values() if a["grade"] in GP]
     h = sum(a["credits"] for a in g)
-    return round(sum(GP[a["grade"]] * a["credits"] for a in g) / h, 2) if h else None
+    return d.gpa2(sum(GP[a["grade"]] * a["credits"] for a in g) / h) if h else None
 
 
 def projection(rec: dict, failed=(), term_gpa=None) -> dict:
@@ -139,7 +139,7 @@ def projection(rec: dict, failed=(), term_gpa=None) -> dict:
         per = term_gpa * nh / ph if ph else 0.0
     else:
         per = 2.5 if g0 is None else g0
-    cgpa = round((p + per * ph) / (h + nh), 2) if h + nh else g0
+    cgpa = d.gpa2((p + per * ph) / (h + nh)) if h + nh else g0
     main_now = rec["academic_status"]["main_semesters_completed"] + (0 if cur["term"] == "summer"
                                                                      or cur["status"] == "frozen" else 1)
     return {"passed": passed, "earned": sum(C[c]["credits"] for c in passed), "cgpa": cgpa, "main_now": main_now,

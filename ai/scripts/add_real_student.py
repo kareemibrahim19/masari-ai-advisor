@@ -26,6 +26,7 @@ grade stops it instead of landing in the data.
 """
 
 import json
+import math
 import random
 import sys
 from pathlib import Path
@@ -38,6 +39,11 @@ GRADE_AR = {"A+": "أ+", "A": "أ", "A-": "أ-", "B+": "ب+", "B": "ب", "B-": "
 NOTE = ("Real students: members of the Masari team who agreed to share their MyU records for testing. Only the name, "
         "student code, grades and term summaries are real; instructors and advisors come from the mock data. "
         "Added with ai/scripts/add_real_student.py. ai/db/source.py and ai/db/seed.py load these next to students.json.")
+
+
+def gpa2(x: float) -> float:
+    """A GPA cut to two decimals like MyU (same as tools._data.gpa2)."""
+    return math.floor(x * 100 + 1e-9) / 100
 
 
 def load(name: str) -> dict:
@@ -100,14 +106,14 @@ def build(src: dict) -> tuple[dict, str, list[dict]]:
             main_done += 1
 
         s = t["summary"]
-        term_gpa = round(points / hours, 2) if hours else None
-        cgpa = round(cum_points / cum_hours, 2) if cum_hours else None
+        term_gpa = gpa2(points / hours) if hours else None
+        cgpa = gpa2(cum_points / cum_hours) if cum_hours else None
         label = f"{t['academic_year']} {t['term']}"
         for name, mine, theirs in (("registered hours", reg, s["registered_hours"]),
                                    ("earned hours", earned, s["earned_hours"]),
                                    ("term GPA", term_gpa, s.get("term_gpa")),
                                    ("cumulative GPA", cgpa, s["cumulative_gpa"])):
-            if mine is not None and theirs is not None and abs(mine - theirs) > 0.011:
+            if mine is not None and theirs is not None and abs(mine - theirs) > 0.001:  # MyU and Masari both cut to two decimals
                 problems.append(f"{label}: {name} from the grades is {mine}, MyU says {theirs}")
         row["summary"] = {"registered_hours": int(reg), "earned_hours": int(earned), "term_gpa": s.get("term_gpa"),
                           "cumulative_gpa": s["cumulative_gpa"], "cumulative_earned_hours": int(cum_earned)}

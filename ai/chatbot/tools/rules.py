@@ -138,7 +138,7 @@ def gpa_calculator(student_id: str) -> dict:
     terms = [{"academic_year": t["academic_year"], "term_ar": t["term_ar"], **{
         k: t["summary"][k] for k in ("registered_hours", "earned_hours", "term_gpa", "cumulative_gpa")}}
         for t in s["terms"] if t["status"] == "published" and t.get("summary", {}).get("registered_hours")]
-    return {"found": True, "cumulative_gpa": round(points / hours, 2) if hours else None,
+    return {"found": True, "cumulative_gpa": d.gpa2(points / hours) if hours else None,
             "graded_hours": hours, "quality_points": round(points, 2), "terms": terms,
             "how": "المعدل = مجموع (نقاط التقدير × ساعات المادة) ÷ مجموع الساعات. بيتحسب بآخر محاولة لكل مادة، "
                    "ومواد النجاح/الرسوب (زي التدريب) مش داخلة.",
@@ -182,15 +182,15 @@ def improvement_candidates(student_id: str, limit: int = 5) -> dict:
             continue
         gain = (points - gp[a["grade"]] * a["credits"] + 4.0 * a["credits"]) / hours - cgpa
         rows.append({"course": d.course_label(a["code"]), "code": a["code"], "credits": a["credits"],
-                     "current_grade": a["grade"], "gpa_if_A": round(cgpa + gain, 2), "gain_if_A": round(gain, 3)})
+                     "current_grade": a["grade"], "gpa_if_A": d.gpa2(cgpa + gain), "gain_if_A": round(gain, 3)})
     rows.sort(key=lambda r: r["gain_if_A"], reverse=True)
     top = rows[:limit]
     if top:
         picks = "، ".join(f"{r['code']} (من {r['current_grade']} للمعدل {r['gpa_if_A']})" for r in top[:3])
-        text = f"معدلك دلوقتي {cgpa:.2f} وفاضل لك {max(0, left)} مواد تحسين. أكتر مواد هتفرق لو جبت فيها A: {picks}."
+        text = f"معدلك دلوقتي {d.gpa2(cgpa):.2f} وفاضل لك {max(0, left)} مواد تحسين. أكتر مواد هتفرق لو جبت فيها A: {picks}."
     else:
         text = "كل موادك تقديرها A- أو أعلى، فمفيش مادة محتاجة تحسين."
-    return {"found": True, "cumulative_gpa": round(cgpa, 2), "improvements_left": max(0, left), "candidates": top,
+    return {"found": True, "cumulative_gpa": d.gpa2(cgpa), "improvements_left": max(0, left), "candidates": top,
             "article": ARTICLES["improve"], "explanation": text}
 
 

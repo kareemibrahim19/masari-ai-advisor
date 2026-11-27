@@ -4,6 +4,7 @@ Students, advisors and instructors come from the database when DATABASE_URL is s
 (see ai/db/source.py); courses and rules always come from ai/data/courses.json.
 """
 
+import math
 import re
 import sys
 from functools import lru_cache
@@ -11,6 +12,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from db.source import load as _load  # noqa: E402
+
+
+def gpa2(x: float | None) -> float | None:
+    """A GPA to two decimals the way MyU shows it: cut, not rounded (3.9264 is 3.92, 1.999 is 1.99). The tiny
+    epsilon keeps a value like 3.9 (3.8999999... in floating point) at 3.90."""
+    return None if x is None else math.floor(x * 100 + 1e-9) / 100
 
 
 @lru_cache(maxsize=1)

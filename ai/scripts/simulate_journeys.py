@@ -170,7 +170,7 @@ class Student:
     def cgpa(self):
         graded = [a for a in self.best().values() if a["grade"] in GP]
         hours = sum(a["credits"] for a in graded)
-        return round(sum(GP[a["grade"]] * a["credits"] for a in graded) / hours, 2) if hours else None
+        return d.gpa2(sum(GP[a["grade"]] * a["credits"] for a in graded) / hours) if hours else None
 
     def record(self) -> dict:
         cgpa, earned, passed = self.cgpa(), self.earned(), self.passed()
@@ -253,7 +253,7 @@ class Student:
         cur["summary"] = {
             "registered_hours": sum(c["credits"] for c in cur["courses"]),
             "earned_hours": sum(c["credits"] for c in cur["courses"] if c["grade"] not in ("F", "FP")),
-            "term_gpa": round(sum(GP[c["grade"]] * c["credits"] for c in graded) / hours, 2) if hours else None,
+            "term_gpa": d.gpa2(sum(GP[c["grade"]] * c["credits"] for c in graded) / hours) if hours else None,
             "cumulative_gpa": self.cgpa(), "cumulative_earned_hours": self.earned(),
         }
         if cur["term"] != "summer":
@@ -432,7 +432,7 @@ def journey(sc: dict) -> dict:
         failed = [c for c, r in results.items() if r["grade"] in ("F", "FP")]
         graded_hours = sum(COURSES[c]["credits"] for c in codes if COURSES[c].get("graded", True) and COURSES[c]["credits"])
         term_points = sum(GP[r["grade"]] * COURSES[c]["credits"] for c, r in results.items() if r["grade"] in GP)
-        term_gpa = round(term_points / graded_hours, 2) if graded_hours else None
+        term_gpa = d.gpa2(term_points / graded_hours) if graded_hours else None
         after = (planner.build_graduation_plan(st.sid, sc["target"], True, failed, term_gpa, with_risk=False)
                  if sc["summer"] else plan_without_summer(st.sid, sc["target"], failed, term_gpa))
         # If the college does not open summers, the same question without summer (asked now: the plan needs the

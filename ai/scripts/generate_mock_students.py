@@ -11,6 +11,7 @@ All people, numbers and contact details are fictional. Re-run to regenerate (det
 """
 
 import json
+import math
 import random
 import sys
 from pathlib import Path
@@ -64,6 +65,11 @@ PERSONAS = [
 
 
 # ------------------------------------------------------------------ helpers
+
+
+def gpa2(x: float) -> float:
+    """A GPA cut to two decimals like MyU (same as tools._data.gpa2)."""
+    return math.floor(x * 100 + 1e-9) / 100
 
 def letter(total: float, course: dict, marks: dict) -> str:
     """Article 20: a pass needs 60% of the total and 40% of the final written exam."""
@@ -154,7 +160,7 @@ def simulate(p: dict, rng: random.Random) -> tuple[list[dict], dict]:
         hours = sum(COURSES[a["code"]]["credits"] for a in graded)
         if not hours:
             return None
-        return round(sum(GRADE_POINTS[a["grade"]] * COURSES[a["code"]]["credits"] for a in graded) / hours, 2)
+        return gpa2(sum(GRADE_POINTS[a["grade"]] * COURSES[a["code"]]["credits"] for a in graded) / hours)
 
     def earned():
         return sum(COURSES[c]["credits"] for c in best if passed(c))
@@ -252,7 +258,7 @@ def simulate(p: dict, rng: random.Random) -> tuple[list[dict], dict]:
             entry["summary"] = {
                 "registered_hours": sum(r["credits"] for r in rows),
                 "earned_hours": sum(r["credits"] for r in rows if r["grade"] not in ("F", "FP")),
-                "term_gpa": round(sum(GRADE_POINTS[r["grade"]] * r["credits"] for r in graded) / hours, 2) if hours else None,
+                "term_gpa": gpa2(sum(GRADE_POINTS[r["grade"]] * r["credits"] for r in graded) / hours) if hours else None,
                 "cumulative_gpa": gpa_now(),
                 "cumulative_earned_hours": earned(),
             }
