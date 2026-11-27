@@ -23,7 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
-import { Bar, Code, FlipText, PageHeader } from "@/components/masari/bits"
+import { Bar, Code, FlipText, OverdueTag, PageHeader } from "@/components/masari/bits"
 import { Bot, type BotMood } from "@/components/masari/bot"
 import { courseNameIn } from "@/lib/aie-program"
 import { useI18n } from "@/lib/i18n"
@@ -37,6 +37,7 @@ import {
   type PlanTerm,
   type TargetYears,
 } from "@/lib/plan-api"
+import { isOverdue } from "@/lib/rules"
 import { useStudentView } from "@/lib/student-context"
 import { cn } from "@/lib/utils"
 
@@ -77,6 +78,7 @@ function parseGpa(text: string): number | null {
 export default function PlanPage() {
   const { t, tr, num } = useI18n()
   const { student } = useStudentView()
+  const overdue = useOverdue()
 
   const [choice, setChoice] = usePlanChoice(student.id, student.finishTarget)
   const { target, summer: allowSummer } = choice
@@ -304,7 +306,10 @@ export default function PlanPage() {
             </section>
           )}
 
-          <Legend improvement={plan.terms.some((term) => term.courses.some((c) => c.flag === "improvement"))} />
+          <Legend
+            improvement={plan.terms.some((term) => term.courses.some((c) => c.flag === "improvement"))}
+            overdue={plan.terms.some((term) => term.courses.some((c) => overdue(c.code)))}
+          />
         </div>
       )}
     </div>
@@ -710,6 +715,15 @@ function TermGoal({ plan }: { plan: GraduationPlan }) {
   )
 }
 
+/** «متأخرة», as in the course guide (rules.isOverdue): a course from an earlier year the student has not taken. */
+function useOverdue() {
+  const { record, student } = useStudentView()
+  return React.useCallback(
+    (code: string) => isOverdue(code, record, student.registeredNow, student.completedSemesters + 1),
+    [record, student.registeredNow, student.completedSemesters]
+  )
+}
+
 function TermCard({ term, isGraduation, movedFrom }: { term: PlanTerm; isGraduation: boolean; movedFrom: Map<string, number> | null }) {
   const { t, tr, num, lang } = useI18n()
   const summer = term.term === "summer"
@@ -803,6 +817,7 @@ function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined;
   // An elective is shown by its slot: the student picks which course of the pool to take.
   const elective = c.type === "elective" && c.elective_slot
   const name = elective ? t("electiveSlot").replace("{n}", c.elective_slot!.replace("E", "")) : courseNameIn(c.code, lang)
+  const late = useOverdue()(c.code)
 
   return (
     <li className={cn("space-y-1.5 rounded-lg border bg-background/60 p-2.5", moved && "border-warning/60 bg-warning-soft/60")}>
@@ -830,6 +845,7 @@ function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined;
             {c.flag === "improvement" && c.current_grade && ` · ${t("flagImprovementWas")} ${c.current_grade}`}
           </span>
         )}
+        {late && <OverdueTag />}
         {c.type === "project" && <span className="rounded bg-muted px-1.5 py-px font-medium text-muted-foreground">{t("graduationProject")}</span>}
         {c.paper_registration && (
           <span className={cn("rounded px-1.5 py-px font-medium tabular-nums", paperStyle)}>
@@ -843,7 +859,7 @@ function CourseRow({ c, from, here }: { c: PlanCourse; from: number | undefined;
   )
 }
 
-function Legend({ improvement }: { improvement: boolean }) {
+function Legend({ improvement, overdue }: { improvement: boolean; overdue: boolean }) {
   const { t } = useI18n()
   const items: { flag: Exclude<PlanFlag, "regular">; hint: string }[] = [
     { flag: "summer_on_demand", hint: t("flagSummerHint") },
@@ -866,6 +882,13 @@ function Legend({ improvement }: { improvement: boolean }) {
             <p className="text-muted-foreground">{hint}</p>
           </li>
         ))}
+        {/* Only when this plan has a course left behind from an earlier year. */}
+        {overdue && (
+          <li className="space-y-1 text-xs">
+            <OverdueTag />
+            <p className="text-muted-foreground">{t("overdueLegend")}</p>
+          </li>
+        )}
         {/* Last and full width: every case where the faculty requires paper registration. */}
         <li className="space-y-1 border-t pt-2 text-xs md:col-span-2 xl:col-span-4">
           <span className={cn("inline-block rounded px-1.5 py-px font-medium", paperStyle)}>{t("paperRegistration")}</span>
